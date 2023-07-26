@@ -75,7 +75,7 @@ export class SNDController {
     }
 
     getQueueStr() {
-        let queueStr = `[${this.queueName}] - ${this.inQueue.length} in Queue:\n`;
+        let queueStr = `[**${this.queueName}**] - ${this.inQueue.length} in Queue:\n`;
         let names = []
         for (let user of this.inQueue) {
             names.push(user.name);
