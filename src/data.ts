@@ -23,7 +23,7 @@ export class Data {
     private readonly EU_SND: SNDController;
     private readonly APAC_SND: SNDController;
     private readonly FILL_SND: SNDController;
-    private queues: SNDController[] = []
+    private sndQueues: SNDController[] = []
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
 
     constructor(client: Client) {
@@ -32,7 +32,7 @@ export class Data {
         this.EU_SND = new SNDController(this, client, "EU");
         this.APAC_SND = new SNDController(this, client, "APAC");
         this.FILL_SND = new SNDController(this, client, "FILL");
-        this.queues.push(this.NA_SND, this.EU_SND, this.APAC_SND, this.FILL_SND);
+        this.sndQueues.push(this.FILL_SND, this.NA_SND, this.EU_SND, this.APAC_SND);
     }
 
     async load() {
@@ -50,7 +50,7 @@ export class Data {
         let totalNA = 0;
         let totalEU = 0;
         let totalAPAC = 0;
-        for (let queue of this.queues) {
+        for (let queue of this.sndQueues) {
             await queue.tick();
             if (queue.queueName == "NA") {
                 totalNA += queue.inQueueNumber();
@@ -125,7 +125,7 @@ export class Data {
         }
     }
 
-    async ready(queueId: string, queue: string, user: User,time: number): Promise<InternalResponse> {
+    async ready(queueId: string, queue: string, user: User, time: number): Promise<InternalResponse> {
         if (!this.locked.get(queueId)) {
             const controller = this.getQueue(queue)!;
             return await controller.addUser(user, time);
@@ -182,7 +182,7 @@ export class Data {
 
     inQueueSND() {
         let queueStr = ""
-        for (let queue of this.queues) {
+        for (let queue of this.sndQueues) {
             queueStr += `${queue.getQueueStr()}\n`;
         }
         return queueStr

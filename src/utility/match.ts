@@ -23,6 +23,12 @@ export const matchReady = async (interaction: ButtonInteraction | ChatInputComma
     await interaction.reply({ephemeral: true, content: response.message});
 }
 
+export const matchUnready = async (interaction: ButtonInteraction | ChatInputCommandInteraction, data: Data, queueId: string) => {
+    const dbUser = await getUserByUser(interaction.user);
+    data.removeFromQueue(dbUser._id, queueId);
+    await interaction.reply({ephemeral: true, content: `You have unreadied from ${queueId} queues`})
+}
+
 export const matchScore = async (interaction: ButtonInteraction, data: Data, score: number)=> {
     const dbUser = await getUserByUser(interaction.user);
     const controller = data.findController(dbUser._id);

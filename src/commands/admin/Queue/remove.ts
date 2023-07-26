@@ -2,17 +2,13 @@ import {SubCommand} from "../../../interfaces/Command";
 import {SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../../loggers";
 import {getUserByUser} from "../../../modules/getters/getUser";
+import {queueOptions} from "../../../utility/queues";
 
 export const remove: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName('remove')
         .setDescription('removes a user from a queue')
-        .addStringOption(option => option
-            .setName('queue')
-            .setDescription('The queue to ')
-            .setRequired(true)
-            .setChoices({name: 'SND', value: 'SND'}, {name: 'ALL', value: 'ALL'})
-        )
+        .addStringOption(queueOptions)
         .addUserOption(option => option
             .setName('user')
             .setDescription('User to remove from queue')

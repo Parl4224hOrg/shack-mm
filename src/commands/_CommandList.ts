@@ -4,10 +4,11 @@ import {sync} from "./admin/sync";
 import {lfg} from "./queue/lfg";
 import {prepare} from "./admin/prepare";
 import {_queue} from "./admin/Queue/_queue";
+import {ready} from "./queue/ready";
+import {unready} from "./queue/unready";
 
 
-
-const commandList: Command[] = [sync, lfg, prepare, _queue];
+const commandList: Command[] = [sync, lfg, prepare, _queue, ready, unready];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 
