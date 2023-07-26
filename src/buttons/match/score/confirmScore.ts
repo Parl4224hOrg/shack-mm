@@ -6,7 +6,7 @@ import {getUserByUser} from "../../../modules/getters/getUser";
 
 export const confirmScore: Button = {
     data: new ButtonBuilder()
-        .setLabel("Confirm")
+        .setLabel("Confirm Scores")
         .setStyle(ButtonStyle.Success)
         .setCustomId('score-accept'),
     run: async (interaction, data) => {

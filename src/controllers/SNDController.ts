@@ -1,5 +1,5 @@
 import {Client, GuildMember, User} from "discord.js";
-import {LocalGame, QueueUser} from "../interfaces/Game";
+import {QueueUser} from "../interfaces/Game";
 import {getUserByUser} from "../modules/getters/getUser";
 import {GameData, InternalResponse, QueueData} from "../interfaces/Internal";
 import {Data} from "../data";
@@ -8,6 +8,7 @@ import {getStats} from "../modules/getters/getStats";
 import {grammaticalList} from "../utility/grammaticalList";
 import {ObjectId} from "mongoose";
 import {updateUser} from "../modules/updaters/updateUser";
+import {GameController} from "./GameController";
 
 export class SNDController {
     readonly queueId = 'SND'
@@ -15,7 +16,7 @@ export class SNDController {
     private data: Data;
     private client: Client;
     private inQueue: QueueUser[] = [];
-    private activeGames: LocalGame[] = [];
+    private activeGames: GameController[] = [];
 
 
     constructor(data: Data, client: Client, queueName: string) {
@@ -69,7 +70,7 @@ export class SNDController {
         }
     }
 
-    addGame(game: LocalGame) {
+    addGame(game: GameController) {
         this.activeGames.push(game);
     }
 

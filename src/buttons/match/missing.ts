@@ -7,7 +7,7 @@ import {logError} from "../../loggers";
 
 export const missing: Button = {
     data: new ButtonBuilder()
-        .setLabel('missing')
+        .setLabel('Missing')
         .setStyle(ButtonStyle.Primary)
         .setCustomId('missing-button'),
     run: async (interaction, data) => {

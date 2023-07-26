@@ -6,7 +6,7 @@ import {matchScore} from "../../../utility/match";
 
 export const win: Button = {
     data: new ButtonBuilder()
-        .setLabel('win')
+        .setLabel('Win')
         .setCustomId('match-win')
         .setStyle(ButtonStyle.Success),
     run: async (interaction, data) => {

@@ -2,13 +2,14 @@ import {Client, Collection, User} from "discord.js";
 import cron from 'node-cron';
 import {logInfo} from "./loggers";
 import {SNDController} from "./controllers/SNDController";
-import {LocalGame, QueueUser} from "./interfaces/Game";
+import {QueueUser} from "./interfaces/Game";
 import {makeTeams} from "./utility/makeTeams"
 import {getCounter} from "./modules/getters/getCounter";
 import {createGame} from "./modules/constructors/createGame";
 import {ObjectId} from "mongoose";
 import tokens from "./tokens";
 import {InternalResponse} from "./interfaces/Internal";
+import {GameController} from "./controllers/GameController";
 
 export class Data {
     private readonly client: Client;
@@ -96,7 +97,7 @@ export class Data {
         try {
             const gameNum = await this.getIdSND()
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
-            const game = new LocalGame(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit);
+            const game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit);
             queue.addGame(game);
         } catch (e) {
             console.error(e);

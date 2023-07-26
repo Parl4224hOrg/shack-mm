@@ -6,7 +6,7 @@ import {roundsWon} from "../../../views/submitScoreViews";
 
 export const loss: Button = {
     data: new ButtonBuilder()
-        .setLabel('loss')
+        .setLabel('Loss')
         .setCustomId('match-loss')
         .setStyle(ButtonStyle.Danger),
     run: async (interaction) => {
