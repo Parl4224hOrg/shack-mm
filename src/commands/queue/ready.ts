@@ -18,7 +18,7 @@ export const ready: Command = {
         ),
     run: async (interaction, data) => {
         try {
-            const queueOption = interaction.options.getString('queues', true);
+            const queueOption = interaction.options.getString('queue', true);
             const queueId = queueOption.substring(0, queueOption.indexOf('-'));
             const queue = queueOption.substring(queueOption.indexOf('-') + 1);
             const time = interaction.options.getInteger('time', true);

@@ -11,7 +11,7 @@ export const unready: Command = {
         .addStringOption(queueOptions),
     run: async (interaction, data) => {
         try {
-            const queueId = interaction.options.getString('queues', true);
+            const queueId = interaction.options.getString('queue', true);
             await matchUnready(interaction, data, queueId);
         } catch (e) {
             await logError(e, interaction)
