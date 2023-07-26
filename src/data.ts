@@ -10,6 +10,7 @@ import {ObjectId} from "mongoose";
 import tokens from "./tokens";
 import {InternalResponse} from "./interfaces/Internal";
 import {GameController} from "./controllers/GameController";
+import {getUserByUser} from "./modules/getters/getUser";
 
 export class Data {
     private readonly client: Client;
@@ -126,9 +127,11 @@ export class Data {
     }
 
     async ready(queueId: string, queue: string, user: User, time: number): Promise<InternalResponse> {
+        const dbUser = await getUserByUser(user);
+        this.removeFromQueue(dbUser._id, queueId);
         if (!this.locked.get(queueId)) {
             const controller = this.getQueue(queue)!;
-            return await controller.addUser(user, time);
+            return await controller.addUser(dbUser, time);
         }
         return {success: false, message: "This queue is currently locked"}
     }
@@ -160,6 +163,11 @@ export class Data {
 
     removeFromQueue(userId: ObjectId, queueId: string) {
         if (queueId == "SND") {
+            this.NA_SND.removeUser(userId);
+            this.EU_SND.removeUser(userId);
+            this.APAC_SND.removeUser(userId);
+            this.FILL_SND.removeUser(userId);
+        } else if (queueId == "ALL") {
             this.NA_SND.removeUser(userId);
             this.EU_SND.removeUser(userId);
             this.APAC_SND.removeUser(userId);

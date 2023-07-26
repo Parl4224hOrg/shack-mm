@@ -1,6 +1,5 @@
-import {Client, GuildMember, User} from "discord.js";
+import {Client} from "discord.js";
 import {QueueUser} from "../interfaces/Game";
-import {getUserByUser} from "../modules/getters/getUser";
 import {GameData, InternalResponse, QueueData} from "../interfaces/Internal";
 import {Data} from "../data";
 import moment from "moment";
@@ -9,6 +8,7 @@ import {grammaticalList} from "../utility/grammaticalList";
 import {ObjectId} from "mongoose";
 import {updateUser} from "../modules/updaters/updateUser";
 import {GameController} from "./GameController";
+import {UserInt} from "../database/models/UserModel";
 
 export class SNDController {
     readonly queueId = 'SND'
@@ -29,8 +29,7 @@ export class SNDController {
         // const data = await getSNDController()
     }
 
-    async addUser(discordUser: User | GuildMember, time: number): Promise<InternalResponse> {
-        const user = await getUserByUser(discordUser);
+    async addUser(user: UserInt, time: number): Promise<InternalResponse> {
         if (user.banUntil > moment().unix()) {
             return {success: false, message: `You are currently banned for another ${0}`}
         }
