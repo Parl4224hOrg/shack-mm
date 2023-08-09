@@ -99,6 +99,17 @@ export class SNDController {
         return false
     }
 
+    getGame(userId: ObjectId) {
+        for (let game of this.activeGames) {
+            for (let user of game.getUsers()) {
+                if (String(user.dbId) == String(userId)) {
+                    return game;
+                }
+            }
+        }
+        return null
+    }
+
     findGame(id: ObjectId) {
         for (let game of this.activeGames) {
             for (let user of game.getUsers()) {
@@ -152,5 +163,14 @@ export class SNDController {
     getMissing(userId: ObjectId) {
         const game = this.findGame(userId)!;
         return game.getMissing();
+    }
+
+    getGameByChannel(id: string) {
+        for (let game of this.activeGames) {
+            if (game.hasChannel(id)) {
+                return game;
+            }
+        }
+        return null;
     }
 }

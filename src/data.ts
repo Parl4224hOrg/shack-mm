@@ -190,6 +190,35 @@ export class Data {
         return this.FILL_SND.inGame(userId);
     }
 
+    findGame(userId: ObjectId) {
+        if (this.NA_SND.inGame(userId)) {
+            return this.NA_SND.getGame(userId);
+        }
+        if (this.EU_SND.inGame(userId)) {
+            return this.EU_SND.getGame(userId);
+        }
+        if (this.APAC_SND.inGame(userId)) {
+            return this.APAC_SND.getGame(userId);
+        }
+        return this.FILL_SND.getGame(userId);
+    }
+
+    getGameByChannel(id: string) {
+        let game = this.NA_SND.getGameByChannel(id);
+        if (game) {
+            return game;
+        }
+        game = this.EU_SND.getGameByChannel(id);
+        if (game) {
+            return game;
+        }
+        game = this.APAC_SND.getGameByChannel(id);
+        if (game) {
+            return game;
+        }
+        return this.FILL_SND.getGameByChannel(id);
+    }
+
     inQueueSND() {
         let queueStr = ""
         for (let queue of this.sndQueues) {

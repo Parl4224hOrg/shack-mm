@@ -58,7 +58,7 @@ const grammaticalWeeks = (timeDiff: number) => {
     if (div[0] == 1) {
         return `1 week, ${grammaticalHours(div[1])}`;
     } else {
-        return `\`${div[0]} weeks, ${grammaticalHours(div[1])}`;
+        return `${div[0]} weeks, ${grammaticalHours(div[1])}`;
     }
 }
 
