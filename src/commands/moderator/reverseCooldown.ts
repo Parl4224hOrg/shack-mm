@@ -14,7 +14,7 @@ export const reverseCooldown: Command = {
         .setDescription('Reverses a cooldown given by a bot')
         .addUserOption(userOption('User to reverse cooldown of'))
         .addStringOption(reason),
-    run: async (interaction, data) => {
+    run: async (interaction) => {
         try {
             const dbUser = await getUserByUser(interaction.options.getUser('user', true));
             dbUser.banCounter--;

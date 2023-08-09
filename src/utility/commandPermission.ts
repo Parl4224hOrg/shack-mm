@@ -1,8 +1,9 @@
 import {Interaction} from "discord.js";
 import {Command} from "../interfaces/Command";
 import {Button} from "../interfaces/Button";
+import {StringSelectMenu} from "../interfaces/SelectMenu";
 
-export const commandPermission = async (interaction: Interaction, command: Command | Button) => {
+export const commandPermission = async (interaction: Interaction, command: Command | Button | StringSelectMenu) => {
     let valid = false;
     let limited = false;
     if (command.limiter) {

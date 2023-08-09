@@ -26,7 +26,7 @@ export const sync: Command = {
             );
             await interaction.followUp({content: "Commands synced!"})
         } catch (e) {
-            await logError(e, interaction)
+            await logError(e, interaction);
         }
     },
     name: 'sync',

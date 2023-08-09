@@ -4,6 +4,7 @@ import {Data} from "../data";
 import {CommandList} from "../commands/_CommandList";
 import {commandPermission} from "../utility/commandPermission";
 import {ButtonList} from "../buttons/_ButtonList";
+import {SelectMenuList} from "../selectMenus/_SelectMenuList";
 
 export const onInteraction = async (interaction: Interaction, data: Data) => {
     try {
@@ -24,6 +25,16 @@ export const onInteraction = async (interaction: Interaction, data: Data) => {
                 await interaction.reply({ephemeral: true, content: "Please wait before doing this again"});
             } else if (permission.valid) {
                 await button.run(interaction, data);
+            } else {
+                await interaction.reply({ephemeral: true, content: "You do not have permission to use this command"});
+            }
+        } else if (interaction.isStringSelectMenu()) {
+            const selectMenu = SelectMenuList.get(interaction.customId)!;
+            const permission = await commandPermission(interaction, selectMenu);
+            if (permission.limited) {
+                await interaction.reply({ephemeral: true, content: "Please wait before doing this again"});
+            } else if (permission.valid) {
+                await selectMenu.run(interaction, data);
             } else {
                 await interaction.reply({ephemeral: true, content: "You do not have permission to use this command"});
             }
