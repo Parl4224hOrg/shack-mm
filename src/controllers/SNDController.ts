@@ -5,7 +5,7 @@ import {GameData, InternalResponse, QueueData} from "../interfaces/Internal";
 import {Data} from "../data";
 import moment from "moment";
 import {getStats} from "../modules/getters/getStats";
-import {grammaticalList} from "../utility/grammaticalList";
+import {grammaticalList} from "../utility/grammatical";
 import {ObjectId} from "mongoose";
 import {updateUser} from "../modules/updaters/updateUser";
 

@@ -17,6 +17,7 @@ export default {
     EveryoneRole: '1129259123469463553',
     GeneralChannel: '1129259124933283923',
     SNDReadyChannel: '1132393001222684754',
+    PingToPlayRole: '1129841343657672846',
     // constants
     StartingMMR: 1500,
     PlayerCount: 4,
@@ -26,6 +27,7 @@ export default {
         Hideout: 'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Hideout-1024x576.png?media=1678957731',
         Skyscraper: 'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Skyscraper-1024x576.png?media=1678957731',
     },
+    PingToPlayTime: 90 * 60,
     // messages
     AcceptMessage: messages.acceptMessage,
 }

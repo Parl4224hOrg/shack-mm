@@ -9,6 +9,7 @@ import {createGame} from "./modules/constructors/createGame";
 import {ObjectId} from "mongoose";
 import tokens from "./tokens";
 import {InternalResponse} from "./interfaces/Internal";
+import moment from "moment";
 
 export class Data {
     private readonly client: Client;
@@ -24,6 +25,7 @@ export class Data {
     private readonly FILL_SND: SNDController;
     private queues: SNDController[] = []
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
+    nextPing: number = moment().unix();
 
     constructor(client: Client) {
         this.client = client

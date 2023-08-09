@@ -14,6 +14,7 @@ export interface Command {
     name: string;
     allowedRoles?: string[];
     allowedUsers?: string[];
+    allowedChannels?: string[];
     limiter?: RateLimiter;
 }
 
