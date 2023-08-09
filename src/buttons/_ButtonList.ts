@@ -16,9 +16,10 @@ import {readyAPAC15, readyAPAC30, readyAPAC60, readyAPAC120} from "./queue/SND/R
 import {readyEU15, readyEU30, readyEU60, readyEU120} from "./queue/SND/ReadyEU";
 import {readyFILL15, readyFILL30, readyFILL60, readyFILL120} from "./queue/SND/ReadyFILL";
 import {readyNA15, readyNA30, readyNA60, readyNA120} from "./queue/SND/ReadyNA";
+import {unready} from "./queue/SND/unready";
 
 const buttonList: Button[] = [accept, enforcer, factory, hideout, revolter, skyscraper, draw, loss, win, confirmScore,
-    score0, score1, score2, score3, score4, score5, missing,
+    score0, score1, score2, score3, score4, score5, missing, unready,
     readyAPAC15, readyAPAC30, readyAPAC60, readyAPAC120, readyEU15, readyEU30, readyEU60, readyEU120,
     readyFILL15, readyFILL30, readyFILL60, readyFILL120, readyNA15, readyNA30, readyNA60, readyNA120,
 ];

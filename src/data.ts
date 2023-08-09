@@ -2,7 +2,7 @@ import {Client, Collection, User} from "discord.js";
 import cron from 'node-cron';
 import {logInfo} from "./loggers";
 import {SNDController} from "./controllers/SNDController";
-import {LocalGame, QueueUser} from "./interfaces/Game";
+import {QueueUser} from "./interfaces/Game";
 import {makeTeams} from "./utility/makeTeams"
 import {getCounter} from "./modules/getters/getCounter";
 import {createGame} from "./modules/constructors/createGame";
@@ -10,6 +10,8 @@ import {ObjectId} from "mongoose";
 import tokens from "./tokens";
 import {InternalResponse} from "./interfaces/Internal";
 import moment from "moment";
+import {GameController} from "./controllers/GameController";
+import {getUserByUser} from "./modules/getters/getUser";
 
 export class Data {
     private readonly client: Client;
@@ -23,7 +25,7 @@ export class Data {
     private readonly EU_SND: SNDController;
     private readonly APAC_SND: SNDController;
     private readonly FILL_SND: SNDController;
-    private queues: SNDController[] = []
+    private sndQueues: SNDController[] = []
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
     nextPing: number = moment().unix();
 
@@ -33,7 +35,7 @@ export class Data {
         this.EU_SND = new SNDController(this, client, "EU");
         this.APAC_SND = new SNDController(this, client, "APAC");
         this.FILL_SND = new SNDController(this, client, "FILL");
-        this.queues.push(this.NA_SND, this.EU_SND, this.APAC_SND, this.FILL_SND);
+        this.sndQueues.push(this.FILL_SND, this.NA_SND, this.EU_SND, this.APAC_SND);
     }
 
     async load() {
@@ -51,7 +53,7 @@ export class Data {
         let totalNA = 0;
         let totalEU = 0;
         let totalAPAC = 0;
-        for (let queue of this.queues) {
+        for (let queue of this.sndQueues) {
             await queue.tick();
             if (queue.queueName == "NA") {
                 totalNA += queue.inQueueNumber();
@@ -98,7 +100,7 @@ export class Data {
         try {
             const gameNum = await this.getIdSND()
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
-            const game = new LocalGame(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit);
+            const game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit);
             queue.addGame(game);
         } catch (e) {
             console.error(e);
@@ -126,10 +128,12 @@ export class Data {
         }
     }
 
-    async ready(queueId: string, queue: string, user: User,time: number): Promise<InternalResponse> {
+    async ready(queueId: string, queue: string, user: User, time: number): Promise<InternalResponse> {
+        const dbUser = await getUserByUser(user);
+        this.removeFromQueue(dbUser._id, queueId);
         if (!this.locked.get(queueId)) {
             const controller = this.getQueue(queue)!;
-            return await controller.addUser(user, time);
+            return await controller.addUser(dbUser, time);
         }
         return {success: false, message: "This queue is currently locked"}
     }
@@ -165,6 +169,11 @@ export class Data {
             this.EU_SND.removeUser(userId);
             this.APAC_SND.removeUser(userId);
             this.FILL_SND.removeUser(userId);
+        } else if (queueId == "ALL") {
+            this.NA_SND.removeUser(userId);
+            this.EU_SND.removeUser(userId);
+            this.APAC_SND.removeUser(userId);
+            this.FILL_SND.removeUser(userId);
         }
     }
 
@@ -183,7 +192,7 @@ export class Data {
 
     inQueueSND() {
         let queueStr = ""
-        for (let queue of this.queues) {
+        for (let queue of this.sndQueues) {
             queueStr += `${queue.getQueueStr()}\n`;
         }
         return queueStr

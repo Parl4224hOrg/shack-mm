@@ -1,6 +1,5 @@
-import {Client, GuildMember, User} from "discord.js";
-import {LocalGame, QueueUser} from "../interfaces/Game";
-import {getUserByUser} from "../modules/getters/getUser";
+import {Client} from "discord.js";
+import {QueueUser} from "../interfaces/Game";
 import {GameData, InternalResponse, QueueData} from "../interfaces/Internal";
 import {Data} from "../data";
 import moment from "moment";
@@ -8,6 +7,8 @@ import {getStats} from "../modules/getters/getStats";
 import {grammaticalList} from "../utility/grammatical";
 import {ObjectId} from "mongoose";
 import {updateUser} from "../modules/updaters/updateUser";
+import {GameController} from "./GameController";
+import {UserInt} from "../database/models/UserModel";
 
 export class SNDController {
     readonly queueId = 'SND'
@@ -15,7 +16,7 @@ export class SNDController {
     private data: Data;
     private client: Client;
     private inQueue: QueueUser[] = [];
-    private activeGames: LocalGame[] = [];
+    private activeGames: GameController[] = [];
 
 
     constructor(data: Data, client: Client, queueName: string) {
@@ -28,8 +29,7 @@ export class SNDController {
         // const data = await getSNDController()
     }
 
-    async addUser(discordUser: User | GuildMember, time: number): Promise<InternalResponse> {
-        const user = await getUserByUser(discordUser);
+    async addUser(user: UserInt, time: number): Promise<InternalResponse> {
         if (user.banUntil > moment().unix()) {
             return {success: false, message: `You are currently banned for another ${0}`}
         }
@@ -69,12 +69,12 @@ export class SNDController {
         }
     }
 
-    addGame(game: LocalGame) {
+    addGame(game: GameController) {
         this.activeGames.push(game);
     }
 
     getQueueStr() {
-        let queueStr = `[${this.queueName}] - ${this.inQueue.length} in Queue:\n`;
+        let queueStr = `[**${this.queueName}**] - ${this.inQueue.length} in Queue:\n`;
         let names = []
         for (let user of this.inQueue) {
             names.push(user.name);

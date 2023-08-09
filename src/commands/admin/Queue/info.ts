@@ -18,5 +18,5 @@ export const info: SubCommand = {
             await logError(e, interaction)
         }
     },
-    name: 'info'
+    name: 'info',
 }
