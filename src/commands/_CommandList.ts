@@ -13,9 +13,10 @@ import {nullify} from "./moderator/nullify";
 import {reverseCooldown} from "./moderator/reverseCooldown";
 import {abandon} from "./match/abandon";
 import {_transparency} from "./public/_transparency";
+import {stats} from "./queue/stats";
 
 
-const commandList: Command[] = [sync, lfg, prepare, _queue, ready, unready, pingPlayers, cooldown, forceAbandon, nullify, reverseCooldown, abandon, _transparency];
+const commandList: Command[] = [sync, lfg, prepare, _queue, ready, unready, pingPlayers, cooldown, forceAbandon, nullify, reverseCooldown, abandon, _transparency, stats];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

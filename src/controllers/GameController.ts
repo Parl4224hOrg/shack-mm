@@ -11,7 +11,7 @@ import {acceptView} from "../views/acceptView";
 import {abandon} from "../utility/punishment";
 import {voteMap, voteSide} from "../views/voteViews";
 import {initialSubmit} from "../views/submitScoreViews";
-import {matchConfirmEmbed, teamsEmbed} from "../embeds/matchEmbeds";
+import {matchConfirmEmbed, matchFinalEmbed, teamsEmbed} from "../embeds/matchEmbeds";
 import {GameData, InternalResponse} from "../interfaces/Internal";
 import {logWarn} from "../loggers";
 import {GameUser, ids} from "../interfaces/Game";
@@ -495,6 +495,13 @@ export class GameController {
         } catch {
             await logWarn("Could not delete final channel", this.client);
         }
+        await this.sendScoreEmbed();
+    }
+
+    async sendScoreEmbed() {
+        const game = await getGameById(this.id);
+        const channel = await this.guild.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
+        await channel.send({content: `Match ${this.matchNumber}`, embeds: [matchFinalEmbed(game!, this.users)]});
     }
 
     isProcessed() {

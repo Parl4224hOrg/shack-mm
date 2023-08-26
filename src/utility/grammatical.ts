@@ -3,10 +3,12 @@ export const grammaticalList = (strings: string[]) => {
     strings.forEach((string, index) => {
         if (index != 0) {
             if (strings.length != 2) {
-                output += ',';
+                output += ', ';
             }
-            if (index == strings.length - 1) {
+            if (index == strings.length - 1 && strings.length == 2) {
                 output += ' and ';
+            } else if (index == strings.length - 1) {
+                output += 'and '
             } else {
                 output += '';
             }

@@ -2,7 +2,7 @@ import {Interaction} from "discord.js";
 import {logError} from "../loggers";
 import {Data} from "../data";
 import {CommandList} from "../commands/_CommandList";
-import {commandPermission} from "../utility/commandPermission";
+import {commandPermission, getChannels} from "../utility/commandPermission";
 import {ButtonList} from "../buttons/_ButtonList";
 import {SelectMenuList} from "../selectMenus/_SelectMenuList";
 
@@ -13,6 +13,8 @@ export const onInteraction = async (interaction: Interaction, data: Data) => {
             const permission = await commandPermission(interaction, command);
             if (permission.limited) {
                 await interaction.reply({ephemeral: true, content: "Please wait before doing this again"});
+            } else if (permission.channel) {
+                await interaction.reply({ephemeral: true, content: `Please use this in a valid channel\nValid channels: ${getChannels(command.allowedChannels!)}`});
             } else if (permission.valid) {
                 await command.run(interaction, data);
             } else {
@@ -23,6 +25,8 @@ export const onInteraction = async (interaction: Interaction, data: Data) => {
             const permission = await commandPermission(interaction, button);
             if (permission.limited) {
                 await interaction.reply({ephemeral: true, content: "Please wait before doing this again"});
+            } else if (permission.channel) {
+                await interaction.reply({ephemeral: true, content: `Please use this in a valid channel\nValid channels: ${getChannels(button.allowedChannels!)}`});
             } else if (permission.valid) {
                 await button.run(interaction, data);
             } else {
@@ -33,6 +37,8 @@ export const onInteraction = async (interaction: Interaction, data: Data) => {
             const permission = await commandPermission(interaction, selectMenu);
             if (permission.limited) {
                 await interaction.reply({ephemeral: true, content: "Please wait before doing this again"});
+            } else if (permission.channel) {
+                await interaction.reply({ephemeral: true, content: `Please use this in a valid channel\nValid channels: ${getChannels(selectMenu.allowedChannels!)}`});
             } else if (permission.valid) {
                 await selectMenu.run(interaction, data);
             } else {

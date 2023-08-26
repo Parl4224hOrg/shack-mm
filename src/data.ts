@@ -12,6 +12,9 @@ import {InternalResponse} from "./interfaces/Internal";
 import moment from "moment";
 import {GameController} from "./controllers/GameController";
 import {getUserByUser} from "./modules/getters/getUser";
+import LeaderboardController from "./controllers/LeaderboardController";
+import {StatsInt} from "./database/models/StatsModel";
+import cacheController from "./controllers/CacheController";
 
 export class Data {
     private readonly client: Client;
@@ -28,6 +31,7 @@ export class Data {
     private sndQueues: SNDController[] = []
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
     nextPing: number = moment().unix();
+    readonly Leaderboard = LeaderboardController;
 
     constructor(client: Client) {
         this.client = client
@@ -36,6 +40,11 @@ export class Data {
         this.APAC_SND = new SNDController(this, client, "APAC");
         this.FILL_SND = new SNDController(this, client, "FILL");
         this.sndQueues.push(this.FILL_SND, this.NA_SND, this.EU_SND, this.APAC_SND);
+        const stats = [{mmr: 124, _id: 'fe'}, {mmr: 355, _id: 'gr'}, {mmr: 495, _id: 'ht'}] as any as StatsInt[];
+
+        for (let stat of stats) {
+            cacheController.updateStats(stat);
+        }
     }
 
     async load() {
