@@ -51,7 +51,6 @@ export class Data {
         this.saveLoop.start();
         this.tickLoop.start();
         await logInfo("Data Loaded!", this.client);
-        // init allQueued
     }
 
     async save() {
