@@ -249,7 +249,7 @@ export class GameController {
             );
             this.teamBChannelId = teamBChannel.id;
 
-            const teamAMessage = await teamAChannel.send({components: [voteMap(0, 0 ,0)], content: `${teamARole.toString()} Please vote on the map you want to play`});
+            const teamAMessage = await teamAChannel.send({components: [voteMap(0, 0 ,0, 0)], content: `${teamARole.toString()} Please vote on the map you want to play`});
             this.mapVoteMessageId = teamAMessage.id;
 
             const teamBMessage = await teamBChannel.send({components: [voteSide(0, 0)], content: `${teamBRole.toString()} Please vote on the side you want to play`});
@@ -263,6 +263,7 @@ export class GameController {
                 let factory: Vote = {total: 0, id: 'factory'};
                 let hideout: Vote = {total: 0, id: 'hideout'};
                 let skyscraper: Vote = {total: 0, id: 'skyscraper'};
+                let ship: Vote = {total: 0, id: 'ship'};
 
                 for (let vote of this.votes.values()) {
                     switch (vote) {
@@ -271,15 +272,18 @@ export class GameController {
                         case 'factory-vote': factory.total++; break;
                         case 'hideout-vote': hideout.total++; break;
                         case 'skyscraper-vote': skyscraper.total++; break;
+                        case 'ship-vote': ship.total++; break;
                     }
                 }
 
-                let mapVotes = [factory, hideout, skyscraper];
+                let mapVotes = [factory, hideout, skyscraper, ship];
 
                 mapVotes = mapVotes.sort((a, b) => b.total-a.total);
 
                 if (mapVotes[0].total == mapVotes[1].total) {
-                    if (mapVotes[0].total == mapVotes[2].total) {
+                    if (mapVotes[0].total == mapVotes[2].total && mapVotes[0].total == mapVotes[3].total) {
+                        this.map = mapVotes[Math.floor(Math.random() * 4)].id;
+                    } else if (mapVotes[0].total == mapVotes[2].total) {
                         this.map = mapVotes[Math.floor(Math.random() * 3)].id;
                     } else {
                         this.map = mapVotes[Math.floor(Math.random() * 2)].id;
@@ -327,6 +331,7 @@ export class GameController {
         let factory = 0;
         let hideout = 0;
         let skyscraper = 0;
+        let ship = 0;
 
         for (let vote of this.votes.values()) {
             switch (vote) {
@@ -335,12 +340,13 @@ export class GameController {
                 case 'factory-vote': factory++; break;
                 case 'hideout-vote': hideout++; break;
                 case 'skyscraper-vote': skyscraper++; break;
+                case 'ship-vote': ship++; break;
             }
         }
 
         const teamAChannel = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;
         const mapVoteMessage = await teamAChannel.messages.fetch(this.mapVoteMessageId);
-        await mapVoteMessage.edit({content: mapVoteMessage.content, components: [voteMap(factory, hideout, skyscraper)]});
+        await mapVoteMessage.edit({content: mapVoteMessage.content, components: [voteMap(factory, hideout, skyscraper, ship)]});
 
         const teamBChannel = await this.guild.channels.fetch(this.teamBChannelId) as TextChannel;
         const sideVoteMessage = await teamBChannel.messages.fetch(this.sideVoteMessageId);
