@@ -16,6 +16,7 @@ export interface GameInt extends Document {
     teamAChanges: number[];
     teamBChanges: number[];
     abandoned: boolean;
+    nullified: boolean;
     mmrDiff: number;
     region: string;
 }
@@ -36,6 +37,7 @@ export const GameSchema = new Schema({
     teamAChanges: [Number],
     teamBChanges: [Number],
     abandoned: Boolean,
+    nullified: Boolean,
     mmrDiff: Number,
     region: String,
 })

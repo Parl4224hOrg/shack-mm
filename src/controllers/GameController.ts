@@ -11,7 +11,7 @@ import {acceptView} from "../views/acceptView";
 import {abandon} from "../utility/punishment";
 import {voteMap, voteSide} from "../views/voteViews";
 import {initialSubmit} from "../views/submitScoreViews";
-import {matchConfirmEmbed, teamsEmbed} from "../embeds/matchEmbeds";
+import {matchConfirmEmbed, matchFinalEmbed, teamsEmbed} from "../embeds/matchEmbeds";
 import {GameData, InternalResponse} from "../interfaces/Internal";
 import {logWarn} from "../loggers";
 import {GameUser, ids} from "../interfaces/Game";
@@ -103,7 +103,7 @@ export class GameController {
                     break;
                 default:
                     if (this.abandoned && this.abandonCountdown <= 0 && !this.cleanedUp) {
-                        await this.abandonCleanup();
+                        await this.abandonCleanup(false);
                     }
             }
         } catch (e) {
@@ -199,13 +199,22 @@ export class GameController {
         if (this.acceptCountdown <= 0) {
             for (let user of this.users) {
                 if (!user.accepted) {
-                    await abandon(user.dbId, this.guild);
-                    await this.sendAbandonMessage(user.discordId);
+                    await this.abandon(user)
                 }
             }
             this.state = -1;
-            await this.abandonCleanup();
         }
+    }
+
+    hasChannel(id: string) {
+        return this.acceptChannelId == id || this.finalChannelId == id || this.teamAChannelId == id || this.teamBChannelId == id;
+    }
+
+    async abandon(user: GameUser) {
+        this.state = -1;
+        this.abandoned = true;
+        await abandon(user.dbId, this.guild);
+        await this.sendAbandonMessage(user.discordId);
     }
 
     async votePhase() {
@@ -258,7 +267,7 @@ export class GameController {
             );
             this.teamBChannelId = teamBChannel.id;
 
-            const teamAMessage = await teamAChannel.send({components: [voteMap(0, 0 ,0)], content: `${teamARole.toString()} Please vote on the map you want to play`});
+            const teamAMessage = await teamAChannel.send({components: [voteMap(0, 0 ,0, 0)], content: `${teamARole.toString()} Please vote on the map you want to play`});
             this.mapVoteMessageId = teamAMessage.id;
 
             const teamBMessage = await teamBChannel.send({components: [voteSide(0, 0)], content: `${teamBRole.toString()} Please vote on the side you want to play`});
@@ -272,6 +281,7 @@ export class GameController {
                 let factory: Vote = {total: 0, id: 'factory'};
                 let hideout: Vote = {total: 0, id: 'hideout'};
                 let skyscraper: Vote = {total: 0, id: 'skyscraper'};
+                let ship: Vote = {total: 0, id: 'ship'};
 
                 for (let vote of this.votes.values()) {
                     switch (vote) {
@@ -280,15 +290,18 @@ export class GameController {
                         case 'factory-vote': factory.total++; break;
                         case 'hideout-vote': hideout.total++; break;
                         case 'skyscraper-vote': skyscraper.total++; break;
+                        case 'ship-vote': ship.total++; break;
                     }
                 }
 
-                let mapVotes = [factory, hideout, skyscraper];
+                let mapVotes = [factory, hideout, skyscraper, ship];
 
                 mapVotes = mapVotes.sort((a, b) => b.total-a.total);
 
                 if (mapVotes[0].total == mapVotes[1].total) {
-                    if (mapVotes[0].total == mapVotes[2].total) {
+                    if (mapVotes[0].total == mapVotes[2].total && mapVotes[0].total == mapVotes[3].total) {
+                        this.map = mapVotes[Math.floor(Math.random() * 4)].id;
+                    } else if (mapVotes[0].total == mapVotes[2].total) {
                         this.map = mapVotes[Math.floor(Math.random() * 3)].id;
                     } else {
                         this.map = mapVotes[Math.floor(Math.random() * 2)].id;
@@ -336,6 +349,7 @@ export class GameController {
         let factory = 0;
         let hideout = 0;
         let skyscraper = 0;
+        let ship = 0;
 
         for (let vote of this.votes.values()) {
             switch (vote) {
@@ -344,12 +358,13 @@ export class GameController {
                 case 'factory-vote': factory++; break;
                 case 'hideout-vote': hideout++; break;
                 case 'skyscraper-vote': skyscraper++; break;
+                case 'ship-vote': ship++; break;
             }
         }
 
         const teamAChannel = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;
         const mapVoteMessage = await teamAChannel.messages.fetch(this.mapVoteMessageId);
-        await mapVoteMessage.edit({content: mapVoteMessage.content, components: [voteMap(factory, hideout, skyscraper)]});
+        await mapVoteMessage.edit({content: mapVoteMessage.content, components: [voteMap(factory, hideout, skyscraper, ship)]});
 
         const teamBChannel = await this.guild.channels.fetch(this.teamBChannelId) as TextChannel;
         const sideVoteMessage = await teamBChannel.messages.fetch(this.sideVoteMessageId);
@@ -427,6 +442,16 @@ export class GameController {
         }
     }
 
+    forceScore(scoreA: number, scoreB: number): InternalResponse {
+        if ((scoreA == 7 && scoreB == 7) || (scoreA == 6 && scoreB != 6) || (scoreA != 6 && scoreB == 6)) {
+            return {success: false, message: 'Invalid scores'}
+        }
+        this.scores = [scoreA, scoreB];
+        this.state = 5;
+        return {success: true, message: `Scores force submitted
+        \`team_a: ${scoreA}\nteam_b: ${scoreB}\``}
+    }
+
     userAccept(id: ObjectId) {
         for (let user of this.users) {
             if (String(user.dbId) == String(id)) {
@@ -439,9 +464,13 @@ export class GameController {
         return this.users;
     }
 
-    async abandonCleanup() {
+    async abandonCleanup(nullify: boolean) {
         const game = await getGameById(this.id);
-        game!.abandoned = true;
+        if (nullify) {
+            game!.nullified = true;
+        } else {
+            game!.abandoned = true;
+        }
         await updateGame(game!);
         this.cleanedUp = true;
         try {
@@ -464,7 +493,6 @@ export class GameController {
         }
         await this.cleanup();
     }
-
 
     async cleanup() {
         try {
@@ -491,6 +519,13 @@ export class GameController {
         } catch {
             await logWarn("Could not delete final channel", this.client);
         }
+        await this.sendScoreEmbed();
+    }
+
+    async sendScoreEmbed() {
+        const game = await getGameById(this.id);
+        const channel = await this.guild.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
+        await channel.send({content: `Match ${this.matchNumber}`, embeds: [matchFinalEmbed(game!, this.users)]});
     }
 
     isProcessed() {

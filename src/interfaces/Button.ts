@@ -9,5 +9,6 @@ export interface Button {
     id: string;
     allowedUsers?: string[];
     allowedRoles?: string[];
+    allowedChannels?: string[];
     limiter?: RateLimiter;
 }

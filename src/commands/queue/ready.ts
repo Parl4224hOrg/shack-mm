@@ -1,14 +1,14 @@
 import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {queueOptionsFull} from "../../utility/queues";
 import {logError} from "../../loggers";
 import {matchReady} from "../../utility/match";
+import {queuesSpecific} from "../../utility/options";
 
 export const ready: Command = {
     data: new SlashCommandBuilder()
         .setName('ready')
         .setDescription('Readies you for a game in a queue')
-        .addStringOption(queueOptionsFull)
+        .addStringOption(queuesSpecific)
         .addIntegerOption(option => option
             .setName('time')
             .setDescription('Time to ready up for')

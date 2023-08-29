@@ -1,6 +1,7 @@
 import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {logError} from "../../loggers";
+import tokens from "../../tokens";
 
 export const lfg: Command = {
     data: new SlashCommandBuilder()
@@ -14,4 +15,5 @@ export const lfg: Command = {
         }
     },
     name: 'lfg',
+    allowedChannels: [tokens.SNDReadyChannel],
 }

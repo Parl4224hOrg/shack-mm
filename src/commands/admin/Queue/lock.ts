@@ -1,13 +1,13 @@
 import {SubCommand} from "../../../interfaces/Command";
 import {SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../../loggers";
-import {queueOptions} from "../../../utility/queues";
+import {queues} from "../../../utility/options";
 
 export const lock: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName('lock')
         .setDescription('locks or unlocks a queue')
-        .addStringOption(queueOptions),
+        .addStringOption(queues),
     run: async (interaction, data) => {
         try {
             const queue = interaction.options.getString('queue', true);

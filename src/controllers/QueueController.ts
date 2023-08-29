@@ -4,7 +4,7 @@ import {GameData, InternalResponse, QueueData} from "../interfaces/Internal";
 import {Data} from "../data";
 import moment from "moment";
 import {getStats} from "../modules/getters/getStats";
-import {grammaticalList} from "../utility/grammaticalList";
+import {grammaticalList} from "../utility/grammatical";
 import {ObjectId} from "mongoose";
 import {updateUser} from "../modules/updaters/updateUser";
 import {GameController} from "./GameController";
@@ -99,6 +99,17 @@ export class QueueController {
         return false
     }
 
+    getGame(userId: ObjectId) {
+        for (let game of this.activeGames) {
+            for (let user of game.getUsers()) {
+                if (String(user.dbId) == String(userId)) {
+                    return game;
+                }
+            }
+        }
+        return null
+    }
+
     findGame(id: ObjectId) {
         for (let game of this.activeGames) {
             for (let user of game.getUsers()) {
@@ -152,5 +163,14 @@ export class QueueController {
     getMissing(userId: ObjectId) {
         const game = this.findGame(userId)!;
         return game.getMissing();
+    }
+
+    getGameByChannel(id: string) {
+        for (let game of this.activeGames) {
+            if (game.hasChannel(id)) {
+                return game;
+            }
+        }
+        return null;
     }
 }

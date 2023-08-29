@@ -1,6 +1,54 @@
 import {EmbedBuilder} from "discord.js";
 import {GameUser} from "../interfaces/Game";
 import tokens from "../tokens";
+import {GameInt} from "../database/models/GameModel";
+
+export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
+    const embed = new EmbedBuilder();
+
+    embed.setTitle(`Match ${game.matchId} ${game.map.toUpperCase()} ${game.queueId}`);
+    if (game.winner == 0) {
+        embed.setDescription(`Team A wins against Team B ${game.scoreA}-${game.scoreB}`);
+    } else if (game.winner == 1) {
+        embed.setDescription(`Team B wins against Team A ${game.scoreB}-${game.scoreA}`);
+    } else {
+        embed.setDescription(`Team A and B draw ${game.scoreA}-${game.scoreB}`);
+    }
+
+    let teamA = '';
+    let teamB = '';
+
+    for (let user of users) {
+        if (user.team == 0) {
+            teamA += `<@${user.discordId}>\n`;
+        } else {
+            teamB += `<@${user.discordId}>\n`;
+        }
+    }
+
+    embed.setFields([
+        {
+            name: `Team A: ${game.sides[0]}`,
+            value: teamA,
+            inline: true,
+        },
+        {
+            name: `Team B: ${game.sides[1]}`,
+            value: teamB,
+            inline: true,
+        },
+    ]);
+
+    if (game.map.toLowerCase() == 'hideout') {
+        embed.setImage(tokens.Images.Hideout);
+    } else if (game.map.toLowerCase() == 'skyscraper') {
+        embed.setImage(tokens.Images.Skyscraper);
+    } else if (game.map.toLowerCase() == 'factory') {
+        embed.setImage(tokens.Images.Factory);
+    }
+
+    return embed.toJSON();
+}
 
 export const matchConfirmEmbed = (scores: number[]) => {
     const embed = new EmbedBuilder()
@@ -36,19 +84,19 @@ export const teamsEmbed = (users: GameUser[], matchNumber: number, queue: string
         }
     }
 
-        embed.setTitle(`${queue.toUpperCase()}-Match-${matchNumber}: ${map.toUpperCase()}`);
-        embed.setFields([
-            {
-                name: `Team A: ${sides[0]}`,
-                value: teamA,
-                inline: true,
-            },
-            {
-                name: `Team B: ${sides[1]}`,
-                value: teamB,
-                inline: true,
-            },
-        ])
+    embed.setTitle(`${queue.toUpperCase()}-Match-${matchNumber}: ${map.toUpperCase()}`);
+    embed.setFields([
+        {
+            name: `Team A: ${sides[0]}`,
+            value: teamA,
+            inline: true,
+        },
+        {
+            name: `Team B: ${sides[1]}`,
+            value: teamB,
+            inline: true,
+        },
+    ])
 
     if (map.toLowerCase() == 'hideout') {
         embed.setImage(tokens.Images.Hideout);

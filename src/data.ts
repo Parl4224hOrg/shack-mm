@@ -9,8 +9,12 @@ import {createGame} from "./modules/constructors/createGame";
 import {ObjectId} from "mongoose";
 import tokens from "./tokens";
 import {InternalResponse} from "./interfaces/Internal";
+import moment from "moment";
 import {GameController} from "./controllers/GameController";
 import {getUserByUser} from "./modules/getters/getUser";
+import LeaderboardController from "./controllers/LeaderboardController";
+import {StatsInt} from "./database/models/StatsModel";
+import cacheController from "./controllers/CacheController";
 
 export class Data {
     private readonly client: Client;
@@ -26,6 +30,8 @@ export class Data {
     private readonly FILL_SND: QueueController;
     private sndQueues: QueueController[] = []
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
+    nextPing: number = moment().unix();
+    readonly Leaderboard = LeaderboardController;
 
     constructor(client: Client) {
         this.client = client
@@ -34,13 +40,17 @@ export class Data {
         this.APAC_SND = new QueueController(this, client, "APAC");
         this.FILL_SND = new QueueController(this, client, "FILL");
         this.sndQueues.push(this.FILL_SND, this.NA_SND, this.EU_SND, this.APAC_SND);
+        const stats = [{mmr: 124, _id: 'fe'}, {mmr: 355, _id: 'gr'}, {mmr: 495, _id: 'ht'}] as any as StatsInt[];
+
+        for (let stat of stats) {
+            cacheController.updateStats(stat);
+        }
     }
 
     async load() {
         this.saveLoop.start();
         this.tickLoop.start();
         await logInfo("Data Loaded!", this.client);
-        // init allQueued
     }
 
     async save() {
@@ -186,6 +196,35 @@ export class Data {
             return true;
         }
         return this.FILL_SND.inGame(userId);
+    }
+
+    findGame(userId: ObjectId) {
+        if (this.NA_SND.inGame(userId)) {
+            return this.NA_SND.getGame(userId);
+        }
+        if (this.EU_SND.inGame(userId)) {
+            return this.EU_SND.getGame(userId);
+        }
+        if (this.APAC_SND.inGame(userId)) {
+            return this.APAC_SND.getGame(userId);
+        }
+        return this.FILL_SND.getGame(userId);
+    }
+
+    getGameByChannel(id: string) {
+        let game = this.NA_SND.getGameByChannel(id);
+        if (game) {
+            return game;
+        }
+        game = this.EU_SND.getGameByChannel(id);
+        if (game) {
+            return game;
+        }
+        game = this.APAC_SND.getGameByChannel(id);
+        if (game) {
+            return game;
+        }
+        return this.FILL_SND.getGameByChannel(id);
     }
 
     inQueueSND() {

@@ -1,7 +1,6 @@
 import {GameUser} from "../interfaces/Game";
 import {getStats} from "../modules/getters/getStats";
 import {StatsInt} from "../database/models/StatsModel";
-import {win} from "../buttons/match/score/win";
 import {updateStats} from "../modules/updaters/updateStats";
 
 // elo constant is the base change for every game
@@ -15,6 +14,11 @@ const spikeMultiplier = 1.4;
 const spikeThreshold = 80;
 // Normal multiplier bonus
 const normal = 1.1;
+
+
+const calcWinRate = (player: StatsInt): number => {
+    return (player.wins + (player.draws / 2)) / player.gamesPlayed;
+}
 
 
 const calcMMRFactor = (player: StatsInt, depth: number) => {
@@ -86,33 +90,36 @@ export const processMMR = async (users: GameUser[], scores: number[], queueId: s
     } else {
         mmrScores = [0.5, 0.5];
     }
-    // calculates base mmr change for the game
-    const mmrChange = [K * (mmrScores[0] - expectedScores[0]), K * (mmrScores[0] - expectedScores[0])]
+    // calculates base elo change for the game
+    const eloChange = [K * (mmrScores[0] - expectedScores[0]), K * (mmrScores[0] - expectedScores[0])]
 
 
-    const teamAChanges = getMMRChanges(teamA, mmrChange[0]);
-    const teamBChanges = getMMRChanges(teamB, mmrChange[1]);
+    const teamAChanges = getMMRChanges(teamA, eloChange[0]);
+    const teamBChanges = getMMRChanges(teamB, eloChange[1]);
 
-    const eloLeak = Math.abs(teamAChanges.reduce((previousValue, currentValue) => {return previousValue + currentValue}, 0)) - Math.abs(teamBChanges.reduce((previousValue, currentValue) => {return previousValue + currentValue}, 0))
+    // Calculates the total mmr leak between each team
+    const mmrLeak = Math.abs(teamAChanges.reduce((previousValue, currentValue) => {return previousValue + currentValue}, 0)) - Math.abs(teamBChanges.reduce((previousValue, currentValue) => {return previousValue + currentValue}, 0))
 
-    if (eloLeak < 0) {
+    // Applies adjustment if necessary to reduce the amount of mmr that leaves the system.
+    // Will always add mmr instead of taking it out for a slow increase in overall mmr to represent gradual overall increase in skill
+    if (mmrLeak < 0) {
         if (teamAChanges[0] < 0) {
             for (let i = 0; i < teamAChanges.length; i++) {
-                teamAChanges[i] -= eloLeak / teamAChanges.length;
+                teamAChanges[i] -= mmrLeak / teamAChanges.length;
             }
         } else {
             for (let i = 0; i < teamAChanges.length; i++) {
-                teamAChanges[i] += eloLeak / teamAChanges.length;
+                teamAChanges[i] += mmrLeak / teamAChanges.length;
             }
         }
     } else {
         if (teamBChanges[0] < 0) {
             for (let i = 0; i < teamBChanges.length; i++) {
-                teamBChanges[i] -= eloLeak / teamBChanges.length;
+                teamBChanges[i] -= mmrLeak / teamBChanges.length;
             }
         } else {
             for (let i = 0; i < teamBChanges.length; i++) {
-                teamBChanges[i] += eloLeak / teamBChanges.length;
+                teamBChanges[i] += mmrLeak / teamBChanges.length;
             }
         }
     }
@@ -129,21 +136,28 @@ export const processMMR = async (users: GameUser[], scores: number[], queueId: s
         teamB[i].ratingChange = teamBChanges[i];
         teamB[i].gamesPlayed++;
 
-
         if (winner == 0) {
             teamA[i].gameHistory.push("win");
+            teamA[i].wins += 1;
             teamB[i].gameHistory.push("loss");
+            teamB[i].losses += 1;
         } else if (winner == 1) {
             teamA[i].gameHistory.push("loss");
+            teamA[i].losses += 1;
             teamB[i].gameHistory.push("win");
+            teamB[i].wins += 1;
         } else {
             teamA[i].gameHistory.push('draw');
+            teamA[i].draws += 1;
             teamB[i].gameHistory.push('draw');
+            teamB[i].draws += 1;
         }
+
+        teamA[i].winRate = calcWinRate(teamA[i]);
+        teamB[i].winRate = calcWinRate(teamB[i]);
 
         await updateStats(teamA[i]);
         await updateStats(teamB[i]);
-
     }
 
     return [teamAChanges, teamBChanges];

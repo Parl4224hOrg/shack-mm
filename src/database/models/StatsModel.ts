@@ -26,6 +26,6 @@ export const StatsSchema = new Schema({
     draws: Number,
     gameHistory: [String],
     winRate: Number,
-})
+});
 
-export default model<StatsInt>('stats', StatsSchema)
+export default model<StatsInt>('stats', StatsSchema);

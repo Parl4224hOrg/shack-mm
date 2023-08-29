@@ -1,13 +1,13 @@
 import {SubCommand} from "../../../interfaces/Command";
 import {SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../../loggers";
-import {queueOptions} from "../../../utility/queues";
+import {queues} from "../../../utility/options";
 
 export const clear: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName('clear')
         .setDescription('clears a queue')
-        .addStringOption(queueOptions),
+        .addStringOption(queues),
     run: async (interaction, data) => {
         try {
             data.clearQueue(interaction.options.getString('queue', true));

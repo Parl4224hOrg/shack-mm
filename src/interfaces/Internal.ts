@@ -23,3 +23,9 @@ export interface GameData {
     sides: string[];
     score: number[];
 }
+
+export interface Rank {
+    name: string;
+    threshold: number;
+    roleId: string;
+}
