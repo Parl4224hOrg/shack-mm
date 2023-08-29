@@ -1,10 +1,10 @@
 import {Interaction} from "discord.js";
-import {Command} from "../interfaces/Command";
+import {Command, SubCommand} from "../interfaces/Command";
 import {Button} from "../interfaces/Button";
 import {StringSelectMenu} from "../interfaces/SelectMenu";
 import {grammaticalList} from "./grammatical";
 
-export const commandPermission = async (interaction: Interaction, command: Command | Button | StringSelectMenu) => {
+export const commandPermission = async (interaction: Interaction, command: Command | SubCommand | Button | StringSelectMenu) => {
     let valid = false;
     let limited = false;
     let channel = false;

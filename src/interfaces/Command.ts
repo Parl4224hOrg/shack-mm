@@ -22,4 +22,8 @@ export interface SubCommand {
     data: SlashCommandSubcommandBuilder,
     run: (interaction: ChatInputCommandInteraction, data: Data) => Promise<void>;
     name: string;
+    allowedRoles?: string[];
+    allowedUsers?: string[];
+    allowedChannels?: string[];
+    limiter?: RateLimiter;
 }
