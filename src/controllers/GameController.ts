@@ -17,6 +17,7 @@ import {logWarn} from "../loggers";
 import {GameUser, ids} from "../interfaces/Game";
 import {Vote} from "../interfaces/Game";
 import {acceptScore} from "../views/submitScoreViews";
+import {GameControllerInt} from "../database/models/GameControllerModel";
 
 export class GameController {
     readonly id: ObjectId;
@@ -51,8 +52,8 @@ export class GameController {
     private finalChannelId = '';
 
     private scores = [-1, -1];
-    private scoreAccept = [false, false];
-    private scoreConfirmMessageSent = false;
+    private scoresAccept = [false, false];
+    private scoresConfirmMessageSent = false;
     private processed = false;
 
     private abandoned = false;
@@ -110,6 +111,22 @@ export class GameController {
         }
     }
 
+    async load(data: GameControllerInt) {
+        this.tickCount = data.tickCount;
+        this.state = data.state;
+        this.users = data.users;
+
+        this.acceptChannelGen = data.acceptChannelGen;
+        this.acceptChannelId = data.acceptChannelId;
+        this.matchRoleId = data.matchRoleId;
+        this.acceptCountdown = data.acceptCountdown;
+
+        this.voteChannelsGen = data.voteChannelsGen;
+        this.teamAChannelId
+        this.teamARoleId
+        this.teamBChannelId
+        this.teamBRoleId
+    }
 
     async processMatch() {
         this.state = 6;
@@ -343,12 +360,12 @@ export class GameController {
     }
 
     async confirmScoreSubmit() {
-        if (!this.scoreConfirmMessageSent) {
-            this.scoreConfirmMessageSent = true;
+        if (!this.scoresConfirmMessageSent) {
+            this.scoresConfirmMessageSent = true;
             const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
             await channel.send({components: [acceptScore()], embeds: [matchConfirmEmbed(this.scores)]});
         }
-        if (this.scoreAccept[0] && this.scoreAccept[1]) {
+        if (this.scoresAccept[0] && this.scoresAccept[1]) {
             this.state = 5;
         }
     }
@@ -365,7 +382,7 @@ export class GameController {
     acceptScore(userId: ObjectId): InternalResponse {
         const team = this.getTeam(userId);
         if (team >= 0) {
-            this.scoreAccept[team] = true;
+            this.scoresAccept[team] = true;
             return {success: true, message: 'Accepted scores'};
         }
         return {success: false, message: 'Could not find team'};
@@ -392,7 +409,7 @@ export class GameController {
             if (((scoreA + scoreB) <= 12) && scoreA <= 7 && scoreB <= 7) {
                 if (scoreA >= 0 && scoreB >= 0) {
                     this.state = 4;
-                    this.scoreConfirmMessageSent = false;
+                    this.scoresConfirmMessageSent = false;
                     this.scores = [scoreA, scoreB];
                 }
                 return {success: true, message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"}`};

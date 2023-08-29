@@ -10,7 +10,7 @@ import {updateUser} from "../modules/updaters/updateUser";
 import {GameController} from "./GameController";
 import {UserInt} from "../database/models/UserModel";
 
-export class SNDController {
+export class QueueController {
     readonly queueId = 'SND'
     readonly queueName: string;
     private data: Data;

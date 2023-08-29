@@ -24,3 +24,8 @@ export interface Vote {
     total: number;
     id: string;
 }
+
+export interface VoteStore {
+    id: string;
+    vote: string;
+}

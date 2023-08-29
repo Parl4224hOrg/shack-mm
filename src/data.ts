@@ -1,7 +1,7 @@
 import {Client, Collection, User} from "discord.js";
 import cron from 'node-cron';
 import {logInfo} from "./loggers";
-import {SNDController} from "./controllers/SNDController";
+import {QueueController} from "./controllers/QueueController";
 import {QueueUser} from "./interfaces/Game";
 import {makeTeams} from "./utility/makeTeams"
 import {getCounter} from "./modules/getters/getCounter";
@@ -20,19 +20,19 @@ export class Data {
     private tickLoop = cron.schedule('*/1 * * * * *', async () => {
         await this.tick()
     })
-    private readonly NA_SND: SNDController;
-    private readonly EU_SND: SNDController;
-    private readonly APAC_SND: SNDController;
-    private readonly FILL_SND: SNDController;
-    private sndQueues: SNDController[] = []
+    private readonly NA_SND: QueueController;
+    private readonly EU_SND: QueueController;
+    private readonly APAC_SND: QueueController;
+    private readonly FILL_SND: QueueController;
+    private sndQueues: QueueController[] = []
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
 
     constructor(client: Client) {
         this.client = client
-        this.NA_SND = new SNDController(this, client, "NA");
-        this.EU_SND = new SNDController(this, client, "EU");
-        this.APAC_SND = new SNDController(this, client, "APAC");
-        this.FILL_SND = new SNDController(this, client, "FILL");
+        this.NA_SND = new QueueController(this, client, "NA");
+        this.EU_SND = new QueueController(this, client, "EU");
+        this.APAC_SND = new QueueController(this, client, "APAC");
+        this.FILL_SND = new QueueController(this, client, "FILL");
         this.sndQueues.push(this.FILL_SND, this.NA_SND, this.EU_SND, this.APAC_SND);
     }
 
@@ -75,7 +75,7 @@ export class Data {
         }
     }
 
-    async createMatch(regionId: string, queue: SNDController, queueId: string, scoreLimit: number) {
+    async createMatch(regionId: string, queue: QueueController, queueId: string, scoreLimit: number) {
         let users: QueueUser[] = []
         while (users.length < tokens.PlayerCount && queue.inQueueNumber() > 0) {
             users.push(queue.getUser())
