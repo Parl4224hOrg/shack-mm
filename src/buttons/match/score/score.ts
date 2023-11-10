@@ -94,4 +94,64 @@ export const score5: Button = {
     id: 'score-submit-5',
 }
 
+export const score6: Button = {
+    data: new ButtonBuilder()
+        .setLabel('6')
+        .setCustomId('score-submit-6')
+        .setStyle(ButtonStyle.Danger),
+    run: async (interaction, data) => {
+        try {
+            await matchScore(interaction, data, 6);
+        } catch (e) {
+            await logError(e, interaction);
+        }
+    },
+    id: 'score-submit-6',
+}
+
+export const score7: Button = {
+    data: new ButtonBuilder()
+        .setLabel('7')
+        .setCustomId('score-submit-7')
+        .setStyle(ButtonStyle.Danger),
+    run: async (interaction, data) => {
+        try {
+            await matchScore(interaction, data, 7);
+        } catch (e) {
+            await logError(e, interaction);
+        }
+    },
+    id: 'score-submit-7',
+}
+
+export const score8: Button = {
+    data: new ButtonBuilder()
+        .setLabel('8')
+        .setCustomId('score-submit-8')
+        .setStyle(ButtonStyle.Danger),
+    run: async (interaction, data) => {
+        try {
+            await matchScore(interaction, data, 8);
+        } catch (e) {
+            await logError(e, interaction);
+        }
+    },
+    id: 'score-submit-8',
+}
+
+export const score9: Button = {
+    data: new ButtonBuilder()
+        .setLabel('9')
+        .setCustomId('score-submit-9')
+        .setStyle(ButtonStyle.Danger),
+    run: async (interaction, data) => {
+        try {
+            await matchScore(interaction, data, 9);
+        } catch (e) {
+            await logError(e, interaction);
+        }
+    },
+    id: 'score-submit-9',
+}
+
 

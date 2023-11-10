@@ -3,6 +3,7 @@ import {SlashCommandBuilder} from "@discordjs/builders";
 import {Collection} from "discord.js";
 import {logError} from "../../loggers";
 import {byMod} from "./byMod";
+import tokens from "../../tokens";
 
 const subCommandListTemp: SubCommand[] = [byMod]
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
@@ -25,4 +26,5 @@ export const _transparency: Command = {
         }
     },
     name: 'transparency',
+    allowedRoles: [tokens.ModRole]
 }

@@ -1,7 +1,8 @@
 import cron from "node-cron";
-import cacheController from "./CacheController";
 import table from "text-table";
 import {getRank} from "../utility/ranking";
+import {getTopTwenty} from "../modules/getters/getStats";
+import {getUserById} from "../modules/getters/getUser";
 
 export class LeaderboardControllerClass {
     private leaderboardCacheSND: string = '';
@@ -11,20 +12,19 @@ export class LeaderboardControllerClass {
 
     constructor() {
         this.updateLoop.start();
-        console.log('here')
     }
 
     async getLeaderboard(): Promise<string> {
-        const stats = await cacheController.getTopTwenty('SND');
+        const stats = await getTopTwenty("SND");
         const tablePlayers: string[][] = [[]];
         let i = 0;
         for (let stat of stats) {
             i++;
-            const player = await cacheController.getUser(stat.userId);
+            const player = await getUserById(stat.userId);
             tablePlayers.push([String(i), player.name, getRank(stat.mmr).name, String(stat.gamesPlayed), String(stat.winRate)])
         }
-        console.log(table(tablePlayers, {hsep: '|', align: ['c', 'c', 'c', 'c', 'c']}))
-        return table(tablePlayers, {hsep: '|', align: ['c', 'c', 'c', 'c', 'c']});
+        this.leaderboardCacheSND = table(tablePlayers, {hsep: '|', align: ['c', 'c', 'c', 'c', 'c']})
+        return this.leaderboardCacheSND;
     }
 }
 

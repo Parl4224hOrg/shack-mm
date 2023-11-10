@@ -9,7 +9,7 @@ import {getMatchPerms} from "../utility/channelPerms";
 import tokens from "../tokens";
 import {acceptView} from "../views/acceptView";
 import {abandon} from "../utility/punishment";
-import {voteMap, voteSide} from "../views/voteViews";
+import {voteA1, voteA2, voteB1, voteB2} from "../views/voteViews";
 import {initialSubmit} from "../views/submitScoreViews";
 import {matchConfirmEmbed, matchFinalEmbed, teamsEmbed} from "../embeds/matchEmbeds";
 import {GameData, InternalResponse} from "../interfaces/Internal";
@@ -19,46 +19,94 @@ import {Vote} from "../interfaces/Game";
 import {acceptScore} from "../views/submitScoreViews";
 import {GameControllerInt} from "../database/models/GameControllerModel";
 
+const getRandom = (votes: Vote[], lowerBound: number, upperBound: number, count: number): string[] => {
+    if (count == 1) {
+        return [votes[Math.floor(Math.random() * upperBound) + lowerBound].id]
+    }
+    let i1 = Math.floor(Math.random() * upperBound) + lowerBound
+    let i2 = Math.floor(Math.random() * upperBound) + lowerBound
+
+
+    while (i1 == i2) {
+        i2 = Math.floor(Math.random() * upperBound) + lowerBound
+    }
+
+    if (count == 3) {
+        let i3 = Math.floor(Math.random() * upperBound) + lowerBound
+        while (i1 == i3 || i2 == i3) {
+            i3 = Math.floor(Math.random() * upperBound) + lowerBound
+        }
+        return [votes[i1].id, votes[i2].id, votes[i3].id]
+    } else {
+        return [votes[i1].id, votes[i2].id]
+    }
+}
+
+const getPreviousVotes = (userVotes: string[], maps: any) => {
+    let str = '';
+    for (let vote of userVotes) {
+        str += ` ${maps[vote]}`
+    }
+    return str;
+}
+
 export class GameController {
     readonly id: ObjectId;
     readonly matchNumber: number;
-    private readonly client: Client;
-    private readonly guild: Guild;
-    private tickCount: number = 0;
-    private state: number = 0;
-    private users: GameUser[] = [];
-    private readonly queueId: string = '';
-    private readonly scoreLimit: number = 0;
+    readonly client: Client;
+    readonly guild: Guild;
+    tickCount: number = 0;
+    state: number = 0;
+    users: GameUser[] = [];
+    readonly queueId: string = '';
+    readonly scoreLimit: number = 0;
 
-    private acceptChannelGen = false;
-    private acceptChannelId = '';
-    private matchRoleId = '';
-    private acceptCountdown = 300;
+    acceptChannelGen = false;
+    acceptChannelId = '';
+    matchRoleId = '';
+    acceptCountdown = 300;
 
-    private voteChannelsGen = false;
-    private teamAChannelId = '';
-    private teamARoleId = '';
-    private teamBChannelId = '';
-    private teamBRoleId = '';
-    private mapVoteMessageId = '';
-    private sideVoteMessageId = '';
-    private voteCountdown = 30;
-    private votes: Collection<string, string> = new Collection<string, string>();
+    voteChannelsGen = false;
+    teamAChannelId = '';
+    teamARoleId = '';
+    teamBChannelId = '';
+    teamBRoleId = '';
+    voteA1MessageId = '';
+    voteB1MessageId = '';
+    voteA2MessageId = '';
+    voteB2MessageId = '';
+    voteCountdown = 30;
+    votes: Collection<string, string[]> = new Collection<string, string[]>();
+    mapSet = {
+        '1': "Mirage",
+        '2': "Dust 2",
+        '3': "Cache",
+        '4': "Oilrig",
+        '5': "Inferno",
+        '6': "Overpass",
+        '7': "Vertigo",
+    }
+    sideSet = {
+        '1': "CT",
+        '2': "T"
+    }
+    currentMaxVotes = 3;
 
-    private map = '';
-    private sides = ['', ''];
 
-    private finalChannelGen = false;
-    private finalChannelId = '';
+    map = '';
+    sides = ['', ''];
 
-    private scores = [-1, -1];
-    private scoresAccept = [false, false];
-    private scoresConfirmMessageSent = false;
-    private processed = false;
+    finalChannelGen = false;
+    finalChannelId = '';
 
-    private abandoned = false;
-    private abandonCountdown = 30;
-    private cleanedUp = false;
+    scores = [-1, -1];
+    scoresAccept = [false, false];
+    scoresConfirmMessageSent = false;
+    processed = false;
+
+    abandoned = false;
+    abandonCountdown = 30;
+    cleanedUp = false;
 
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number) {
         this.id = id;
@@ -93,12 +141,21 @@ export class GameController {
                     await this.acceptPhase();
                     break;
                 case 1:
-                    await this.votePhase();
+                    await this.voteA1();
+                    break;
+                case 2:
+                    await this.voteB1();
+                    break;
+                case 3:
+                    await this.voteA2();
                     break;
                 case 4:
+                    await this.voteB2();
+                    break;
+                case 6:
                     await this.confirmScoreSubmit();
                     break;
-                case 5:
+                case 7:
                     await this.processMatch();
                     break;
                 default:
@@ -122,14 +179,41 @@ export class GameController {
         this.acceptCountdown = data.acceptCountdown;
 
         this.voteChannelsGen = data.voteChannelsGen;
-        this.teamAChannelId
-        this.teamARoleId
-        this.teamBChannelId
-        this.teamBRoleId
+        this.teamAChannelId = data.teamAChannelId;
+        this.teamARoleId = data.teamARoleId;
+        this.teamBChannelId = data.teamBChannelId;
+        this.teamBRoleId = data.teamBRoleId;
+        this.voteA1MessageId = data.voteA1MessageId;
+        this.voteB1MessageId = data.voteB1MessageId;
+        this.voteA2MessageId = data.voteA2MessageId;
+        this.voteB2MessageId = data.voteB2MessageId;
+        this.voteCountdown = data.voteCountdown;
+        let temp: Collection<string, string[]> = new Collection<string, string[]>();
+        for (let vote of data.votes) {
+            temp.set(vote.id, vote.vote);
+        }
+        this.votes = temp;
+        this.mapSet = data.mapSet;
+        this.currentMaxVotes = data.currentMaxVotes
+
+        this.map = data.map;
+        this.sides = data.sides;
+
+        this.finalChannelGen = data.finalChannelGen;
+        this.finalChannelId = data.finalChannelId;
+
+        this.scores = data.scores;
+        this.scoresAccept = data.scoresAccept;
+        this.scoresConfirmMessageSent = data.scoresConfirmMessageSent;
+        this.processed = data.processed;
+
+        this.abandoned = data.abandoned;
+        this.abandonCountdown = data.abandonCountdown;
+        this.cleanedUp = data.cleanedUp;
     }
 
     async processMatch() {
-        this.state = 6;
+        this.state = 8;
 
         const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
         await channel.send({content: "Scores have been accepted"});
@@ -217,7 +301,191 @@ export class GameController {
         await this.sendAbandonMessage(user.discordId);
     }
 
-    async votePhase() {
+    calcVotes(state: number): string[] {
+        let one: Vote = {total: 0, id: '1'};
+        let two: Vote = {total: 0, id: '2'};
+        let three: Vote = {total: 0, id: '3'};
+        let four: Vote = {total: 0, id: '4'};
+        let five: Vote = {total: 0, id: '5'};
+        let six: Vote = {total: 0, id: '6'};
+        let seven: Vote = {total: 0, id: '7'};
+
+        for (let vote of this.votes.values()) {
+            for (let subVote of vote) {
+                switch (subVote) {
+                    case '1':
+                        one.total++;
+                        break;
+                    case '2':
+                        two.total++;
+                        break;
+                    case '3':
+                        three.total++;
+                        break;
+                    case '4':
+                        four.total++;
+                        break;
+                    case '5':
+                        five.total++;
+                        break;
+                    case '6':
+                        six.total++;
+                        break;
+                    case '7':
+                        seven.total++;
+                        break;
+                }
+            }
+        }
+
+        let mapVotes = [one, two, three, four, five, six, seven];
+
+        mapVotes = mapVotes.sort((a, b) => b.total-a.total);
+        let randomRange;
+        let bans: string[];
+
+        if (state == 2) {
+            if (mapVotes[2].total == mapVotes[3].total) {
+                if (mapVotes[3].total == mapVotes[4].total) {
+                    if (mapVotes[4].total == mapVotes[5].total) {
+                        if (mapVotes[5].total == mapVotes[6].total) {
+                            randomRange = 4
+                        } else {
+                            randomRange = 3;
+                        }
+                    } else {
+                        randomRange = 2;
+                    }
+                } else {
+                    randomRange = 1;
+                }
+            } else {
+                randomRange = 0;
+            }
+
+            if (randomRange == 0) {
+                bans = [mapVotes[0].id, mapVotes[1].id, mapVotes[2].id];
+            } else if (randomRange == 1) {
+                bans = [mapVotes[0].id, mapVotes[1].id].concat(getRandom(mapVotes, 2, 3, 1));
+            } else if (randomRange == 2) {
+                if (mapVotes[0].total == mapVotes[1].total && mapVotes[1].total != mapVotes[2].total) {
+                    bans = [mapVotes[0].id, mapVotes[1].id].concat(getRandom(mapVotes, 2, 3, 2));
+                } else {
+                    bans = [mapVotes[0].id].concat(getRandom(mapVotes, 1, 4, 2));
+                }
+            } else {
+                bans = getRandom(mapVotes, 0, randomRange + 3, 3);
+            }
+        } else if (state == 3) {
+            if (mapVotes[1].total == mapVotes[2].total) {
+                if (mapVotes[2].total == mapVotes[3].total) {
+                    randomRange = 2;
+                } else {
+                    randomRange = 1;
+                }
+            } else {
+                randomRange = 0;
+            }
+
+            if (randomRange == 0) {
+                bans = [mapVotes[0].id, mapVotes[1].id]
+            } else if (randomRange == 1) {
+                if (mapVotes[1].total == mapVotes[2].total && mapVotes[2].total == mapVotes[3].total) {
+                    bans = [mapVotes[0].id].concat(getRandom(mapVotes, 1, 3, 1));
+                } else {
+                    bans = [mapVotes[0].id].concat(getRandom(mapVotes, 1, 2, 1));
+                }
+            } else {
+                if (mapVotes[1].total == mapVotes[2].total && mapVotes[2].total == mapVotes[3].total) {
+                    bans = getRandom(mapVotes, 0, 3, 2);
+                } else {
+                    bans = getRandom(mapVotes, 0, 2, 2);
+                }
+            }
+        } else if (state == 4){
+            if (mapVotes[0].total == mapVotes[1].total) {
+                bans = getRandom(mapVotes, 0, 1, 1);
+            } else {
+                bans = [mapVotes[0].id];
+            }
+        } else {
+            if (mapVotes[0].total == mapVotes[1].total) {
+                bans = getRandom(mapVotes, 0, 1, 2);
+            } else {
+                bans = [mapVotes[0].id, mapVotes[1].id];
+            }
+        }
+
+        let newMaps: string[] = [];
+
+        let convertedBans = [];
+        for (let ban of bans) {
+            if (state > 4) {
+                convertedBans.push(this.sideSet[ban as '1' | '2'])
+                newMaps = ["CT", "T"]
+            } else {
+                convertedBans.push(this.mapSet[ban as '1' | '2' | '3' | '4' | '5' | '6' | '7'])
+            }
+
+        }
+
+        console.log(bans);
+        console.log(convertedBans);
+
+
+        if (state <= 4) {
+            for (let map of tokens.MapPool) {
+                if (!convertedBans.includes(map)) {
+                    newMaps.push(map);
+                }
+            }
+        }
+
+
+        if (state == 2) {
+            this.mapSet = {
+                '1': newMaps[0],
+                '2': newMaps[1],
+                '3': newMaps[2],
+                '4': newMaps[3],
+                '5': "",
+                '6': "",
+                '7': "",
+            }
+        } else if (state == 3) {
+            this.mapSet = {
+                '1': newMaps[0],
+                '2': newMaps[1],
+                '3': "",
+                '4': "",
+                '5': "",
+                '6': "",
+                '7': "",
+            }
+        } else if (state == 4){
+            this.mapSet = {
+                '1': newMaps[0],
+                '2': newMaps[1],
+                '3': "",
+                '4': "",
+                '5': "",
+                '6': "",
+                '7': "",
+            }
+        } else {
+            this.sideSet = {
+                '1': newMaps[0],
+                '2': newMaps[1],
+            }
+        }
+        this.state = state;
+        this.voteCountdown = 30;
+        this.votes.clear();
+
+        return convertedBans;
+    }
+
+    async voteA1() {
         this.voteCountdown--;
         if (!this.voteChannelsGen) {
             this.voteChannelsGen = true;
@@ -267,111 +535,204 @@ export class GameController {
             );
             this.teamBChannelId = teamBChannel.id;
 
-            const teamAMessage = await teamAChannel.send({components: [voteMap(0, 0 ,0, 0)], content: `${teamARole.toString()} Please vote on the map you want to play`});
-            this.mapVoteMessageId = teamAMessage.id;
+            const teamAMessage = await teamAChannel.send({
+                components: voteA1(this.mapSet["1"], 0, this.mapSet["2"], 0, this.mapSet["3"], 0, this.mapSet["4"],
+                    0, this.mapSet["5"], 0, this.mapSet["6"], 0, this.mapSet["7"], 0),
+                content: `${teamARole.toString()} Please ban three maps`});
+            this.voteA1MessageId = teamAMessage.id;
 
-            const teamBMessage = await teamBChannel.send({components: [voteSide(0, 0)], content: `${teamBRole.toString()} Please vote on the side you want to play`});
-            this.sideVoteMessageId = teamBMessage.id;
-
+            await teamBChannel.send({content: `${teamBRole.toString()} Team A is banning 3 maps`});
         } else if (this.voteCountdown <= 0) {
-            this.state = 2;
-            if (!this.finalChannelGen) {
-                let enforcer = 0;
-                let revolter = 0;
-                let factory: Vote = {total: 0, id: 'factory'};
-                let hideout: Vote = {total: 0, id: 'hideout'};
-                let skyscraper: Vote = {total: 0, id: 'skyscraper'};
-                let ship: Vote = {total: 0, id: 'ship'};
+            const bans = this.calcVotes(2);
+            const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
+            const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
 
-                for (let vote of this.votes.values()) {
-                    switch (vote) {
-                        case 'enforcer-vote': enforcer++; break;
-                        case 'revolter-vote': revolter++; break;
-                        case 'factory-vote': factory.total++; break;
-                        case 'hideout-vote': hideout.total++; break;
-                        case 'skyscraper-vote': skyscraper.total++; break;
-                        case 'ship-vote': ship.total++; break;
-                    }
-                }
+            const teamA1Message = await teamAChannel.messages.fetch(this.voteA1MessageId)
+            await teamA1Message.edit({content: `~~${teamA1Message.content}~~ Voting has ended`, components: []});
 
-                let mapVotes = [factory, hideout, skyscraper, ship];
+            this.currentMaxVotes = 2;
 
-                mapVotes = mapVotes.sort((a, b) => b.total-a.total);
-
-                if (mapVotes[0].total == mapVotes[1].total) {
-                    if (mapVotes[0].total == mapVotes[2].total && mapVotes[0].total == mapVotes[3].total) {
-                        this.map = mapVotes[Math.floor(Math.random() * 4)].id;
-                    } else if (mapVotes[0].total == mapVotes[2].total) {
-                        this.map = mapVotes[Math.floor(Math.random() * 3)].id;
-                    } else {
-                        this.map = mapVotes[Math.floor(Math.random() * 2)].id;
-                    }
-                } else {
-                    this.map = mapVotes[0].id;
-                }
-
-                if (enforcer > revolter) {
-                    this.sides = ['Enforcers', 'Revolters'];
-                } else if (enforcer < revolter) {
-                    this.sides = ['Enforcers', 'Revolters'];
-                } else {
-                    if (Math.floor(Math.random() * 2) == 0) {
-                        this.sides = ['Enforcers', 'Revolters'];
-                    } else {
-                        this.sides = ['Enforcers', 'Revolters'];
-                    }
-                }
-
-                const finalChannel = await this.guild.channels.create({
-                    name: `match-${this.matchNumber}`,
-                    type: ChannelType.GuildText,
-                    permissionOverwrites: getMatchPerms(this.matchRoleId),
-                    position: 0,
-                    parent: tokens.MatchCategory,
-                    reason: 'Create final match channel',
-                });
-                this.finalChannelId = finalChannel.id;
-                const message = await finalChannel.send({components: [initialSubmit()], embeds: [teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)]});
-                finalChannel.messages.pin(message);
-                const teamAChannel = await this.guild.channels.fetch(this.teamAChannelId);
-                await teamAChannel?.delete();
-                const teamBChannel = await this.guild.channels.fetch(this.teamBChannelId);
-                await teamBChannel?.delete();
-            }
+            await teamAChannel.send({content: `${bans[0]}, ${bans[1]}, and ${bans[2]} banned`});
+            await teamBChannel.send({content: `Team A banned ${bans[0]}, ${bans[1]}, and ${bans[2]}`});
+            const banMessage = await teamBChannel.send({content: "Please ban two maps",
+                components: [voteB1(this.mapSet["1"], 0, this.mapSet["2"], 0, this.mapSet["3"], 0, this.mapSet["4"], 0)]});
+            this.voteB1MessageId = banMessage.id;
         }
     }
 
-    async vote(userId: ObjectId, vote: string): Promise<InternalResponse> {
+    async voteB1() {
+        this.voteCountdown--;
+        if (this.voteCountdown <= 0) {
+            const bans = this.calcVotes(3);
+            const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
+            const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
+
+            const teamB1Message = await teamBChannel.messages.fetch(this.voteB1MessageId)
+            await teamB1Message.edit({content: `~~${teamB1Message.content}~~ Voting has ended`, components: []});
+
+            this.currentMaxVotes = 1;
+
+            await teamBChannel.send({content: `${bans[0]} and ${bans[1]} banned`});
+            await teamAChannel.send({content: `Team B banned ${bans[0]} and ${bans[1]}`});
+            const banMessage = await teamAChannel.send({content: "Please select a map",
+                components: [voteA2(this.mapSet["1"], 0, this.mapSet["2"], 0)]});
+            this.voteA2MessageId = banMessage.id;
+        }
+    }
+
+    async voteA2() {
+        this.voteCountdown--;
+        if (this.voteCountdown <= 0) {
+            const bans = this.calcVotes(4);
+            const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
+            const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
+
+            const teamA2Message = await teamAChannel.messages.fetch(this.voteA2MessageId)
+            await teamA2Message.edit({content: `~~${teamA2Message.content}~~ Voting has ended`, components: []});
+
+            this.map = bans[0];
+
+            await teamAChannel.send({content: `Selected ${bans[0]}`});
+            await teamBChannel.send({content: `Team A selected ${bans[0]}`});
+            const banMessage = await teamBChannel.send({content: "Please select a side",
+                components: [voteB2(this.sideSet["1"], 0, this.sideSet["2"], 0)]});
+            this.voteB2MessageId = banMessage.id;
+        }
+    }
+
+    async voteB2() {
+        this.voteCountdown--;
+        if (this.voteCountdown <= 0) {
+            const bans = this.calcVotes(5);
+            const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
+            const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
+
+            const teamB2Message = await teamBChannel.messages.fetch(this.voteB2MessageId)
+            await teamB2Message.edit({content: `~~${teamB2Message.content}~~ Voting has ended`, components: []});
+
+            this.sides = [bans[1], bans[0]];
+
+            await teamAChannel.send({content: `Selected ${bans[0]}`});
+            await teamBChannel.send({content: `Team B selected ${bans[0]}`});
+
+            const finalChannel = await this.guild.channels.create({
+                name: `match-${this.matchNumber}`,
+                type: ChannelType.GuildText,
+                permissionOverwrites: getMatchPerms(this.matchRoleId),
+                position: 0,
+                parent: tokens.MatchCategory,
+                reason: 'Create final match channel',
+            });
+            this.finalChannelId = finalChannel.id;
+            const message = await finalChannel.send({components: [initialSubmit()], embeds: [teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)]});
+            finalChannel.messages.pin(message);
+            await teamAChannel.delete();
+            await teamBChannel.delete();
+        }
+    }
+
+    async vote(userId: ObjectId, vote: '1' | '2' | '3' | '4' | '5' | '6' | '7'): Promise<InternalResponse> {
         const id = String(userId);
-        this.votes.set(id, vote);
-        let enforcer = 0;
-        let revolter = 0;
-        let factory = 0;
-        let hideout = 0;
-        let skyscraper = 0;
-        let ship = 0;
+        const userVotes = this.votes.get(id);
+        let message;
+        if (userVotes) {
+            if (userVotes.includes(vote)) {
+                userVotes.forEach((value, index) => {if (value == vote) userVotes.splice(index, 1);});
+                this.votes.set(id, userVotes);
+                message = `Removed vote for ${this.mapSet[vote]}`;
+            } else if (userVotes.length == this.currentMaxVotes) {
+                if (this.state >= 4) {
+                    return {
+                        success: false,
+                        message: `Please remove one of your previous votes:${getPreviousVotes(userVotes, this.sideSet)}`
+                    }
+                } else {
+                    return {
+                        success: false,
+                        message: `Please remove one of your previous votes:${getPreviousVotes(userVotes, this.mapSet)}`
+                    }
+                }
+            } else {
+                userVotes.push(vote);
+                this.votes.set(id, userVotes);
+                if (this.state >= 4) {
+                    message = `Added vote for ${this.sideSet[vote as '1' | '2']}`;
+                } else {
+                    message = `Added vote for ${this.mapSet[vote]}`;
+                }
+            }
+        } else {
+            this.votes.set(id, [vote])
+            if (this.state >= 4) {
+                message = `Added vote for ${this.sideSet[vote as '1' | '2']}`;
+            } else {
+                message = `Added vote for ${this.mapSet[vote]}`;
+            }
+        }
+        let one = 0;
+        let two = 0;
+        let three = 0;
+        let four = 0;
+        let five = 0;
+        let six = 0;
+        let seven = 0;
 
         for (let vote of this.votes.values()) {
-            switch (vote) {
-                case 'enforcer-vote': enforcer++; break;
-                case 'revolter-vote': revolter++; break;
-                case 'factory-vote': factory++; break;
-                case 'hideout-vote': hideout++; break;
-                case 'skyscraper-vote': skyscraper++; break;
-                case 'ship-vote': ship++; break;
+            for (let subVote of vote) {
+                switch (subVote) {
+                    case '1':
+                        one++;
+                        break;
+                    case '2':
+                        two++;
+                        break;
+                    case '3':
+                        three++;
+                        break;
+                    case '4':
+                        four++;
+                        break;
+                    case '5':
+                        five++;
+                        break;
+                    case '6':
+                        six++;
+                        break;
+                    case '7':
+                        seven++;
+                        break;
+                }
             }
         }
 
-        const teamAChannel = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;
-        const mapVoteMessage = await teamAChannel.messages.fetch(this.mapVoteMessageId);
-        await mapVoteMessage.edit({content: mapVoteMessage.content, components: [voteMap(factory, hideout, skyscraper, ship)]});
-
-        const teamBChannel = await this.guild.channels.fetch(this.teamBChannelId) as TextChannel;
-        const sideVoteMessage = await teamBChannel.messages.fetch(this.sideVoteMessageId);
-        await sideVoteMessage.edit({content: sideVoteMessage.content, components: [voteSide(enforcer, revolter)]});
-
-        const voteStr = vote.substring(0, vote.indexOf('-'))
-        return {success: true, message: `voted for ${voteStr.charAt(0).toUpperCase() + voteStr.slice(1)}`};
+        switch (this.state) {
+            case 1: {
+                const teamAChannel = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;
+                const mapVoteMessage = await teamAChannel.messages.fetch(this.voteA1MessageId);
+                await mapVoteMessage.edit({content: mapVoteMessage.content,
+                    components: voteA1(this.mapSet["1"], one, this.mapSet["2"], two, this.mapSet["3"], three, this.mapSet["4"], four,
+                        this.mapSet["5"], five, this.mapSet["6"], six, this.mapSet["7"], seven)});
+            } break;
+            case 2: {
+                const teamBChannel = await this.guild.channels.fetch(this.teamBChannelId) as TextChannel;
+                const mapVoteEdit = await teamBChannel.messages.fetch(this.voteB1MessageId);
+                await mapVoteEdit.edit({content: mapVoteEdit.content,
+                    components: [voteB1(this.mapSet["1"], one, this.mapSet["2"], two, this.mapSet["3"], three, this.mapSet["4"], four)]});
+            } break;
+            case 3: {
+                const teamAChannel = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;
+                const mapVoteMessage = await teamAChannel.messages.fetch(this.voteA2MessageId);
+                await mapVoteMessage.edit({content: mapVoteMessage.content,
+                    components: [voteA2(this.mapSet["1"], one, this.mapSet["2"], two)]});
+            } break;
+            case 4: {
+                const teamBChannel = await this.guild.channels.fetch(this.teamBChannelId) as TextChannel;
+                const sideVoteMessage = await teamBChannel.messages.fetch(this.voteB2MessageId);
+                await sideVoteMessage.edit({content: sideVoteMessage.content,
+                    components: [voteB2(this.sideSet["1"], one, this.sideSet["2"], two)]});
+            } break;
+        }
+        return {success: true, message: message};
     }
 
     async confirmScoreSubmit() {
@@ -381,7 +742,7 @@ export class GameController {
             await channel.send({components: [acceptScore()], embeds: [matchConfirmEmbed(this.scores)]});
         }
         if (this.scoresAccept[0] && this.scoresAccept[1]) {
-            this.state = 5;
+            this.state = 7;
         }
     }
 
@@ -410,7 +771,7 @@ export class GameController {
         }
         if (this.scores[0] < 0 && this.scores[1] < 0) {
             this.scores[team] = score;
-            this.state = 3;
+            this.state = 6;
             return {success: true, message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"}`}
         } else {
             let scoreA = this.scores[0];
@@ -421,9 +782,9 @@ export class GameController {
             } else {
                 scoreB = score;
             }
-            if (((scoreA + scoreB) <= 12) && scoreA <= 7 && scoreB <= 7) {
+            if (((scoreA + scoreB) <= 19) && scoreA <= 10 && scoreB <= 10) {
                 if (scoreA >= 0 && scoreB >= 0) {
-                    this.state = 4;
+                    this.state = 7;
                     this.scoresConfirmMessageSent = false;
                     this.scores = [scoreA, scoreB];
                 }
@@ -443,11 +804,11 @@ export class GameController {
     }
 
     forceScore(scoreA: number, scoreB: number): InternalResponse {
-        if ((scoreA == 7 && scoreB == 7) || (scoreA == 6 && scoreB != 6) || (scoreA != 6 && scoreB == 6)) {
+        if ((scoreA == 10 && scoreB == 10)) {
             return {success: false, message: 'Invalid scores'}
         }
         this.scores = [scoreA, scoreB];
-        this.state = 5;
+        this.state = 7;
         return {success: true, message: `Scores force submitted
         \`team_a: ${scoreA}\nteam_b: ${scoreB}\``}
     }

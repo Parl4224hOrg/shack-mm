@@ -13,12 +13,15 @@ import moment from "moment";
 import {GameController} from "./controllers/GameController";
 import {getUserByUser} from "./modules/getters/getUser";
 import LeaderboardController from "./controllers/LeaderboardController";
-import {StatsInt} from "./database/models/StatsModel";
-import cacheController from "./controllers/CacheController";
+import {updateGameController} from "./modules/updaters/updateGameController";
+import {createGameController} from "./modules/constructors/createGameController";
+import {updateQueueController} from "./modules/updaters/updateQueueController";
+import {getQueueController} from "./modules/getters/getQueueController";
+import {QueueControllerInt} from "./database/models/QueueControllerModel";
 
 export class Data {
     private readonly client: Client;
-    private saveLoop = cron.schedule('*/1 * * * *', async () => {
+    private saveLoop = cron.schedule('*/3 * * * *', async () => {
         await this.save()
     })
     private tickLoop = cron.schedule('*/1 * * * * *', async () => {
@@ -40,21 +43,29 @@ export class Data {
         this.APAC_SND = new QueueController(this, client, "APAC");
         this.FILL_SND = new QueueController(this, client, "FILL");
         this.sndQueues.push(this.FILL_SND, this.NA_SND, this.EU_SND, this.APAC_SND);
-        const stats = [{mmr: 124, _id: 'fe'}, {mmr: 355, _id: 'gr'}, {mmr: 495, _id: 'ht'}] as any as StatsInt[];
-
-        for (let stat of stats) {
-            cacheController.updateStats(stat);
-        }
     }
 
     async load() {
         this.saveLoop.start();
         this.tickLoop.start();
+        const queueDB = await getQueueController("SND", "FILL")
+        await this.FILL_SND.load(queueDB as QueueControllerInt);
         await logInfo("Data Loaded!", this.client);
     }
 
     async save() {
+        for (let game of this.getGames()) {
+            await updateGameController(game);
+        }
+        await updateQueueController(this.FILL_SND);
+    }
 
+    getGames() {
+        let games: GameController[] = [];
+        for (let game of this.FILL_SND.activeGames) {
+            games.push(game);
+        }
+        return games;
     }
 
     async tick() {
@@ -109,6 +120,7 @@ export class Data {
             const gameNum = await this.getIdSND()
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
             const game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit);
+            await createGameController(game);
             queue.addGame(game);
         } catch (e) {
             console.error(e);
@@ -228,11 +240,7 @@ export class Data {
     }
 
     inQueueSND() {
-        let queueStr = ""
-        for (let queue of this.sndQueues) {
-            queueStr += `${queue.getQueueStr()}\n`;
-        }
-        return queueStr
+        return `${this.FILL_SND.getQueueStr()}`
     }
 
     async getIdSND() {

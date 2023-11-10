@@ -18,6 +18,7 @@ export const createUser = async (user: User | GuildMember)=> {
 }
 
 export const createBlankUser = async () => {
+    console.log("here2")
     return (await UserModel.create({
         id: "",
         name: "",

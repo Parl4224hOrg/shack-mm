@@ -2,9 +2,7 @@ import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import tokens from "../../tokens";
 import {getGameByMatchId} from "../../modules/getters/getGame";
-import {ObjectId} from "mongoose";
 import {logError} from "../../loggers";
-import {userOption} from "../../utility/options";
 import moment from "moment";
 import {processMMR} from "../../utility/processMMR";
 import {updateGame} from "../../modules/updaters/updateGame";
@@ -37,7 +35,7 @@ export const sendMatchEmbed: Command = {
             .setRequired(true)
             .setDescription('score for team a')
         ),
-    run: async (interaction, data) => {
+    run: async (interaction) => {
         try {
             await interaction.deferReply({ephemeral: true});
             const gameTemp = await getGameByMatchId(interaction.options.getInteger('match_id', true));

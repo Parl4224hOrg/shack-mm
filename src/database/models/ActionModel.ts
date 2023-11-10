@@ -1,4 +1,4 @@
-import {model, Schema} from "mongoose";
+import {model, Schema, Document} from "mongoose";
 
 export enum Actions {
     Cooldown = 'cd',

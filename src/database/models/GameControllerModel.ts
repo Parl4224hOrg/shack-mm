@@ -1,5 +1,6 @@
 import {Document, model, ObjectId, Schema} from "mongoose";
-import {GameUser, VoteStore} from "../../interfaces/Game";
+import {GameUser, MapSet, SideSet, VoteStore} from "../../interfaces/Game";
+
 
 export interface GameControllerInt extends Document {
     id: ObjectId;
@@ -18,10 +19,15 @@ export interface GameControllerInt extends Document {
     teamARoleId: string;
     teamBChannelId: string;
     teamBRoleId: string;
-    mapVoteMessageId: string;
-    sideVoteMessageId: string;
+    voteA1MessageId: string;
+    voteB1MessageId: string;
+    voteA2MessageId: string;
+    voteB2MessageId: string;
     voteCountdown: number;
     votes: VoteStore[];
+    mapSet: MapSet;
+    sideSide: SideSet;
+    currentMaxVotes: number;
     map: string;
     sides: string[];
     finalChannelGen: boolean;
@@ -52,10 +58,26 @@ export const GameControllerSchema = new Schema({
     teamARoleId: String,
     teamBChannelId:String,
     teamBRoleId:String,
-    mapVoteMessageId: String,
-    sideVoteMessageId: String,
+    voteA1MessageId: String,
+    voteB1MessageId: String,
+    voteA2MessageId: String,
+    voteB2MessageId: String,
     voteCountdown: Number,
     votes: [],
+    mapSet: {
+        '1': String,
+        '2': String,
+        '3': String,
+        '4': String,
+        '5': String,
+        '6': String,
+        '7': String,
+    },
+    sideSet: {
+        '1': String,
+        '2': String,
+    },
+    currentMaxVotes: Number,
     map: String,
     sides: [String],
     finalChannelGen: Boolean,

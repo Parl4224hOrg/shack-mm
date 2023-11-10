@@ -1,4 +1,4 @@
-import {Client} from "discord.js";
+import {Client, TextChannel} from "discord.js";
 import {QueueUser} from "../interfaces/Game";
 import {GameData, InternalResponse, QueueData} from "../interfaces/Internal";
 import {Data} from "../data";
@@ -9,14 +9,18 @@ import {ObjectId} from "mongoose";
 import {updateUser} from "../modules/updaters/updateUser";
 import {GameController} from "./GameController";
 import {UserInt} from "../database/models/UserModel";
+import tokens from "../tokens";
+import {QueueControllerInt} from "../database/models/QueueControllerModel";
+import {getGameControllerById} from "../modules/getters/getGameController";
+import {GameControllerInt} from "../database/models/GameControllerModel";
 
 export class QueueController {
     readonly queueId = 'SND'
     readonly queueName: string;
     private data: Data;
-    private client: Client;
+    private readonly client: Client;
     private inQueue: QueueUser[] = [];
-    private activeGames: GameController[] = [];
+    activeGames: GameController[] = [];
 
 
     constructor(data: Data, client: Client, queueName: string) {
@@ -25,8 +29,14 @@ export class QueueController {
         this.queueName = queueName;
     }
 
-    async load(){
-        // const data = await getSNDController()
+    async load(data: QueueControllerInt){
+        this.inQueue = data.inQueue;
+        const guild = await this.client.guilds.fetch(tokens.GuildID)
+        for (let game of data.activeGames) {
+            const gameNew = new GameController(game, this.client, guild, -1, [], [], this.queueId, -10)
+            const dbGame = await getGameControllerById(game)
+            await gameNew.load(dbGame as GameControllerInt);
+        }
     }
 
     async addUser(user: UserInt, time: number): Promise<InternalResponse> {
@@ -46,10 +56,12 @@ export class QueueController {
             queueExpire: moment().unix() + time * 60,
             mmr: stats.mmr,
             name: user.name,
-        })
+        });
+        const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
+        await channel.send(`${user.name} has readied up for ${time} minutes`);
         return {
             success: true,
-            message: `You have readied up for ${time} minutes\nThere are ${this.inQueue.length} players in ${this.queueName}`
+            message: `You have readied up for ${time} minutes\nThere are ${this.inQueue.length} players in ${this.queueId}`
         }
     }
 
@@ -74,7 +86,7 @@ export class QueueController {
     }
 
     getQueueStr() {
-        let queueStr = `[**${this.queueName}**] - ${this.inQueue.length} in Queue:\n`;
+        let queueStr = `[**${this.queueId}**] - ${this.inQueue.length} in Queue:\n`;
         let names = []
         for (let user of this.inQueue) {
             names.push(user.name);
@@ -83,8 +95,12 @@ export class QueueController {
     }
 
     removeUser(userId: ObjectId) {
-        this.inQueue.forEach((user, index) => {
-            if (String(user.dbId) == String(userId)) this.inQueue.splice(index, 1);
+        this.inQueue.forEach( async (user, index) => {
+            if (String(user.dbId) == String(userId)) {
+                this.inQueue.splice(index, 1);
+                const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
+                await channel.send(`${user.name} has unreadied`);
+            }
         });
     }
 
@@ -172,5 +188,9 @@ export class QueueController {
             }
         }
         return null;
+    }
+
+    getInQueue() {
+        return this.inQueue
     }
 }

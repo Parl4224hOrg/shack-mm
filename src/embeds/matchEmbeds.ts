@@ -39,12 +39,20 @@ export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
         },
     ]);
 
-    if (game.map.toLowerCase() == 'hideout') {
-        embed.setImage(tokens.Images.Hideout);
-    } else if (game.map.toLowerCase() == 'skyscraper') {
-        embed.setImage(tokens.Images.Skyscraper);
-    } else if (game.map.toLowerCase() == 'factory') {
-        embed.setImage(tokens.Images.Factory);
+    if (game.map.toLowerCase() == 'Mirage') {
+        embed.setImage(tokens.Images.Mirage);
+    } else if (game.map.toLowerCase() == 'Dust 2') {
+        embed.setImage(tokens.Images.Dust2);
+    } else if (game.map.toLowerCase() == 'Cache') {
+        embed.setImage(tokens.Images.Cache);
+    } else if (game.map.toLowerCase() == 'Oilrig') {
+        embed.setImage(tokens.Images.Oilrig);
+    } else if (game.map.toLowerCase() == 'Inferno') {
+        embed.setImage(tokens.Images.Inferno);
+    } else if (game.map.toLowerCase() == 'Overpass') {
+        embed.setImage(tokens.Images.Overpass);
+    } else if (game.map.toLowerCase() == 'Vertigo') {
+        embed.setImage(tokens.Images.Vertigo);
     }
 
     return embed.toJSON();
@@ -98,12 +106,20 @@ export const teamsEmbed = (users: GameUser[], matchNumber: number, queue: string
         },
     ])
 
-    if (map.toLowerCase() == 'hideout') {
-        embed.setImage(tokens.Images.Hideout);
-    } else if (map.toLowerCase() == 'skyscraper') {
-        embed.setImage(tokens.Images.Skyscraper);
-    } else if (map.toLowerCase() == 'factory') {
-        embed.setImage(tokens.Images.Factory);
+    if (map.toLowerCase() == 'Mirage') {
+        embed.setImage(tokens.Images.Mirage);
+    } else if (map.toLowerCase() == 'Dust 2') {
+        embed.setImage(tokens.Images.Dust2);
+    } else if (map.toLowerCase() == 'Cache') {
+        embed.setImage(tokens.Images.Cache);
+    } else if (map.toLowerCase() == 'Oilrig') {
+        embed.setImage(tokens.Images.Oilrig);
+    } else if (map.toLowerCase() == 'Inferno') {
+        embed.setImage(tokens.Images.Inferno);
+    } else if (map.toLowerCase() == 'Overpass') {
+        embed.setImage(tokens.Images.Overpass);
+    } else if (map.toLowerCase() == 'Vertigo') {
+        embed.setImage(tokens.Images.Vertigo);
     }
 
     return embed.toJSON();

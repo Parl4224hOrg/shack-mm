@@ -8,7 +8,7 @@ export const matchVotes = async (interaction: ButtonInteraction, data: Data) => 
     if (controller) {
         const game = controller.findGame(dbUser._id);
         if (game) {
-            const response = await game.vote(dbUser._id, interaction.customId);
+            const response = await game.vote(dbUser._id, interaction.customId as any);
             await interaction.reply({ephemeral: true, content: response.message});
         } else {
             await interaction.reply({ephemeral: true, content: "Could not find game please contact a mod"});

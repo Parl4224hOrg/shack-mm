@@ -20,9 +20,9 @@ export const ready: Command = {
         try {
             const queueOption = interaction.options.getString('queue', true);
             const queueId = queueOption.substring(0, queueOption.indexOf('-'));
-            const queue = queueOption.substring(queueOption.indexOf('-') + 1);
+            // const queue = queueOption.substring(queueOption.indexOf('-') + 1); Add back if multiple region split
             const time = interaction.options.getInteger('time', true);
-            await matchReady(interaction, data, queueId, queue, time);
+            await matchReady(interaction, data, queueId, "FILL", time);
         } catch (e) {
             await logError(e, interaction)
         }

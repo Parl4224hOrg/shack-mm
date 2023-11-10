@@ -3,6 +3,7 @@ import {readyAPAC15, readyAPAC30, readyAPAC60, readyAPAC120} from '../buttons/qu
 import {readyEU15, readyEU30, readyEU60, readyEU120} from "../buttons/queue/SND/ReadyEU";
 import {readyFILL15, readyFILL30, readyFILL60, readyFILL120} from "../buttons/queue/SND/ReadyFILL";
 import {readyNA15, readyNA30, readyNA60, readyNA120} from "../buttons/queue/SND/ReadyNA";
+import {signup} from "../buttons/signup";
 
 export const sndAPACReadyView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -22,4 +23,9 @@ export const sndFILLReadyView = () => {
 export const sndNAReadyView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
         .addComponents(readyNA15.data, readyNA30.data, readyNA60.data, readyNA120.data).toJSON();
+}
+
+export const signUpView = () => {
+    return new ActionRowBuilder<MessageActionRowComponentBuilder>()
+        .addComponents(signup.data).toJSON();
 }

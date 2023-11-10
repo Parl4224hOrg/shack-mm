@@ -42,10 +42,7 @@ export const queuesSpecific: SlashCommandStringOption = new SlashCommandStringOp
     .setDescription('The queue to ready for')
     .setRequired(true)
     .setChoices(
-        {name: 'SND-FILL', value: 'SND-FILL'},
-        {name: 'SND-NA', value: 'SND-NA'},
-        {name: 'SND-EU', value: 'SND-EU'},
-        {name: 'SND-APAC', value: 'SND-APAC'},
+        {name: 'SND', value: 'SND'},
     )
 
 export const userOption = (description: string): SlashCommandUserOption => {

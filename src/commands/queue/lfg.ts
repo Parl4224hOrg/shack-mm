@@ -15,5 +15,5 @@ export const lfg: Command = {
         }
     },
     name: 'lfg',
-    allowedChannels: [tokens.SNDReadyChannel],
+    allowedChannels: [tokens.SNDChannel],
 }

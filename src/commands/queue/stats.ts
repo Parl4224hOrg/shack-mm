@@ -34,5 +34,5 @@ export const stats: Command = {
         }
     },
     name: 'stats',
-    allowedChannels: [tokens.SNDReadyChannel],
+    allowedChannels: [tokens.SNDChannel],
 }

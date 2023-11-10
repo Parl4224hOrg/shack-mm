@@ -6,7 +6,7 @@ import {matchReady} from "../../../utility/match";
 
 export const readyFILL15: Button = {
     data: new ButtonBuilder()
-        .setLabel('FILL-15')
+        .setLabel('15')
         .setCustomId('snd-ready-button-FILL-15')
         .setStyle(ButtonStyle.Success),
     run: async (interaction, data) => {
@@ -21,7 +21,7 @@ export const readyFILL15: Button = {
 
 export const readyFILL30: Button = {
     data: new ButtonBuilder()
-        .setLabel('FILL-30')
+        .setLabel('30')
         .setCustomId('snd-ready-button-FILL-30')
         .setStyle(ButtonStyle.Success),
     run: async (interaction, data) => {
@@ -36,7 +36,7 @@ export const readyFILL30: Button = {
 
 export const readyFILL60: Button = {
     data: new ButtonBuilder()
-        .setLabel('FILL-60')
+        .setLabel('60')
         .setCustomId('snd-ready-button-FILL-60')
         .setStyle(ButtonStyle.Success),
     run: async (interaction, data) => {
@@ -51,7 +51,7 @@ export const readyFILL60: Button = {
 
 export const readyFILL120: Button = {
     data: new ButtonBuilder()
-        .setLabel('FILL-120')
+        .setLabel('120')
         .setCustomId('snd-ready-button-FILL-120')
         .setStyle(ButtonStyle.Success),
     run: async (interaction, data) => {

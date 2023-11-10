@@ -11,7 +11,7 @@ export const win: Button = {
         .setStyle(ButtonStyle.Success),
     run: async (interaction, data) => {
         try {
-            await matchScore(interaction, data, 7);
+            await matchScore(interaction, data, 10);
         } catch (e) {
             await logError(e, interaction);
         }

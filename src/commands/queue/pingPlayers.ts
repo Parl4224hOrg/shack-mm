@@ -22,5 +22,5 @@ export const pingPlayers: Command = {
         }
     },
     name: 'ping_players',
-    allowedChannels: [tokens.SNDReadyChannel],
+    allowedChannels: [tokens.SNDChannel],
 }

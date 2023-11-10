@@ -3,7 +3,7 @@ import {SlashCommandBuilder} from "@discordjs/builders";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {TextChannel} from "discord.js";
-import {sndAPACReadyView, sndEUReadyView, sndFILLReadyView, sndNAReadyView} from "../../views/staticViews";
+import {signUpView, sndFILLReadyView} from "../../views/staticViews";
 
 export const prepare: Command = {
     data: new SlashCommandBuilder()
@@ -15,6 +15,10 @@ export const prepare: Command = {
             .setRequired(true)
             .addChoices(
                 {name: 'SND Ready', value: 'snd_ready'},
+                {name: "Sign Up", value: "signup"},
+                {name: "Info", value: "info"},
+                {name: "cleanup", value: "c"},
+                {name: 'Clear', value: 'c2'}
             )
         ),
     run: async (interaction) => {
@@ -23,12 +27,32 @@ export const prepare: Command = {
             const view = interaction.options.getString('view')!
             switch (view) {
                 case 'snd_ready': {
-                    const channel = await interaction.guild!.channels.fetch(tokens.SNDReadyChannel) as TextChannel;
-                    await channel.send({components: [sndFILLReadyView()], content: 'Ready up for any server'});
-                    await channel.send({components: [sndAPACReadyView()], content: 'Ready up for APAC servers'});
-                    await channel.send({components: [sndEUReadyView()], content: 'Ready up for EU servers'});
-                    await channel.send({components: [sndNAReadyView()], content: 'Ready up for NA servers'});
+                    await interaction.channel!.send({components: [sndFILLReadyView()], content: 'Ready up for SND'});
                     await interaction.followUp({ephemeral: true, content: 'prepared snd ready up view'})
+                } break;
+                case 'signup': {
+                    await interaction.channel!.send({components: [signUpView()], content: tokens.SignUpMessage})
+                    await interaction.followUp({ephemeral: true, content: 'prepared sign up view'})
+                } break;
+                case 'info': {
+                    await interaction.channel!.send({content: tokens.InfoMessage})
+                    await interaction.followUp({ephemeral: true, content: 'prepared info view'})
+                } break;
+                case 'c': {
+                    const roles = await interaction.guild!.roles.fetch();
+                    for (let role of roles.values()) {
+                        if (role.name.includes('team') || role.name.includes('match')) {
+                            await role.delete();
+                        }
+                    }
+                    await interaction.followUp({ephemeral: true, content: "done"});
+                } break;
+                case 'c2': {
+                    const channel = interaction.channel as TextChannel;
+                    const messages = await channel.messages.fetch()
+                    for (let message of messages.values()) {
+                        await message.delete();
+                    }
                 } break;
                 default: break;
             }
