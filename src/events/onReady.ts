@@ -8,5 +8,5 @@ export const onReady = async (BOT: Client, data: Data) => {
     await connectDatabase(BOT);
     await data.load();
     await BOT.guilds.cache.get(tokens.GuildID)!.members.fetch();
-    await logInfo("Discord ready!", BOT);
+    await logInfo("Discord _ready!", BOT);
 };

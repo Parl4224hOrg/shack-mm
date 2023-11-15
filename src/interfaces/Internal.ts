@@ -29,3 +29,10 @@ export interface Rank {
     threshold: number;
     roleId: string;
 }
+
+export interface CommandPermission {
+    valid: boolean;
+    limited: boolean;
+    channel: boolean
+    guild: boolean;
+}

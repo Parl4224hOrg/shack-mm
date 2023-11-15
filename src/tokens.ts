@@ -14,6 +14,7 @@ export default {
     MasterGuild: '1058879957461381251',
     MatchCategory: '1171850272465764402',
     ModRole: '1152657002212884550',
+    AdminRole: '1152652534763241542',
     GeneralChannel: '1152652410184024247',
     SNDChannel: '1171851238594318387',
     PingToPlayRole: '1171851420639703150',

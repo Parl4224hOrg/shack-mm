@@ -6,7 +6,7 @@ import {getRank} from "../utility/ranking";
 export const statsEmbed = (stats: StatsInt, user: UserInt, name: string): APIEmbed => {
     const embed = new EmbedBuilder();
 
-    embed.setTitle(`${name} Stats`);
+    embed.setTitle(`${name}'s Stats`);
 
     if (stats.gamesPlayed >= 10) {
         embed.setDescription(`${getRank(stats.mmr).name}\nGames played - ${stats.gamesPlayed}`);
@@ -23,7 +23,7 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string): APIEmb
 
     embed.addFields({
             name: 'Win %',
-            value: `${stats.winRate.toFixed(1)}`,
+            value: `${(stats.winRate * 100).toFixed(1)}`,
             inline: true,
         },{
             name: 'Wins',

@@ -3,8 +3,9 @@ import {Command, SubCommand} from "../interfaces/Command";
 import {Button} from "../interfaces/Button";
 import {StringSelectMenu} from "../interfaces/SelectMenu";
 import {grammaticalList} from "./grammatical";
+import {CommandPermission} from "../interfaces/Internal";
 
-export const commandPermission = async (interaction: Interaction, command: Command | SubCommand | Button | StringSelectMenu) => {
+export const commandPermission = async (interaction: Interaction, command: Command | SubCommand | Button | StringSelectMenu): Promise<CommandPermission> => {
     let valid = false;
     let limited = false;
     let channel = false;
@@ -33,7 +34,7 @@ export const commandPermission = async (interaction: Interaction, command: Comma
     } else {
         valid = true;
     }
-    return {valid: valid, limited: limited, channel: channel};
+    return {valid: valid, limited: limited, channel: channel, guild: false};
 }
 
 export const getChannels = (channels: string[]) => {

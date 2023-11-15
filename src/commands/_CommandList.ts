@@ -5,7 +5,7 @@ import {lfg} from "./queue/lfg";
 import {prepare} from "./admin/prepare";
 import {_queue} from "./admin/Queue/_queue";
 import {pingPlayers} from "./queue/pingPlayers";
-import {ready} from "./queue/ready";
+import {_ready} from "./queue/ready/_ready";
 import {unready} from "./queue/unready";
 import {cooldown} from "./moderator/cooldown";
 import {forceAbandon} from "./moderator/forceAbandon";
@@ -18,7 +18,7 @@ import {sendMatchEmbed} from "./admin/sendMatchEmbed";
 import {forceScore} from "./moderator/forceScore";
 
 
-const commandList: Command[] = [sync, lfg, prepare, _queue, ready, unready, pingPlayers, cooldown, forceAbandon, nullify, reverseCooldown, abandon, _transparency, stats, sendMatchEmbed, forceScore];
+const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, cooldown, forceAbandon, nullify, reverseCooldown, abandon, _transparency, stats, sendMatchEmbed, forceScore];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 
