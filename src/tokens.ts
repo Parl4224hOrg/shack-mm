@@ -21,9 +21,12 @@ export default {
     SNDScoreChannel: '1171851522469023836',
     SNDReadyChannel: '1171851194667368459',
     Player: '1171954619585404938',
+    WinEmoji: '<:Win:1174459375943946261>',
+    LossEmoji: '<:Loss:1174459377709764800>',
+    DrawEmoji: '<:Draw:1174459379114848336>',
     // constants
     StartingMMR: 1500,
-    PlayerCount: 10,
+    PlayerCount: 6,
     ScoreLimitSND: 10,
     Images: {
         Dust2: "https://media.discordapp.net/attachments/829767510563356722/884074468073410600/csgo_dust2.jpg",

@@ -2,6 +2,7 @@ import {StatsInt} from "../database/models/StatsModel";
 import {APIEmbed, EmbedBuilder} from "discord.js";
 import {UserInt} from "../database/models/UserModel";
 import {getRank} from "../utility/ranking";
+import tokens from "../tokens";
 
 export const statsEmbed = (stats: StatsInt, user: UserInt, name: string): APIEmbed => {
     const embed = new EmbedBuilder();
@@ -19,6 +20,24 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string): APIEmb
 
     }
 
+    let history = ""
+    let games;
+    if (stats.gameHistory.length < 10) {
+        games = stats.gameHistory.slice(-stats.gameHistory.length);
+    } else {
+        games = stats.gameHistory.slice(-10)
+    }
+
+
+    for (let game of games) {
+        if (game == 'win') {
+            history += (tokens.WinEmoji);
+        } else if (game == 'loss') {
+            history += (tokens.LossEmoji);
+        } else {
+            history += (tokens.DrawEmoji);
+        }
+    }
 
 
     embed.addFields({
@@ -39,7 +58,7 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string): APIEmb
             inline: true,
         },{
             name: 'History',
-            value: `coming soon`,
+            value: history,
             inline: false,
         }
     )
