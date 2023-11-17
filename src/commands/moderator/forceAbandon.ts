@@ -25,5 +25,5 @@ export const forceAbandon: Command = {
         }
     },
     name: 'force_abandon',
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: [tokens.ModRole, tokens.AdminRole],
 }

@@ -11,7 +11,6 @@ export const getUserByUser = async (user: User | GuildMember) => {
 }
 
 export const getUserById = async (userId: ObjectId) => {
-    console.log("here")
     return (
         await UserModel.findOne({_id: userId})) || createBlankUser()
 }

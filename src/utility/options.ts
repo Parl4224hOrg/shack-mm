@@ -39,7 +39,7 @@ export const queues: SlashCommandStringOption = new SlashCommandStringOption()
 
 export const queuesSpecific: SlashCommandStringOption = new SlashCommandStringOption()
     .setName('queue')
-    .setDescription('The queue to ready for')
+    .setDescription('The queue to _ready for')
     .setRequired(true)
     .setChoices(
         {name: 'SND', value: 'SND'},

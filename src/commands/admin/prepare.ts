@@ -28,7 +28,7 @@ export const prepare: Command = {
             switch (view) {
                 case 'snd_ready': {
                     await interaction.channel!.send({components: [sndFILLReadyView()], content: 'Ready up for SND'});
-                    await interaction.followUp({ephemeral: true, content: 'prepared snd ready up view'})
+                    await interaction.followUp({ephemeral: true, content: 'prepared snd _ready up view'})
                 } break;
                 case 'signup': {
                     await interaction.channel!.send({components: [signUpView()], content: tokens.SignUpMessage})

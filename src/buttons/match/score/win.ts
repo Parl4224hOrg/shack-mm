@@ -3,6 +3,7 @@ import {ButtonBuilder} from "@discordjs/builders";
 import {ButtonStyle} from "discord.js";
 import {logError} from "../../../loggers";
 import {matchScore} from "../../../utility/match";
+import {scoreLimiter} from "../../../utility/limiters";
 
 export const win: Button = {
     data: new ButtonBuilder()
@@ -17,4 +18,5 @@ export const win: Button = {
         }
     },
     id: 'match-win',
+    limiter: scoreLimiter,
 }

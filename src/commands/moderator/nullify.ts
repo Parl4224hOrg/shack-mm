@@ -27,5 +27,5 @@ export const nullify: Command = {
         }
     },
     name: 'nullify',
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: [tokens.ModRole, tokens.AdminRole],
 }

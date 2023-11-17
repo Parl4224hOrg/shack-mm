@@ -1,17 +1,15 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
-import {logError} from "../../loggers";
-import {matchReady} from "../../utility/match";
-import {queuesSpecific} from "../../utility/options";
+import {SubCommand} from "../../../interfaces/Command";
+import {SlashCommandSubcommandBuilder} from "discord.js";
+import {matchReady} from "../../../utility/match";
+import {logError} from "../../../loggers";
 
-export const ready: Command = {
-    data: new SlashCommandBuilder()
-        .setName('ready')
-        .setDescription('Readies you for a game in a queue')
-        .addStringOption(queuesSpecific)
+export const fiveVFive: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
+        .setName("5v5")
+        .setDescription("Ready for 5v5 queue")
         .addIntegerOption(option => option
             .setName('time')
-            .setDescription('Time to ready up for')
+            .setDescription('Time to _ready up for')
             .setRequired(true)
             .setMinValue(5)
             .setMaxValue(120)
@@ -27,5 +25,5 @@ export const ready: Command = {
             await logError(e, interaction)
         }
     },
-    name: 'ready',
+    name: '5v5'
 }
