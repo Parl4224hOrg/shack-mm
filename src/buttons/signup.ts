@@ -13,7 +13,7 @@ export const signup: Button = {
         try {
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             await member.roles.add(tokens.Player)
-            await interaction.reply({ephemeral: true, content: `You have signed up go to <@&${tokens.SNDReadyChannel}>`});
+            await interaction.reply({ephemeral: true, content: `You have signed up go to <@#${tokens.SNDReadyChannel}>`});
         } catch (e) {
             await logError(e, interaction);
         }

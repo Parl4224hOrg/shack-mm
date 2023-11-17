@@ -75,7 +75,7 @@ export class GameController {
     voteB1MessageId = '';
     voteA2MessageId = '';
     voteB2MessageId = '';
-    voteCountdown = 30;
+    voteCountdown = tokens.VoteTime;
     votes: Collection<string, string[]> = new Collection<string, string[]>();
     mapSet = {
         '1': "Mirage",
@@ -224,10 +224,10 @@ export class GameController {
         game.scoreA = this.scores[0];
         game.scoreB = this.scores[1];
         game.endDate = moment().unix();
-        if (game.scoreA == 7) {
+        if (game.scoreA == 10) {
             game.winner = 0;
-        } else if (game.scoreB == 7) {
-            game.winner = 0;
+        } else if (game.scoreB == 10) {
+            game.winner = 1;
         } else {
             game.winner = -1;
         }
@@ -238,8 +238,6 @@ export class GameController {
         await updateGame(game);
 
         this.processed = true;
-
-
     }
 
     async acceptPhase() {
@@ -344,6 +342,8 @@ export class GameController {
         let randomRange;
         let bans: string[];
 
+        console.log("here1");
+
         if (state == 2) {
             if (mapVotes[2].total == mapVotes[3].total) {
                 if (mapVotes[3].total == mapVotes[4].total) {
@@ -376,7 +376,8 @@ export class GameController {
             } else {
                 bans = getRandom(mapVotes, 0, randomRange + 3, 3);
             }
-        } else if (state == 3) {
+        }
+        else if (state == 3) {
             if (mapVotes[1].total == mapVotes[2].total) {
                 if (mapVotes[2].total == mapVotes[3].total) {
                     randomRange = 2;
@@ -402,21 +403,26 @@ export class GameController {
                     bans = getRandom(mapVotes, 0, 2, 2);
                 }
             }
-        } else if (state == 4){
+        }
+        else if (state == 4){
             if (mapVotes[0].total == mapVotes[1].total) {
-                bans = getRandom(mapVotes, 0, 1, 1);
+                bans = getRandom(mapVotes, 0, 2, 1);
             } else {
                 bans = [mapVotes[0].id];
             }
-        } else {
+        }
+        else {
             if (mapVotes[0].total == mapVotes[1].total) {
-                bans = getRandom(mapVotes, 0, 1, 2);
+                console.log("wtf")
+                bans = getRandom(mapVotes, 0, 2, 2);
             } else {
                 bans = [mapVotes[0].id, mapVotes[1].id];
             }
         }
 
         let newMaps: string[] = [];
+
+        console.log("here2")
 
         let convertedBans = [];
         for (let ban of bans) {
@@ -429,9 +435,7 @@ export class GameController {
 
         }
 
-        console.log(bans);
-        console.log(convertedBans);
-
+        console.log("here3")
 
         if (state <= 4) {
             for (let map of tokens.MapPool) {
@@ -440,7 +444,6 @@ export class GameController {
                 }
             }
         }
-
 
         if (state == 2) {
             this.mapSet = {
@@ -479,8 +482,10 @@ export class GameController {
             }
         }
         this.state = state;
-        this.voteCountdown = 30;
+        this.voteCountdown = tokens.VoteTime;
         this.votes.clear();
+
+        console.log("1here")
 
         return convertedBans;
     }
@@ -603,7 +608,9 @@ export class GameController {
     async voteB2() {
         this.voteCountdown--;
         if (this.voteCountdown <= 0) {
+            console.log("her3434")
             const bans = this.calcVotes(5);
+            console.log("here4")
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
             const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
 
@@ -614,6 +621,7 @@ export class GameController {
 
             await teamAChannel.send({content: `Selected ${bans[0]}`});
             await teamBChannel.send({content: `Team B selected ${bans[0]}`});
+            console.log("here5")
 
             const finalChannel = await this.guild.channels.create({
                 name: `match-${this.matchNumber}`,
@@ -624,10 +632,12 @@ export class GameController {
                 reason: 'Create final match channel',
             });
             this.finalChannelId = finalChannel.id;
+            console.log("here6")
             const message = await finalChannel.send({components: [initialSubmit()], embeds: [teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)]});
             finalChannel.messages.pin(message);
             await teamAChannel.delete();
             await teamBChannel.delete();
+            console.log("here7")
         }
     }
 
@@ -771,7 +781,6 @@ export class GameController {
         }
         if (this.scores[0] < 0 && this.scores[1] < 0) {
             this.scores[team] = score;
-            this.state = 6;
             return {success: true, message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"}`}
         } else {
             let scoreA = this.scores[0];
@@ -784,7 +793,7 @@ export class GameController {
             }
             if (((scoreA + scoreB) <= 19) && scoreA <= 10 && scoreB <= 10) {
                 if (scoreA >= 0 && scoreB >= 0) {
-                    this.state = 7;
+                    this.state = 6;
                     this.scoresConfirmMessageSent = false;
                     this.scores = [scoreA, scoreB];
                 }
@@ -880,10 +889,13 @@ export class GameController {
         } catch {
             await logWarn("Could not delete final channel", this.client);
         }
-        await this.sendScoreEmbed();
+        if (!this.cleanedUp) {
+            await this.sendScoreEmbed();
+        }
     }
 
     async sendScoreEmbed() {
+        this.cleanedUp = true
         const game = await getGameById(this.id);
         const channel = await this.guild.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
         await channel.send({content: `Match ${this.matchNumber}`, embeds: [matchFinalEmbed(game!, this.users)]});

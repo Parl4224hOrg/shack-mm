@@ -13,7 +13,7 @@ export const accept: Button = {
     run: async (interaction, data) => {
         try {
             const dbUser = await getUserByUser(interaction.user);
-            const controller = data.findController(dbUser._id);
+            const controller = data.findController();
             if (controller) {
                 const response = controller.acceptGame(dbUser._id);
                 await interaction.reply({ephemeral: true, content: response.message});

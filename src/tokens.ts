@@ -24,6 +24,7 @@ export default {
     StartingMMR: 1500,
     PlayerCount: 10,
     ScoreLimitSND: 10,
+    VoteTime: 10,
     Images: {
         Dust2: "https://media.discordapp.net/attachments/829767510563356722/884074468073410600/csgo_dust2.jpg",
         Oilrig: "https://media.discordapp.net/attachments/654784936234188862/761408657547460638/Screenshot_2020-10-01_133636.png",

@@ -12,12 +12,12 @@ export const confirmScore: Button = {
     run: async (interaction, data) => {
         try {
             const dbUser = await getUserByUser(interaction.user);
-            const controller = data.findController(dbUser._id);
+            const controller = data.findController();
             if (controller) {
                 const game = controller.findGame(dbUser._id);
                 if (game) {
                     const response = game.acceptScore(dbUser._id);
-                    await interaction.reply({ephemeral: false, content: response.message});
+                    await interaction.reply({ephemeral: true, content: response.message});
                 } else {
                     await interaction.reply({ephemeral: true, content: "Could not find game please contact a mod"});
                 }

@@ -49,10 +49,8 @@ export const prepare: Command = {
                 } break;
                 case 'c2': {
                     const channel = interaction.channel as TextChannel;
-                    const messages = await channel.messages.fetch()
-                    for (let message of messages.values()) {
-                        await message.delete();
-                    }
+                    await channel.bulkDelete(100, true);
+                    await interaction.followUp({ephemeral: true, content: "done"})
                 } break;
                 default: break;
             }
