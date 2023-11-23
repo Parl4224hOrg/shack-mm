@@ -4,7 +4,7 @@ import {GameData, InternalResponse, QueueData} from "../interfaces/Internal";
 import {Data} from "../data";
 import moment from "moment";
 import {getStats} from "../modules/getters/getStats";
-import {grammaticalList} from "../utility/grammatical";
+import {grammaticalList, grammaticalTime} from "../utility/grammatical";
 import {ObjectId} from "mongoose";
 import {updateUser} from "../modules/updaters/updateUser";
 import {GameController} from "./GameController";
@@ -41,7 +41,7 @@ export class QueueController {
 
     async addUser(user: UserInt, time: number): Promise<InternalResponse> {
         if (user.banUntil > moment().unix()) {
-            return {success: false, message: `You are currently banned for another ${0}`}
+            return {success: false, message: `You are currently banned for another ${grammaticalTime(user.banUntil - moment().unix())}`}
         }
         if (this.data.inGame(user._id)) {
             return {success: false, message: `You are currently in a game`}
@@ -77,6 +77,7 @@ export class QueueController {
             if (game.isProcessed()) {
                 await game.cleanup();
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
+                await game.sendScoreEmbed();
             }
         }
     }

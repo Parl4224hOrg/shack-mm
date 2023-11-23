@@ -3,7 +3,6 @@ import {ButtonBuilder} from "@discordjs/builders";
 import {ButtonStyle} from "discord.js";
 import {logError} from "../../../loggers";
 import {matchUnready} from "../../../utility/match";
-import {readyLimiter} from "../../../utility/limiters";
 
 export const unready: Button = {
     data: new ButtonBuilder()
@@ -18,5 +17,4 @@ export const unready: Button = {
         }
     },
     id: 'unready-snd',
-    limiter: readyLimiter,
 }

@@ -21,12 +21,12 @@ import {QueueControllerInt} from "./database/models/QueueControllerModel";
 
 export class Data {
     private readonly client: Client;
-    private saveLoop = cron.schedule('*/3 * * * *', async () => {
+    private saveLoop = cron.schedule('*/1 * * * * *', async () => {
         await this.save()
-    })
+    });
     private tickLoop = cron.schedule('*/1 * * * * *', async () => {
         await this.tick()
-    })
+    });
     private readonly NA_SND: QueueController;
     private readonly EU_SND: QueueController;
     private readonly APAC_SND: QueueController;

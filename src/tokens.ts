@@ -26,7 +26,7 @@ export default {
     DrawEmoji: '<:Draw:1174459379114848336>',
     // constants
     StartingMMR: 1500,
-    PlayerCount: 6,
+    PlayerCount: 2,
     ScoreLimitSND: 10,
     Images: {
         Dust2: "https://media.discordapp.net/attachments/829767510563356722/884074468073410600/csgo_dust2.jpg",

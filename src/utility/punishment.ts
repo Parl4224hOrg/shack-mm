@@ -3,6 +3,7 @@ import {getUserById} from "../modules/getters/getUser";
 import moment from "moment/moment";
 import {Guild, TextChannel} from "discord.js";
 import tokens from "../tokens";
+import UserModel from "../database/models/UserModel";
 
 export const abandon = async (userId: ObjectId, guild: Guild) => {
     const user = await getUserById(userId);
@@ -17,6 +18,7 @@ export const abandon = async (userId: ObjectId, guild: Guild) => {
         default: user.lastBan = now; user.banUntil = now + 192 * 60 * 60; break;
     }
     user.banCounter++;
+    await UserModel.findOneAndUpdate({_id: user._id}, user);
 
     const channel = await guild.channels.fetch(tokens.GeneralChannel) as TextChannel;
     await channel.send(`<@${user.id}> has abandoned a match and been given a cooldown`);

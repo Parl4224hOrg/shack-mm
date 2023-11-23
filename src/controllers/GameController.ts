@@ -161,6 +161,8 @@ export class GameController {
                 default:
                     if (this.abandoned && this.abandonCountdown <= 0 && !this.cleanedUp) {
                         await this.abandonCleanup(false);
+                    } else {
+                        this.abandonCountdown--;
                     }
             }
         } catch (e) {
@@ -295,10 +297,10 @@ export class GameController {
     }
 
     async abandon(user: GameUser) {
-        this.state = -1;
-        this.abandoned = true;
         await abandon(user.dbId, this.guild);
         await this.sendAbandonMessage(user.discordId);
+        this.state = -1;
+        this.abandoned = true;
     }
 
     calcVotes(state: number): string[] {
@@ -832,6 +834,7 @@ export class GameController {
         } else {
             game!.abandoned = true;
         }
+        this.processed = true;
         await updateGame(game!);
         this.cleanedUp = true;
         try {
@@ -880,7 +883,6 @@ export class GameController {
         } catch {
             await logWarn("Could not delete final channel", this.client);
         }
-        await this.sendScoreEmbed();
     }
 
     async sendScoreEmbed() {

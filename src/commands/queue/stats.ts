@@ -11,7 +11,6 @@ export const stats: Command = {
     data: new SlashCommandBuilder()
         .setName('stats')
         .setDescription('Displays a users stats')
-        .addStringOption(queues)
         .addUserOption(userOption('User to display stats of').setRequired(false)),
     run: async (interaction) => {
         try {
@@ -21,7 +20,9 @@ export const stats: Command = {
             }
 
             const dbUser = await getUserByUser(user);
-            const queueId = interaction.options.getString('queue', true)
+            // const queueId = interaction.options.getString('queue', true)
+            const queueId = "SND";
+            // @ts-ignore
             if (queueId != "ALL") {
                 const stats = await getStats(dbUser._id, queueId);
                 await interaction.reply({ephemeral: false, embeds: [statsEmbed(stats, dbUser, user.username)]});

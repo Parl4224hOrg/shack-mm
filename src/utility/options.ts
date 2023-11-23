@@ -14,6 +14,14 @@ export const score = (name: string) => {
         .setMaxValue(7)
 }
 
+export const games = () => {
+    return new SlashCommandIntegerOption()
+        .setName('games')
+        .setDescription("Number of games to graph defaults to 10 with a min of 10")
+        .setRequired(false)
+        .setMinValue(10)
+}
+
 export const reason: SlashCommandStringOption = new SlashCommandStringOption()
     .setName('reason')
     .setDescription('Reason the action was taken')
@@ -50,4 +58,11 @@ export const userOption = (description: string): SlashCommandUserOption => {
         .setName('user')
         .setDescription(description)
         .setRequired(true);
+}
+
+export const userOptional = (description: string): SlashCommandUserOption => {
+    return new SlashCommandUserOption()
+        .setName('user')
+        .setDescription(description)
+        .setRequired(false);
 }
