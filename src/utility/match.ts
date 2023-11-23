@@ -4,7 +4,7 @@ import {Data} from "../data";
 
 export const matchVotes = async (interaction: ButtonInteraction, data: Data) => {
     const dbUser = await getUserByUser(interaction.user);
-    const controller = data.findController(dbUser._id);
+    const controller = data.findController();
     if (controller) {
         const game = controller.findGame(dbUser._id);
         if (game) {
@@ -31,7 +31,7 @@ export const matchUnready = async (interaction: ButtonInteraction | ChatInputCom
 
 export const matchScore = async (interaction: ButtonInteraction, data: Data, score: number)=> {
     const dbUser = await getUserByUser(interaction.user);
-    const controller = data.findController(dbUser._id);
+    const controller = data.findController();
     if (controller) {
         const game = controller.findGame(dbUser._id);
         if (game) {

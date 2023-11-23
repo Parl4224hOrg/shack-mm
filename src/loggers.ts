@@ -79,19 +79,23 @@ export async function logError(error: any, interaction: Interaction) {
         }
 
     } else if (interaction.isButton()) {
-        fields.push({
-            name: "buttonId",
-            value: `\`\`\`${interaction.customId}\`\`\``,
-            inline: true,
-        },{
-            name: "buttonLabel",
-            value: `\`\`\`${interaction.component.label}\`\`\``,
-            inline: true,
-        },{
-            name: "userId",
-            value: `\`\`\`${interaction.user.id}\`\`\``,
-            inline: true,
-        },);
+        try {
+            fields.push({
+                name: "buttonId",
+                value: `\`\`\`${interaction.customId}\`\`\``,
+                inline: true,
+            }, {
+                name: "buttonLabel",
+                value: `\`\`\`${interaction.component.label}\`\`\``,
+                inline: true,
+            }, {
+                name: "userId",
+                value: `\`\`\`${interaction.user.id}\`\`\``,
+                inline: true,
+            },);
+        } catch (e) {
+            await logWarn("warn", interaction.client);
+        }
     }
     embed.setFields(fields);
     await channel!.send({embeds: [embed]});

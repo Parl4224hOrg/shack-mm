@@ -13,6 +13,7 @@ import tokens from "../tokens";
 import {QueueControllerInt} from "../database/models/QueueControllerModel";
 import {getGameControllerById} from "../modules/getters/getGameController";
 import {GameControllerInt} from "../database/models/GameControllerModel";
+import {logWarn} from "../loggers";
 
 export class QueueController {
     readonly queueId = 'SND'
@@ -30,12 +31,16 @@ export class QueueController {
     }
 
     async load(data: QueueControllerInt){
-        this.inQueue = data.inQueue;
-        const guild = await this.client.guilds.fetch(tokens.GuildID)
-        for (let game of data.activeGames) {
-            const gameNew = new GameController(game, this.client, guild, -1, [], [], this.queueId, -10)
-            const dbGame = await getGameControllerById(game)
-            await gameNew.load(dbGame as GameControllerInt);
+        try {
+            this.inQueue = data.inQueue;
+            const guild = await this.client.guilds.fetch(tokens.GuildID)
+            for (let game of data.activeGames) {
+                const gameNew = new GameController(game, this.client, guild, -1, [], [], this.queueId, -10)
+                const dbGame = await getGameControllerById(game)
+                await gameNew.load(dbGame as GameControllerInt);
+            }
+        } catch (e) {
+            await logWarn("Couldn't load data", this.client);
         }
     }
 
@@ -83,6 +88,7 @@ export class QueueController {
     }
 
     addGame(game: GameController) {
+        console.log("here8")
         this.activeGames.push(game);
     }
 
