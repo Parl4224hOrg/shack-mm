@@ -1,13 +1,12 @@
 import {ActionRowBuilder, MessageActionRowComponentBuilder} from "discord.js";
 import {score0, score1, score2, score3, score4, score5, score6, score7, score8, score9} from "../buttons/match/score/score";
 import {win} from "../buttons/match/score/win";
-import {draw} from "../buttons/match/score/draw";
 import {loss} from "../buttons/match/score/loss";
 import {confirmScore} from "../buttons/match/score/confirmScore";
 
 export const initialSubmit = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(win.data, loss.data, draw.data).toJSON()
+        .addComponents(win.data, loss.data).toJSON()
 }
 
 export const roundsWon = () => {

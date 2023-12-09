@@ -39,6 +39,10 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string): APIEmb
         }
     }
 
+    if (history.length == 0) {
+        history = "Play a game to show"
+    }
+
 
     embed.addFields({
             name: 'Win %',

@@ -11,7 +11,7 @@ import {matchFinalEmbed} from "../../embeds/matchEmbeds";
 import {GameUser} from "../../interfaces/Game";
 import {getUserById} from "../../modules/getters/getUser";
 
-export const sendMatchEmbed: Command = {
+export const manualSubmit: Command = {
     data: new SlashCommandBuilder()
         .setName('manual_submit')
         .setDescription('Send a match embed and processes scores for it')
@@ -44,9 +44,9 @@ export const sendMatchEmbed: Command = {
             game.scoreA = interaction.options.getInteger('score_a', true);
             game.scoreB = interaction.options.getInteger('score_b', true);
             game.endDate = moment().unix();
-            if (game.scoreA == 7) {
+            if (game.scoreA == 10) {
                 game.winner = 0;
-            } else if (game.scoreB == 7) {
+            } else if (game.scoreB == 10) {
                 game.winner = 0;
             } else {
                 game.winner = -1;
@@ -58,9 +58,9 @@ export const sendMatchEmbed: Command = {
             }
             for (let user of game.teamB) {
                 const dbUser = await getUserById(user);
-                users.push({dbId: user, discordId: dbUser.id, team: 0, accepted: true});
+                users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true});
             }
-            const changes = await processMMR(users, [game.scoreA, game.scoreB], "SND", 7);
+            const changes = await processMMR(users, [game.scoreA, game.scoreB], "SND", 10);
             game.teamAChanges = changes[0];
             game.teamBChanges = changes[1];
 
@@ -75,6 +75,6 @@ export const sendMatchEmbed: Command = {
             await logError(e, interaction);
         }
     },
-    name: 'send_match_embed',
+    name: 'manual_submit',
     allowedUsers: [tokens.Parl],
 }

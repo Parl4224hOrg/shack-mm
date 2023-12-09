@@ -51,10 +51,12 @@ export class QueueController {
         if (this.data.inGame(user._id)) {
             return {success: false, message: `You are currently in a game`}
         }
-        this.removeUser(user._id);
+        this.removeUser(user._id, true);
         const stats = await getStats(user._id, this.queueId);
-        user.stats.push(stats._id);
-        await updateUser(user);
+        if (!user.stats.includes(stats._id)) {
+            user.stats.push(stats._id);
+            await updateUser(user);
+        }
         this.inQueue.push({
             dbId: user._id,
             discordId: user.id,
@@ -74,13 +76,17 @@ export class QueueController {
         const time = moment().unix()
         for (let user of this.inQueue) {
             if (user.queueExpire < time) {
-                this.removeUser(user.dbId);
+                this.removeUser(user.dbId, true);
             }
         }
         for (let game of this.activeGames) {
             await game.tick();
             if (game.isProcessed()) {
-                await game.cleanup();
+                if (game.abandoned) {
+                    await game.abandonCleanup(false);
+                } else {
+                    await game.cleanup();
+                }
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
                 await game.sendScoreEmbed();
             }
@@ -88,7 +94,6 @@ export class QueueController {
     }
 
     addGame(game: GameController) {
-        console.log("here8")
         this.activeGames.push(game);
     }
 
@@ -101,12 +106,14 @@ export class QueueController {
         return queueStr + grammaticalList(names);
     }
 
-    removeUser(userId: ObjectId) {
+    removeUser(userId: ObjectId, noMessage: boolean) {
         this.inQueue.forEach( async (user, index) => {
             if (String(user.dbId) == String(userId)) {
                 this.inQueue.splice(index, 1);
                 const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
-                await channel.send(`${user.name} has unreadied`);
+                if (!noMessage) {
+                    await channel.send(`${user.name} has unreadied`);
+                }
             }
         });
     }

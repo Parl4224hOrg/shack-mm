@@ -10,13 +10,16 @@ export const fiveVFive: SubCommand = {
         .addIntegerOption(option => option
             .setName('time')
             .setDescription('Time to _ready up for')
-            .setRequired(true)
-            .setMinValue(5)
-            .setMaxValue(120)
+            .setRequired(false)
         ),
     run: async (interaction, data) => {
         try {
-            const time = interaction.options.getInteger('time', true);
+            let time = interaction.options.getInteger('time', false);
+            if (time) {
+                time = Math.max(Math.min(time, 120), 5)
+            } else {
+                time = 30;
+            }
             await matchReady(interaction, data, "SND", "FILL", time);
         } catch (e) {
             await logError(e, interaction)

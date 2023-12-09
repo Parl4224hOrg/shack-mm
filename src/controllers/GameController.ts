@@ -64,7 +64,7 @@ export class GameController {
     acceptChannelGen = false;
     acceptChannelId = '';
     matchRoleId = '';
-    acceptCountdown = 300;
+    acceptCountdown = 180;
 
     voteChannelsGen = false;
     teamAChannelId = '';
@@ -161,8 +161,7 @@ export class GameController {
                 default:
                     if (this.abandoned && this.abandonCountdown <= 0 && !this.cleanedUp) {
                         await this.abandonCleanup(false);
-                    } else {
-                        this.abandonCountdown--;
+
                     }
             }
         } catch (e) {
@@ -295,6 +294,7 @@ export class GameController {
     }
 
     async abandon(user: GameUser) {
+        this.abandonCountdown = 20;
         await abandon(user.dbId, this.guild);
         await this.sendAbandonMessage(user.discordId);
         this.state = -1;
@@ -413,7 +413,6 @@ export class GameController {
         }
         else {
             if (mapVotes[0].total == mapVotes[1].total) {
-                console.log("wtf")
                 bans = getRandom(mapVotes, 0, 2, 2);
             } else {
                 bans = [mapVotes[0].id, mapVotes[1].id];
@@ -421,6 +420,7 @@ export class GameController {
         }
 
         let newMaps: string[] = [];
+
 
         let convertedBans = [];
         for (let ban of bans) {
@@ -481,6 +481,7 @@ export class GameController {
         this.state = state;
         this.voteCountdown = tokens.VoteTime;
         this.votes.clear();
+
 
         return convertedBans;
     }
@@ -625,7 +626,7 @@ export class GameController {
             });
             this.finalChannelId = finalChannel.id;
             const message = await finalChannel.send({components: [initialSubmit()], embeds: [teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)]});
-            finalChannel.messages.pin(message);
+            await finalChannel.messages.pin(message);
             await teamAChannel.delete();
             await teamBChannel.delete();
         }
@@ -788,14 +789,14 @@ export class GameController {
                     this.scores = [scoreA, scoreB];
                 }
                 return {success: true, message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"}`};
-            } else if (team == 0 && scoreB < 0) {
+            } else if (team == 0) {
                 this.scores[0] = scoreA;
                 return {success: true, message: `Score of ${score} submitted for team a`};
-            } else if (team == 1 && scoreA < 0) {
+            } else if (team == 1) {
                 this.scores[1] = scoreB;
                 return {success: true, message: `Score of ${score} submitted for team b`};
             } else {
-                return {success: false, message: "Invalid score submitted"}
+                return {success: false, message: `Invalid score of ${score} submitted`}
             }
 
 
@@ -831,7 +832,6 @@ export class GameController {
         } else {
             game!.abandoned = true;
         }
-        this.processed = true;
         await updateGame(game!);
         this.cleanedUp = true;
         try {
@@ -852,6 +852,7 @@ export class GameController {
         } catch {
             await logWarn("Could not delete team b channel", this.client);
         }
+        this.processed = true;
         await this.cleanup();
     }
 
@@ -880,7 +881,7 @@ export class GameController {
         } catch {
             await logWarn("Could not delete final channel", this.client);
         }
-        if (!this.cleanedUp) {
+        if (!this.cleanedUp && !this.abandoned) {
             await this.sendScoreEmbed();
         }
     }
