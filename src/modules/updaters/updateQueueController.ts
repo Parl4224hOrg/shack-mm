@@ -6,7 +6,6 @@ export const updateQueueController = async (queue: QueueController) => {
     for (let game of queue.activeGames) {
         gameIds.push(game.id);
     }
-    console.log(gameIds)
     return QueueControllerModel.findOneAndUpdate({queueId: queue.queueId, queueName: queue.queueName}, {
         queueId: queue.queueId,
         queueName: queue.queueName,

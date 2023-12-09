@@ -4,9 +4,9 @@ WORKDIR /user/src/app
 
 COPY package*.json ./
 
-RUN npm ci --omit-dev
-
 COPY . .
+
+RUN npm ci --omit-dev
 
 RUN npx tsc
 

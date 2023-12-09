@@ -29,6 +29,7 @@ export default {
     PlayerCount: 10,
     ScoreLimitSND: 10,
     VoteTime: 30,
+    AbandonTime: 30,
     Images: {
         Dust2: "https://shackmm.com/static/images/dust2.png",
         Oilrig: "https://shackmm.com/static/images/oilrig.png",

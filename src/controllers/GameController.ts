@@ -161,7 +161,8 @@ export class GameController {
                 default:
                     if (this.abandoned && this.abandonCountdown <= 0 && !this.cleanedUp) {
                         await this.abandonCleanup(false);
-
+                    } else {
+                        this.abandonCountdown--;
                     }
             }
         } catch (e) {
@@ -294,10 +295,10 @@ export class GameController {
     }
 
     async abandon(user: GameUser) {
-        this.abandonCountdown = 20;
+        this.abandonCountdown = tokens.AbandonTime;
         await abandon(user.dbId, this.guild);
         await this.sendAbandonMessage(user.discordId);
-        this.state = -1;
+        this.state += 10;
         this.abandoned = true;
     }
 
@@ -925,10 +926,10 @@ export class GameController {
     }
 
     async sendAbandonMessage(userId: string) {
-        if (this.state == 0) {
+        if (this.state == 10) {
             const channel = await this.guild.channels.fetch(this.acceptChannelId) as TextChannel;
             await channel.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
-        } else if (this.state == 1) {
+        } else if (this.state == 11) {
             const channelA = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;
             await channelA.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
             const channelB = await this.guild.channels.fetch(this.teamBChannelId) as TextChannel;

@@ -68,7 +68,6 @@ export class Data {
     }
 
     async createMatch(regionId: string, queue: QueueController, queueId: string, scoreLimit: number) {
-        console.log("here1")
         let users: QueueUser[] = []
         while (users.length < tokens.PlayerCount && queue.inQueueNumber() > 0) {
             users.push(queue.getUser())
@@ -76,7 +75,6 @@ export class Data {
         while (users.length < tokens.PlayerCount) {
             users.push(this.FILL_SND.getUser())
         }
-        console.log("here2")
         const teams = await makeTeams(users);
         let userIds: ObjectId[] = [];
 
@@ -93,11 +91,8 @@ export class Data {
         try {
             const gameNum = await this.getIdSND()
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
-            console.log("here5")
             const game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit);
-            console.log("heer6")
             await createGameController(game);
-            console.log("here7")
             queue.addGame(game);
         } catch (e) {
             console.error(e);

@@ -27,11 +27,20 @@ export const graph: Command = {
             const stats = await getStats(dbUser._id, "SND");
             const start = stats.gamesPlayed - gameNumber;
             if (stats.gamesPlayed < 20) {
-                await interaction.reply({ephemeral: true, content: "A user must play 20 games before they can be graphed"})
+                await interaction.reply({
+                    ephemeral: true,
+                    content: "A user must play 20 games before they can be graphed"
+                })
             } else if (start < 10) {
-                await interaction.reply({ephemeral: true, content: `You are trying to graph more games than the user has played the largest number you can enter is ${stats.gamesPlayed - 10}`});
+                await interaction.reply({
+                    ephemeral: true,
+                    content: `You are trying to graph more games than the user has played the largest number you can enter is ${stats.gamesPlayed - 10}`
+                });
             } else {
-                await interaction.reply({content: "Displaying Graph", files: [await getGraph(stats.mmrHistory, start, stats.gamesPlayed, user.username)]});
+                await interaction.reply({
+                    content: "Displaying Graph",
+                    files: [await getGraph(stats.mmrHistory, start, stats.gamesPlayed, user.username)]
+                });
             }
         } catch (e) {
             await logError(e, interaction);

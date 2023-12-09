@@ -19,7 +19,7 @@ import {forceScore} from "./moderator/forceScore";
 import {graph} from "./queue/graph";
 
 
-const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, cooldown, forceAbandon, nullify, reverseCooldown, abandon, _transparency, stats, manualSubmit, forceScore, graph];
+const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, cooldown, forceAbandon, reverseCooldown, abandon, _transparency, stats, manualSubmit, forceScore, graph, nullify];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

@@ -60,7 +60,7 @@ export const manualSubmit: Command = {
                 const dbUser = await getUserById(user);
                 users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true});
             }
-            const changes = await processMMR(users, [game.scoreA, game.scoreB], "SND", 10);
+            const changes = await processMMR(users, [game.scoreA, game.scoreB], "SND", tokens.ScoreLimitSND);
             game.teamAChanges = changes[0];
             game.teamBChanges = changes[1];
 

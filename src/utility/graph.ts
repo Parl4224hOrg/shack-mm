@@ -1,6 +1,4 @@
 import {ChartJSNodeCanvas} from "chartjs-node-canvas";
-import {StatsInt} from "../database/models/StatsModel";
-import {UserInt} from "../database/models/UserModel";
 
 const width = 1000;
 const height = 600;
@@ -43,54 +41,57 @@ const gridSettings = {
     display: false,
 };
 
-const options = {
-    fill: false,
-    interaction: {
-        intersect: false
-    },
-    radius: 0,
-    color: 'rgb(0, 0, 0)',
-    scales: {
-        x: {
-            ticks: tickSettings,
-            grid: gridSettings,
-            title: axisTitle("Game Number"),
+const options = (max: number, min: number, username: string) => {
+    return {
+        fill: false,
+        interaction: {
+            intersect: false
         },
-        y: {
-            ticks: tickSettings,
-            grid: gridSettings,
-            title: axisTitle("Rating"),
-            suggestedMax: 1410,
-            suggestedMin: 1030,
-        }
-    },
-    plugins: {
-        legend: {
-            display: false,
-            labels: {
+        radius: 0,
+        color: 'rgb(0, 0, 0)',
+        scales: {
+            x: {
+                ticks: tickSettings,
+                grid: gridSettings,
+                title: axisTitle("Game Number"),
+            },
+            y: {
+                ticks: tickSettings,
+                grid: gridSettings,
+                title:
+                axisTitle("Rating"),
+                suggestedMax: max + 10,
+                suggestedMin: min - 10,
+            }
+        },
+        plugins: {
+            legend: {
                 display: false,
+                labels: {
+                    display: false,
+                    color: white,
+                    padding: 20,
+                    font: {
+                        size: 30,
+                    }
+                }
+            },
+            title: {
+                display: true,
+                text: username,
                 color: white,
-                padding: 20,
                 font: {
                     size: 30,
+                },
+                padding: {
+                    top: 10,
+                    bottom: 10
                 }
-            }
-        },
-        title: {
-            display: true,
-            text: "Parl4224h's Rating History",
-            color: white,
-            font: {
-                size: 30,
             },
-            padding: {
-                top: 10,
-                bottom: 10
+            chartAreaBorder: {
+                borderColor: white,
+                borderWidth: 2,
             }
-        },
-        chartAreaBorder: {
-            borderColor: white,
-            borderWidth: 2,
         }
     }
 };
@@ -103,7 +104,6 @@ export const getGraph = async (history: number[], start: number, end: number, us
         labels.push(String(count));
         count++;
     }
-    console.log(labels)
     const config: any = {
         type: 'line',
         data: {
@@ -118,7 +118,7 @@ export const getGraph = async (history: number[], start: number, end: number, us
                 spanGaps: true
             }]
         },
-        options: options,
+        options: options(Math.max.apply(Math, games), Math.min.apply(Math, games), username),
         plugins: [chartAreaBorder]
     };
     return await canvas.renderToBuffer(config);
