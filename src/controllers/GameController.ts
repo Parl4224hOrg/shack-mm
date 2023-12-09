@@ -790,10 +790,10 @@ export class GameController {
                     this.scores = [scoreA, scoreB];
                 }
                 return {success: true, message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"}`};
-            } else if (team == 0 && scoreB < 0) {
+            } else if (team == 0) {
                 this.scores[0] = scoreA;
                 return {success: true, message: `Score of ${score} submitted for team a`};
-            } else if (team == 1 && scoreA < 0) {
+            } else if (team == 1) {
                 this.scores[1] = scoreB;
                 return {success: true, message: `Score of ${score} submitted for team b`};
             } else {

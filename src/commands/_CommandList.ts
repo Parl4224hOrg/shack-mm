@@ -14,11 +14,11 @@ import {reverseCooldown} from "./moderator/reverseCooldown";
 import {abandon} from "./match/abandon";
 import {_transparency} from "./moderator/_transparency";
 import {stats} from "./queue/stats";
-import {sendMatchEmbed} from "./admin/sendMatchEmbed";
+import {manualSubmit} from "./admin/manualSubmit";
 import {forceScore} from "./moderator/forceScore";
 
 
-const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, cooldown, forceAbandon, nullify, reverseCooldown, abandon, _transparency, stats, sendMatchEmbed, forceScore];
+const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, cooldown, forceAbandon, nullify, reverseCooldown, abandon, _transparency, stats, manualSubmit, forceScore];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

@@ -11,7 +11,7 @@ export const score = (name: string) => {
         .setDescription('Score to submit')
         .setRequired(true)
         .setMinValue(0)
-        .setMaxValue(7)
+        .setMaxValue(10)
 }
 
 export const reason: SlashCommandStringOption = new SlashCommandStringOption()
