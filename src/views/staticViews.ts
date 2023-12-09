@@ -5,6 +5,7 @@ import {readyFILL15, readyFILL30, readyFILL60, readyFILL120} from "../buttons/qu
 import {readyNA15, readyNA30, readyNA60, readyNA120} from "../buttons/queue/SND/ReadyNA";
 import {signup} from "../buttons/signup";
 import {unready} from "../buttons/queue/SND/unready";
+import {p2pToggle} from "../buttons/p2pToggle";
 
 export const sndAPACReadyView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -28,5 +29,5 @@ export const sndNAReadyView = () => {
 
 export const signUpView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(signup.data).toJSON();
+        .addComponents(signup.data, p2pToggle.data).toJSON();
 }

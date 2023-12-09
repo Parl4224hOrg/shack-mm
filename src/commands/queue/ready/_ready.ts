@@ -1,8 +1,6 @@
 import {Command, SubCommand} from "../../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {logError} from "../../../loggers";
-import {matchReady} from "../../../utility/match";
-import {queuesSpecific} from "../../../utility/options";
 import {Collection} from "discord.js";
 import {commandPermission} from "../../../utility/commandPermission";
 import {onSubCommand} from "../../../events/onSubCommand";

@@ -10,17 +10,17 @@ export const fiveVFive: SubCommand = {
         .addIntegerOption(option => option
             .setName('time')
             .setDescription('Time to _ready up for')
-            .setRequired(true)
-            .setMinValue(5)
-            .setMaxValue(120)
+            .setRequired(false)
         ),
     run: async (interaction, data) => {
         try {
-            const queueOption = interaction.options.getString('queue', true);
-            const queueId = queueOption.substring(0, queueOption.indexOf('-'));
-            // const queue = queueOption.substring(queueOption.indexOf('-') + 1); Add back if multiple region split
-            const time = interaction.options.getInteger('time', true);
-            await matchReady(interaction, data, queueId, "FILL", time);
+            let time = interaction.options.getInteger('time', false);
+            if (time) {
+                time = Math.max(Math.min(time, 120), 5)
+            } else {
+                time = 30;
+            }
+            await matchReady(interaction, data, "SND", "FILL", time);
         } catch (e) {
             await logError(e, interaction)
         }

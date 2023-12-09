@@ -64,7 +64,7 @@ export class GameController {
     acceptChannelGen = false;
     acceptChannelId = '';
     matchRoleId = '';
-    acceptCountdown = 300;
+    acceptCountdown = 180;
 
     voteChannelsGen = false;
     teamAChannelId = '';
@@ -161,6 +161,7 @@ export class GameController {
                 default:
                     if (this.abandoned && this.abandonCountdown <= 0 && !this.cleanedUp) {
                         await this.abandonCleanup(false);
+
                     }
             }
         } catch (e) {
@@ -293,10 +294,11 @@ export class GameController {
     }
 
     async abandon(user: GameUser) {
-        this.state = -1;
-        this.abandoned = true;
+        this.abandonCountdown = 20;
         await abandon(user.dbId, this.guild);
         await this.sendAbandonMessage(user.discordId);
+        this.state = -1;
+        this.abandoned = true;
     }
 
     calcVotes(state: number): string[] {
@@ -342,7 +344,6 @@ export class GameController {
         let randomRange;
         let bans: string[];
 
-        console.log("here1");
 
         if (state == 2) {
             if (mapVotes[2].total == mapVotes[3].total) {
@@ -413,7 +414,6 @@ export class GameController {
         }
         else {
             if (mapVotes[0].total == mapVotes[1].total) {
-                console.log("wtf")
                 bans = getRandom(mapVotes, 0, 2, 2);
             } else {
                 bans = [mapVotes[0].id, mapVotes[1].id];
@@ -422,7 +422,6 @@ export class GameController {
 
         let newMaps: string[] = [];
 
-        console.log("here2")
 
         let convertedBans = [];
         for (let ban of bans) {
@@ -435,7 +434,6 @@ export class GameController {
 
         }
 
-        console.log("here3")
 
         if (state <= 4) {
             for (let map of tokens.MapPool) {
@@ -485,7 +483,6 @@ export class GameController {
         this.voteCountdown = tokens.VoteTime;
         this.votes.clear();
 
-        console.log("1here")
 
         return convertedBans;
     }
@@ -608,9 +605,7 @@ export class GameController {
     async voteB2() {
         this.voteCountdown--;
         if (this.voteCountdown <= 0) {
-            console.log("her3434")
             const bans = this.calcVotes(5);
-            console.log("here4")
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
             const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
 
@@ -621,7 +616,6 @@ export class GameController {
 
             await teamAChannel.send({content: `Selected ${bans[0]}`});
             await teamBChannel.send({content: `Team B selected ${bans[0]}`});
-            console.log("here5")
 
             const finalChannel = await this.guild.channels.create({
                 name: `match-${this.matchNumber}`,
@@ -632,12 +626,10 @@ export class GameController {
                 reason: 'Create final match channel',
             });
             this.finalChannelId = finalChannel.id;
-            console.log("here6")
             const message = await finalChannel.send({components: [initialSubmit()], embeds: [teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)]});
-            finalChannel.messages.pin(message);
+            await finalChannel.messages.pin(message);
             await teamAChannel.delete();
             await teamBChannel.delete();
-            console.log("here7")
         }
     }
 
@@ -805,7 +797,7 @@ export class GameController {
                 this.scores[1] = scoreB;
                 return {success: true, message: `Score of ${score} submitted for team b`};
             } else {
-                return {success: false, message: "Invalid score submitted"}
+                return {success: false, message: `Invalid score of ${score} submitted`}
             }
 
 
@@ -861,6 +853,7 @@ export class GameController {
         } catch {
             await logWarn("Could not delete team b channel", this.client);
         }
+        this.processed = true;
         await this.cleanup();
     }
 
@@ -889,7 +882,7 @@ export class GameController {
         } catch {
             await logWarn("Could not delete final channel", this.client);
         }
-        if (!this.cleanedUp) {
+        if (!this.cleanedUp && !this.abandoned) {
             await this.sendScoreEmbed();
         }
     }

@@ -68,7 +68,6 @@ export class Data {
     }
 
     async createMatch(regionId: string, queue: QueueController, queueId: string, scoreLimit: number) {
-        console.log("here1")
         let users: QueueUser[] = []
         while (users.length < tokens.PlayerCount && queue.inQueueNumber() > 0) {
             users.push(queue.getUser())
@@ -76,7 +75,6 @@ export class Data {
         while (users.length < tokens.PlayerCount) {
             users.push(this.FILL_SND.getUser())
         }
-        console.log("here2")
         const teams = await makeTeams(users);
         let userIds: ObjectId[] = [];
 
@@ -90,15 +88,11 @@ export class Data {
             this.removeFromAllQueues(user.db);
         }
 
-        console.log("here3")
         try {
             const gameNum = await this.getIdSND()
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
-            console.log("here5")
             const game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit);
-            console.log("heer6")
             await createGameController(game);
-            console.log("here7")
             queue.addGame(game);
         } catch (e) {
             console.error(e);
@@ -115,7 +109,6 @@ export class Data {
 
     async ready(queueId: string, queue: string, user: User, time: number): Promise<InternalResponse> {
         const dbUser = await getUserByUser(user);
-        this.removeFromQueue(dbUser._id, queueId);
         if (!this.locked.get(queueId)) {
             const controller = this.getQueue();
             return await controller.addUser(dbUser, time);
@@ -142,14 +135,14 @@ export class Data {
     }
 
     removeFromAllQueues(userId: ObjectId) {
-        this.FILL_SND.removeUser(userId);
+        this.FILL_SND.removeUser(userId, false);
     }
 
     removeFromQueue(userId: ObjectId, queueId: string) {
         if (queueId == "SND") {
-            this.FILL_SND.removeUser(userId);
+            this.FILL_SND.removeUser(userId, false);
         } else if (queueId == "ALL") {
-            this.FILL_SND.removeUser(userId);
+            this.removeFromAllQueues(userId);
         }
     }
 
