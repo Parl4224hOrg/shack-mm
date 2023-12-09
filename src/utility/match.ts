@@ -35,7 +35,7 @@ export const matchScore = async (interaction: ButtonInteraction, data: Data, sco
     if (controller) {
         const game = controller.findGame(dbUser._id);
         if (game) {
-            const response = await game.submitScore(dbUser._id, score);
+            const response = await game.submitScore(dbUser._id, score, interaction.user.id);
             await interaction.reply({ephemeral: false, content: response.message});
         } else {
             await interaction.reply({ephemeral: true, content: "Could not find game please contact a mod"});

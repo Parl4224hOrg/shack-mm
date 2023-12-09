@@ -765,14 +765,14 @@ export class GameController {
         return {success: false, message: 'Could not find team'};
     }
 
-    async submitScore(userId: ObjectId, score: number): Promise<InternalResponse> {
+    async submitScore(userId: ObjectId, score: number, discordId: string): Promise<InternalResponse> {
         const team = this.getTeam(userId);
         if (team < 0) {
             return {success: false, message: 'Could not find the team you are on'};
         }
         if (this.scores[0] < 0 && this.scores[1] < 0) {
             this.scores[team] = score;
-            return {success: true, message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"}`}
+            return {success: true, message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"} by <@${discordId}>`}
         } else {
             let scoreA = this.scores[0];
             let scoreB = this.scores[1];
@@ -788,13 +788,13 @@ export class GameController {
                     this.scoresConfirmMessageSent = false;
                     this.scores = [scoreA, scoreB];
                 }
-                return {success: true, message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"}`};
+                return {success: true, message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"} by <@${discordId}>`};
             } else if (team == 0) {
                 this.scores[0] = scoreA;
-                return {success: true, message: `Score of ${score} submitted for team a`};
+                return {success: true, message: `Score of ${score} submitted for team a by <@${discordId}>`};
             } else if (team == 1) {
                 this.scores[1] = scoreB;
-                return {success: true, message: `Score of ${score} submitted for team b`};
+                return {success: true, message: `Score of ${score} submitted for team b by <@${discordId}>`};
             } else {
                 return {success: false, message: `Invalid score of ${score} submitted`}
             }
