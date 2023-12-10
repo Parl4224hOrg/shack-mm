@@ -17,9 +17,11 @@ import {stats} from "./queue/stats";
 import {manualSubmit} from "./admin/manualSubmit";
 import {forceScore} from "./moderator/forceScore";
 import {graph} from "./queue/graph";
+import {register} from "./register";
 
 
-const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, cooldown, forceAbandon, reverseCooldown, abandon, _transparency, stats, manualSubmit, forceScore, graph, nullify];
+const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, cooldown, forceAbandon, abandon,
+    _transparency, stats, manualSubmit, forceScore, graph, reverseCooldown, nullify, register];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

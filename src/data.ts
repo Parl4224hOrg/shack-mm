@@ -1,4 +1,4 @@
-import {Client, Collection, User} from "discord.js";
+import {Client, Collection, User, ActivityType} from "discord.js";
 import cron from 'node-cron';
 import {logInfo} from "./loggers";
 import {QueueController} from "./controllers/QueueController";
@@ -18,6 +18,9 @@ import {createGameController} from "./modules/constructors/createGameController"
 import {updateQueueController} from "./modules/updaters/updateQueueController";
 import {getQueueController} from "./modules/getters/getQueueController";
 import {QueueControllerInt} from "./database/models/QueueControllerModel";
+import UserModel from "./database/models/UserModel";
+import {getStats} from "./modules/getters/getStats";
+import {getRank, roleRemovalCallback} from "./utility/ranking";
 
 export class Data {
     private readonly client: Client;
@@ -26,15 +29,34 @@ export class Data {
     });
     private tickLoop = cron.schedule('*/1 * * * * *', async () => {
         await this.tick()
+    });
+    private roleUpdate = cron.schedule("0 * * * *", async () => {
+        await this.updateRoles();
     })
     private readonly FILL_SND: QueueController;
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
     nextPing: number = moment().unix();
     readonly Leaderboard = LeaderboardController;
+    private botStatus = "";
+    private activeGamesMessage = "Active Games: 0";
 
     constructor(client: Client) {
         this.client = client
         this.FILL_SND = new QueueController(this, client, "FILL");
+    }
+
+    async updateRoles() {
+        const users = await UserModel.find({});
+        const guild = await this.client.guilds!.fetch(tokens.GuildID);
+        for (let user of users) {
+            const stats = await getStats(user._id,  "SND");
+            const member = await guild.members.fetch(user.id);
+            member.roles.cache.forEach((value) => {roleRemovalCallback(value, member)});
+            if (stats.gamesPlayed >= 10) {
+                const rank = getRank(stats.mmr);
+                await member.roles.add(rank.roleId);
+            }
+        }
     }
 
     async load() {
@@ -65,6 +87,21 @@ export class Data {
             await this.createMatch("NA", this.FILL_SND, 'SND', tokens.ScoreLimitSND);
         }
         await this.FILL_SND.tick()
+        const check = `${this.FILL_SND.inQueueNumber()} in queue`;
+        if (check != this.botStatus) {
+            this.botStatus = check;
+            this.client.user!.setActivity({
+                name: check,
+                type: ActivityType.Watching,
+            });
+        }
+        const active = `Active Games: ${this.FILL_SND.activeGames.length}`;
+        if (active != this.activeGamesMessage) {
+            this.activeGamesMessage = active;
+            const guild = await this.client.guilds.fetch(tokens.GuildID);
+            const channel = await guild.channels.fetch(tokens.ActiveGamesChannel);
+            await channel?.setName(active);
+        }
     }
 
     async createMatch(regionId: string, queue: QueueController, queueId: string, scoreLimit: number) {

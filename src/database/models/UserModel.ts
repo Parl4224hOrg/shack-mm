@@ -7,6 +7,7 @@ export interface UserInt extends Document {
     banUntil: number;
     lastBan: number;
     banCounter: number;
+    oculusName: string;
     dmMatch: boolean;
     dmQueue: boolean;
     dmAuto: boolean;
@@ -20,6 +21,7 @@ export const UserSchema = new Schema({
     banUntil: Number,
     lastBan: Number,
     banCounter: Number,
+    oculusName: String,
     dmMatch: Boolean,
     dmQueue: Boolean,
     dmAuto: Boolean,

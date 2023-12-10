@@ -47,7 +47,7 @@ export const manualSubmit: Command = {
             if (game.scoreA == 10) {
                 game.winner = 0;
             } else if (game.scoreB == 10) {
-                game.winner = 0;
+                game.winner = 1;
             } else {
                 game.winner = -1;
             }

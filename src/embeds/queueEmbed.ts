@@ -12,7 +12,8 @@ export const queueInfoEmbeds = (queueData: QueueData[]): APIEmbed[] => {
         for (let game of queue.games) {
             const embed = new EmbedBuilder()
                 .setTitle(`Match number ${game.matchNumber} (${game.id})`)
-                .setDescription(`Map: ${game.map}\nSides: ${game.sides[0]}, ${game.sides[1]}\nState: ${game.state}\nTick count: ${game.tickCount}\nScores: ${game.score[0]}, ${game.score[1]}\nNumber in game: ${game.users.length}`);
+                .setDescription(`Map: ${game.map}\nSides: ${game.sides[0]}, ${game.sides[1]}\nState: ${game.state}\nTick count: ${game.tickCount}\n
+                Scores: ${game.score[0]}, ${game.score[1]}\nNumber in game: ${game.users.length}`);
             let usersStr = '';
             for (let user of game.users) {
                 usersStr += user + "\n";

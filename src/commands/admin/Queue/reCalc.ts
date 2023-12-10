@@ -2,6 +2,11 @@ import {SubCommand} from "../../../interfaces/Command";
 import {SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../../loggers";
 import {queues} from "../../../utility/options";
+import GameModel from "../../../database/models/GameModel";
+import {getUserById} from "../../../modules/getters/getUser";
+import {processMMR} from "../../../utility/processMMR";
+import {GameUser} from "../../../interfaces/Game";
+import {updateGame} from "../../../modules/updaters/updateGame";
 
 export const reCalc: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -10,7 +15,38 @@ export const reCalc: SubCommand = {
         .addStringOption(queues),
     run: async (interaction) => {
         try {
-            await interaction.reply({ephemeral: true, content: 'not functional yet'})
+            await interaction.deferReply({ephemeral: true});
+            const games = await GameModel.find({scoreB: {"$gte": 0}, scoreA: {'$gte': 0}}).sort({matchId: 1});
+            for (let game of games) {
+                let teamA = [];
+                let teamB = [];
+                let users: GameUser[] = [];
+                for (let player of game.teamA) {
+                    const user = await getUserById(player)
+                    users.push({
+                        dbId: player,
+                        discordId: user.id,
+                        team: 0,
+                        accepted: true,
+                    })
+                    teamA.push(user);
+                }
+                for (let player of game.teamB) {
+                    const user = await getUserById(player)
+                    users.push({
+                        dbId: player,
+                        discordId: user.id,
+                        team: 1,
+                        accepted: true,
+                    })
+                    teamB.push(user);
+                }
+                const results = await processMMR(users, [game.scoreA, game.scoreB], "SND", 10);
+                game.teamAChanges = results[0];
+                game.teamBChanges = results[1];
+                await updateGame(game);
+            }
+            await interaction.followUp({ephemeral: true, content: 'done'});
         } catch (e) {
             await logError(e, interaction)
         }

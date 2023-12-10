@@ -2,6 +2,7 @@ import {GameUser} from "../interfaces/Game";
 import {getStats} from "../modules/getters/getStats";
 import {StatsInt} from "../database/models/StatsModel";
 import {updateStats} from "../modules/updaters/updateStats";
+import {win} from "../buttons/match/score/win";
 
 // elo constant is the base change for every game
 const K = 40
@@ -70,7 +71,7 @@ export const processMMR = async (users: GameUser[], scores: number[], queueId: s
         }
     }
 
-    const winner = (scores[0] == scoreLimit) ? 0 : (scores[1] == scoreLimit) ? 1 : -1;
+    const winner = (scores[0] == scoreLimit) ? 0 : 1;
 
     // Calculates the amount a team won by on a 0-1 scale
     const winAmount = Math.abs(scores[0] - scores[1]) / scoreLimit * 0.3 + 0.7;
@@ -80,9 +81,9 @@ export const processMMR = async (users: GameUser[], scores: number[], queueId: s
     const transformedRatings = [10 ** (teamAverages[0] / 400), 10 ** (teamAverages[1] / 400)];
     // Calculates the expected score for each team on a 0-1
     const expectedScores = [transformedRatings[0] / (transformedRatings[0] + transformedRatings[1]), transformedRatings[1] / (transformedRatings[0] + transformedRatings[1])];
+
     // Sets expected win percent for each team for use in calculations
     let mmrScores: number[];
-
     if (winner == 0) {
         mmrScores = [winAmount, 1- winAmount];
     } else if (winner == 1) {
@@ -90,8 +91,9 @@ export const processMMR = async (users: GameUser[], scores: number[], queueId: s
     } else {
         mmrScores = [0.5, 0.5];
     }
+
     // calculates base elo change for the game
-    const eloChange = [K * (mmrScores[0] - expectedScores[0]), K * (mmrScores[0] - expectedScores[0])]
+    const eloChange = [K * (mmrScores[0] - expectedScores[0]), K * (mmrScores[1] - expectedScores[1])]
 
 
     const teamAChanges = getMMRChanges(teamA, eloChange[0]);

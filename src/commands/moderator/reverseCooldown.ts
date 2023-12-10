@@ -26,6 +26,6 @@ export const reverseCooldown: Command = {
             await logError(e, interaction);
         }
     },
-    name: 'nullify',
+    name: 'reverse_cooldown',
     allowedRoles: [tokens.ModRole, tokens.AdminRole],
 }

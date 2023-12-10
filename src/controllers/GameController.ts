@@ -18,6 +18,7 @@ import {GameUser, ids} from "../interfaces/Game";
 import {Vote} from "../interfaces/Game";
 import {acceptScore} from "../views/submitScoreViews";
 import {GameControllerInt} from "../database/models/GameControllerModel";
+import {updateRanks} from "../utility/ranking";
 
 const getRandom = (votes: Vote[], lowerBound: number, upperBound: number, count: number): string[] => {
     if (count == 1) {
@@ -108,6 +109,9 @@ export class GameController {
     abandonCountdown = 30;
     cleanedUp = false;
 
+    submitCooldown = 600;
+    pleaseStop = false;
+
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number) {
         this.id = id;
         this.client = client;
@@ -161,8 +165,10 @@ export class GameController {
                 default:
                     if (this.abandoned && this.abandonCountdown <= 0 && !this.cleanedUp) {
                         await this.abandonCleanup(false);
-                    } else {
+                    } else if (this.abandoned) {
                         this.abandonCountdown--;
+                    } else {
+                        this.submitCooldown--;
                     }
             }
         } catch (e) {
@@ -239,6 +245,8 @@ export class GameController {
 
         await updateGame(game);
 
+        await updateRanks(this.users, this.client);
+
         this.processed = true;
     }
 
@@ -268,7 +276,8 @@ export class GameController {
 
             this.acceptChannelId = acceptChannel.id;
 
-            await acceptChannel.send({content: `${matchRole.toString()} ${tokens.AcceptMessage}`, components: [acceptView()]});
+            const message = await acceptChannel.send({content: `${matchRole.toString()} ${tokens.AcceptMessage}`, components: [acceptView()]});
+            await message.pin();
         }
         let accepted = true;
         for (let user of this.users) {
@@ -280,13 +289,13 @@ export class GameController {
         if (accepted) {
             this.state++;
         }
-        if (this.acceptCountdown <= 0) {
+        if (this.acceptCountdown <= 0 && !this.abandoned && !this.pleaseStop) {
+            this.pleaseStop = true;
             for (let user of this.users) {
-                if (!user.accepted) {
-                    await this.abandon(user)
+                if (!user.accepted && !this.abandoned) {
+                    await this.abandon(user);
                 }
             }
-            this.state = -1;
         }
     }
 
@@ -295,11 +304,13 @@ export class GameController {
     }
 
     async abandon(user: GameUser) {
+        this.abandoned = true;
         this.abandonCountdown = tokens.AbandonTime;
+        if (this.state < 10) {
+            this.state += 10;
+        }
         await abandon(user.dbId, this.guild);
         await this.sendAbandonMessage(user.discordId);
-        this.state += 10;
-        this.abandoned = true;
     }
 
     calcVotes(state: number): string[] {
@@ -626,7 +637,7 @@ export class GameController {
                 reason: 'Create final match channel',
             });
             this.finalChannelId = finalChannel.id;
-            const message = await finalChannel.send({components: [initialSubmit()], embeds: [teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)]});
+            const message = await finalChannel.send({components: [initialSubmit()], embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)]});
             await finalChannel.messages.pin(message);
             await teamAChannel.delete();
             await teamBChannel.delete();
@@ -767,6 +778,9 @@ export class GameController {
     }
 
     async submitScore(userId: ObjectId, score: number, discordId: string): Promise<InternalResponse> {
+        if (this.submitCooldown > 0) {
+            return {success: false, message: "Please wait before submitting scores"};
+        }
         const team = this.getTeam(userId);
         if (team < 0) {
             return {success: false, message: 'Could not find the team you are on'};
@@ -938,5 +952,6 @@ export class GameController {
             const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
             await channel.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
         }
+        return;
     }
 }

@@ -24,6 +24,7 @@ export default {
     WinEmoji: '<:Win:1174459375943946261>',
     LossEmoji: '<:Loss:1174459377709764800>',
     DrawEmoji: '<:Draw:1174459379114848336>',
+    ActiveGamesChannel: "1183155071433850960",
     // constants
     StartingMMR: 1500,
     PlayerCount: 10,
@@ -37,9 +38,10 @@ export default {
         Vertigo: "https://shackmm.com/static/images/vertigo.png",
         Inferno: "https://shackmm.com/static/images/inferno.png",
         Overpass: "https://shackmm.com/static/images/overpass.png",
-        Cache: "https://shackmm.com/static/images/oilrig.png",
+        Cache: "https://shackmm.com/static/images/cache.png",
+        Harbor: "https://shackmm.com/static/images/harbor.png"
     },
-    MapPool: ["Mirage", "Dust 2", "Cache", "Oilrig", "Inferno", "Overpass", "Vertigo"],
+    MapPool: ["Mirage", "Dust 2", "Cache", "Oilrig", "Inferno", "Overpass", "Harbor"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Master', threshold: 1950, roleId: '1152692826669326398'},
@@ -51,6 +53,8 @@ export default {
         {name: 'Iron', threshold: 1375, roleId: '1152692103256744086'},
         {name: 'Copper', threshold: 1300, roleId: '1152659149017075894'},
         {name: 'Wood', threshold: -99999, roleId: '1152691861186682880'}],
+    RankRoles: ['1152692826669326398', '1152692676035088464', '1152692485332664411', '1152692439342141531', '1152692319749931050',
+    '1152692197439836331', '1152692103256744086', '1152659149017075894', '1152691861186682880'],
     // messages
     AcceptMessage: messages.acceptMessage,
     SignUpMessage: messages.signUp,

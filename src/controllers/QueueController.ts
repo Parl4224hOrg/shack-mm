@@ -88,7 +88,6 @@ export class QueueController {
                     await game.cleanup();
                 }
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
-                await game.sendScoreEmbed();
             }
         }
     }
