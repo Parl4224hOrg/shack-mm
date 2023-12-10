@@ -1,4 +1,4 @@
-import {Client, Collection, User, ActivityType} from "discord.js";
+import {Client, Collection, User, ActivityType, VoiceChannel} from "discord.js";
 import cron from 'node-cron';
 import {logInfo} from "./loggers";
 import {QueueController} from "./controllers/QueueController";
@@ -38,7 +38,7 @@ export class Data {
     nextPing: number = moment().unix();
     readonly Leaderboard = LeaderboardController;
     private botStatus = "";
-    private activeGamesMessage = "Active Games: 0";
+    private statusChannel: VoiceChannel | null = null;
 
     constructor(client: Client) {
         this.client = client
@@ -84,6 +84,10 @@ export class Data {
     }
 
     async tick() {
+        if (!this.statusChannel) {
+            const guild = await this.client.guilds.fetch(tokens.GuildID);
+            this.statusChannel = await guild.channels.fetch(tokens.ActiveGamesChannel) as VoiceChannel;
+        }
         if (this.FILL_SND.inQueueNumber() >= tokens.PlayerCount) {
             await this.createMatch("NA", this.FILL_SND, 'SND', tokens.ScoreLimitSND);
         }
@@ -97,11 +101,8 @@ export class Data {
             });
         }
         const active = `Active Games: ${this.FILL_SND.activeGames.length}`;
-        if (active != this.activeGamesMessage) {
-            this.activeGamesMessage = active;
-            const guild = await this.client.guilds.fetch(tokens.GuildID);
-            const channel = await guild.channels.fetch(tokens.ActiveGamesChannel);
-            await channel?.setName(active);
+        if (active != this.statusChannel!.name) {
+            await this.statusChannel!.setName(active);
         }
     }
 
