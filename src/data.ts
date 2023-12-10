@@ -62,6 +62,7 @@ export class Data {
     async load() {
         this.saveLoop.start();
         this.tickLoop.start();
+        this.roleUpdate.start();
         const queueDB = await getQueueController("SND", "FILL")
         await this.FILL_SND.load(queueDB as QueueControllerInt);
         await logInfo("Data Loaded!", this.client);
