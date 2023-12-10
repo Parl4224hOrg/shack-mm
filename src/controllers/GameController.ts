@@ -92,6 +92,7 @@ export class GameController {
         '2': "T"
     }
     currentMaxVotes = 3;
+    allBans: string[] = [];
 
 
     map = '';
@@ -442,13 +443,14 @@ export class GameController {
             } else {
                 convertedBans.push(this.mapSet[ban as '1' | '2' | '3' | '4' | '5' | '6' | '7'])
             }
-
         }
+
+        this.allBans = this.allBans.concat(convertedBans);
 
 
         if (state <= 4) {
             for (let map of tokens.MapPool) {
-                if (!convertedBans.includes(map)) {
+                if (!this.allBans.includes(map)) {
                     newMaps.push(map);
                 }
             }
