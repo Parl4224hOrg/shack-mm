@@ -79,13 +79,13 @@ export class GameController {
     voteCountdown = tokens.VoteTime;
     votes: Collection<string, string[]> = new Collection<string, string[]>();
     mapSet = {
-        '1': "Mirage",
-        '2': "Dust 2",
-        '3': "Cache",
-        '4': "Oilrig",
-        '5': "Inferno",
-        '6': "Overpass",
-        '7': "Vertigo",
+        '1': "",
+        '2': "",
+        '3': "",
+        '4': "",
+        '5': "",
+        '6': "",
+        '7': "",
     }
     sideSet = {
         '1': "CT",
@@ -113,7 +113,7 @@ export class GameController {
     submitCooldown = 600;
     pleaseStop = false;
 
-    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number) {
+    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[]) {
         this.id = id;
         this.client = client;
         this.guild = guild;
@@ -135,6 +135,13 @@ export class GameController {
                 team: 1,
                 accepted: false,
             });
+        }
+        let i = 1;
+        for (let mapCheck of tokens.MapPool) {
+            if (!bannedMaps.includes(mapCheck) && i <= 7) {
+                this.mapSet[String(i) as "1" | "2" | "3" | "4" | "5" | "6" | "7"] = mapCheck;
+                i++;
+            }
         }
     }
 

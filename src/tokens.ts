@@ -41,7 +41,7 @@ export default {
         Cache: "https://shackmm.com/static/images/cache.png",
         Harbor: "https://shackmm.com/static/images/harbor.png"
     },
-    MapPool: ["Mirage", "Dust 2", "Cache", "Oilrig", "Inferno", "Overpass", "Harbor"],
+    MapPool: ["Mirage", "Dust 2", "Cache", "Oilrig", "Inferno", "Overpass", "Harbor", "Industry"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Master', threshold: 1950, roleId: '1152692826669326398'},

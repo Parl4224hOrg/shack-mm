@@ -22,6 +22,7 @@ export class QueueController {
     private readonly client: Client;
     private inQueue: QueueUser[] = [];
     activeGames: GameController[] = [];
+    lastPlayedMaps: string[] = [];
 
 
     constructor(data: Data, client: Client, queueName: string) {
@@ -35,7 +36,7 @@ export class QueueController {
             this.inQueue = data.inQueue;
             const guild = await this.client.guilds.fetch(tokens.GuildID)
             for (let game of data.activeGames) {
-                const gameNew = new GameController(game, this.client, guild, -1, [], [], this.queueId, -10)
+                const gameNew = new GameController(game, this.client, guild, -1, [], [], this.queueId, -10, this.lastPlayedMaps)
                 const dbGame = await getGameControllerById(game)
                 await gameNew.load(dbGame as GameControllerInt);
             }
@@ -88,6 +89,10 @@ export class QueueController {
                     await game.cleanup();
                 }
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
+                while (this.lastPlayedMaps.length > tokens.MapPool.length - 7) {
+                    this.lastPlayedMaps.shift();
+                }
+                this.lastPlayedMaps.push(game.map);
             }
         }
     }
