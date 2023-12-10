@@ -10,7 +10,7 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string): APIEmb
     embed.setTitle(`${name}'s Stats`);
 
     if (stats.gamesPlayed >= 10) {
-        embed.setDescription(`${getRank(stats.mmr).name}-${stats.mmr.toFixed(0)} MMR\nGames played - ${stats.gamesPlayed}`);
+        embed.setDescription(`${getRank(stats.mmr).name}-${stats.mmr.toFixed(1)} MMR\nGames played - ${stats.gamesPlayed}`);
     } else {
         if (stats.gamesPlayed == 9) {
             embed.setDescription(`Play 1 more game to get ranked\nGames played - ${stats.gamesPlayed}`);

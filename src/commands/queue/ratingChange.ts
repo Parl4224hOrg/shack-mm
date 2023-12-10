@@ -13,9 +13,9 @@ export const ratingChange: Command = {
     run: async (interaction) => {
         try {
             let user = interaction.options.getUser('user');
-            let self = true;
+            let self = false;
             if (!user) {
-                self = false;
+                self = true;
                 user = interaction.user;
             }
 
@@ -25,9 +25,9 @@ export const ratingChange: Command = {
                 await interaction.reply({ephemeral: true, content: "This user has not played enough games to use this feature yet"});
             } else {
                 if (self) {
-                    await interaction.reply({content: `Your rating changed by ${stats.ratingChange} last game`});
+                    await interaction.reply({content: `Your rating changed by ${stats.ratingChange.toFixed(1)} last game`});
                 } else {
-                    await interaction.reply({content: `${user.username}'s rating changed by ${stats.ratingChange} last game`});
+                    await interaction.reply({content: `${user.username}'s rating changed by ${stats.ratingChange.toFixed(1)} last game`});
                 }
             }
         } catch (e) {
