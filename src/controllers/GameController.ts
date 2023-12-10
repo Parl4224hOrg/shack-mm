@@ -143,6 +143,9 @@ export class GameController {
                 i++;
             }
         }
+        for (let ban of bannedMaps) {
+            this.allBans.push(ban);
+        }
     }
 
     async tick() {
