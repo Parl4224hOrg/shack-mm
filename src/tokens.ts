@@ -39,7 +39,8 @@ export default {
         Inferno: "https://shackmm.com/static/images/inferno.png",
         Overpass: "https://shackmm.com/static/images/overpass.png",
         Cache: "https://shackmm.com/static/images/cache.png",
-        Harbor: "https://shackmm.com/static/images/harbor.png"
+        Harbor: "https://shackmm.com/static/images/harbor.png",
+        Industry: "https://shackmm.com/static/images/industry.png"
     },
     MapPool: ["Mirage", "Dust 2", "Cache", "Oilrig", "Inferno", "Overpass", "Harbor", "Industry"],
     PingToPlayTime: 90 * 60,

@@ -56,6 +56,8 @@ export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
         embed.setImage(tokens.Images.Vertigo);
     } else if (game.map.toLowerCase() == 'harbor') {
         embed.setImage(tokens.Images.Harbor);
+    } else if (game.map.toLowerCase() == 'industry') {
+        embed.setImage(tokens.Images.Industry);
     }
 
     return embed.toJSON();
@@ -124,6 +126,10 @@ export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: 
         embed.setImage(tokens.Images.Overpass);
     } else if (map.toLowerCase() == 'vertigo') {
         embed.setImage(tokens.Images.Vertigo);
+    } else if (map.toLowerCase() == 'harbor') {
+        embed.setImage(tokens.Images.Harbor);
+    } else if (map.toLowerCase() == 'industry') {
+        embed.setImage(tokens.Images.Industry);
     }
 
     return embed.toJSON();
