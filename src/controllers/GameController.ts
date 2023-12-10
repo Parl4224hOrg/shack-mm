@@ -438,7 +438,7 @@ export class GameController {
         for (let ban of bans) {
             if (state > 4) {
                 convertedBans.push(this.sideSet[ban as '1' | '2'])
-                newMaps = ["CT", "T"]
+                newMaps = ["CT", "T"];
             } else {
                 convertedBans.push(this.mapSet[ban as '1' | '2' | '3' | '4' | '5' | '6' | '7'])
             }
@@ -493,7 +493,6 @@ export class GameController {
         this.state = state;
         this.voteCountdown = tokens.VoteTime;
         this.votes.clear();
-
 
         return convertedBans;
     }

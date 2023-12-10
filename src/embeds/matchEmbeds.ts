@@ -54,6 +54,8 @@ export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
         embed.setImage(tokens.Images.Overpass);
     } else if (game.map.toLowerCase() == 'vertigo') {
         embed.setImage(tokens.Images.Vertigo);
+    } else if (game.map.toLowerCase() == 'harbor') {
+        embed.setImage(tokens.Images.Harbor);
     }
 
     return embed.toJSON();
