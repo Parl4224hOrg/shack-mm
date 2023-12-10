@@ -21,10 +21,14 @@ export const ratingChange: Command = {
 
             const dbUser = await getUserByUser(user);
             const stats = await getStats(dbUser._id, "SND");
-            if (self) {
-                await interaction.reply({content: `Your rating changed by ${stats.ratingChange} last game`});
+            if (stats.gamesPlayed < 11) {
+                await interaction.reply({ephemeral: true, content: "This user has not played enough games to use this feature yet"});
             } else {
-                await interaction.reply({content: `${user.username}'s rating changed by ${stats.ratingChange} last game`});
+                if (self) {
+                    await interaction.reply({content: `Your rating changed by ${stats.ratingChange} last game`});
+                } else {
+                    await interaction.reply({content: `${user.username}'s rating changed by ${stats.ratingChange} last game`});
+                }
             }
         } catch (e) {
             await logError(e, interaction);
