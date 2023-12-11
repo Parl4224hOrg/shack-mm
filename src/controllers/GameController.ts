@@ -292,7 +292,7 @@ export class GameController {
                 if (!member.dmChannel) {
                     await member.createDM(true);
                 }
-                await member.send(`A game has start please accept the game here <#${acceptChannel.id}> within 3 minutes`);
+                await member.dmChannel!.send(`A game has start please accept the game here <#${acceptChannel.id}> within 3 minutes`);
             }
 
             const message = await acceptChannel.send({content: `${matchRole.toString()} ${tokens.AcceptMessage}`, components: [acceptView()]});

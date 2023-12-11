@@ -84,7 +84,7 @@ export class QueueController {
                 if (!member.dmChannel) {
                     await member.createDM(true);
                 }
-                await member.send("Your queue time expires in 3 minutes. If you wish to re ready please do so")
+                await member.dmChannel!.send("Your queue time expires in 3 minutes. If you wish to re ready please do so")
             }
         }
         for (let game of this.activeGames) {
