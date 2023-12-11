@@ -78,7 +78,7 @@ export class QueueController {
         for (let user of this.inQueue) {
             if (user.queueExpire < time) {
                 this.removeUser(user.dbId, true);
-            } else if (user.queueExpire < (time + 180)) {
+            } else if (user.queueExpire == (time + 180)) {
                 const guild = this.client.guilds.cache.get(tokens.GuildID)!
                 const member = await guild.members.fetch(user.discordId);
                 if (!member.dmChannel) {
