@@ -983,6 +983,14 @@ export class GameController {
             const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
             await channel.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
         }
+        const guild = await this.client.guilds.fetch(tokens.GuildID);
+        for (let user of this.users) {
+            const member = await guild.members.fetch(user.discordId);
+            if (!member.dmChannel) {
+                await member.createDM(true);
+            }
+            await member.dmChannel!.send("A player has abandoned the match, the channel will be deleted in 30 seconds. You can ready up again now.");
+        }
         return;
     }
 }

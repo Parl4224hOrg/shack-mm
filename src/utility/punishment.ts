@@ -23,9 +23,9 @@ export const abandon = async (userId: ObjectId, guild: Guild, acceptFail: boolea
 
     const channel = await guild.channels.fetch(tokens.GeneralChannel) as TextChannel;
     if (acceptFail) {
-        await channel.send(`<@${user.id}> has failed to accept a match and been given a cooldown of ${grammaticalTime(now - user.banUntil)}`);
+        await channel.send(`<@${user.id}> has failed to accept a match and been given a cooldown of ${grammaticalTime(user.banUntil - now)}`);
     } else {
-        await channel.send(`<@${user.id}> has abandoned a match and been given a cooldown of ${grammaticalTime(now - user.banUntil)}`);
+        await channel.send(`<@${user.id}> has abandoned a match and been given a cooldown of ${grammaticalTime(user.banUntil - now)}`);
     }
 
     return;
