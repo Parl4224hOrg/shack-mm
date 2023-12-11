@@ -39,6 +39,7 @@ export class Data {
     readonly Leaderboard = LeaderboardController;
     private botStatus = "";
     private statusChannel: VoiceChannel | null = null;
+    private tickCount = 0;
 
     constructor(client: Client) {
         this.client = client
@@ -84,7 +85,8 @@ export class Data {
     }
 
     async tick() {
-        if (!this.statusChannel) {
+        this.tickCount++;
+        if (!this.statusChannel || this.tickCount % 60 == 0) {
             const guild = await this.client.guilds.fetch(tokens.GuildID);
             this.statusChannel = await guild.channels.fetch(tokens.ActiveGamesChannel) as VoiceChannel;
         }
