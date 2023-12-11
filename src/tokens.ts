@@ -1,6 +1,17 @@
 import * as dotenv from 'dotenv';
 import messages from "./messages.json"
+import {Collection} from "discord.js";
 dotenv.config();
+
+const mapCollection = new Collection<string, string>();
+mapCollection.set("Mirage", "UGC");
+mapCollection.set("Dust 2", "UGC");
+mapCollection.set("Cache", "UGC");
+mapCollection.set("Oilrig", "UGC");
+mapCollection.set("Inferno", "UGC");
+mapCollection.set("Overpass", "UGC");
+mapCollection.set("Harbor", "UGC");
+mapCollection.set("Industry", "industry");
 
 export default {
     // Sensitive

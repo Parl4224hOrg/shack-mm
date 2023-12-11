@@ -287,6 +287,14 @@ export class GameController {
 
             this.acceptChannelId = acceptChannel.id;
 
+            for (let user of this.users) {
+                const member = await getGuildMember(user.discordId, this.guild);
+                if (!member.dmChannel) {
+                    await member.createDM(true);
+                }
+                await member.send(`A game has start please accept the game here <#${acceptChannel.id}> within 3 minutes`);
+            }
+
             const message = await acceptChannel.send({content: `${matchRole.toString()} ${tokens.AcceptMessage}`, components: [acceptView()]});
             await message.pin();
         }

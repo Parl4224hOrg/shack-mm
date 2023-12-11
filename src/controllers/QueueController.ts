@@ -81,11 +81,10 @@ export class QueueController {
             } else if (user.queueExpire < (time - 180)) {
                 const guild = this.client.guilds.cache.get(tokens.GuildID)!
                 const member = await guild.members.fetch(user.discordId);
-                let dmChannel = member.dmChannel
-                if (!dmChannel) {
+                if (!member.dmChannel) {
                     await member.createDM(true);
                 }
-                await dmChannel!.send("Your queue time expires in 3 minutes.\nIf you wish to re ready please do so")
+                await member.send("Your queue time expires in 3 minutes. If you wish to re ready please do so")
             }
         }
         for (let game of this.activeGames) {
