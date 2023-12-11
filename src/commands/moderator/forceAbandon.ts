@@ -15,7 +15,7 @@ export const forceAbandon: Command = {
             const dbUser = await getUserByUser(interaction.options.getUser('user', true));
             const game = data.findGame(dbUser._id);
             if (game) {
-                await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false});
+                await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false}, false);
                 await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> has been abandoned`});
             } else {
                 await interaction.reply({ephemeral: true, content: 'User not in a game'});
