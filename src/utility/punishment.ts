@@ -3,10 +3,10 @@ import {getUserById} from "../modules/getters/getUser";
 import moment from "moment/moment";
 import {Guild, TextChannel} from "discord.js";
 import tokens from "../tokens";
-import UserModel from "../database/models/UserModel";
 import {updateUser} from "../modules/updaters/updateUser";
+import {grammaticalTime} from "./grammatical";
 
-export const abandon = async (userId: ObjectId, guild: Guild) => {
+export const abandon = async (userId: ObjectId, guild: Guild, acceptFail: boolean) => {
     const user = await getUserById(userId);
     const now = moment().unix();
     switch (user.banCounter) {
@@ -22,6 +22,11 @@ export const abandon = async (userId: ObjectId, guild: Guild) => {
     await updateUser(user);
 
     const channel = await guild.channels.fetch(tokens.GeneralChannel) as TextChannel;
-    await channel.send(`<@${user.id}> has abandoned a match and been given a cooldown`);
+    if (acceptFail) {
+        await channel.send(`<@${user.id}> has failed to accept a match and been given a cooldown of ${grammaticalTime(now - user.banUntil)}`);
+    } else {
+        await channel.send(`<@${user.id}> has abandoned a match and been given a cooldown of ${grammaticalTime(now - user.banUntil)}`);
+    }
+
     return;
 }

@@ -303,8 +303,8 @@ export class GameController {
         if (this.acceptCountdown <= 0 && !this.abandoned && !this.pleaseStop) {
             this.pleaseStop = true;
             for (let user of this.users) {
-                if (!user.accepted && !this.abandoned) {
-                    await this.abandon(user);
+                if (!user.accepted) {
+                    await this.abandon(user, true);
                 }
             }
         }
@@ -314,13 +314,13 @@ export class GameController {
         return this.acceptChannelId == id || this.finalChannelId == id || this.teamAChannelId == id || this.teamBChannelId == id;
     }
 
-    async abandon(user: GameUser) {
+    async abandon(user: GameUser, acceptFail: boolean) {
         this.abandoned = true;
         this.abandonCountdown = tokens.AbandonTime;
         if (this.state < 10) {
             this.state += 10;
         }
-        await abandon(user.dbId, this.guild);
+        await abandon(user.dbId, this.guild, acceptFail);
         await this.sendAbandonMessage(user.discordId);
     }
 
@@ -455,7 +455,9 @@ export class GameController {
             }
         }
 
-        this.allBans = this.allBans.concat(convertedBans);
+        for (let ban of convertedBans) {
+            this.allBans.push(ban)
+        }
 
 
         if (state <= 4) {
@@ -559,13 +561,23 @@ export class GameController {
             );
             this.teamBChannelId = teamBChannel.id;
 
+            let teamAStr = "";
+            let teamBStr = "";
+            for (let player of this.users) {
+                if (player.team == 0) {
+                    teamAStr += `<@${player.discordId}> `;
+                } else {
+                    teamBStr += `<@${player.discordId}> `;
+                }
+            }
+
             const teamAMessage = await teamAChannel.send({
                 components: voteA1(this.mapSet["1"], 0, this.mapSet["2"], 0, this.mapSet["3"], 0, this.mapSet["4"],
                     0, this.mapSet["5"], 0, this.mapSet["6"], 0, this.mapSet["7"], 0),
-                content: `${teamARole.toString()} Please ban three maps`});
+                content: `Team A - ${teamAStr}Please ban three maps`});
             this.voteA1MessageId = teamAMessage.id;
 
-            await teamBChannel.send({content: `${teamBRole.toString()} Team A is banning 3 maps`});
+            await teamBChannel.send({content: `Team B - ${teamBStr}Team A is banning 3 maps`});
         } else if (this.voteCountdown <= 0) {
             const bans = this.calcVotes(2);
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
