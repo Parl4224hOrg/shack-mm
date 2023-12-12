@@ -1,8 +1,9 @@
 import {StatsInt} from "../database/models/StatsModel";
-import {APIEmbed, EmbedBuilder} from "discord.js";
+import {APIEmbed, EmbedBuilder, User} from "discord.js";
 import {UserInt} from "../database/models/UserModel";
 import {getRank} from "../utility/ranking";
 import tokens from "../tokens";
+import {WarnInt} from "../database/models/WarnModel";
 
 export const statsEmbed = (stats: StatsInt, user: UserInt, name: string): APIEmbed => {
     const embed = new EmbedBuilder();
@@ -67,5 +68,19 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string): APIEmb
         }
     )
 
+    return embed.toJSON();
+}
+
+export const warningEmbeds = (user: User, warnings: WarnInt[]): APIEmbed => {
+    const embed = new EmbedBuilder();
+    embed.setTitle(`Warnings for ${user.username}`);
+    embed.setDescription(`<@${user.id}>`);
+    for (let warn of warnings) {
+        const timestamp = "<t:" + warn.timeStamp + ":F>"
+        embed.addFields({
+            name: "Warning",
+            value: `Reason: ${warn.reason}\nDate: ${timestamp}\nMod: <@${warn.modId}>`
+        });
+    }
     return embed.toJSON();
 }

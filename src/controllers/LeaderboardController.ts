@@ -1,14 +1,18 @@
 import cron from "node-cron";
 import table from "text-table";
-import {getRank} from "../utility/ranking";
 import {getTopTwenty} from "../modules/getters/getStats";
 import {getUserById} from "../modules/getters/getUser";
 
 export class LeaderboardControllerClass {
-    private leaderboardCacheSND: string = '';
-    private updateLoop = cron.schedule('*/5 * * * *', async () => {
-        this.leaderboardCacheSND = await this.getLeaderboard();
-    })
+    leaderboardCacheSND: string = '';
+    private updateLoop = cron.schedule('*/5 * * * * *', async () => {
+        const newBoard  = await this.getLeaderboard();
+        if (this.leaderboardCacheSND != newBoard) {
+            this.leaderboardCacheSND = newBoard;
+            this.changed = true;
+        }
+    });
+    changed = false;
 
     constructor() {
         this.updateLoop.start();
@@ -16,16 +20,13 @@ export class LeaderboardControllerClass {
 
     async getLeaderboard(): Promise<string> {
         const stats = await getTopTwenty("SND");
-        const tablePlayers: string[][] = [[]];
+        const tablePlayers: string[][] = [[" Rank ", "Player", " Rating ", " Games Played ", " Win Rate "]];
         let i = 0;
         for (let stat of stats) {
             i++;
             const player = await getUserById(stat.userId);
-            tablePlayers.push([String(i), player.name, getRank(stat.mmr).name, String(stat.gamesPlayed), String(stat.winRate)])
+            tablePlayers.push([String(i), " " + player.name + " ", " " + String(stat.mmr.toFixed(1)) + " ", String(stat.gamesPlayed), String((stat.winRate * 100).toFixed(1) + "%")])
         }
-        this.leaderboardCacheSND = table(tablePlayers, {hsep: '|', align: ['c', 'c', 'c', 'c', 'c']})
-        return this.leaderboardCacheSND;
+        return "```" + table(tablePlayers, {hsep: '|', align: ['c', 'c', 'c', 'c', 'c', 'c']}) + "```";
     }
 }
-
-export default new LeaderboardControllerClass();

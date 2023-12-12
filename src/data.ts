@@ -1,4 +1,4 @@
-import {Client, Collection, User, ActivityType, VoiceChannel} from "discord.js";
+import {Client, Collection, User, ActivityType, VoiceChannel, TextChannel} from "discord.js";
 import cron from 'node-cron';
 import {logInfo} from "./loggers";
 import {QueueController} from "./controllers/QueueController";
@@ -12,7 +12,7 @@ import {InternalResponse} from "./interfaces/Internal";
 import moment from "moment";
 import {GameController} from "./controllers/GameController";
 import {getUserByUser} from "./modules/getters/getUser";
-import LeaderboardController from "./controllers/LeaderboardController";
+import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
 import {updateGameController} from "./modules/updaters/updateGameController";
 import {createGameController} from "./modules/constructors/createGameController";
 import {updateQueueController} from "./modules/updaters/updateQueueController";
@@ -21,6 +21,8 @@ import {QueueControllerInt} from "./database/models/QueueControllerModel";
 import UserModel from "./database/models/UserModel";
 import {getStats} from "./modules/getters/getStats";
 import {getRank, roleRemovalCallback} from "./utility/ranking";
+import userModel from "./database/models/UserModel";
+import {updateUser} from "./modules/updaters/updateUser";
 
 export class Data {
     private readonly client: Client;
@@ -32,11 +34,20 @@ export class Data {
     });
     private roleUpdate = cron.schedule("0 * * * *", async () => {
         await this.updateRoles();
+    });
+    private banCounter = cron.schedule("0 0 * * MON", async () => {
+        const users = await userModel.find({});
+        for (let user of users) {
+            if (user.banCounter > 1) {
+                user.banCounter--;
+                await updateUser(user);
+            }
+        }
     })
     private readonly FILL_SND: QueueController;
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
     nextPing: number = moment().unix();
-    readonly Leaderboard = LeaderboardController;
+    readonly Leaderboard = new LeaderboardControllerClass();
     private botStatus = "";
     private statusChannel: VoiceChannel | null = null;
     private tickCount = 0;
@@ -64,6 +75,7 @@ export class Data {
         this.saveLoop.start();
         this.tickLoop.start();
         this.roleUpdate.start();
+        this.banCounter.start();
         const queueDB = await getQueueController("SND", "FILL")
         await this.FILL_SND.load(queueDB as QueueControllerInt);
         await logInfo("Data Loaded!", this.client);
@@ -105,6 +117,12 @@ export class Data {
         const active = `Active Games: ${this.FILL_SND.activeGames.length}`;
         if (active != this.statusChannel!.name) {
             await this.statusChannel!.setName(active);
+        }
+        if (this.Leaderboard.changed) {
+            const channel = await this.client.channels.fetch(tokens.LeaderboardChannel) as TextChannel;
+            const message = await channel.messages.fetch(tokens.LeaderboardMessage);
+            await message.edit({content: this.Leaderboard.leaderboardCacheSND, components: []});
+            this.Leaderboard.changed = false;
         }
     }
 

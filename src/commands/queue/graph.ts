@@ -25,7 +25,7 @@ export const graph: Command = {
             }
             const dbUser = await getUserByUser(user);
             const stats = await getStats(dbUser._id, "SND");
-            const start = stats.gamesPlayed - gameNumber;
+            const start = stats.gamesPlayed - gameNumber + 1;
             if (stats.gamesPlayed < 20) {
                 await interaction.reply({
                     ephemeral: true,

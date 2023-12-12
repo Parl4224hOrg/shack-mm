@@ -36,6 +36,8 @@ export default {
     LossEmoji: '<:Loss:1174459377709764800>',
     DrawEmoji: '<:Draw:1174459379114848336>',
     ActiveGamesChannel: "1183155071433850960",
+    LeaderboardMessage: "1183920824164569130",
+    LeaderboardChannel: "1171851273499312159",
     // constants
     StartingMMR: 1500,
     PlayerCount: 10,
