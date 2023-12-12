@@ -1,4 +1,4 @@
-import {Client, TextChannel} from "discord.js";
+import {Client, Collection, TextChannel} from "discord.js";
 import {QueueUser} from "../interfaces/Game";
 import {GameData, InternalResponse, QueueData} from "../interfaces/Internal";
 import {Data} from "../data";
@@ -15,12 +15,19 @@ import {getGameControllerById} from "../modules/getters/getGameController";
 import {GameControllerInt} from "../database/models/GameControllerModel";
 import {logWarn} from "../loggers";
 
+interface PingMeUser {
+    id: string;
+    inQueue: number;
+    expires: number;
+}
+
 export class QueueController {
     readonly queueId = 'SND'
     readonly queueName: string;
     private data: Data;
     private readonly client: Client;
     private inQueue: QueueUser[] = [];
+    private pingMe = new Collection<string, PingMeUser>()
     activeGames: GameController[] = [];
     lastPlayedMaps: string[] = [];
 
@@ -43,6 +50,14 @@ export class QueueController {
         } catch (e) {
             await logWarn("Couldn't load data", this.client);
         }
+    }
+
+    async addPingMe(userId: string, inQueue: number) {
+        this.pingMe.set(userId, {
+            id: userId,
+            inQueue: inQueue,
+            expires: moment().unix() + 30 * 60,
+        });
     }
 
     async addUser(user: UserInt, time: number): Promise<InternalResponse> {
@@ -75,11 +90,11 @@ export class QueueController {
 
     async tick() {
         const time = moment().unix()
+        const guild = this.client.guilds.cache.get(tokens.GuildID)!
         for (let user of this.inQueue) {
             if (user.queueExpire < time) {
                 this.removeUser(user.dbId, true);
             } else if (user.queueExpire == (time + 180)) {
-                const guild = this.client.guilds.cache.get(tokens.GuildID)!
                 const member = await guild.members.fetch(user.discordId);
                 if (!member.dmChannel) {
                     await member.createDM(true);
@@ -100,6 +115,15 @@ export class QueueController {
                     this.lastPlayedMaps.shift();
                 }
                 this.lastPlayedMaps.push(game.map);
+            }
+        }
+        const queueChannel = await guild.channels.fetch(tokens.SNDChannel) as TextChannel;
+        for (let user of this.pingMe.values()) {
+            if (this.inQueueNumber() >= user.inQueue) {
+                await queueChannel.send(`<@${user.id}> there are in queue`);
+            }
+            if (user.expires > time) {
+                this.pingMe.delete(user.id);
             }
         }
     }

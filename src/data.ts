@@ -175,6 +175,11 @@ export class Data {
         return {success: false, message: "This queue is currently locked"}
     }
 
+    async addPingMe(queueId: string, queue: string, user: User, inQueue: number) {
+        const controller = this.getQueue();
+        await controller.addPingMe(user.id, inQueue);
+    }
+
     lockQueue(queueId: string) {
         this.locked.set(queueId, true);
     }
