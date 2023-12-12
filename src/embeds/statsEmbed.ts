@@ -76,11 +76,13 @@ export const warningEmbeds = (user: User, warnings: WarnInt[]): APIEmbed => {
     embed.setTitle(`Warnings for ${user.username}`);
     embed.setDescription(`<@${user.id}>`);
     for (let warn of warnings) {
-        const timestamp = "<t:" + warn.timeStamp + ":F>"
-        embed.addFields({
-            name: "Warning",
-            value: `Reason: ${warn.reason}\nDate: ${timestamp}\nMod: <@${warn.modId}>`
-        });
+        if (!warn.removed) {
+            const timestamp = "<t:" + warn.timeStamp + ":F>"
+            embed.addFields({
+                name: `${warn._id}`,
+                value: `Reason: ${warn.reason}\nDate: ${timestamp}\nMod: <@${warn.modId}>`
+            });
+        }
     }
     return embed.toJSON();
 }

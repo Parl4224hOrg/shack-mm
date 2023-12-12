@@ -6,6 +6,7 @@ import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import warnModel from "../../database/models/WarnModel";
 import moment from "moment";
+import tokens from "../../tokens";
 
 export const warn: Command = {
     data: new SlashCommandBuilder()
@@ -32,4 +33,5 @@ export const warn: Command = {
         }
     },
     name: 'warn',
+    allowedRoles: [tokens.ModRole]
 }

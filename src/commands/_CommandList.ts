@@ -21,10 +21,12 @@ import {register} from "./register";
 import {ratingChange} from "./queue/ratingChange";
 import {warn} from "./moderator/warn";
 import {warnings} from "./moderator/warnings";
+import {warnRemove} from "./moderator/warnRemove";
 
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, cooldown, forceAbandon, abandon,
-    _transparency, stats, manualSubmit, forceScore, graph, reverseCooldown, nullify, register, ratingChange, warn, warnings];
+    _transparency, stats, manualSubmit, forceScore, graph, reverseCooldown, nullify, register, ratingChange, warn, warnings,
+warnRemove];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

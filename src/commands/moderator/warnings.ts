@@ -5,6 +5,7 @@ import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import WarnModel from "../../database/models/WarnModel";
 import {warningEmbeds} from "../../embeds/statsEmbed";
+import tokens from "../../tokens";
 
 export const warnings: Command = {
     data: new SlashCommandBuilder()
@@ -21,4 +22,5 @@ export const warnings: Command = {
         }
     },
     name: "warnings",
+    allowedRoles: [tokens.ModRole],
 }

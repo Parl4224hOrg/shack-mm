@@ -1,4 +1,4 @@
-import {model, ObjectId, Schema} from "mongoose";
+import {model, ObjectId, Schema, Document} from "mongoose";
 
 export interface WarnInt extends Document {
     userId: ObjectId;
