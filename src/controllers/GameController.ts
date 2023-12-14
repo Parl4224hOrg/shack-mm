@@ -113,6 +113,8 @@ export class GameController {
     submitCooldown = 600;
     pleaseStop = false;
 
+    processing = false;
+
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[]) {
         this.id = id;
         this.client = client;
@@ -234,6 +236,7 @@ export class GameController {
     async processMatch() {
         this.state = 8;
 
+
         const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
         await channel.send({content: "Scores have been accepted"});
 
@@ -250,15 +253,18 @@ export class GameController {
         } else {
             game.winner = -1;
         }
-        const changes = await processMMR(this.users, this.scores, this.queueId, this.scoreLimit);
-        game.teamAChanges = changes[0];
-        game.teamBChanges = changes[1];
+        if (!this.processing && !this.processed) {
+            this.processing = true;
+            const changes = await processMMR(this.users, this.scores, this.queueId, this.scoreLimit);
+            game.teamAChanges = changes[0];
+            game.teamBChanges = changes[1];
 
-        await updateGame(game);
+            await updateGame(game);
 
-        await updateRanks(this.users, this.client);
-
-        this.processed = true;
+            await updateRanks(this.users, this.client);
+            this.processing = false
+            this.processed = true;
+        }
     }
 
     async acceptPhase() {
@@ -679,6 +685,29 @@ export class GameController {
         const id = String(userId);
         const userVotes = this.votes.get(id);
         let message;
+        if (this.state == 1 || this.state == 3) {
+            let invalid = false
+            this.users.forEach((value) => {
+                if (String(value.dbId) == String(userId) && value.team != 0) {
+                    invalid = true;
+                }
+            })
+            if (invalid) {
+                return {success: false, message: "You cannot vote as you are not on the this team"}
+            }
+        }
+        if (this.state == 2 || this.state == 4) {
+            let invalid = false
+            this.users.forEach((value) => {
+                if (String(value.dbId) == String(userId) && value.team != 1) {
+                    invalid = true;
+                }
+            })
+            if (invalid) {
+                return {success: false, message: "You cannot vote as you are not on the this team"}
+            }
+        }
+
         if (userVotes) {
             if (userVotes.includes(vote)) {
                 userVotes.forEach((value, index) => {if (value == vote) userVotes.splice(index, 1);});
