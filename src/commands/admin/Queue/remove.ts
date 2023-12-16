@@ -12,16 +12,10 @@ export const remove: SubCommand = {
         .addUserOption(userOption('User to remove from queue')),
     run: async (interaction, data) => {
         try {
-            const queue = interaction.options.getString('queue', true);
             const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user);
-            if (queue == 'ALL') {
-                data.removeFromAllQueues(dbUser._id);
-                await interaction.reply({ephemeral: true, content: `Removed ${user.toString()} from all queues`});
-            } else {
-                data.removeFromQueue(dbUser._id, queue);
-                await interaction.reply({ephemeral: true, content: `Removed ${user.toString()} from ${queue} queue`});
-            }
+            data.removeFromAllQueues(dbUser._id);
+            await interaction.reply({ephemeral: true, content: `<@${user.id}> Has been removed from queue`});
         } catch (e) {
             await logError(e, interaction)
         }

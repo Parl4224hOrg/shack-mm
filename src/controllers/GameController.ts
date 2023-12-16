@@ -1,5 +1,5 @@
 import {ObjectId} from "mongoose";
-import {ChannelType, Client, Collection, Guild, TextChannel} from "discord.js";
+import {ChannelType, Client, Collection, EmbedBuilder, Guild, TextChannel} from "discord.js";
 import {getGameById} from "../modules/getters/getGame";
 import moment from "moment/moment";
 import {processMMR} from "../utility/processMMR";
@@ -19,6 +19,49 @@ import {Vote} from "../interfaces/Game";
 import {acceptScore} from "../views/submitScoreViews";
 import {GameControllerInt} from "../database/models/GameControllerModel";
 import {updateRanks} from "../utility/ranking";
+
+
+const logVotes = async (votes: Collection<string, string[]>,
+                        orderedMapList: {"1": string, "2": string, "3": string, "4": string, "5": string, "6": string, "7": string} | {"1": string, "2": string},
+                        voteLabel: string, gameUsers: GameUser[], client: Client) => {
+    const channel = await client.channels.fetch(tokens.VoteLogChannel) as TextChannel;
+
+    let userVotes: {
+        userId: string;
+        votes: string;
+    }[] = [];
+
+    for (let vote of votes) {
+        let convertedMaps = "";
+        for (let map of vote[1]) {
+            // @ts-ignore
+            convertedMaps += orderedMapList[map] + ", ";
+        }
+        let discordId = 'not found';
+        for (let user of gameUsers) {
+            if (String(user.dbId) == String(vote[0])) {
+                discordId = user.discordId;
+            }
+        }
+        userVotes.push({
+            userId: `${discordId}`,
+            votes: convertedMaps,
+        });
+    }
+
+    const embed = new EmbedBuilder();
+    embed.setTitle(`Votes for ${voteLabel}`);
+    embed.setDescription("Votes:")
+    for (let user of userVotes) {
+        embed.addFields({
+            name: user.userId,
+            value: `<@${user.userId}>\n${user.votes}`,
+            inline: false,
+        });
+    }
+
+    await channel.send({content: `Votes for ${voteLabel}`, embeds: [embed.toJSON()]});
+}
 
 const getRandom = (votes: Vote[], lowerBound: number, upperBound: number, count: number): string[] => {
     if (count == 1) {
@@ -298,7 +341,7 @@ export class GameController {
                 if (!member.dmChannel) {
                     await member.createDM(true);
                 }
-                await member.dmChannel!.send(`A game has start please accept the game here <#${acceptChannel.id}> within 3 minutes`);
+                await member.dmChannel!.send(`A game has start please accept the game here ${acceptChannel.url} within 3 minutes`);
             }
 
             const message = await acceptChannel.send({content: `${matchRole.toString()} ${tokens.AcceptMessage}`, components: [acceptView()]});
@@ -338,7 +381,7 @@ export class GameController {
         await this.sendAbandonMessage(user.discordId);
     }
 
-    calcVotes(state: number): string[] {
+    async calcVotes(state: number): Promise<string[]> {
         let one: Vote = {total: 0, id: '1'};
         let two: Vote = {total: 0, id: '2'};
         let three: Vote = {total: 0, id: '3'};
@@ -376,6 +419,20 @@ export class GameController {
         }
 
         let mapVotes = [one, two, three, four, five, six, seven];
+
+        let voteLabel = `Match ${this.matchNumber}: `;
+
+        if (state == 2) {
+            voteLabel += "Team A, Ban Three";
+        } else if (state == 3) {
+            voteLabel += "Team B, Ban Two";
+        } else if (state == 4) {
+            voteLabel += "Team A, Select One";
+        } else if (state == 5) {
+            voteLabel += "Team B, Select One";
+        }
+
+        await logVotes(this.votes, state <= 4 ? this.mapSet : this.sideSet, voteLabel, this.users, this.client);
 
         mapVotes = mapVotes.sort((a, b) => b.total-a.total);
         let randomRange;
@@ -593,7 +650,7 @@ export class GameController {
 
             await teamBChannel.send({content: `Team B - ${teamBStr}Team A is banning 3 maps`});
         } else if (this.voteCountdown <= 0) {
-            const bans = this.calcVotes(2);
+            const bans = await this.calcVotes(2);
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
             const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
 
@@ -613,7 +670,7 @@ export class GameController {
     async voteB1() {
         this.voteCountdown--;
         if (this.voteCountdown <= 0) {
-            const bans = this.calcVotes(3);
+            const bans = await this.calcVotes(3);
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
             const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
 
@@ -633,7 +690,7 @@ export class GameController {
     async voteA2() {
         this.voteCountdown--;
         if (this.voteCountdown <= 0) {
-            const bans = this.calcVotes(4);
+            const bans = await this.calcVotes(4);
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
             const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
 
@@ -653,7 +710,7 @@ export class GameController {
     async voteB2() {
         this.voteCountdown--;
         if (this.voteCountdown <= 0) {
-            const bans = this.calcVotes(5);
+            const bans = await this.calcVotes(5);
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
             const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
 
@@ -686,25 +743,25 @@ export class GameController {
         const userVotes = this.votes.get(id);
         let message;
         if (this.state == 1 || this.state == 3) {
-            let invalid = false
+            let invalid = false;
             this.users.forEach((value) => {
                 if (String(value.dbId) == String(userId) && value.team != 0) {
                     invalid = true;
                 }
             })
             if (invalid) {
-                return {success: false, message: "You cannot vote as you are not on the this team"}
+                return {success: false, message: "You cannot vote as you are not on this team"};
             }
         }
         if (this.state == 2 || this.state == 4) {
-            let invalid = false
+            let invalid = false;
             this.users.forEach((value) => {
                 if (String(value.dbId) == String(userId) && value.team != 1) {
                     invalid = true;
                 }
             })
             if (invalid) {
-                return {success: false, message: "You cannot vote as you are not on the this team"}
+                return {success: false, message: "You cannot vote as you are not on this team"};
             }
         }
 
@@ -828,10 +885,16 @@ export class GameController {
         return -1;
     }
 
-    acceptScore(userId: ObjectId): InternalResponse {
+    async acceptScore(userId: ObjectId): Promise<InternalResponse> {
         const team = this.getTeam(userId);
         if (team >= 0) {
             this.scoresAccept[team] = true;
+            const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+            if (team == 0) {
+                await channel.send("Team a has accepted scores");
+            } else {
+                await channel.send("Team b has accepted scores");
+            }
             return {success: true, message: 'Accepted scores'};
         }
         return {success: false, message: 'Could not find team'};

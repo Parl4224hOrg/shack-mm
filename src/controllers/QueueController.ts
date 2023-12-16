@@ -21,6 +21,24 @@ interface PingMeUser {
     expires: number;
 }
 
+
+const removeDuplicates = (array: QueueUser[]) => {
+    const newArr: QueueUser[] = [];
+    for (let value of array) {
+        let inNew = false;
+        for (let newValue of newArr) {
+            if (newValue.discordId == value.discordId) {
+                inNew = true;
+                break;
+            }
+        }
+        if (!inNew) {
+            newArr.push(value);
+        }
+    }
+    return newArr;
+}
+
 export class QueueController {
     readonly queueId = 'SND'
     readonly queueName: string;
@@ -30,6 +48,7 @@ export class QueueController {
     private pingMe = new Collection<string, PingMeUser>()
     activeGames: GameController[] = [];
     lastPlayedMaps: string[] = [];
+    generating = false;
 
 
     constructor(data: Data, client: Client, queueName: string) {
@@ -62,10 +81,13 @@ export class QueueController {
 
     async addUser(user: UserInt, time: number): Promise<InternalResponse> {
         if (user.banUntil > moment().unix()) {
-            return {success: false, message: `You are currently banned for another ${grammaticalTime(user.banUntil - moment().unix())}`}
+            return {success: false, message: `You are currently banned for another ${grammaticalTime(user.banUntil - moment().unix())}`};
         }
         if (this.data.inGame(user._id)) {
-            return {success: false, message: `You are currently in a game`}
+            return {success: false, message: `You are currently in a game`};
+        }
+        if (this.generating) {
+            return {success: false, message: "Please try again in a couple seconds"};
         }
         this.removeUser(user._id, true);
         const stats = await getStats(user._id, this.queueId);
@@ -89,6 +111,7 @@ export class QueueController {
     }
 
     async tick() {
+        this.inQueue = removeDuplicates(this.inQueue);
         const time = moment().unix()
         const guild = this.client.guilds.cache.get(tokens.GuildID)!
         for (let user of this.inQueue) {
@@ -130,6 +153,7 @@ export class QueueController {
 
     addGame(game: GameController) {
         this.activeGames.push(game);
+        this.generating = false;
     }
 
     getQueueStr() {
@@ -155,9 +179,11 @@ export class QueueController {
 
     inGame(userId: ObjectId): boolean {
         for (let game of this.activeGames) {
-            for (let user of game.getUsers()) {
-                if (String(user.dbId) == String(userId)) {
-                    return true;
+            if (!game.abandoned) {
+                for (let user of game.getUsers()) {
+                    if (String(user.dbId) == String(userId)) {
+                        return true;
+                    }
                 }
             }
         }

@@ -16,5 +16,5 @@ export const clear: SubCommand = {
             await logError(e, interaction)
         }
     },
-    name: 'clear'
+    name: 'clear',
 }

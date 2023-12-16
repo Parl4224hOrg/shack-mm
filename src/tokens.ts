@@ -38,6 +38,8 @@ export default {
     ActiveGamesChannel: "1183155071433850960",
     LeaderboardMessage: "1183920824164569130",
     LeaderboardChannel: "1171851273499312159",
+    VoteLogChannel: "1185432060173746236",
+    LeadModRole: "1175171342736294028",
     // constants
     StartingMMR: 1500,
     PlayerCount: 10,

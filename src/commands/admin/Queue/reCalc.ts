@@ -7,6 +7,7 @@ import {getUserById} from "../../../modules/getters/getUser";
 import {processMMR} from "../../../utility/processMMR";
 import {GameUser} from "../../../interfaces/Game";
 import {updateGame} from "../../../modules/updaters/updateGame";
+import tokens from "../../../tokens";
 
 export const reCalc: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -51,5 +52,6 @@ export const reCalc: SubCommand = {
             await logError(e, interaction)
         }
     },
-    name: 're_calc'
+    name: 're_calc',
+    allowedUsers: [tokens.Parl],
 }

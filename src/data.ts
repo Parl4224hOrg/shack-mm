@@ -127,6 +127,7 @@ export class Data {
     }
 
     async createMatch(regionId: string, queue: QueueController, queueId: string, scoreLimit: number) {
+        queue.generating = true;
         let users: QueueUser[] = []
         while (users.length < tokens.PlayerCount && queue.inQueueNumber() > 0) {
             users.push(queue.getUser())
