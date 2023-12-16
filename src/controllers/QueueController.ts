@@ -145,7 +145,7 @@ export class QueueController {
             if (this.inQueueNumber() >= user.inQueue) {
                 await queueChannel.send(`<@${user.id}> there are in queue`);
             }
-            if (user.expires > time) {
+            if (time > user.expires) {
                 this.pingMe.delete(user.id);
             }
         }
