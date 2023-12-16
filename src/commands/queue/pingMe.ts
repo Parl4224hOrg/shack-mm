@@ -15,7 +15,8 @@ export const pingMe: Command = {
             .setMaxValue(9))
         .addIntegerOption(new SlashCommandIntegerOption()
             .setName('expire_time')
-            .setDescription("Set how long until your ping me expires. <1 for infinite, 0 to remove, >1 for the time specified")),
+            .setDescription("Set how long until your ping me expires. <1 for infinite, 0 to remove, >1 for the time specified")
+            .setRequired(true)),
     run: async (interaction, data) => {
         try {
             const time = interaction.options.getInteger('expire_time', true);
