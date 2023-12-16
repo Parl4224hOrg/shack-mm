@@ -57,12 +57,16 @@ export class QueueController {
         this.queueName = queueName;
     }
 
+    setInQueue(users: QueueUser[]) {
+        this.inQueue = users;
+    }
+
     async load(data: QueueControllerInt){
         try {
             this.inQueue = data.inQueue;
             const guild = await this.client.guilds.fetch(tokens.GuildID)
             for (let game of data.activeGames) {
-                const gameNew = new GameController(game, this.client, guild, -1, [], [], this.queueId, -10, this.lastPlayedMaps)
+                const gameNew = new GameController(game, this.client, guild, -1, [], [], this.queueId, -10, this.lastPlayedMaps, this.data)
                 const dbGame = await getGameControllerById(game)
                 await gameNew.load(dbGame as GameControllerInt);
             }
@@ -71,12 +75,23 @@ export class QueueController {
         }
     }
 
-    async addPingMe(userId: string, inQueue: number) {
-        this.pingMe.set(userId, {
-            id: userId,
-            inQueue: inQueue,
-            expires: moment().unix() + 30 * 60,
-        });
+    async addPingMe(userId: string, inQueue: number, expire_time: number) {
+        if (expire_time < 0) {
+            this.pingMe.set(userId, {
+                id: userId,
+                inQueue: inQueue,
+                expires: -1,
+            });
+        } else if (expire_time == 0) {
+            this.pingMe.delete(userId);
+        } else {
+            this.pingMe.set(userId, {
+                id: userId,
+                inQueue: inQueue,
+                expires: moment().unix() + expire_time * 60,
+            });
+        }
+
     }
 
     async addUser(user: UserInt, time: number): Promise<InternalResponse> {
@@ -144,8 +159,9 @@ export class QueueController {
         for (let user of this.pingMe.values()) {
             if (this.inQueueNumber() >= user.inQueue) {
                 await queueChannel.send(`<@${user.id}> there are in queue`);
+                this.pingMe.delete(user.id);
             }
-            if (time > user.expires) {
+            if (time > user.expires && user.expires >= 0) {
                 this.pingMe.delete(user.id);
             }
         }

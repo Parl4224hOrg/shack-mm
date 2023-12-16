@@ -19,6 +19,7 @@ import {Vote} from "../interfaces/Game";
 import {acceptScore} from "../views/submitScoreViews";
 import {GameControllerInt} from "../database/models/GameControllerModel";
 import {updateRanks} from "../utility/ranking";
+import {Data} from "../data";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -104,6 +105,8 @@ export class GameController {
     users: GameUser[] = [];
     readonly queueId: string = '';
     readonly scoreLimit: number = 0;
+    readonly startTime;
+    readonly data: Data;
 
     acceptChannelGen = false;
     acceptChannelId = '';
@@ -158,7 +161,7 @@ export class GameController {
 
     processing = false;
 
-    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[]) {
+    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data) {
         this.id = id;
         this.client = client;
         this.guild = guild;
@@ -181,6 +184,8 @@ export class GameController {
                 accepted: false,
             });
         }
+        this.data = data;
+        this.startTime = moment().unix();
         let i = 1;
         for (let mapCheck of tokens.MapPool) {
             if (!bannedMaps.includes(mapCheck) && i <= 7) {
@@ -359,11 +364,15 @@ export class GameController {
         }
         if (this.acceptCountdown <= 0 && !this.abandoned && !this.pleaseStop) {
             this.pleaseStop = true;
+            const users: GameUser[] = [];
             for (let user of this.users) {
                 if (!user.accepted) {
                     await this.abandon(user, true);
+                } else {
+                    this.users.push(user);
                 }
             }
+            await this.data.addAbandoned(users);
         }
     }
 

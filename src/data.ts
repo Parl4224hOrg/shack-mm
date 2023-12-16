@@ -2,7 +2,7 @@ import {Client, Collection, User, ActivityType, VoiceChannel, TextChannel} from 
 import cron from 'node-cron';
 import {logInfo} from "./loggers";
 import {QueueController} from "./controllers/QueueController";
-import {QueueUser} from "./interfaces/Game";
+import {GameUser, QueueUser} from "./interfaces/Game";
 import {makeTeams} from "./utility/makeTeams"
 import {getCounter} from "./modules/getters/getCounter";
 import {createGame} from "./modules/constructors/createGame";
@@ -11,7 +11,7 @@ import tokens from "./tokens";
 import {InternalResponse} from "./interfaces/Internal";
 import moment from "moment";
 import {GameController} from "./controllers/GameController";
-import {getUserByUser} from "./modules/getters/getUser";
+import {getUserById, getUserByUser} from "./modules/getters/getUser";
 import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
 import {updateGameController} from "./modules/updaters/updateGameController";
 import {createGameController} from "./modules/constructors/createGameController";
@@ -151,12 +151,31 @@ export class Data {
         try {
             const gameNum = await this.getIdSND()
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
-            const game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this.FILL_SND.lastPlayedMaps);
+            const game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this.FILL_SND.lastPlayedMaps, this);
             await createGameController(game);
             queue.addGame(game);
         } catch (e) {
             console.error(e);
         }
+    }
+
+    async addAbandoned(users: GameUser[]) {
+        const queue: QueueUser[] = [];
+        for (let user of users) {
+            const dbUser = await getUserById(user.dbId);
+            const stats = await getStats(user.dbId, "SND");
+            queue.push({
+                dbId: user.dbId,
+                discordId: user.discordId,
+                queueExpire: moment().unix() + 15 * 60,
+                mmr: stats.mmr,
+                name: dbUser.name,
+            });
+        }
+        for (let user of this.FILL_SND.getInQueue()) {
+            queue.push(user);
+        }
+        this.FILL_SND.setInQueue(queue);
     }
 
     findController() {
@@ -176,9 +195,9 @@ export class Data {
         return {success: false, message: "This queue is currently locked"}
     }
 
-    async addPingMe(queueId: string, queue: string, user: User, inQueue: number) {
+    async addPingMe(queueId: string, queue: string, user: User, inQueue: number, expire_time: number) {
         const controller = this.getQueue();
-        await controller.addPingMe(user.id, inQueue);
+        await controller.addPingMe(user.id, inQueue, expire_time);
     }
 
     lockQueue(queueId: string) {

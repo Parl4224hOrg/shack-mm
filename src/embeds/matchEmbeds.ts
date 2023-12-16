@@ -3,6 +3,7 @@ import {GameUser} from "../interfaces/Game";
 import tokens from "../tokens";
 import {GameInt} from "../database/models/GameModel";
 import {getUserById} from "../modules/getters/getUser";
+import {GameController} from "../controllers/GameController";
 
 export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
     const embed = new EmbedBuilder();
@@ -134,4 +135,30 @@ export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: 
 
     return embed.toJSON();
 
+}
+
+export const gameEmbed = (game: GameController) => {
+    const embed = new EmbedBuilder()
+    embed.setTitle(`Match ${game.matchNumber}-${game.map}`);
+    embed.setDescription(`Game started <t:${game.startTime}:R>`);
+    let teamA = "";
+    let teamB = "";
+    for (let user of game.users) {
+        if (user.team == 0) {
+            teamA += `<@${user.discordId}>\n`;
+        } else {
+            teamB += `<@${user.discordId}>\n`;
+        }
+    }
+    embed.addFields({
+        name: `Team A-${game.sides[0]}`,
+        value: teamA,
+        inline: true,
+    },{
+        name: `Team B-${game.sides[1]}`,
+        value: teamB,
+        inline: true,
+    });
+
+    return embed.toJSON();
 }
