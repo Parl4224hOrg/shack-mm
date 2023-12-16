@@ -158,7 +158,7 @@ export class QueueController {
         const queueChannel = await guild.channels.fetch(tokens.SNDChannel) as TextChannel;
         for (let user of this.pingMe.values()) {
             if (this.inQueueNumber() >= user.inQueue) {
-                await queueChannel.send(`<@${user.id}> there are in queue`);
+                await queueChannel.send(`<@${user.id}> there are in ${user.inQueue} queue`);
                 this.pingMe.delete(user.id);
             }
             if (time > user.expires && user.expires >= 0) {
