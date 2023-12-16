@@ -1072,9 +1072,18 @@ export class GameController {
     }
 
     async sendAbandonMessage(userId: string) {
+        const guild = await this.client.guilds.fetch(tokens.GuildID);
         if (this.state == 10) {
             const channel = await this.guild.channels.fetch(this.acceptChannelId) as TextChannel;
-            await channel.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
+            await channel.send(`<@&${this.matchRoleId}> <@${userId}> has failed to accept the match. You have been placed in queue for 15 minutes`);
+            for (let user of this.users) {
+                const member = await guild.members.fetch(user.discordId);
+                if (!member.dmChannel) {
+                    await member.createDM(true);
+                }
+                await member.dmChannel!.send("A player has failed to accept the match. You have been placed in queue for 15 minutes");
+            }
+            return;
         } else if (this.state == 11) {
             const channelA = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;
             await channelA.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
@@ -1084,7 +1093,6 @@ export class GameController {
             const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
             await channel.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
         }
-        const guild = await this.client.guilds.fetch(tokens.GuildID);
         for (let user of this.users) {
             const member = await guild.members.fetch(user.discordId);
             if (!member.dmChannel) {
