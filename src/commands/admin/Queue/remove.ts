@@ -20,5 +20,5 @@ export const remove: SubCommand = {
             await logError(e, interaction)
         }
     },
-    name: 'clear'
+    name: 'remove'
 }
