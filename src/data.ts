@@ -164,6 +164,7 @@ export class Data {
     }
 
     async addAbandoned(users: GameUser[]) {
+        console.log("here4");
         const queue: QueueUser[] = [];
         for (let user of users) {
             const dbUser = await getUserById(user.dbId);
@@ -176,9 +177,7 @@ export class Data {
                 name: dbUser.name,
             });
         }
-        for (let user of this.FILL_SND.getInQueue()) {
-            queue.push(user);
-        }
+        console.log("here5");
         this.FILL_SND.setInQueue(queue);
     }
 

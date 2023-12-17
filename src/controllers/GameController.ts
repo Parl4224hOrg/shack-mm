@@ -363,16 +363,19 @@ export class GameController {
             this.state++;
         }
         if (this.acceptCountdown <= 0 && !this.abandoned && !this.pleaseStop) {
+            console.log("here1");
             this.pleaseStop = true;
-            const users: GameUser[] = [];
+            const newUsers: GameUser[] = [];
+            console.log("here2");
             for (let user of this.users) {
                 if (!user.accepted) {
                     await this.abandon(user, true);
                 } else {
-                    this.users.push(user);
+                    newUsers.push(user);
                 }
             }
-            await this.data.addAbandoned(users);
+            console.log("here3");
+            await this.data.addAbandoned(newUsers);
         }
     }
 
@@ -1076,17 +1079,6 @@ export class GameController {
         if (this.state == 10) {
             const channel = await this.guild.channels.fetch(this.acceptChannelId) as TextChannel;
             await channel.send(`<@&${this.matchRoleId}> <@${userId}> has failed to accept the match. You have been placed in queue for 15 minutes`);
-            for (let user of this.users) {
-                const member = await guild.members.fetch(user.discordId);
-                if (!member.dmChannel) {
-                    await member.createDM(true);
-                }
-                try {
-                    await member.dmChannel!.send("A player has failed to accept the match. You have been placed in queue for 15 minutes");
-                } catch (e) {
-                    await logWarn("Could not send Dm", this.client);
-                }
-            }
             return;
         } else if (this.state == 11) {
             const channelA = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;

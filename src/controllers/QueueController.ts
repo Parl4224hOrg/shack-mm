@@ -58,7 +58,9 @@ export class QueueController {
     }
 
     setInQueue(users: QueueUser[]) {
-        this.inQueue = users;
+        console.log("here6");
+        this.inQueue = users.concat(this.inQueue);
+        console.log("here7");
     }
 
     async load(data: QueueControllerInt){
