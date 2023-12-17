@@ -1,6 +1,6 @@
 import {Client, Collection, User, ActivityType, VoiceChannel, TextChannel} from "discord.js";
 import cron from 'node-cron';
-import {logInfo} from "./loggers";
+import {logInfo, logWarn} from "./loggers";
 import {QueueController} from "./controllers/QueueController";
 import {GameUser, QueueUser} from "./interfaces/Game";
 import {makeTeams} from "./utility/makeTeams"
@@ -97,32 +97,36 @@ export class Data {
     }
 
     async tick() {
-        this.tickCount++;
-        if (!this.statusChannel || this.tickCount % 60 == 0) {
-            const guild = await this.client.guilds.fetch(tokens.GuildID);
-            this.statusChannel = await guild.channels.fetch(tokens.ActiveGamesChannel) as VoiceChannel;
-        }
-        if (this.FILL_SND.inQueueNumber() >= tokens.PlayerCount) {
-            await this.createMatch("NA", this.FILL_SND, 'SND', tokens.ScoreLimitSND);
-        }
-        await this.FILL_SND.tick()
-        const check = `${this.FILL_SND.inQueueNumber()} in queue`;
-        if (check != this.botStatus) {
-            this.botStatus = check;
-            this.client.user!.setActivity({
-                name: check,
-                type: ActivityType.Watching,
-            });
-        }
-        const active = `Active Games: ${this.FILL_SND.activeGames.length}`;
-        if (active != this.statusChannel!.name) {
-            await this.statusChannel!.setName(active);
-        }
-        if (this.Leaderboard.changed) {
-            const channel = await this.client.channels.fetch(tokens.LeaderboardChannel) as TextChannel;
-            const message = await channel.messages.fetch(tokens.LeaderboardMessage);
-            await message.edit({content: this.Leaderboard.leaderboardCacheSND, components: []});
-            this.Leaderboard.changed = false;
+        try {
+            this.tickCount++;
+            if (!this.statusChannel || this.tickCount % 60 == 0) {
+                const guild = await this.client.guilds.fetch(tokens.GuildID);
+                this.statusChannel = await guild.channels.fetch(tokens.ActiveGamesChannel) as VoiceChannel;
+            }
+            if (this.FILL_SND.inQueueNumber() >= tokens.PlayerCount) {
+                await this.createMatch("NA", this.FILL_SND, 'SND', tokens.ScoreLimitSND);
+            }
+            await this.FILL_SND.tick()
+            const check = `${this.FILL_SND.inQueueNumber()} in queue`;
+            if (check != this.botStatus) {
+                this.botStatus = check;
+                this.client.user!.setActivity({
+                    name: check,
+                    type: ActivityType.Watching,
+                });
+            }
+            const active = `Active Games: ${this.FILL_SND.activeGames.length}`;
+            if (active != this.statusChannel!.name) {
+                await this.statusChannel!.setName(active);
+            }
+            if (this.Leaderboard.changed) {
+                const channel = await this.client.channels.fetch(tokens.LeaderboardChannel) as TextChannel;
+                const message = await channel.messages.fetch(tokens.LeaderboardMessage);
+                await message.edit({content: this.Leaderboard.leaderboardCacheSND, components: []});
+                this.Leaderboard.changed = false;
+            }
+        } catch (e) {
+            await logWarn("Error in main tick loop", this.client);
         }
     }
 

@@ -1081,7 +1081,11 @@ export class GameController {
                 if (!member.dmChannel) {
                     await member.createDM(true);
                 }
-                await member.dmChannel!.send("A player has failed to accept the match. You have been placed in queue for 15 minutes");
+                try {
+                    await member.dmChannel!.send("A player has failed to accept the match. You have been placed in queue for 15 minutes");
+                } catch (e) {
+                    await logWarn("Could not send Dm", this.client);
+                }
             }
             return;
         } else if (this.state == 11) {
