@@ -14,7 +14,7 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, rank: n
         embed.setTitle(`${name}'s Stats - [${rank}]`);
         embed.setDescription(`${getRank(stats.mmr).name}-${stats.mmr.toFixed(1)} MMR\nGames played - ${stats.gamesPlayed}`);
     } else {
-        embed.setTitle(`${name}'s`);
+        embed.setTitle(`${name}'s Stats`);
         if (stats.gamesPlayed == 9) {
             embed.setDescription(`Play 1 more game to get ranked\nGames played - ${stats.gamesPlayed}`);
         } else {
