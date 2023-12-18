@@ -175,7 +175,7 @@ export const gameEmbed = (game: GameController) => {
             value: accepted,
             inline: true,
         }, {
-            name: `No Accepted`,
+            name: `Not Accepted`,
             value: noAccepted,
             inline: true,
         });
