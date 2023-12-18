@@ -19,6 +19,7 @@ interface PingMeUser {
     id: string;
     inQueue: number;
     expires: number;
+    pinged: boolean;
 }
 
 
@@ -42,7 +43,7 @@ const removeDuplicates = (array: QueueUser[]) => {
 export class QueueController {
     readonly queueId = 'SND'
     readonly queueName: string;
-    private data: Data;
+    private readonly data: Data;
     private readonly client: Client;
     private inQueue: QueueUser[] = [];
     private pingMe = new Collection<string, PingMeUser>()
@@ -83,6 +84,7 @@ export class QueueController {
                 id: userId,
                 inQueue: inQueue,
                 expires: -1,
+                pinged: false,
             });
         } else if (expire_time == 0) {
             this.pingMe.delete(userId);
@@ -91,6 +93,7 @@ export class QueueController {
                 id: userId,
                 inQueue: inQueue,
                 expires: moment().unix() + expire_time * 60,
+                pinged: false,
             });
         }
 
@@ -159,12 +162,15 @@ export class QueueController {
         }
         const queueChannel = await guild.channels.fetch(tokens.SNDChannel) as TextChannel;
         for (let user of this.pingMe.values()) {
-            if (this.inQueueNumber() >= user.inQueue) {
+            if (this.inQueueNumber() >= user.inQueue && !user.pinged) {
                 await queueChannel.send(`<@${user.id}> there are in ${user.inQueue} queue`);
-                this.pingMe.delete(user.id);
+                user.pinged = true;
             }
             if (time > user.expires && user.expires >= 0) {
                 this.pingMe.delete(user.id);
+            }
+            if (this.inQueueNumber() < user.inQueue) {
+                user.pinged = false;
             }
         }
     }

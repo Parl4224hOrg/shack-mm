@@ -13,3 +13,15 @@ export const getStats = async (userId: ObjectId, queueId: string): Promise<Stats
 export const getTopTwenty = async (queueId: string) => {
     return StatsModel.find({queueId: queueId, gamesPlayed: {'$gte': 10}}).sort({mmr: -1}).limit(20);
 }
+
+export const getRankNumber = async (userId: ObjectId, queueId: string): Promise<number> => {
+    const query = await StatsModel.find({queueId: queueId, gamesPlayed: {'$gte': 10}}).sort({mmr: -1});
+    let rank = 1;
+    for (let stat of query) {
+        if (String(stat.userId) == String(userId)) {
+            break;
+        }
+        rank++;
+    }
+    return rank;
+}

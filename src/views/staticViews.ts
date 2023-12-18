@@ -6,6 +6,8 @@ import {readyNA15, readyNA30, readyNA60, readyNA120} from "../buttons/queue/SND/
 import {signup} from "../buttons/signup";
 import {unready} from "../buttons/queue/SND/unready";
 import {p2pToggle} from "../buttons/p2pToggle";
+import {lfg} from "../buttons/queue/lfg";
+import {stats} from "../buttons/queue/stats";
 
 export const sndAPACReadyView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -20,6 +22,11 @@ export const sndEUReadyView = () => {
 export const sndFILLReadyView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
         .addComponents(readyFILL15.data, readyFILL30.data, readyFILL60.data, readyFILL120.data, unready.data).toJSON();
+}
+
+export const SNDFILLReadyView2 = () => {
+    return new ActionRowBuilder<MessageActionRowComponentBuilder>()
+        .addComponents(lfg.data, stats.data).toJSON();
 }
 
 export const sndNAReadyView = () => {

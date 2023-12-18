@@ -21,7 +21,11 @@ export const pingMe: Command = {
         try {
             const time = interaction.options.getInteger('expire_time', true);
             await data.addPingMe("SND", "FILL", interaction.user, interaction.options.getInteger('in_queue', true), time);
-            await interaction.reply({content: `Added ping me for ${interaction.options.getInteger('in_queue', true)} in queue`})
+            if (time == 0) {
+                await interaction.reply({ephemeral: true, content: `Removed Ping Me`});
+            } else {
+                await interaction.reply({content: `Added ping me for ${interaction.options.getInteger('in_queue', true)} in queue`})
+            }
         } catch (e) {
             await logError(e, interaction);
         }

@@ -5,8 +5,9 @@ import {Guild, TextChannel} from "discord.js";
 import tokens from "../tokens";
 import {updateUser} from "../modules/updaters/updateUser";
 import {grammaticalTime} from "./grammatical";
+import ActionModel, {Actions} from "../database/models/ActionModel";
 
-export const abandon = async (userId: ObjectId, guild: Guild, acceptFail: boolean) => {
+export const abandon = async (userId: ObjectId, discordId: string, guild: Guild, acceptFail: boolean) => {
     const user = await getUserById(userId);
     const now = moment().unix();
     switch (user.banCounter) {
@@ -20,6 +21,15 @@ export const abandon = async (userId: ObjectId, guild: Guild, acceptFail: boolea
     }
     user.banCounter++;
     await updateUser(user);
+
+    const warning = await ActionModel.create({
+        action: acceptFail ? Actions.AcceptFail : Actions.Abandon,
+        modId: "1058875839296577586",
+        userId: discordId,
+        reason: "Auto punishment by bot",
+        time: now,
+        actionData: `User was punished for ${grammaticalTime(user.banUntil - now)}\nWith a ban counter of ${user.banCounter} after the punishment`,
+    })
 
     const channel = await guild.channels.fetch(tokens.GeneralChannel) as TextChannel;
     if (acceptFail) {

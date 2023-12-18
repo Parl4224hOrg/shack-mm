@@ -191,6 +191,9 @@ export class Data {
 
     async ready(queueId: string, queue: string, user: User, time: number): Promise<InternalResponse> {
         const dbUser = await getUserByUser(user);
+        if (!dbUser.oculusName) {
+            return {success: false, message: "You need to set a name using `/register` before queueing"};
+        }
         if (!this.locked.get(queueId)) {
             const controller = this.getQueue();
             return await controller.addUser(dbUser, time);

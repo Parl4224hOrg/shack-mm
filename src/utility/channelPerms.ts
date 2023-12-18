@@ -27,6 +27,7 @@ const modPerms: OverwriteResolvable = {
             PermissionsBitField.Flags.ViewChannel,
             PermissionsBitField.Flags.UseApplicationCommands,
             PermissionsBitField.Flags.ManageMessages,
+            PermissionsBitField.Flags.MentionEveryone,
         ],
         type: 0,
 }

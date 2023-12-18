@@ -389,7 +389,7 @@ export class GameController {
         if (this.state < 10) {
             this.state += 10;
         }
-        await abandon(user.dbId, this.guild, acceptFail);
+        await abandon(user.dbId, user.discordId, this.guild, acceptFail);
         await this.sendAbandonMessage(user.discordId);
     }
 

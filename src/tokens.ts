@@ -40,6 +40,13 @@ export default {
     LeaderboardChannel: "1171851273499312159",
     VoteLogChannel: "1185432060173746236",
     LeadModRole: "1175171342736294028",
+    RegionRoles: {
+        NAE: "1186176045829849089",
+        NAW: "1186176099969925160",
+        EUE: "1186176160674099281",
+        EUW: "1186176183470149762",
+        APAC: "1186176140394643456",
+    },
     // constants
     StartingMMR: 1500,
     PlayerCount: 10,

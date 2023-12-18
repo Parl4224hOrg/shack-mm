@@ -12,7 +12,7 @@ export enum Actions {
 export interface ActionInt extends Document {
     action: Actions;
     modId: string;
-    userId?: string;
+    userId: string;
     reason: string;
     time: number;
     actionData: string;

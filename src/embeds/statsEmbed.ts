@@ -5,14 +5,16 @@ import {getRank} from "../utility/ranking";
 import tokens from "../tokens";
 import {WarnInt} from "../database/models/WarnModel";
 
-export const statsEmbed = (stats: StatsInt, user: UserInt, name: string): APIEmbed => {
+export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, rank: number): APIEmbed => {
     const embed = new EmbedBuilder();
 
-    embed.setTitle(`${name}'s Stats`);
+
 
     if (stats.gamesPlayed >= 10) {
+        embed.setTitle(`${name}'s Stats - [${rank}]`);
         embed.setDescription(`${getRank(stats.mmr).name}-${stats.mmr.toFixed(1)} MMR\nGames played - ${stats.gamesPlayed}`);
     } else {
+        embed.setTitle(`${name}'s`);
         if (stats.gamesPlayed == 9) {
             embed.setDescription(`Play 1 more game to get ranked\nGames played - ${stats.gamesPlayed}`);
         } else {

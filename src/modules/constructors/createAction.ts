@@ -16,7 +16,7 @@ export const createAction = async (action: Actions,modId: string, reason: string
     return await ActionModel.create({
         action: action,
         modId: modId,
-        userId: 'NA',
+        userId: modId,
         reason: reason,
         time: moment().unix(),
         actionData: actionData,
