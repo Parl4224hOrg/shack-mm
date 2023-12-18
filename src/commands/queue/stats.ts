@@ -24,7 +24,7 @@ export const stats: Command = {
             // @ts-ignore
             if (queueId != "ALL") {
                 const stats = await getStats(dbUser._id, queueId);
-                await interaction.reply({ephemeral: false, embeds: [statsEmbed(stats, dbUser, user.username, await getRankNumber(dbUser._id, queueId))]});
+                await interaction.reply({ephemeral: false, embeds: [statsEmbed(stats, dbUser, user.username, await getRankNumber(dbUser._id, queueId), user.avatarURL()!)]});
             } else {
                 await interaction.reply({ephemeral: true, content: 'getting stats for all is not currently supported'});
             }

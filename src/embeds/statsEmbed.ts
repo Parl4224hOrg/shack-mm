@@ -5,7 +5,7 @@ import {getRank} from "../utility/ranking";
 import tokens from "../tokens";
 import {WarnInt} from "../database/models/WarnModel";
 
-export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, rank: number): APIEmbed => {
+export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, rank: number, imageURL: string): APIEmbed => {
     const embed = new EmbedBuilder();
 
 
@@ -22,6 +22,8 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, rank: n
         }
 
     }
+
+    embed.setThumbnail(imageURL);
 
     let history = ""
     let games;

@@ -15,7 +15,7 @@ export const stats: Button = {
         try {
             const dbUser = await getUserByUser(interaction.user);
             const stats = await getStats(dbUser._id, "SND");
-            await interaction.reply({ephemeral: true, embeds: [statsEmbed(stats, dbUser, interaction.user.username, await getRankNumber(dbUser._id, "SND"))]});
+            await interaction.reply({ephemeral: true, embeds: [statsEmbed(stats, dbUser, interaction.user.username, await getRankNumber(dbUser._id, "SND"), interaction.user.avatarURL()!)]});
         } catch (e) {
             await logError(e, interaction);
         }
