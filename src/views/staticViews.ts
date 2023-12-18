@@ -8,6 +8,7 @@ import {unready} from "../buttons/queue/SND/unready";
 import {p2pToggle} from "../buttons/p2pToggle";
 import {lfg} from "../buttons/queue/lfg";
 import {stats} from "../buttons/queue/stats";
+import {games} from "../buttons/queue/games";
 
 export const sndAPACReadyView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -26,7 +27,7 @@ export const sndFILLReadyView = () => {
 
 export const SNDFILLReadyView2 = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(lfg.data, stats.data).toJSON();
+        .addComponents(lfg.data, games.data, stats.data).toJSON();
 }
 
 export const sndNAReadyView = () => {

@@ -141,24 +141,45 @@ export const gameEmbed = (game: GameController) => {
     const embed = new EmbedBuilder()
     embed.setTitle(`Match ${game.matchNumber}-${game.map}`);
     embed.setDescription(`Game started <t:${game.startTime}:R>`);
-    let teamA = "";
-    let teamB = "";
-    for (let user of game.users) {
-        if (user.team == 0) {
-            teamA += `<@${user.discordId}>\n`;
-        } else {
-            teamB += `<@${user.discordId}>\n`;
+    if (game.state >= 1) {
+        let teamA = "";
+        let teamB = "";
+        for (let user of game.users) {
+            if (user.team == 0) {
+                teamA += `<@${user.discordId}>\n`;
+            } else {
+                teamB += `<@${user.discordId}>\n`;
+            }
         }
+        embed.addFields({
+            name: `Team A-${game.sides[0]}`,
+            value: teamA,
+            inline: true,
+        }, {
+            name: `Team B-${game.sides[1]}`,
+            value: teamB,
+            inline: true,
+        });
+    } else {
+        let accepted = "";
+        let noAccepted = "";
+        for (let user of game.users) {
+            if (user.accepted) {
+                accepted += `<@${user.discordId}>\n`;
+            } else {
+                noAccepted += `<@${user.discordId}>\n`;
+            }
+        }
+        embed.addFields({
+            name: `Accepted`,
+            value: accepted,
+            inline: true,
+        }, {
+            name: `No Accepted`,
+            value: noAccepted,
+            inline: true,
+        });
     }
-    embed.addFields({
-        name: `Team A-${game.sides[0]}`,
-        value: teamA,
-        inline: true,
-    },{
-        name: `Team B-${game.sides[1]}`,
-        value: teamB,
-        inline: true,
-    });
 
     return embed.toJSON();
 }
