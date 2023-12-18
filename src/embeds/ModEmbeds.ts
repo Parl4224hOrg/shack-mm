@@ -9,7 +9,7 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
     if (moment().unix() > user.banUntil) {
         embed.setDescription(`<@${actions[0].userId}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter: ${user.banCounter}`);
     } else {
-        embed.setDescription(`<@${actions[0].userId}>\nCooldown until <t:${user.banUntil}:R>\nBan Counter: ${user.banCounter}`);
+        embed.setDescription(`<@${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\nBan Counter: ${user.banCounter}`);
     }
 
     for (let action of actions) {
