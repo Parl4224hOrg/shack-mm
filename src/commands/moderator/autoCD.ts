@@ -30,7 +30,8 @@ export const autoCD: Command = {
                     name: "Extenuating Major Action",
                     value: "1"
                 }
-            ))
+            )
+            .setRequired(true))
         .addStringOption(reason),
     run: async (interaction) => {
         try {
@@ -49,7 +50,6 @@ export const autoCD: Command = {
             }
             user.banCounter++;
             await updateUser(user);
-            await createAction(Actions.Cooldown, interaction.user.id, interaction.options.getString('reason', true), `Cooldown that scales with ban counter for ${user.banUntil - now} seconds`);
             let action;
             if (extra == 0) {
                 action = "Minor";
@@ -58,6 +58,7 @@ export const autoCD: Command = {
             } else {
                 action = "Major"
             }
+            await createAction(Actions.Cooldown, interaction.user.id, interaction.options.getString('reason', true), `Cooldown that scales with ban counter for ${user.banUntil - now} seconds, it was a ${action} action`);
             await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
         } catch (e) {
             await logError(e, interaction);
