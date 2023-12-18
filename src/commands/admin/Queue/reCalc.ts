@@ -8,6 +8,7 @@ import {processMMR} from "../../../utility/processMMR";
 import {GameUser} from "../../../interfaces/Game";
 import {updateGame} from "../../../modules/updaters/updateGame";
 import tokens from "../../../tokens";
+import StatsModel from "../../../database/models/StatsModel";
 
 export const reCalc: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -18,6 +19,7 @@ export const reCalc: SubCommand = {
         try {
             await interaction.deferReply({ephemeral: true});
             const games = await GameModel.find({scoreB: {"$gte": 0}, scoreA: {'$gte': 0}}).sort({matchId: 1});
+            await StatsModel.deleteMany({queueId: "SND"})
             for (let game of games) {
                 let teamA = [];
                 let teamB = [];

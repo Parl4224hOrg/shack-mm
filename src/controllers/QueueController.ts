@@ -6,7 +6,6 @@ import moment from "moment";
 import {getStats} from "../modules/getters/getStats";
 import {grammaticalList, grammaticalTime} from "../utility/grammatical";
 import {ObjectId} from "mongoose";
-import {updateUser} from "../modules/updaters/updateUser";
 import {GameController} from "./GameController";
 import {UserInt} from "../database/models/UserModel";
 import tokens from "../tokens";
@@ -111,10 +110,6 @@ export class QueueController {
         }
         this.removeUser(user._id, true);
         const stats = await getStats(user._id, this.queueId);
-        if (!user.stats.includes(stats._id)) {
-            user.stats.push(stats._id);
-            await updateUser(user);
-        }
         this.inQueue.push({
             dbId: user._id,
             discordId: user.id,
