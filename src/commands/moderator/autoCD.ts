@@ -9,17 +9,35 @@ import {getUserByUser} from "../../modules/getters/getUser";
 import {grammaticalTime} from "../../utility/grammatical";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
+import {SlashCommandStringOption} from "discord.js";
 
 export const autoCD: Command = {
     data: new SlashCommandBuilder()
         .setName("auto_cd")
         .setDescription("Cooldown a user based on ban counter")
         .addUserOption(userOption("User to cooldown"))
+        .addStringOption(new SlashCommandStringOption()
+            .setName('action_type')
+            .setDescription("Action that was deserving of cooldown")
+            .setChoices(
+                {
+                    name: "Minor Action",
+                    value: "0"
+                }, {
+                    name: "Major Action",
+                    value: "2"
+                }, {
+                    name: "Extenuating Major Action",
+                    value: "1"
+                }
+            ))
         .addStringOption(reason),
     run: async (interaction) => {
         try {
             const user = await getUserByUser(interaction.options.getUser('user', true));
             const now = moment().unix();
+            const extra = Number(interaction.options.getString("action_type", true)) ?? 0;
+            user.banCounter += extra
             switch (user.banCounter) {
                 case 0: user.lastBan = now; user.banUntil = now + 30 * 60; break;
                 case 1: user.lastBan = now; user.banUntil = now + 60 * 60; break;
@@ -32,7 +50,15 @@ export const autoCD: Command = {
             user.banCounter++;
             await updateUser(user);
             await createAction(Actions.Cooldown, interaction.user.id, interaction.options.getString('reason', true), `Cooldown that scales with ban counter for ${user.banUntil - now} seconds`);
-            await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}`});
+            let action;
+            if (extra == 0) {
+                action = "Minor";
+            } else if (extra == 1) {
+                action = "Extenuating Major"
+            } else {
+                action = "Major"
+            }
+            await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
         } catch (e) {
             await logError(e, interaction);
         }
