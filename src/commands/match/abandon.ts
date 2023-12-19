@@ -2,6 +2,7 @@ import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
+import {Regions} from "../../database/models/UserModel";
 
 export const abandon: Command = {
     data: new SlashCommandBuilder()
@@ -13,7 +14,7 @@ export const abandon: Command = {
             const game = data.findGame(dbUser._id);
             if (game) {
                 await interaction.deferReply();
-                await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false}, false);
+                await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC}, false);
                 await interaction.followUp("You have abandoned the game");
             } else {
                 await interaction.reply({ephemeral: true, content: "Could not find game"});

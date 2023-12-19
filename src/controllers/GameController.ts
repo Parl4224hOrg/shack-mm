@@ -20,6 +20,7 @@ import {acceptScore} from "../views/submitScoreViews";
 import {GameControllerInt} from "../database/models/GameControllerModel";
 import {updateRanks} from "../utility/ranking";
 import {Data} from "../data";
+import {Regions} from "../database/models/UserModel";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -174,6 +175,7 @@ export class GameController {
                 discordId: user.discord,
                 team: 0,
                 accepted: false,
+                region: user.region
             });
         }
         for (let user of teamB) {
@@ -182,6 +184,7 @@ export class GameController {
                 discordId: user.discord,
                 team: 1,
                 accepted: false,
+                region: user.region
             });
         }
         this.data = data;
@@ -743,7 +746,31 @@ export class GameController {
                 reason: 'Create final match channel',
             });
             this.finalChannelId = finalChannel.id;
-            const message = await finalChannel.send({components: [initialSubmit()], embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)]});
+            // TODO: Uncomment region stuff once required
+            // let regionTotal = 0;
+            // for (let user of this.users) {
+            //     switch (user.region) {
+            //         case Regions.APAC: regionTotal -= 2; break;
+            //         case Regions.EUE: regionTotal += 1; break;
+            //         case Regions.EUW: regionTotal += 2; break;
+            //         case Regions.NAE: break;
+            //         case Regions.NAW: regionTotal -= 1; break;
+            //     }
+            // }
+            // let region;
+            // if (regionTotal <= -5) {
+            //     region = "NAW";
+            // } else if (regionTotal <= -3) {
+            //     region = "NAC";
+            // } else if (regionTotal <= 2) {
+            //     region = "NAE";
+            // } else {
+            //     region = "EUW"
+            // }
+            const message = await finalChannel.send({components: [initialSubmit()],
+                embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)],
+            // content: `This match should be played in the ${region} region`
+            });
             await finalChannel.messages.pin(message);
             await teamAChannel.delete();
             await teamBChannel.delete();

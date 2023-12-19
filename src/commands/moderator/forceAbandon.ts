@@ -4,6 +4,7 @@ import {userOption} from "../../utility/options";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
+import {Regions} from "../../database/models/UserModel";
 
 export const forceAbandon: Command = {
     data: new SlashCommandBuilder()
@@ -15,7 +16,7 @@ export const forceAbandon: Command = {
             const dbUser = await getUserByUser(interaction.options.getUser('user', true));
             const game = data.findGame(dbUser._id);
             if (game) {
-                await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false}, false);
+                await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC}, false);
                 await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> has been abandoned`});
             } else {
                 await interaction.reply({ephemeral: true, content: 'User not in a game'});

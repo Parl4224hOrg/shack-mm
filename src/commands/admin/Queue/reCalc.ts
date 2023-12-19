@@ -9,6 +9,7 @@ import {GameUser} from "../../../interfaces/Game";
 import {updateGame} from "../../../modules/updaters/updateGame";
 import tokens from "../../../tokens";
 import StatsModel from "../../../database/models/StatsModel";
+import {Regions} from "../../../database/models/UserModel";
 
 export const reCalc: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -31,6 +32,7 @@ export const reCalc: SubCommand = {
                         discordId: user.id,
                         team: 0,
                         accepted: true,
+                        region: Regions.APAC,
                     })
                     teamA.push(user);
                 }
@@ -41,6 +43,7 @@ export const reCalc: SubCommand = {
                         discordId: user.id,
                         team: 1,
                         accepted: true,
+                        region: Regions.APAC,
                     })
                     teamB.push(user);
                 }

@@ -28,11 +28,12 @@ import {actions} from "./moderator/actions";
 import {autoCD} from "./moderator/autoCD";
 import {map_play} from "./moderator/map_play";
 import {rank_dist} from "./moderator/rank_dist";
+import {setRegion} from "./moderator/setRegion";
 
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, cooldown, forceAbandon, abandon,
     stats, manualSubmit, forceScore, graph, reverseCooldown, nullify, register, ratingChange, warn, warnings,
-warnRemove, pingMe, echo, games, actions, autoCD, map_play, rank_dist];
+warnRemove, pingMe, echo, games, actions, autoCD, map_play, rank_dist, setRegion];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

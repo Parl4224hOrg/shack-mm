@@ -1,5 +1,14 @@
 import {Document, model, ObjectId, Schema} from "mongoose";
 
+
+export enum Regions {
+    NAE = "NAE",
+    NAW = "NAW",
+    EUE = "EUE",
+    EUW = "EUW",
+    APAC = "APAC",
+}
+
 export interface UserInt extends Document {
     id: string
     name: string;
@@ -11,6 +20,7 @@ export interface UserInt extends Document {
     dmMatch: boolean;
     dmQueue: boolean;
     dmAuto: boolean;
+    region: Regions;
     games: ObjectId[];
 }
 
@@ -25,6 +35,10 @@ export const UserSchema = new Schema({
     dmMatch: Boolean,
     dmQueue: Boolean,
     dmAuto: Boolean,
+    region: {
+        type: String,
+        enum: ["NAE", "NAW", "EUE", "EUW", "APAC"]
+    },
     games: [Schema.Types.ObjectId]
 })
 

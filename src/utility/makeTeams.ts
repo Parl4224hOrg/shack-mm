@@ -49,8 +49,8 @@ export const makeTeams = async (users: QueueUser[]): Promise<{teamA: ids[], team
     let teamA: ids[] = [];
     let teamB: ids[] = [];
 
-    bestA.forEach(c => teamA.push({db: c.dbId, discord: c.discordId}));
-    bestB.forEach(c => teamB.push({db: c.dbId, discord: c.discordId}));
+    bestA.forEach(c => teamA.push({db: c.dbId, discord: c.discordId, region: c.region}));
+    bestB.forEach(c => teamB.push({db: c.dbId, discord: c.discordId, region: c.region}));
 
 
     return {teamA: teamA, teamB: teamB, mmrDiff: bestDiff};

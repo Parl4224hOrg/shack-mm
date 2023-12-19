@@ -10,6 +10,7 @@ import {TextChannel} from "discord.js";
 import {matchFinalEmbed} from "../../embeds/matchEmbeds";
 import {GameUser} from "../../interfaces/Game";
 import {getUserById} from "../../modules/getters/getUser";
+import {Regions} from "../../database/models/UserModel";
 
 export const manualSubmit: Command = {
     data: new SlashCommandBuilder()
@@ -54,11 +55,11 @@ export const manualSubmit: Command = {
             let users: GameUser[] = []
             for (let user of game.teamA) {
                 const dbUser = await getUserById(user);
-                users.push({dbId: user, discordId: dbUser.id, team: 0, accepted: true});
+                users.push({dbId: user, discordId: dbUser.id, team: 0, accepted: true, region: Regions.APAC});
             }
             for (let user of game.teamB) {
                 const dbUser = await getUserById(user);
-                users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true});
+                users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true, region: Regions.APAC});
             }
             const changes = await processMMR(users, [game.scoreA, game.scoreB], "SND", tokens.ScoreLimitSND);
             game.teamAChanges = changes[0];

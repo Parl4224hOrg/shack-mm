@@ -1,0 +1,62 @@
+import {Command} from "../../interfaces/Command";
+import {SlashCommandBuilder} from "@discordjs/builders";
+import {userOption} from "../../utility/options";
+import {SlashCommandStringOption} from "discord.js";
+import {logError} from "../../loggers";
+import tokens from "../../tokens";
+import {getUserByUser} from "../../modules/getters/getUser";
+import {Regions} from "../../database/models/UserModel";
+
+export const setRegion: Command = {
+    data: new SlashCommandBuilder()
+        .setName("set_region")
+        .setDescription("Set's a user's region")
+        .addUserOption(userOption("user to set region of"))
+        .addStringOption(new SlashCommandStringOption()
+            .setName('region')
+            .setDescription("region to set")
+            .setRequired(true)
+            .setChoices({
+                    name: "NAE",
+                    value: "NAE"
+                }, {
+                    name: "NAE",
+                    value: "NAE"
+                }, {
+                    name: "NAE",
+                    value: "NAE"
+                }, {
+                    name: "EUE",
+                    value: "EUE"
+                }, {
+                    name: "EUW",
+                    value: "EUW",
+                }, {
+                    name: "APAC",
+                    value: "APAC"
+                }
+            )),
+    run: async (interaction) => {
+        try {
+            const member = await interaction.guild!.members.fetch(interaction.options.getUser('user', true));
+            for (let role of member.roles.cache.keys()) {
+                if (tokens.RegionRoleArray.includes(role)) {
+                    await member.roles.remove(role);
+                }
+            }
+            const dbUser = await getUserByUser(interaction.options.getUser('user', true));
+            switch (interaction.options.getString('region', true)) {
+                case "NAE": dbUser.region = Regions.NAE; await member.roles.add(tokens.RegionRoles.NAE); break;
+                case "NAW": dbUser.region = Regions.NAW; await member.roles.add(tokens.RegionRoles.NAW); break;
+                case "EUE": dbUser.region = Regions.EUE; await member.roles.add(tokens.RegionRoles.EUE); break;
+                case "EUW": dbUser.region = Regions.EUW; await member.roles.add(tokens.RegionRoles.EUW); break;
+                case "APAC": dbUser.region = Regions.APAC; await member.roles.add(tokens.RegionRoles.APAC); break;
+            }
+            await interaction.reply({ephemeral: true, content: "updated user's region"});
+        } catch (e) {
+            await logError(e, interaction);
+        }
+    },
+    name: "set_region",
+    allowedRoles: [tokens.ModRole],
+}

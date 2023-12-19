@@ -175,6 +175,7 @@ export class Data {
                 queueExpire: moment().unix() + 15 * 60,
                 mmr: stats.mmr,
                 name: dbUser.name,
+                region: dbUser.region,
             });
         }
         console.log("here5");
@@ -194,6 +195,10 @@ export class Data {
         if (!dbUser.oculusName) {
             return {success: false, message: "You need to set a name using `/register` before queueing"};
         }
+        // TODO: Uncomment once regions are enforced
+        // if (!dbUser.region) {
+        //     return {success: false, message: `You must set a region in <#${tokens.RegionSelect}> before you can play`}
+        // }
         if (!this.locked.get(queueId)) {
             const controller = this.getQueue();
             return await controller.addUser(dbUser, time);

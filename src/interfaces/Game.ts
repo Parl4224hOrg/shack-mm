@@ -1,8 +1,10 @@
 import {ObjectId} from "mongoose";
+import {Regions} from "../database/models/UserModel";
 
 export interface ids {
     db: ObjectId;
     discord: string;
+    region: Regions
 }
 
 export interface QueueUser {
@@ -10,7 +12,8 @@ export interface QueueUser {
     discordId: string;
     queueExpire: number;
     mmr: number;
-    name: string
+    name: string;
+    region: Regions;
 }
 
 export interface GameUser {
@@ -18,6 +21,7 @@ export interface GameUser {
     discordId: string;
     team: number;
     accepted: boolean;
+    region: Regions;
 }
 
 export interface Vote {
