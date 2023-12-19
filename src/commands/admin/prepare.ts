@@ -3,7 +3,7 @@ import {SlashCommandBuilder} from "@discordjs/builders";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {TextChannel} from "discord.js";
-import {signUpView, sndFILLReadyView, SNDFILLReadyView2} from "../../views/staticViews";
+import {regionSelectView, signUpView, sndFILLReadyView, SNDFILLReadyView2} from "../../views/staticViews";
 
 export const prepare: Command = {
     data: new SlashCommandBuilder()
@@ -18,7 +18,8 @@ export const prepare: Command = {
                 {name: "Sign Up", value: "signup"},
                 {name: "Info", value: "info"},
                 {name: "cleanup", value: "c"},
-                {name: 'Clear', value: 'c2'}
+                {name: 'Clear', value: 'c2'},
+                {name: "Region", value: 'region'}
             )
         ),
     run: async (interaction) => {
@@ -51,6 +52,10 @@ export const prepare: Command = {
                     const channel = interaction.channel as TextChannel;
                     await channel.bulkDelete(100, true);
                     await interaction.followUp({ephemeral: true, content: "done"})
+                } break;
+                case 'region': {
+                    await interaction.channel!.send({components: [regionSelectView()], content: tokens.RegionSelectMessage});
+                    await interaction.followUp({ephemeral: true, content: 'prepared region select view'})
                 } break;
                 default: break;
             }

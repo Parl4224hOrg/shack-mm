@@ -9,6 +9,7 @@ import {p2pToggle} from "../buttons/p2pToggle";
 import {lfg} from "../buttons/queue/lfg";
 import {stats} from "../buttons/queue/stats";
 import {games} from "../buttons/queue/games";
+import {APAC, EUE, EUW, NAE, NAW} from "../buttons/regionSelect";
 
 export const sndAPACReadyView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -39,3 +40,9 @@ export const signUpView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
         .addComponents(signup.data, p2pToggle.data).toJSON();
 }
+
+export const regionSelectView = () => {
+    return new ActionRowBuilder<MessageActionRowComponentBuilder>()
+        .addComponents(NAE.data, NAW.data, EUE.data, EUW.data, APAC.data).toJSON();
+}
+

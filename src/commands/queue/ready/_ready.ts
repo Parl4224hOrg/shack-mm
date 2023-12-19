@@ -36,5 +36,5 @@ export const _ready: Command = {
         }
     },
     name: 'ready',
-    allowedRoles: [tokens.Player],
+    allowedRoles: [tokens.Player, tokens.DoNotPing],
 }

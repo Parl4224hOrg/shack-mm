@@ -49,6 +49,7 @@ export default {
     },
     RegionRoleArray: ["1186176045829849089", "1186176099969925160", "1186176160674099281", "1186176183470149762", "1186176140394643456"],
     RegionSelect: "1186501237517070367",
+    DoNotPing: "1186750217962401844",
     // constants
     StartingMMR: 1500,
     PlayerCount: 10,
@@ -84,4 +85,5 @@ export default {
     AcceptMessage: messages.acceptMessage,
     SignUpMessage: messages.signUp,
     InfoMessage: messages.info,
+    RegionSelectMessage: messages.region,
 }
