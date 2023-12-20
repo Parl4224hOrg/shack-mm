@@ -20,11 +20,8 @@ export const setRegion: Command = {
                     name: "NAE",
                     value: "NAE"
                 }, {
-                    name: "NAE",
-                    value: "NAE"
-                }, {
-                    name: "NAE",
-                    value: "NAE"
+                    name: "NAW",
+                    value: "NAW"
                 }, {
                     name: "EUE",
                     value: "EUE"
