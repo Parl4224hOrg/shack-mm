@@ -21,6 +21,8 @@ import {GameControllerInt} from "../database/models/GameControllerModel";
 import {updateRanks} from "../utility/ranking";
 import {Data} from "../data";
 import {Regions} from "../database/models/UserModel";
+import {getUserById} from "../modules/getters/getUser";
+import {updateUser} from "../modules/updaters/updateUser";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -311,6 +313,12 @@ export class GameController {
             game.teamBChanges = changes[1];
 
             await updateGame(game);
+
+            for (let user of this.users) {
+                const dbUser = await getUserById(user.dbId);
+                dbUser.gamesPlayedSinceReduction++;
+                await updateUser(dbUser);
+            }
 
             await updateRanks(this.users, this.client);
             this.processing = false
