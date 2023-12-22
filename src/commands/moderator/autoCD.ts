@@ -40,12 +40,9 @@ export const autoCD: Command = {
             const extra = Number(interaction.options.getString("action_type", true)) ?? 0;
             user.banCounter += extra
             switch (user.banCounter) {
-                case 0: user.lastBan = now; user.banUntil = now + 30 * 60; break;
-                case 1: user.lastBan = now; user.banUntil = now + 8 * 60 * 60; break;
-                case 2: user.lastBan = now; user.banUntil = now + 24 * 60 * 60; break;
-                case 3: user.lastBan = now; user.banUntil = now + 48 * 60 * 60; break;
-                case 4: user.lastBan = now; user.banUntil = now + 96 * 60 * 60; break;
-                default: user.lastBan = now; user.banUntil = now + 2 ** (user.banCounter - 1) * 24 * 60 * 60; break;
+                case 0: user.lastBan = now; user.banUntil = now + 30 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
+                case 1: user.lastBan = now; user.banUntil = now + 8 * 60 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
+                default: user.lastBan = now; user.banUntil = now + 2 ** (user.banCounter - 1) * 12 * 60 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
             }
             user.banCounter++;
             await updateUser(user);

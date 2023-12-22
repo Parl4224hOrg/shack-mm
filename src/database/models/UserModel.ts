@@ -20,6 +20,8 @@ export interface UserInt extends Document {
     dmMatch: boolean;
     dmQueue: boolean;
     dmAuto: boolean;
+    lastReduction: number;
+    gamesPlayedSinceReduction: number;
     region: Regions;
     games: ObjectId[];
 }
@@ -35,6 +37,8 @@ export const UserSchema = new Schema({
     dmMatch: Boolean,
     dmQueue: Boolean,
     dmAuto: Boolean,
+    lastReduction: Number,
+    gamesPlayedSinceReduction: Number,
     region: {
         type: String,
         enum: ["NAE", "NAW", "EUE", "EUW", "APAC"]

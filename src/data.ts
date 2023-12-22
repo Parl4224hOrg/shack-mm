@@ -35,12 +35,33 @@ export class Data {
     private roleUpdate = cron.schedule("0 * * * *", async () => {
         await this.updateRoles();
     });
-    private banCounter = cron.schedule("0 0 * * MON", async () => {
+    private banCounter = cron.schedule("*/10 * * * *", async () => {
+        const now = moment().unix()
         const users = await userModel.find({});
         for (let user of users) {
-            if (user.banCounter > 1) {
-                user.banCounter--;
-                await updateUser(user);
+            if (!user.lastReduction) {
+                user.lastReduction = 0;
+                user = await updateUser(user);
+            }
+            if (!user.gamesPlayedSinceReduction) {
+                user.gamesPlayedSinceReduction = 0;
+                user = await updateUser(user);
+            }
+            if (user.lastReduction + 60 * 60 * 24 * 14 < now) {
+                if (user.banCounter > 0) {
+                    user.banCounter --;
+                    user.lastReduction = now;
+                    user.gamesPlayedSinceReduction = 0;
+                    await updateUser(user);
+                }
+            }
+            if (user.gamesPlayedSinceReduction >= 7) {
+                if (user.banCounter > 0) {
+                    user.banCounter --;
+                    user.lastReduction = now;
+                    user.gamesPlayedSinceReduction = 0;
+                    await updateUser(user);
+                }
             }
         }
     })

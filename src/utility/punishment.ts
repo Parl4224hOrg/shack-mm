@@ -11,17 +11,14 @@ export const abandon = async (userId: ObjectId, discordId: string, guild: Guild,
     const user = await getUserById(userId);
     const now = moment().unix();
     switch (user.banCounter) {
-        case 0: user.lastBan = now; user.banUntil = now + 30 * 60; break;
-        case 1: user.lastBan = now; user.banUntil = now + 8 * 60 * 60; break;
-        case 2: user.lastBan = now; user.banUntil = now + 24 * 60 * 60; break;
-        case 3: user.lastBan = now; user.banUntil = now + 48 * 60 * 60; break;
-        case 4: user.lastBan = now; user.banUntil = now + 96 * 60 * 60; break;
-        default: user.lastBan = now; user.banUntil = now + 2 ** (user.banCounter - 1) * 24 * 60 * 60; break;
+        case 0: user.lastBan = now; user.banUntil = now + 30 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
+        case 1: user.lastBan = now; user.banUntil = now + 8 * 60 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
+        default: user.lastBan = now; user.banUntil = now + 2 ** (user.banCounter - 1) * 12 * 60 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
     }
     user.banCounter++;
     await updateUser(user);
 
-    const warning = await ActionModel.create({
+    await ActionModel.create({
         action: acceptFail ? Actions.AcceptFail : Actions.Abandon,
         modId: "1058875839296577586",
         userId: discordId,
