@@ -59,6 +59,7 @@ export const NAW: Button = {
                 await member.roles.add(tokens.RegionRoles.NAW);
                 const dbUser = await getUserByUser(interaction.user);
                 dbUser.region = Regions.NAW;
+                await updateUser(dbUser);
                 await interaction.reply({ephemeral: true, content: "Assigned NAW role, You are not able to change this please make a ticket to do so"});
             }
         } catch (e) {
@@ -89,6 +90,7 @@ export const EUE: Button = {
                 await member.roles.add(tokens.RegionRoles.EUE);
                 const dbUser = await getUserByUser(interaction.user);
                 dbUser.region = Regions.EUE;
+                await updateUser(dbUser);
                 await interaction.reply({ephemeral: true, content: "Assigned EUE role, You are not able to change this please make a ticket to do so"});
             }
         } catch (e) {
@@ -119,6 +121,7 @@ export const EUW: Button = {
                 await member.roles.add(tokens.RegionRoles.EUW);
                 const dbUser = await getUserByUser(interaction.user);
                 dbUser.region = Regions.EUW;
+                await updateUser(dbUser);
                 await interaction.reply({ephemeral: true, content: "Assigned EUW role, You are not able to change this please make a ticket to do so"})
             }
         } catch (e) {
@@ -149,6 +152,7 @@ export const APAC: Button = {
                 await member.roles.add(tokens.RegionRoles.APAC);
                 const dbUser = await getUserByUser(interaction.user);
                 dbUser.region = Regions.APAC;
+                await updateUser(dbUser);
                 await interaction.reply({ephemeral: true, content: "Assigned APAC role, You are not able to change this please make a ticket to do so"})
             }
         } catch (e) {
