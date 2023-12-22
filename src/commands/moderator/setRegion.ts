@@ -6,6 +6,7 @@ import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {Regions} from "../../database/models/UserModel";
+import {updateUser} from "../../modules/updaters/updateUser";
 
 export const setRegion: Command = {
     data: new SlashCommandBuilder()
@@ -49,6 +50,7 @@ export const setRegion: Command = {
                 case "EUW": dbUser.region = Regions.EUW; await member.roles.add(tokens.RegionRoles.EUW); break;
                 case "APAC": dbUser.region = Regions.APAC; await member.roles.add(tokens.RegionRoles.APAC); break;
             }
+            await updateUser(dbUser);
             await interaction.reply({ephemeral: true, content: "updated user's region"});
         } catch (e) {
             await logError(e, interaction);
