@@ -6,6 +6,8 @@ import tokens from "../../tokens";
 import {getUserByUser} from "../../modules/getters/getUser";
 import ActionModel from "../../database/models/ActionModel";
 import {ActionEmbed} from "../../embeds/ModEmbeds";
+import WarnModel from "../../database/models/WarnModel";
+import {warningEmbeds} from "../../embeds/statsEmbed";
 
 export const actions: Command = {
     data: new SlashCommandBuilder()
@@ -17,7 +19,8 @@ export const actions: Command = {
             const user = interaction.options.getUser("user", true)
             const actions = await ActionModel.find({userId: user.id});
             const dbUser = await getUserByUser(user);
-            await interaction.reply({ephemeral: true, content: `Showing actions for <@${user.id}>`, embeds: [ActionEmbed(actions, dbUser)]});
+            const warnings = await WarnModel.find({userId: dbUser._id});
+            await interaction.reply({ephemeral: true, content: `Showing actions for <@${user.id}>`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
         } catch (e) {
             await logError(e, interaction);
         }
