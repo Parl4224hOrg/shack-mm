@@ -5,6 +5,7 @@ import {logError} from "../loggers";
 import tokens from "../tokens";
 import {getUserByUser} from "../modules/getters/getUser";
 import {Regions} from "../database/models/UserModel";
+import {updateUser} from "../modules/updaters/updateUser";
 
 export const NAE: Button = {
     data: new ButtonBuilder()
@@ -27,6 +28,7 @@ export const NAE: Button = {
                 await member.roles.add(tokens.RegionRoles.NAE);
                 const dbUser = await getUserByUser(interaction.user);
                 dbUser.region = Regions.NAE;
+                await updateUser(dbUser);
                 await interaction.reply({ephemeral: true, content: "Assigned NAE role, You are not able to change this please make a ticket to do so"});
             }
         } catch (e) {
