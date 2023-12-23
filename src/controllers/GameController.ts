@@ -732,7 +732,8 @@ export class GameController {
 
     async voteB2() {
         this.voteCountdown--;
-        if (this.voteCountdown <= 0) {
+        if (this.voteCountdown <= 0 && !this.finalChannelGen) {
+            this.finalChannelGen = true;
             const bans = await this.calcVotes(5);
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
             const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
