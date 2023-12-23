@@ -486,7 +486,7 @@ export class GameController {
                 bans = [mapVotes[0].id, mapVotes[1].id].concat(getRandom(mapVotes, 2, 3, 1));
             } else if (randomRange == 2) {
                 if (mapVotes[0].total == mapVotes[1].total && mapVotes[1].total != mapVotes[2].total) {
-                    bans = [mapVotes[0].id, mapVotes[1].id].concat(getRandom(mapVotes, 2, 3, 2));
+                    bans = [mapVotes[0].id, mapVotes[1].id].concat(getRandom(mapVotes, 2, 3, 1));
                 } else {
                     bans = [mapVotes[0].id].concat(getRandom(mapVotes, 1, 4, 2));
                 }
@@ -771,8 +771,10 @@ export class GameController {
                 region = "NAC";
             } else if (regionTotal <= 4) {
                 region = "NAE";
+            } else if (regionTotal <= 9) {
+                region = "EUE";
             } else {
-                region = "EUW"
+                region = "EUW";
             }
             const message = await finalChannel.send({components: [initialSubmit()],
                 embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)],
