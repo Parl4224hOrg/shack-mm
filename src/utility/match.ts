@@ -1,6 +1,41 @@
 import {getUserByUser} from "../modules/getters/getUser";
-import {ButtonInteraction, ChatInputCommandInteraction} from "discord.js";
+import {ButtonInteraction, ChatInputCommandInteraction, Client, EmbedBuilder, TextChannel} from "discord.js";
 import {Data} from "../data";
+import tokens from "../tokens";
+
+
+export const logReady = async (userId: string, queueLabel: string, time: number, client: Client) => {
+    const channel = await client.channels.fetch(tokens.QueueLogChannel) as TextChannel;
+    const embed = new EmbedBuilder();
+    embed.setTitle("User has readied");
+    embed.setDescription(`<@${userId}> has readied up in ${queueLabel} for ${time} minutes`);
+    await channel.send({embeds: [embed.toJSON()]});
+}
+
+export const logUnready = async (userId: string, queueLabel: string, client: Client) => {
+    const channel = await client.channels.fetch(tokens.QueueLogChannel) as TextChannel;
+    const embed = new EmbedBuilder();
+    embed.setTitle("User has unreadied");
+    embed.setDescription(`<@${userId}> has unreadied up in ${queueLabel}`);
+    await channel.send({embeds: [embed.toJSON()]});
+}
+
+export const logAccept = async (userId: string, matchId: number, client: Client) => {
+    const channel = await client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+    const embed = new EmbedBuilder();
+    embed.setTitle("User has accepted");
+    embed.setDescription(`<@${userId}> has accepted match ${matchId}`);
+    await channel.send({embeds: [embed.toJSON()]});
+}
+
+export const logScoreSubmit = async (userId: string, matchId: number, score: number, client: Client) => {
+    const channel = await client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+    const embed = new EmbedBuilder();
+    embed.setTitle("User has Submitted a score");
+    embed.setDescription(`<@${userId}> has submitted a score of ${score} for match ${matchId}`);
+    await channel.send({embeds: [embed.toJSON()]});
+}
+
 
 export const matchVotes = async (interaction: ButtonInteraction, data: Data) => {
     const dbUser = await getUserByUser(interaction.user);

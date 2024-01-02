@@ -185,21 +185,25 @@ export class Data {
     }
 
     async addAbandoned(users: GameUser[]) {
-        console.log("here4");
         const queue: QueueUser[] = [];
         for (let user of users) {
             const dbUser = await getUserById(user.dbId);
-            const stats = await getStats(user.dbId, "SND");
-            queue.push({
-                dbId: user.dbId,
-                discordId: user.discordId,
-                queueExpire: moment().unix() + 15 * 60,
-                mmr: stats.mmr,
-                name: dbUser.name,
-                region: dbUser.region,
-            });
+            if (dbUser.requeue == null) {
+                dbUser.requeue = true;
+                await updateUser(dbUser);
+            }
+            if (dbUser.requeue) {
+                const stats = await getStats(user.dbId, "SND");
+                queue.push({
+                    dbId: user.dbId,
+                    discordId: user.discordId,
+                    queueExpire: moment().unix() + 15 * 60,
+                    mmr: stats.mmr,
+                    name: dbUser.name,
+                    region: dbUser.region,
+                });
+            }
         }
-        console.log("here5");
         this.FILL_SND.setInQueue(queue);
     }
 

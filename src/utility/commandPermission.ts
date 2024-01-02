@@ -4,8 +4,9 @@ import {Button} from "../interfaces/Button";
 import {StringSelectMenu} from "../interfaces/SelectMenu";
 import {grammaticalList} from "./grammatical";
 import {CommandPermission} from "../interfaces/Internal";
+import {Modal} from "../interfaces/Modal";
 
-export const commandPermission = async (interaction: Interaction, command: Command | SubCommand | Button | StringSelectMenu): Promise<CommandPermission> => {
+export const commandPermission = async (interaction: Interaction, command: Command | SubCommand | Button | StringSelectMenu | Modal): Promise<CommandPermission> => {
     let valid = false;
     let limited = false;
     let channel = false;

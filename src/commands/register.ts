@@ -17,11 +17,22 @@ export const register: Command = {
     run: async (interaction) => {
         try {
             const dbUser = await getUserByUser(interaction.user);
+            let registered = true;
+            if (dbUser.oculusName == null) {
+                registered = false;
+            }
             dbUser.oculusName = interaction.options.getString('name', true).replace("<@", "").replace(">", "");
             await updateUser(dbUser);
-            const member = await interaction.guild!.members.fetch(interaction.user);
-            await member.roles.add(tokens.Player);
-            await interaction.reply({ephemeral: true, content: `You have registered please go to <#${tokens.RegionSelect}> to select your region`});
+            if (!registered) {
+                const member = await interaction.guild!.members.fetch(interaction.user);
+                await member.roles.add(tokens.Player);
+                await interaction.reply({
+                    ephemeral: true,
+                    content: `You have registered please go to <#${tokens.RegionSelect}> to select your region`
+                });
+            } else {
+                await interaction.reply({ephemeral: true, content: "You have updated your registered name"})
+            }
         } catch (e) {
             await logError(e, interaction);
         }

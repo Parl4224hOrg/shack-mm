@@ -3,6 +3,7 @@ import {SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../../loggers";
 import {getUserByUser} from "../../../modules/getters/getUser";
 import {queues, userOption} from "../../../utility/options";
+import tokens from "../../../tokens";
 
 export const remove: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -20,5 +21,6 @@ export const remove: SubCommand = {
             await logError(e, interaction)
         }
     },
-    name: 'remove'
+    name: 'remove',
+    allowedRoles: [tokens.ModRole],
 }

@@ -97,7 +97,7 @@ const options = (max: number, min: number, username: string) => {
 };
 
 export const getGraph = async (history: number[], start: number, end: number, username: string) => {
-    const games = history.slice(start, end);
+    const games = history.slice(start, end + 1);
     let labels: string[] = []
     let count = start;
     for (const {} of games) {

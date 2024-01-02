@@ -6,10 +6,11 @@ import moment from "moment";
 export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
     const embed = new EmbedBuilder()
     embed.setTitle(`Actions against ${user.name}`);
+    const frozen = `The user is currently ${user.frozen ? "frozen" : "not frozen"}`;
     if (moment().unix() > user.banUntil) {
-        embed.setDescription(`<@${actions[0].userId}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter: ${user.banCounter}`);
+        embed.setDescription(`<@${actions[0].userId}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter: ${user.banCounter}\n${frozen}`);
     } else {
-        embed.setDescription(`<@${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\nBan Counter: ${user.banCounter}`);
+        embed.setDescription(`<@${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\nBan Counter: ${user.banCounter}\n${frozen}`);
     }
 
     for (let action of actions) {

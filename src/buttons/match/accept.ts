@@ -15,7 +15,7 @@ export const accept: Button = {
             const dbUser = await getUserByUser(interaction.user);
             const controller = data.findController();
             if (controller) {
-                const response = controller.acceptGame(dbUser._id);
+                const response = await controller.acceptGame(dbUser._id);
                 await interaction.reply({ephemeral: true, content: response.message});
             } else {
                 await interaction.reply({ephemeral: true, content: "Could not find controller please contact a mod"})

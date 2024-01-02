@@ -7,7 +7,6 @@ import {_queue} from "./admin/Queue/_queue";
 import {pingPlayers} from "./queue/pingPlayers";
 import {_ready} from "./queue/ready/_ready";
 import {unready} from "./queue/unready";
-import {cooldown} from "./moderator/cooldown";
 import {forceAbandon} from "./moderator/forceAbandon";
 import {nullify} from "./moderator/nullify";
 import {reverseCooldown} from "./moderator/reverseCooldown";
@@ -25,15 +24,21 @@ import {pingMe} from "./queue/pingMe";
 import {echo} from "./admin/echo";
 import {games} from "./queue/games";
 import {actions} from "./moderator/actions";
-import {autoCD} from "./moderator/autoCD";
+import {cooldown} from "./moderator/cooldown";
 import {map_play} from "./moderator/map_play";
 import {rank_dist} from "./moderator/rank_dist";
 import {setRegion} from "./moderator/setRegion";
+import {findUser} from "./moderator/findUser";
+import {setRequeue} from "./queue/setRequeue";
+import {checkBan} from "./checkBan";
+import {freeze} from "./moderator/freeze";
+import {help} from "./help";
 
 
-const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, cooldown, forceAbandon, abandon,
+const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, forceAbandon, abandon,
     stats, manualSubmit, forceScore, graph, reverseCooldown, nullify, register, ratingChange, warn, warnings,
-warnRemove, pingMe, echo, games, actions, autoCD, map_play, rank_dist, setRegion];
+warnRemove, pingMe, echo, games, actions, cooldown, map_play, rank_dist, setRegion, findUser, setRequeue, checkBan,
+freeze, help];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

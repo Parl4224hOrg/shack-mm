@@ -38,7 +38,8 @@ export default {
     ActiveGamesChannel: "1183155071433850960",
     LeaderboardMessage: "1183920824164569130",
     LeaderboardChannel: "1171851273499312159",
-    VoteLogChannel: "1185432060173746236",
+    GameLogChannel: "1185432060173746236",
+    QueueLogChannel: "1191799332924559360",
     LeadModRole: "1175171342736294028",
     RegionRoles: {
         NAE: "1186176045829849089",

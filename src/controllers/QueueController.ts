@@ -13,6 +13,8 @@ import {QueueControllerInt} from "../database/models/QueueControllerModel";
 import {getGameControllerById} from "../modules/getters/getGameController";
 import {GameControllerInt} from "../database/models/GameControllerModel";
 import {logWarn} from "../loggers";
+import {updateUser} from "../modules/updaters/updateUser";
+import {logReady, logUnready} from "../utility/match";
 
 interface PingMeUser {
     id: string;
@@ -108,6 +110,13 @@ export class QueueController {
         if (this.generating) {
             return {success: false, message: "Please try again in a couple seconds"};
         }
+        if (user.frozen == null) {
+            user.frozen = false;
+            await updateUser(user);
+        }
+        if (user.frozen) {
+            return {success: false, message: "You cannot queue as you have a pending ticket please go resolve it in order to queue"}
+        }
         this.removeUser(user._id, true);
         const stats = await getStats(user._id, this.queueId);
         this.inQueue.push({
@@ -120,6 +129,7 @@ export class QueueController {
         });
         const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
         await channel.send(`${user.name} has readied up for ${time} minutes`);
+        await logReady(user.id, `${this.queueId}`, time, this.client);
         return {
             success: true,
             message: `You have readied up for ${time} minutes\nThere are ${this.inQueue.length} players in ${this.queueId}`
@@ -193,6 +203,7 @@ export class QueueController {
                 if (!noMessage) {
                     await channel.send(`${user.name} has unreadied`);
                 }
+                await logUnready(user.discordId, this.queueId, this.client);
             }
         });
     }
@@ -223,18 +234,20 @@ export class QueueController {
 
     findGame(id: ObjectId) {
         for (let game of this.activeGames) {
-            for (let user of game.getUsers()) {
-                if (String(user.dbId) == String(id)) {
-                    return game;
+            if (!game.abandoned) {
+                for (let user of game.getUsers()) {
+                    if (String(user.dbId) == String(id)) {
+                        return game;
+                    }
                 }
             }
         }
     }
 
-    acceptGame(id: ObjectId): InternalResponse {
+    async acceptGame(id: ObjectId): Promise<InternalResponse> {
         const game = this.findGame(id);
         if (game) {
-            game.userAccept(id);
+            await game.userAccept(id);
             return {success: true, message: "You have accepted your game"}
         } else {
             return {success: false, message: "Could not find game please contact a mod"}
