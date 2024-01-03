@@ -10,6 +10,7 @@ import {lfg} from "../buttons/queue/lfg";
 import {stats} from "../buttons/queue/stats";
 import {games} from "../buttons/queue/games";
 import {APAC, EUE, EUW, NAE, NAW} from "../buttons/regionSelect";
+import {pingMeButton} from "../buttons/queue/pingMe";
 
 export const sndAPACReadyView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -28,7 +29,7 @@ export const sndFILLReadyView = () => {
 
 export const SNDFILLReadyView2 = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(lfg.data, games.data, stats.data).toJSON();
+        .addComponents(lfg.data, games.data, stats.data, pingMeButton.data).toJSON();
 }
 
 export const sndNAReadyView = () => {

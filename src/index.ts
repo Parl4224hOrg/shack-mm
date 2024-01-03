@@ -5,6 +5,7 @@ import { onInteraction } from "./events/onInteraction";
 import {onReady} from "./events/onReady";
 import {Data} from "./data";
 import {onJoin} from "./events/onJoin";
+import {onMessage} from "./events/onMessage";
 
 (async () => {
     const BOT = new Client({
@@ -23,6 +24,10 @@ import {onJoin} from "./events/onJoin";
         "guildMemberAdd",
         async (member) => await onJoin(member)
     );
+    BOT.on(
+        "messageCreate",
+        async (message) => await onMessage(message)
+    )
 
     await BOT.login(tokens.BotToken);
 })();

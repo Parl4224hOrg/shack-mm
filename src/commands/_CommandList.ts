@@ -33,12 +33,14 @@ import {setRequeue} from "./queue/setRequeue";
 import {checkBan} from "./checkBan";
 import {freeze} from "./moderator/freeze";
 import {help} from "./help";
+import {easyTime} from "./moderator/easyTime";
+import {checkDms} from "./admin/checkDms";
 
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, forceAbandon, abandon,
     stats, manualSubmit, forceScore, graph, reverseCooldown, nullify, register, ratingChange, warn, warnings,
 warnRemove, pingMe, echo, games, actions, cooldown, map_play, rank_dist, setRegion, findUser, setRequeue, checkBan,
-freeze, help];
+freeze, help, easyTime, checkDms];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

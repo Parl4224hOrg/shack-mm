@@ -40,6 +40,6 @@ export const GameSchema = new Schema({
     nullified: Boolean,
     mmrDiff: Number,
     region: String,
-})
+});
 
 export default model<GameInt>('games', GameSchema)

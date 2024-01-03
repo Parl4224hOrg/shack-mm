@@ -1,0 +1,39 @@
+import {Command} from "../../interfaces/Command";
+import {SlashCommandBuilder} from "@discordjs/builders";
+import {SlashCommandStringOption} from "discord.js";
+import {userOption} from "../../utility/options";
+import {logError} from "../../loggers";
+import tokens from "../../tokens";
+import moment from "moment";
+
+export const easyTime: Command = {
+    data: new SlashCommandBuilder()
+        .setName('easy_time')
+        .setDescription("Sends a message to join with a built in discord timestamp")
+        .addUserOption(userOption("User to mention in message"))
+        .addStringOption(new SlashCommandStringOption()
+            .setName('message')
+            .setDescription("Message for the user to see default to you have x to join the game")
+            .setRequired(false)),
+    run: async (interaction, data) => {
+        try {
+            const game = data.getGameByChannel(interaction.channelId);
+            const user = interaction.options.getUser('user', true);
+            if (!game) {
+                await interaction.reply({ephemeral:true, content: "use in a match channel"});
+            } else {
+                const timestamp = game.finalGenTime + 10 * 60;
+                const message = interaction.options.getString('message');
+                if (message) {
+                    await interaction.reply({ephemeral: false, content: message.replace('{user}', `<@${user.id}>`).replace("{time}", `<t:${timestamp}:R>`)});
+                } else {
+                    await interaction.reply({ephemeral: false, content: `<@${user.id}> you have <t:${timestamp}:R> to join the game`});
+                }
+            }
+        } catch (e) {
+            await logError(e, interaction);
+        }
+    },
+    name: 'easy_time',
+    allowedRoles: [tokens.ModRole],
+}

@@ -16,7 +16,7 @@ export const pingMe: Modal = {
             new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
                 new TextInputBuilder()
                     .setCustomId('timeInput')
-                    .setLabel("<0 for infinite time, 0 to remove, >0 for the specified time in minutes")
+                    .setLabel("Time (check /help same values as /ping_me)")
                     .setPlaceholder('30')
                     .setMinLength(1)
                     .setMaxLength(4)

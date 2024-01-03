@@ -24,9 +24,9 @@ export const findUser: Command = {
                 const difference = getEditDistance(name, user.oculusName);
                 computed.push({user: user, value: difference});
             }
-            computed.sort((a, b) => {return b.value = a.value});
+            computed.sort((a, b) => {return a.value - b.value});
             let choices = "Here are the top matches for the provided name"
-            for (let user of computed.slice(0, 5)) {
+            for (let user of computed.slice(0, 10)) {
                 choices += `\n<@${user.user.id}>: ${user.user.oculusName}`;
             }
             await interaction.followUp({ephemeral: true, content: choices});

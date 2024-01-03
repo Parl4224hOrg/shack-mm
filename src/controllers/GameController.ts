@@ -167,6 +167,8 @@ export class GameController {
 
     working = false;
 
+    finalGenTime = 0;
+
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data) {
         this.id = id;
         this.client = client;
@@ -808,6 +810,7 @@ export class GameController {
             content: `This match should be played in the ${region} region`
             });
             await finalChannel.messages.pin(message);
+            this.finalGenTime = moment().unix();
             await teamAChannel.delete();
             await teamBChannel.delete();
         }

@@ -46,6 +46,8 @@ const modPerms: OverwriteResolvable = {
             PermissionsBitField.Flags.UseApplicationCommands,
             PermissionsBitField.Flags.ManageMessages,
             PermissionsBitField.Flags.MentionEveryone,
+            PermissionsBitField.Flags.AttachFiles,
+            PermissionsBitField.Flags.EmbedLinks,
         ],
         type: 0,
 }
@@ -55,6 +57,8 @@ const denyEverybody: OverwriteResolvable = {
         deny:
             [
                 PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.AttachFiles,
+                PermissionsBitField.Flags.EmbedLinks,
             ],
         type: 0,
 }

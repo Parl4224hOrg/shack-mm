@@ -85,6 +85,8 @@ export const grammaticalTime = (timeDiff: number) => {
 }
 
 export const getEditDistance = (a: string, b: string): number => {
+    if (a == null) return 1000;
+    if (b == null) return 1000;
     if (a.length === 0) return b.length;
     if (b.length === 0) return a.length;
 
