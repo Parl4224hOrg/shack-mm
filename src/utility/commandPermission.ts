@@ -24,10 +24,11 @@ export const commandPermission = async (interaction: Interaction, command: Comma
         if (command.allowedUsers.includes(interaction.user.id)) {
             valid = true;
         }
-    } else if (command.allowedRoles && !limited && !channel) {
+    }
+    if (command.allowedRoles && !limited && !channel) {
         const member = await interaction.guild!.members.fetch(interaction.user.id);
         for (let role of command.allowedRoles) {
-            if (member!.roles.cache.has(role)) {
+            if (member.roles.cache.has(role)) {
                 valid = true;
                 break;
             }

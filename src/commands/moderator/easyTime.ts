@@ -4,7 +4,6 @@ import {SlashCommandStringOption} from "discord.js";
 import {userOption} from "../../utility/options";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
-import moment from "moment";
 
 export const easyTime: Command = {
     data: new SlashCommandBuilder()
@@ -13,7 +12,7 @@ export const easyTime: Command = {
         .addUserOption(userOption("User to mention in message"))
         .addStringOption(new SlashCommandStringOption()
             .setName('message')
-            .setDescription("Message for the user to see default to you have x to join the game")
+            .setDescription("Message for the user to see default to @user in x you will be abandoned if you do not join the game")
             .setRequired(false)),
     run: async (interaction, data) => {
         try {
@@ -27,7 +26,7 @@ export const easyTime: Command = {
                 if (message) {
                     await interaction.reply({ephemeral: false, content: message.replace('{user}', `<@${user.id}>`).replace("{time}", `<t:${timestamp}:R>`)});
                 } else {
-                    await interaction.reply({ephemeral: false, content: `<@${user.id}> you have <t:${timestamp}:R> to join the game`});
+                    await interaction.reply({ephemeral: false, content: `<@${user.id}> <t:${timestamp}:R> you will be abandoned if you do not join the game`});
                 }
             }
         } catch (e) {

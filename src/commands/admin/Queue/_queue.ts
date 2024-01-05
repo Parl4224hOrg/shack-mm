@@ -34,6 +34,5 @@ export const _queue: Command = {
         }
     },
     name: 'queue',
-    allowedUsers: [tokens.Parl],
     allowedRoles: [tokens.ModRole],
 }
