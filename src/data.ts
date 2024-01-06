@@ -84,10 +84,14 @@ export class Data {
         for (let user of users) {
             const stats = await getStats(user._id,  "SND");
             const member = await guild.members.fetch(user.id);
-            member.roles.cache.forEach((value) => {roleRemovalCallback(value, member)});
-            if (stats.gamesPlayed >= 10) {
-                const rank = getRank(stats.mmr);
-                await member.roles.add(rank.roleId);
+            if (member) {
+                member.roles.cache.forEach((value) => {
+                    roleRemovalCallback(value, member)
+                });
+                if (stats.gamesPlayed >= 10) {
+                    const rank = getRank(stats.mmr);
+                    await member.roles.add(rank.roleId);
+                }
             }
         }
     }
