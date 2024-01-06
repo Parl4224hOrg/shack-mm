@@ -12,7 +12,8 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, rank: n
 
     if (stats.gamesPlayed >= 10) {
         embed.setTitle(`${name}'s Stats - [${rank}]`);
-        embed.setDescription(`${getRank(stats.mmr).name}-${stats.mmr.toFixed(1)} MMR\nGames played - ${stats.gamesPlayed}`);
+        embed.setDescription(`${getRank(stats.mmr).name}-${stats.mmr.toFixed(1)} MMR\nGames played - ${stats.gamesPlayed}\n
+        https://shackmm.com/players/${user._id}/stats`);
     } else {
         embed.setTitle(`${name}'s Stats`);
         if (stats.gamesPlayed == 9) {
