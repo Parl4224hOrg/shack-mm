@@ -26,7 +26,7 @@ export const actions: Command = {
             const dbUser = await getUserByUser(user);
             const warnings = await WarnModel.find({userId: dbUser._id});
             const visible = interaction.options.getBoolean('hidden') ?? false;
-            await interaction.reply({ephemeral: visible, content: `Showing actions for <@${user.id}>`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
+            await interaction.reply({ephemeral: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
         } catch (e) {
             await logError(e, interaction);
         }

@@ -52,6 +52,7 @@ export default {
     RegionSelect: "1186501237517070367",
     DoNotPing: "1186750217962401844",
     ScoreboardChannel: "1182844040937484339",
+    MutedRole: "1186750217962401844",
     // constants
     StartingMMR: 1500,
     PlayerCount: 10,

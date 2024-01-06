@@ -227,6 +227,17 @@ export class GameController {
                 case 4:
                     await this.voteB2();
                     break;
+                case 5: {
+                    const time = moment().unix();
+                    if (time - this.finalGenTime == 5 * 60) {
+                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+                        await channel.send("5 minutes have passed");
+                    }
+                    if (time - this.finalGenTime == 10 * 60) {
+                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+                        await channel.send("10 minutes have passed");
+                    }
+                } break;
                 case 6:
                     await this.confirmScoreSubmit();
                     break;

@@ -7,6 +7,10 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
     const embed = new EmbedBuilder()
     embed.setTitle(`Actions against ${user.name}: ${user.oculusName}`);
     const frozen = `The user is currently ${user.frozen ? "frozen" : "not frozen"}`;
+    if (actions.length == 0) {
+        embed.setDescription("User has no actions");
+        return embed.toJSON();
+    }
     if (moment().unix() > user.banUntil) {
         embed.setDescription(`<@${actions[0].userId}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter: ${user.banCounter}\n${frozen}`);
     } else {

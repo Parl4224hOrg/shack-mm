@@ -7,7 +7,7 @@ import moment from "moment";
 import {updateUser} from "../../modules/updaters/updateUser";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {grammaticalTime} from "../../utility/grammatical";
-import {createAction} from "../../modules/constructors/createAction";
+import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {SlashCommandStringOption} from "discord.js";
 
@@ -54,7 +54,7 @@ export const cooldown: Command = {
             } else {
                 action = "Major"
             }
-            await createAction(Actions.Cooldown, interaction.user.id, interaction.options.getString('reason', true), `Cooldown that scales with ban counter for ${user.banUntil - now} seconds, it was a ${action} action`);
+            await createActionUser(Actions.Cooldown, interaction.user.id, user.id,interaction.options.getString('reason', true), `Cooldown that scales with ban counter for ${user.banUntil - now} seconds, it was a ${action} action`);
             await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
         } catch (e) {
             await logError(e, interaction);
