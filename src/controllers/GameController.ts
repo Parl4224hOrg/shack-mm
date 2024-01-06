@@ -239,6 +239,7 @@ export class GameController {
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
                         await channel.send("10 minutes have passed");
                     }
+                    this.submitCooldown--;
                 } break;
                 case 6:
                     await this.confirmScoreSubmit();
@@ -251,8 +252,6 @@ export class GameController {
                         await this.abandonCleanup(false);
                     } else if (this.abandoned) {
                         this.abandonCountdown--;
-                    } else {
-                        this.submitCooldown--;
                     }
             }
         } catch (e) {

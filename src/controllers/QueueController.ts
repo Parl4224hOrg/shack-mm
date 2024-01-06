@@ -102,11 +102,11 @@ export class QueueController {
 
     }
 
-    async addUser(user: UserInt, time: number): Promise<InternalResponse> {
+    async addUser(user: UserInt, time: number, checkGame: boolean = true): Promise<InternalResponse> {
         if (user.banUntil > moment().unix()) {
             return {success: false, message: `You are currently banned for another ${grammaticalTime(user.banUntil - moment().unix())}`};
         }
-        if (this.data.inGame(user._id)) {
+        if (this.data.inGame(user._id) && checkGame) {
             return {success: false, message: `You are currently in a game`};
         }
         if (this.generating) {
@@ -159,6 +159,9 @@ export class QueueController {
         for (let game of this.activeGames) {
             await game.tick();
             if (game.isProcessed()) {
+                shuffleArray(game.requeueArray);
+                const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
+                game.requeueArray = [];
                 if (game.abandoned) {
                     await game.abandonCleanup(false);
                 } else {
@@ -169,18 +172,18 @@ export class QueueController {
                     this.lastPlayedMaps.shift();
                 }
                 this.lastPlayedMaps.push(game.map);
-                shuffleArray(game.requeueArray);
-                for (let user of game.requeueArray) {
+                for (let user of arrayClone) {
                     const dbUser = await getUserById(user);
                     const member = await guild.members.fetch(dbUser.id);
-                    await this.addUser(dbUser, 15);
+                    const response = await this.addUser(dbUser, 15, false);
                     if (!member.dmChannel) {
                         await member.createDM(true);
                     }
                     if (dbUser.dmAuto) {
-                        await member.dmChannel!.send("You have been readied for 15 minutes automatically");
+                        await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
                     }
                 }
+                game.requeueArray = [];
             }
         }
         const queueChannel = await guild.channels.fetch(tokens.SNDChannel) as TextChannel;
