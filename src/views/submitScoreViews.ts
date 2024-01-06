@@ -3,10 +3,11 @@ import {score0, score1, score2, score3, score4, score5, score6, score7, score8, 
 import {win} from "../buttons/match/score/win";
 import {loss} from "../buttons/match/score/loss";
 import {confirmScore} from "../buttons/match/score/confirmScore";
+import {autoReady} from "../buttons/match/autoReady";
 
 export const initialSubmit = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(win.data, loss.data).toJSON()
+        .addComponents(win.data, loss.data, autoReady.data).toJSON();
 }
 
 export const roundsWon = () => {

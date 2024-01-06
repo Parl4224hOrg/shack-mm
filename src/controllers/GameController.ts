@@ -20,7 +20,7 @@ import {acceptScore} from "../views/submitScoreViews";
 import {GameControllerInt} from "../database/models/GameControllerModel";
 import {updateRanks} from "../utility/ranking";
 import {Data} from "../data";
-import {Regions} from "../database/models/UserModel";
+import {Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
 import {logAccept, logScoreSubmit} from "../utility/match";
@@ -168,6 +168,8 @@ export class GameController {
     working = false;
 
     finalGenTime = 0;
+
+    requeueArray: ObjectId[] = [];
 
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data) {
         this.id = id;
@@ -374,7 +376,10 @@ export class GameController {
                 if (!member.dmChannel) {
                     await member.createDM(true);
                 }
-                await member.dmChannel!.send(`A game has start please accept the game here ${acceptChannel.url} within 3 minutes`);
+                const dbUser = await getUserById(user.dbId);
+                if (dbUser.dmMatch) {
+                    await member.dmChannel!.send(`A game has start please accept the game here ${acceptChannel.url} within 3 minutes`);
+                }
             }
 
             const message = await acceptChannel.send({content: `${matchRole.toString()} ${tokens.AcceptMessage}`, components: [acceptView()]});
@@ -1176,8 +1181,23 @@ export class GameController {
             if (!member.dmChannel) {
                 await member.createDM(true);
             }
-            await member.dmChannel!.send("A player has abandoned the match, the channel will be deleted in 30 seconds. You can ready up again now.");
+            const dbUser = await getUserById(user.dbId);
+            if (dbUser.dmMatch) {
+                await member.dmChannel!.send("A player has abandoned the match, the channel will be deleted in 30 seconds. You can ready up again now.");
+            }
         }
         return;
+    }
+
+    requeue(user: UserInt): boolean {
+        if (this.requeueArray.find((item) => {return String(item) == String(user._id)})) {
+            this.requeueArray.forEach((value, index) => {
+                if (String(value) == String(user._id)) this.requeueArray.splice(index, 1);
+            })
+            return false;
+        } else {
+            this.requeueArray.push(user._id)
+            return true;
+        }
     }
 }

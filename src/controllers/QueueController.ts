@@ -15,6 +15,8 @@ import {GameControllerInt} from "../database/models/GameControllerModel";
 import {logWarn} from "../loggers";
 import {updateUser} from "../modules/updaters/updateUser";
 import {logReady, logUnready} from "../utility/match";
+import {getUserById} from "../modules/getters/getUser";
+import {shuffleArray} from "../utility/makeTeams";
 
 interface PingMeUser {
     id: string;
@@ -148,7 +150,10 @@ export class QueueController {
                 if (!member.dmChannel) {
                     await member.createDM(true);
                 }
-                await member.dmChannel!.send("Your queue time expires in 3 minutes. If you wish to re ready please do so")
+                const dbUser = await getUserById(user.dbId);
+                if (dbUser.dmQueue) {
+                    await member.dmChannel!.send("Your queue time expires in 3 minutes. If you wish to re ready please do so");
+                }
             }
         }
         for (let game of this.activeGames) {
@@ -164,6 +169,18 @@ export class QueueController {
                     this.lastPlayedMaps.shift();
                 }
                 this.lastPlayedMaps.push(game.map);
+                shuffleArray(game.requeueArray);
+                for (let user of game.requeueArray) {
+                    const dbUser = await getUserById(user);
+                    const member = await guild.members.fetch(dbUser.id);
+                    await this.addUser(dbUser, 15);
+                    if (!member.dmChannel) {
+                        await member.createDM(true);
+                    }
+                    if (dbUser.dmAuto) {
+                        await member.dmChannel!.send("You have been readied for 15 minutes automatically");
+                    }
+                }
             }
         }
         const queueChannel = await guild.channels.fetch(tokens.SNDChannel) as TextChannel;
