@@ -28,15 +28,15 @@ export const dmOptions: Command = {
             const auto = interaction.options.getBoolean('auto');
             let response = "";
             if (queue) {
-                dbUser.dmQueue = !dbUser.dmQueue;
+                dbUser.dmQueue = queue;
                 response += `You have set DM preference for Queue to: ${dbUser.dmQueue}\n`;
             }
             if (match) {
-                dbUser.dmMatch = !dbUser.dmMatch;
+                dbUser.dmMatch = match;
                 response += `You have set DM preference for Match to: ${dbUser.dmMatch}\n`;
             }
             if (auto) {
-                dbUser.dmAuto = !dbUser.dmAuto;
+                dbUser.dmAuto = auto;
                 response += `You have set DM preference for Auto to: ${dbUser.dmAuto}\n`;
             }
 
