@@ -377,7 +377,7 @@ export class GameController {
                 }
                 const dbUser = await getUserById(user.dbId);
                 if (dbUser.dmMatch) {
-                    await member.dmChannel!.send(`A game has start please accept the game here ${acceptChannel.url} within 3 minutes`);
+                    await member.dmChannel!.send(`A game has started please accept the game here ${acceptChannel.url} within 3 minutes`);
                 }
             }
 

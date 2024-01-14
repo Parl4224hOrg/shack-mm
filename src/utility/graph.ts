@@ -96,7 +96,7 @@ const options = (max: number, min: number, username: string) => {
     }
 };
 
-export const getGraph = async (history: number[], start: number, end: number, username: string) => {
+export const getMMRGraph = async (history: number[], start: number, end: number, username: string) => {
     const games = history.slice(start, end + 1);
     let labels: string[] = []
     let count = start;
@@ -121,6 +121,93 @@ export const getGraph = async (history: number[], start: number, end: number, us
         options: options(Math.max.apply(Math, games), Math.min.apply(Math, games), username),
         plugins: [chartAreaBorder]
     };
+    return await canvas.renderToBuffer(config);
+}
+
+
+export const getRankDistGraph = async (ranks: string[], percents: string[]) => {
+    const data = {
+        labels: ranks,
+        datasets: [{
+            label: 'Rank Distribution',
+            data: percents,
+            backgroundColor: [
+                'rgba(79, 32, 15, 0.2)',
+                'rgba(163, 87, 65, 0.2)',
+                'rgba(102, 99, 91, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(176, 129, 56, 0.2)',
+                'rgba(170, 169, 173, 0.2)',
+                'rgba(255, 215, 0, 0.2)',
+                'rgba(36, 161, 142, 0.2)',
+                'rgba(0, 195, 255, 0.2)',
+                'rgba(255, 36, 58, 0.2)',
+            ],
+            borderColor: [
+                'rgba(79, 32, 15, 1)',
+                'rgba(163, 87, 65, 1)',
+                'rgba(102, 99, 91, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(176, 129, 56, 1)',
+                'rgba(170, 169, 173, 1)',
+                'rgba(255, 215, 0, 1)',
+                'rgba(36, 161, 142, 1)',
+                'rgba(0, 195, 255, 1)',
+                'rgba(255, 36, 58, 1)',
+            ],
+            borderWidth: 1
+        }]
+    };
+
+    const config: any = {
+        type: 'bar',
+        data: data,
+        options: {
+            scales: {
+                x: {
+                    ticks: tickSettings,
+                    grid: gridSettings,
+                    title: axisTitle("Rank"),
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: tickSettings,
+                    grid: gridSettings,
+                    title: axisTitle("Percentage"),
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false,
+                    labels: {
+                        display: false,
+                        color: white,
+                        padding: 20,
+                        font: {
+                            size: 30,
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: "Rank Distribution",
+                    color: white,
+                    font: {
+                        size: 30,
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 10
+                    }
+                },
+                chartAreaBorder: {
+                    borderColor: white,
+                    borderWidth: 2,
+                }
+            }
+        },
+    };
+
     return await canvas.renderToBuffer(config);
 }
 

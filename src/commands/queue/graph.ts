@@ -5,7 +5,7 @@ import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {getStats} from "../../modules/getters/getStats";
-import {getGraph} from "../../utility/graph";
+import {getMMRGraph} from "../../utility/graph";
 
 export const graph: Command = {
     data: new SlashCommandBuilder()
@@ -39,7 +39,7 @@ export const graph: Command = {
             } else {
                 await interaction.reply({
                     content: "Displaying Graph",
-                    files: [await getGraph(stats.mmrHistory, start, stats.gamesPlayed, user.username)]
+                    files: [await getMMRGraph(stats.mmrHistory, start, stats.gamesPlayed, user.username)]
                 });
             }
         } catch (e) {

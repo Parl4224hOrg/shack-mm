@@ -5,6 +5,7 @@ import tokens from "../../tokens";
 import StatsModel from "../../database/models/StatsModel";
 import {Collection} from "discord.js";
 import {getRank} from "../../utility/ranking";
+import {getRankDistGraph} from "../../utility/graph";
 
 export const rank_dist: Command = {
     data: new SlashCommandBuilder()
@@ -14,6 +15,15 @@ export const rank_dist: Command = {
         try {
             const stats = await StatsModel.find({gamesPlayed: {"$gte": 10}});
             const totals = new Collection<string, number>();
+            totals.set("Wood", 0);
+            totals.set("Copper", 0);
+            totals.set("Iron", 0);
+            totals.set("Bronze", 0);
+            totals.set("Silver", 0);
+            totals.set("Gold", 0);
+            totals.set("Platinum", 0);
+            totals.set("Diamond", 0);
+            totals.set("Master", 0);
             let totalNumber = 0;
             for (let stat of stats) {
                 const rank = getRank(stat.mmr);
@@ -25,12 +35,14 @@ export const rank_dist: Command = {
                 }
                 totalNumber++;
             }
-            let display = "```Ranks with number and percentage\n";
+            const labels: string[] = []
+            const data: string[] = []
             for (let total of totals) {
-                display += `${total[0]}: ${total[1]}-${((total[1] / totalNumber) * 100).toFixed(2)}%\n`;
+                labels.push(total[0]);
+                data.push((total[1] / totalNumber * 100).toFixed(1));
             }
-            display += "```";
-            await interaction.reply({ephemeral: true, content: display});
+
+            await interaction.reply({ephemeral: false, files: [await getRankDistGraph(labels, data)]});
         } catch (e) {
             await logError(e, interaction);
         }
