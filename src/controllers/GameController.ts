@@ -286,7 +286,6 @@ export class GameController {
     async processMatch() {
         this.state = 8;
 
-
         const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
         await channel.send({content: "Scores have been accepted"});
 
@@ -970,7 +969,6 @@ export class GameController {
         }
         return {success: true, message: message};
     }
-
 
     async resetSND() {
         return this.server!.resetSND();

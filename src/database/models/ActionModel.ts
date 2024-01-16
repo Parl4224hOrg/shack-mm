@@ -6,7 +6,9 @@ export enum Actions {
     Nullify = 'nu',
     ReverseCooldown = 'rcd',
     Abandon = 'ab',
-    AcceptFail = 'af'
+    AcceptFail = 'af',
+    ForceAbandon = 'fa',
+    RemoveCooldown = 'rd',
 }
 
 export interface ActionInt extends Document {
@@ -21,7 +23,7 @@ export interface ActionInt extends Document {
 export const ActionSchema = new Schema({
     action: {
         type: String,
-        enum: ['cd', 'fs', 'nu', 'rcd', 'ab', 'af'],
+        enum: ['cd', 'fs', 'nu', 'rcd', 'ab', 'af', 'fa', 'rd'],
         default: 'cd',
     },
     modId: String,

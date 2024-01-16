@@ -167,6 +167,22 @@ export class QueueController {
                 }
                 game.requeueArray = [];
             }
+            if (game.abandoned) {
+                shuffleArray(game.requeueArray);
+                const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
+                game.requeueArray = [];
+                for (let user of arrayClone) {
+                    const dbUser = await getUserById(user);
+                    const member = await guild.members.fetch(dbUser.id);
+                    const response = await this.addUser(dbUser, 15, false);
+                    if (!member.dmChannel) {
+                        await member.createDM(true);
+                    }
+                    if (dbUser.dmAuto) {
+                        await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
+                    }
+                }
+            }
         }
         const queueChannel = await guild.channels.fetch(tokens.SNDChannel) as TextChannel;
         for (let user of this.pingMe.values()) {
