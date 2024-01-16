@@ -25,6 +25,6 @@ export const removeCooldown: Command = {
             await logError(e, interaction);
         }
     },
-    name: 'reverse_cooldown',
+    name: 'remove_cooldown',
     allowedRoles: [tokens.ModRole, tokens.AdminRole],
 }
