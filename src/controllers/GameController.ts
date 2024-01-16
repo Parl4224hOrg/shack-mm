@@ -24,6 +24,7 @@ import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
 import {logAccept, logScoreSubmit} from "../utility/match";
 import {Server} from "../server/server";
+import axios from "axios";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -314,6 +315,18 @@ export class GameController {
                 const dbUser = await getUserById(user.dbId);
                 dbUser.gamesPlayedSinceReduction++;
                 await updateUser(dbUser);
+            }
+
+            try {
+                await axios.post("https://shackmm.com/bot/update/leaderboard", {
+                    matchNumber: this.matchNumber,
+                }, {
+                    headers: {
+                        key: tokens.BotKey,
+                    }
+                })
+            } catch (e) {
+                await logWarn("Post did not work", this.client);
             }
 
             await updateRanks(this.users, this.client);
