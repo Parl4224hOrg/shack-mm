@@ -89,4 +89,29 @@ export default {
     SignUpMessage: messages.signUp,
     InfoMessage: messages.info,
     RegionSelectMessage: messages.region,
+    // servers
+    Servers: [
+        {
+            ip: "66.135.14.246",
+            port: 9100,
+            password: process.env.RCON_PASS ?? "NO PASSWORD",
+            name: "SMM NAE ONE",
+        },
+        {
+            ip: "66.135.26.89",
+            port: 9100,
+            password: process.env.RCON_PASS ?? "NO PASSWORD",
+            name: "SMM NAE TWO",
+        }
+    ],
+    MapIds: {
+        Oilrig: "UGC3266780",
+        Mirage: "UGC3278975",
+        Dust2: "UGC3283822",
+        Cache: "UGC3275597",
+        Overpass: "UGC3283728",
+        Inferno: "UGC3430252",
+        Harbor: "harbor",
+        Industry: "industry"
+    }
 }

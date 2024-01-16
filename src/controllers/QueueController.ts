@@ -9,10 +9,6 @@ import {ObjectId} from "mongoose";
 import {GameController} from "./GameController";
 import {UserInt} from "../database/models/UserModel";
 import tokens from "../tokens";
-import {QueueControllerInt} from "../database/models/QueueControllerModel";
-import {getGameControllerById} from "../modules/getters/getGameController";
-import {GameControllerInt} from "../database/models/GameControllerModel";
-import {logWarn} from "../loggers";
 import {updateUser} from "../modules/updaters/updateUser";
 import {logReady, logUnready} from "../utility/match";
 import {getUserById} from "../modules/getters/getUser";
@@ -65,20 +61,6 @@ export class QueueController {
         console.log("here6");
         this.inQueue = users.concat(this.inQueue);
         console.log("here7");
-    }
-
-    async load(data: QueueControllerInt){
-        try {
-            this.inQueue = data.inQueue;
-            const guild = await this.client.guilds.fetch(tokens.GuildID)
-            for (let game of data.activeGames) {
-                const gameNew = new GameController(game, this.client, guild, -1, [], [], this.queueId, -10, this.lastPlayedMaps, this.data)
-                const dbGame = await getGameControllerById(game)
-                await gameNew.load(dbGame as GameControllerInt);
-            }
-        } catch (e) {
-            await logWarn("Couldn't load data", this.client);
-        }
     }
 
     async addPingMe(userId: string, inQueue: number, expire_time: number) {

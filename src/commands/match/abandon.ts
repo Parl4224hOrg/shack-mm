@@ -14,8 +14,12 @@ export const abandon: Command = {
             const game = data.findGame(dbUser._id);
             if (game) {
                 await interaction.deferReply();
-                await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC}, false);
-                await interaction.followUp("You have abandoned the game");
+                const res = await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC}, false);
+                if (res) {
+                    await interaction.followUp("You have abandoned the game");
+                } else {
+                    await interaction.followUp("You cannot abandon the game as a team has won at least 6 rounds");
+                }
             } else {
                 await interaction.reply({ephemeral: true, content: "Could not find game"});
             }

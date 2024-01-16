@@ -10,20 +10,20 @@ import tokens from "../tokens";
 import {acceptView} from "../views/acceptView";
 import {abandon} from "../utility/punishment";
 import {voteA1, voteA2, voteB1, voteB2} from "../views/voteViews";
-import {initialSubmit} from "../views/submitScoreViews";
+import {initialSubmit, initialSubmitServer} from "../views/submitScoreViews";
 import {matchConfirmEmbed, matchFinalEmbed, teamsEmbed} from "../embeds/matchEmbeds";
 import {GameData, InternalResponse} from "../interfaces/Internal";
 import {logWarn} from "../loggers";
 import {GameUser, ids} from "../interfaces/Game";
 import {Vote} from "../interfaces/Game";
 import {acceptScore} from "../views/submitScoreViews";
-import {GameControllerInt} from "../database/models/GameControllerModel";
 import {updateRanks} from "../utility/ranking";
 import {Data} from "../data";
 import {Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
 import {logAccept, logScoreSubmit} from "../utility/match";
+import {Server} from "../server/server";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -171,7 +171,9 @@ export class GameController {
 
     requeueArray: ObjectId[] = [];
 
-    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data) {
+    server: Server | null;
+
+    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: Server | null = null) {
         this.id = id;
         this.client = client;
         this.guild = guild;
@@ -208,6 +210,10 @@ export class GameController {
         for (let ban of bannedMaps) {
             this.allBans.push(ban);
         }
+        this.server = server;
+        if (server) {
+            server.registerGame(matchNumber);
+        }
     }
 
     async tick() {
@@ -240,6 +246,24 @@ export class GameController {
                         await channel.send("10 minutes have passed");
                     }
                     this.submitCooldown--;
+                    if (this.tickCount % 60 == 0 && this.server) {
+                        const dbUsers: UserInt[] = [];
+                        for (let user of this.users) {
+                            dbUsers.push(await getUserById(user.dbId));
+                        }
+                        const RefreshList = await this.server.refreshList()
+                        for (let user of RefreshList.PlayerList) {
+                            let found = false;
+                            for (let dbUser of dbUsers) {
+                                if (dbUser.oculusName == user.UniqueId) {
+                                    found = true;
+                                }
+                            }
+                            if (!found) {
+                                await this.server.kick(user.UniqueId);
+                            }
+                        }
+                    }
                 } break;
                 case 6:
                     await this.confirmScoreSubmit();
@@ -257,51 +281,6 @@ export class GameController {
         } catch (e) {
             console.error(e);
         }
-    }
-
-    async load(data: GameControllerInt) {
-        this.tickCount = data.tickCount;
-        this.state = data.state;
-        this.users = data.users;
-
-        this.acceptChannelGen = data.acceptChannelGen;
-        this.acceptChannelId = data.acceptChannelId;
-        this.matchRoleId = data.matchRoleId;
-        this.acceptCountdown = data.acceptCountdown;
-
-        this.voteChannelsGen = data.voteChannelsGen;
-        this.teamAChannelId = data.teamAChannelId;
-        this.teamARoleId = data.teamARoleId;
-        this.teamBChannelId = data.teamBChannelId;
-        this.teamBRoleId = data.teamBRoleId;
-        this.voteA1MessageId = data.voteA1MessageId;
-        this.voteB1MessageId = data.voteB1MessageId;
-        this.voteA2MessageId = data.voteA2MessageId;
-        this.voteB2MessageId = data.voteB2MessageId;
-        this.voteCountdown = data.voteCountdown;
-        let temp: Collection<string, string[]> = new Collection<string, string[]>();
-        for (let vote of data.votes) {
-            temp.set(vote.id, vote.vote);
-        }
-        this.votes = temp;
-        this.mapSet = data.mapSet;
-        this.currentMaxVotes = data.currentMaxVotes
-
-        this.map = data.map;
-        this.sides = data.sides;
-
-        this.finalChannelGen = data.finalChannelGen;
-        this.finalChannelId = data.finalChannelId;
-
-        this.scores = data.scores;
-        this.scoresAccept = data.scoresAccept;
-        this.scoresConfirmMessageSent = data.scoresConfirmMessageSent;
-        this.processed = data.processed;
-
-        this.abandoned = data.abandoned;
-        this.abandonCountdown = data.abandonCountdown;
-        this.cleanedUp = data.cleanedUp;
-
     }
 
     async processMatch() {
@@ -413,21 +392,33 @@ export class GameController {
     }
 
     async abandon(user: GameUser, acceptFail: boolean) {
-        this.abandoned = true;
-        this.abandonCountdown = tokens.AbandonTime;
-        if (this.state < 10) {
-            this.state += 10;
-        }
-        await abandon(user.dbId, user.discordId, this.guild, acceptFail);
-        await this.sendAbandonMessage(user.discordId);
-        if (!acceptFail && this.startTime + 5 * 60 >= moment().unix()) {
-            const temp: GameUser[] = [];
-            for (let userCheck of this.users) {
-                if (!(user.discordId == userCheck.discordId)) {
-                    temp.push(userCheck);
-                }
+        let validAbandon = true;
+        if (this.server) {
+            const serverInfo = await this.server.serverInfo()
+            if (Number(serverInfo.ServerInfo.Team0Score) >= 6 || Number(serverInfo.ServerInfo.Team1Score) >= 6) {
+                validAbandon = false;
             }
-            await this.data.addAbandoned(temp);
+        }
+        if (validAbandon) {
+            this.abandoned = true;
+            this.abandonCountdown = tokens.AbandonTime;
+            if (this.state < 10) {
+                this.state += 10;
+            }
+            await abandon(user.dbId, user.discordId, this.guild, acceptFail);
+            await this.sendAbandonMessage(user.discordId);
+            if (!acceptFail && this.startTime + 5 * 60 >= moment().unix()) {
+                const temp: GameUser[] = [];
+                for (let userCheck of this.users) {
+                    if (!(user.discordId == userCheck.discordId)) {
+                        temp.push(userCheck);
+                    }
+                }
+                await this.data.addAbandoned(temp);
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -820,10 +811,32 @@ export class GameController {
             if (NA && EU && APAC) {
                 region = "NAC";
             }
-            const message = await finalChannel.send({components: [initialSubmit()],
-                embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)],
-            content: `This match should be played in the ${region} region`
-            });
+            let message;
+            if (this.server) {
+                let mapId = "";
+                switch (this.map.toLowerCase()) {
+                    case 'oilrig': mapId = tokens.MapIds.Oilrig; break;
+                    case 'mirage': mapId = tokens.MapIds.Mirage; break;
+                    case 'dust 2': mapId = tokens.MapIds.Dust2; break;
+                    case 'cache': mapId = tokens.MapIds.Cache; break;
+                    case 'overpass': mapId = tokens.MapIds.Overpass; break;
+                    case 'inferno': mapId = tokens.MapIds.Inferno; break;
+                    case 'harbor': mapId = tokens.MapIds.Harbor; break;
+                    case 'industry': mapId = tokens.MapIds.Industry; break;
+                }
+                await this.server.switchMap(mapId, "SND");
+                await this.server.updateServerName(`SMM Match-${this.matchNumber}`);
+                message = await finalChannel.send({components: [initialSubmitServer()],
+                    embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)],
+                    content: `This match should be played on the server titled: \`SMM Match-${this.matchNumber}\``
+                });
+            } else {
+                message = await finalChannel.send({components: [initialSubmit()],
+                    embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)],
+                    content: `This match should be played in the ${region} region`
+                });
+            }
+
             await finalChannel.messages.pin(message);
             this.finalGenTime = moment().unix();
             await teamAChannel.delete();
@@ -956,6 +969,11 @@ export class GameController {
             } break;
         }
         return {success: true, message: message};
+    }
+
+
+    async resetSND() {
+        return this.server!.resetSND();
     }
 
     async confirmScoreSubmit() {
@@ -1093,6 +1111,8 @@ export class GameController {
     }
 
     async cleanup() {
+        this.server?.updateServerName(this.server?.getName());
+        this.server?.unregisterGame()
         try {
             const role = await this.guild.roles.fetch(this.matchRoleId);
             await role?.delete();

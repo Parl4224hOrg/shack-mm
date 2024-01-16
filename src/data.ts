@@ -13,22 +13,15 @@ import moment from "moment";
 import {GameController} from "./controllers/GameController";
 import {getUserById, getUserByUser} from "./modules/getters/getUser";
 import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
-import {updateGameController} from "./modules/updaters/updateGameController";
-import {createGameController} from "./modules/constructors/createGameController";
-import {updateQueueController} from "./modules/updaters/updateQueueController";
-import {getQueueController} from "./modules/getters/getQueueController";
-import {QueueControllerInt} from "./database/models/QueueControllerModel";
 import UserModel from "./database/models/UserModel";
 import {getStats} from "./modules/getters/getStats";
 import {getRank, roleRemovalCallback} from "./utility/ranking";
 import userModel from "./database/models/UserModel";
 import {updateUser} from "./modules/updaters/updateUser";
+import {Server} from "./server/server";
 
 export class Data {
     private readonly client: Client;
-    private saveLoop = cron.schedule('*/1 * * * * *', async () => {
-        await this.save()
-    });
     private tickLoop = cron.schedule('*/1 * * * * *', async () => {
         await this.tick()
     });
@@ -72,10 +65,14 @@ export class Data {
     private botStatus = "";
     private statusChannel: VoiceChannel | null = null;
     private tickCount = 0;
+    private servers: Server[] = [];
 
     constructor(client: Client) {
         this.client = client
         this.FILL_SND = new QueueController(this, client, "FILL");
+        for (let server of tokens.Servers) {
+            this.servers.push(new Server(server.ip, server.port, server.password, server.name,client));
+        }
     }
 
     async updateRoles() {
@@ -97,20 +94,10 @@ export class Data {
     }
 
     async load() {
-        this.saveLoop.start();
         this.tickLoop.start();
         this.roleUpdate.start();
         this.banCounter.start();
-        const queueDB = await getQueueController("SND", "FILL")
-        await this.FILL_SND.load(queueDB as QueueControllerInt);
         await logInfo("Data Loaded!", this.client);
-    }
-
-    async save() {
-        for (let game of this.getGames()) {
-            await updateGameController(game);
-        }
-        await updateQueueController(this.FILL_SND);
     }
 
     getGames() {
@@ -180,8 +167,13 @@ export class Data {
         try {
             const gameNum = await this.getIdSND()
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
-            const game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this.FILL_SND.lastPlayedMaps, this);
-            await createGameController(game);
+            let serv: Server | null = null;
+            for (let server of this.servers) {
+                if (!server.isInUse()) {
+                    serv = server;
+                }
+            }
+            let game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this.FILL_SND.lastPlayedMaps, this, serv);
             queue.addGame(game);
         } catch (e) {
             console.error(e);
