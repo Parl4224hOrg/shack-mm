@@ -12,7 +12,7 @@ export const NAE: Button = {
         .setStyle(ButtonStyle.Primary)
         .setLabel("NAE")
         .setCustomId("NAE"),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             let hasRole = false;
@@ -26,9 +26,9 @@ export const NAE: Button = {
                 await interaction.reply({ephemeral: true, content: "You have already selected a role, please make a ticket to change it"});
             } else {
                 await member.roles.add(tokens.RegionRoles.NAE);
-                const dbUser = await getUserByUser(interaction.user);
+                const dbUser = await getUserByUser(interaction.user, data);
                 dbUser.region = Regions.NAE;
-                await updateUser(dbUser);
+                await updateUser(dbUser, data);
                 await interaction.reply({ephemeral: true, content: "Assigned NAE role, You are not able to change this please make a ticket to do so"});
             }
         } catch (e) {
@@ -43,7 +43,7 @@ export const NAW: Button = {
         .setStyle(ButtonStyle.Primary)
         .setLabel("NAW")
         .setCustomId("NAW"),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             let hasRole = false;
@@ -57,9 +57,9 @@ export const NAW: Button = {
                 await interaction.reply({ephemeral: true, content: "You have already selected a role, please make a ticket to change it"});
             } else {
                 await member.roles.add(tokens.RegionRoles.NAW);
-                const dbUser = await getUserByUser(interaction.user);
+                const dbUser = await getUserByUser(interaction.user, data);
                 dbUser.region = Regions.NAW;
-                await updateUser(dbUser);
+                await updateUser(dbUser, data);
                 await interaction.reply({ephemeral: true, content: "Assigned NAW role, You are not able to change this please make a ticket to do so"});
             }
         } catch (e) {
@@ -74,7 +74,7 @@ export const EUE: Button = {
         .setStyle(ButtonStyle.Primary)
         .setLabel("EUE")
         .setCustomId("EUE"),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             let hasRole = false;
@@ -88,9 +88,9 @@ export const EUE: Button = {
                 await interaction.reply({ephemeral: true, content: "You have already selected a role, please make a ticket to change it"});
             } else {
                 await member.roles.add(tokens.RegionRoles.EUE);
-                const dbUser = await getUserByUser(interaction.user);
+                const dbUser = await getUserByUser(interaction.user, data);
                 dbUser.region = Regions.EUE;
-                await updateUser(dbUser);
+                await updateUser(dbUser, data);
                 await interaction.reply({ephemeral: true, content: "Assigned EUE role, You are not able to change this please make a ticket to do so"});
             }
         } catch (e) {
@@ -105,7 +105,7 @@ export const EUW: Button = {
         .setStyle(ButtonStyle.Primary)
         .setLabel("EUW")
         .setCustomId("EUW"),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             let hasRole = false;
@@ -119,9 +119,9 @@ export const EUW: Button = {
                 await interaction.reply({ephemeral: true, content: "You have already selected a role, please make a ticket to change it"});
             } else {
                 await member.roles.add(tokens.RegionRoles.EUW);
-                const dbUser = await getUserByUser(interaction.user);
+                const dbUser = await getUserByUser(interaction.user, data);
                 dbUser.region = Regions.EUW;
-                await updateUser(dbUser);
+                await updateUser(dbUser, data);
                 await interaction.reply({ephemeral: true, content: "Assigned EUW role, You are not able to change this please make a ticket to do so"})
             }
         } catch (e) {
@@ -136,7 +136,7 @@ export const APAC: Button = {
         .setStyle(ButtonStyle.Primary)
         .setLabel("APAC")
         .setCustomId("APAC"),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             let hasRole = false;
@@ -150,9 +150,9 @@ export const APAC: Button = {
                 await interaction.reply({ephemeral: true, content: "You have already selected a role, please make a ticket to change it"});
             } else {
                 await member.roles.add(tokens.RegionRoles.APAC);
-                const dbUser = await getUserByUser(interaction.user);
+                const dbUser = await getUserByUser(interaction.user, data);
                 dbUser.region = Regions.APAC;
-                await updateUser(dbUser);
+                await updateUser(dbUser, data);
                 await interaction.reply({ephemeral: true, content: "Assigned APAC role, You are not able to change this please make a ticket to do so"})
             }
         } catch (e) {

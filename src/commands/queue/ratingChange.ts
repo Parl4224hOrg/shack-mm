@@ -10,7 +10,7 @@ export const ratingChange: Command = {
         .setName('rating_change')
         .setDescription("View rating change for last game played")
         .addUserOption(userOptional("User to view rating change of")),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             let user = interaction.options.getUser('user');
             let self = false;
@@ -19,7 +19,7 @@ export const ratingChange: Command = {
                 user = interaction.user;
             }
 
-            const dbUser = await getUserByUser(user);
+            const dbUser = await getUserByUser(user, data);
             const stats = await getStats(dbUser._id, "SND");
             if (stats.gamesPlayed < 11) {
                 await interaction.reply({ephemeral: true, content: "This user has not played enough games to use this feature yet"});

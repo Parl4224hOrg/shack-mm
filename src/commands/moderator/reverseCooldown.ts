@@ -14,12 +14,15 @@ export const reverseCooldown: Command = {
         .setDescription('Reverses a cooldown given by a bot')
         .addUserOption(userOption('User to reverse cooldown of'))
         .addStringOption(reason),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true));
+            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             dbUser.banCounter--;
             dbUser.banUntil = 0;
-            await updateUser(dbUser);
+            if (dbUser.banCounter < 0) {
+                dbUser.banCounter = 0;
+            }
+            await updateUser(dbUser, data);
             await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown reversed`});
             await createActionUser(Actions.ReverseCooldown, interaction.user.id, dbUser.id, interaction.options.getString('reason', true), 'Bot cooldown reversed');
         } catch (e) {

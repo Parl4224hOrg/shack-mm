@@ -9,9 +9,9 @@ export const checkBan: Command = {
     data: new SlashCommandBuilder()
         .setName('check_ban')
         .setDescription("Checks your current ban counter, cd, and ability to queue"),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.user);
+            const dbUser = await getUserByUser(interaction.user, data);
             let cd;
             if (moment().unix() > dbUser.banUntil) {
                 cd = `<@${dbUser.id}>\nNo current cooldown, Last cooldown was <t:${dbUser.lastBan}:R>\nBan Counter: ${dbUser.banCounter}`;
@@ -21,7 +21,7 @@ export const checkBan: Command = {
             cd += `\nConsecutive games: ${dbUser.gamesPlayedSinceReduction}, Next reduction by time: <t:${dbUser.lastBan + 1209600}:F>`
             if (dbUser.frozen == null) {
                 dbUser.frozen = false;
-                await updateUser(dbUser);
+                await updateUser(dbUser, data);
             }
             if (dbUser.frozen) {
                 cd += "\nYou are frozen from queueing due to a pending ticket";

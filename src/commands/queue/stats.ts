@@ -12,13 +12,13 @@ export const stats: Command = {
         .setName('stats')
         .setDescription('Displays a users stats')
         .addUserOption(userOption('User to display stats of').setRequired(false)),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             let user = interaction.options.getUser('user');
             if (!user) {
                 user = interaction.user;
             }
-            const dbUser = await getUserByUser(user);
+            const dbUser = await getUserByUser(user, data);
             // const queueId = interaction.options.getString('queue', true)
             const queueId = "SND";
             // @ts-ignore

@@ -12,7 +12,7 @@ export const accept: Button = {
         .setCustomId('match-accept'),
     run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.user);
+            const dbUser = await getUserByUser(interaction.user, data);
             const controller = data.findController();
             if (controller) {
                 const response = await controller.acceptGame(dbUser._id);

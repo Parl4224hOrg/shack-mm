@@ -11,9 +11,9 @@ export const stats: Button = {
         .setStyle(ButtonStyle.Secondary)
         .setLabel("Stats")
         .setCustomId("stats-queue"),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.user);
+            const dbUser = await getUserByUser(interaction.user, data);
             const stats = await getStats(dbUser._id, "SND");
             await interaction.reply({ephemeral: true, embeds: [statsEmbed(stats, dbUser, interaction.user.username, await getRankNumber(dbUser._id, "SND"), interaction.user.avatarURL()!)]});
         } catch (e) {

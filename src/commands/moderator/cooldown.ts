@@ -33,9 +33,9 @@ export const cooldown: Command = {
             )
             .setRequired(true))
         .addStringOption(reason),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
-            const user = await getUserByUser(interaction.options.getUser('user', true));
+            const user = await getUserByUser(interaction.options.getUser('user', true), data);
             const now = moment().unix();
             const extra = Number(interaction.options.getString("action_type", true)) ?? 0;
             user.banCounter += extra
@@ -45,7 +45,7 @@ export const cooldown: Command = {
                 default: user.lastBan = now; user.banUntil = now + 2 ** (user.banCounter - 1) * 12 * 60 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
             }
             user.banCounter++;
-            await updateUser(user);
+            await updateUser(user, data);
             let action;
             if (extra == 0) {
                 action = "Minor";

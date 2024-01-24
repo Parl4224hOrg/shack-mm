@@ -1,17 +1,6 @@
 import * as dotenv from 'dotenv';
 import messages from "./messages.json"
-import {Collection} from "discord.js";
 dotenv.config();
-
-const mapCollection = new Collection<string, string>();
-mapCollection.set("Mirage", "UGC");
-mapCollection.set("Dust 2", "UGC");
-mapCollection.set("Cache", "UGC");
-mapCollection.set("Oilrig", "UGC");
-mapCollection.set("Inferno", "UGC");
-mapCollection.set("Overpass", "UGC");
-mapCollection.set("Harbor", "UGC");
-mapCollection.set("Industry", "industry");
 
 export default {
     // Sensitive
@@ -69,9 +58,10 @@ export default {
         Overpass: "https://shackmm.com/static/images/overpass.png",
         Cache: "https://shackmm.com/static/images/cache.png",
         Harbor: "https://shackmm.com/static/images/harbor.png",
-        Industry: "https://shackmm.com/static/images/industry.png"
+        Industry: "https://shackmm.com/static/images/industry.png",
+        Lumber: "https://shackmm.com/static/images/lumber.png",
     },
-    MapPool: ["Mirage", "Dust 2", "Cache", "Oilrig", "Inferno", "Overpass", "Harbor", "Industry"],
+    MapPool: ["Mirage", "Dust 2", "Cache", "Oilrig", "Inferno", "Overpass", "Harbor", "Lumber"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Master', threshold: 1950, roleId: '1152692826669326398'},
@@ -113,6 +103,7 @@ export default {
         Overpass: "UGC3283728",
         Inferno: "UGC3430252",
         Harbor: "harbor",
-        Industry: "industry"
+        Industry: "industry",
+        Lumber: "UGC3505396"
     }
 }

@@ -12,7 +12,7 @@ export const missing: Button = {
         .setCustomId('missing-button'),
     run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.user);
+            const dbUser = await getUserByUser(interaction.user, data);
             const controller = data.findController();
             if (controller) {
                 const response = controller.getMissing(dbUser._id);

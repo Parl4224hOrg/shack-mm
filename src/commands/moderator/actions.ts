@@ -19,11 +19,11 @@ export const actions: Command = {
             .setName('hidden')
             .setDescription('if message should be visible')
             .setRequired(false)),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             const user = interaction.options.getUser("user", true)
             const actions = await ActionModel.find({userId: user.id});
-            const dbUser = await getUserByUser(user);
+            const dbUser = await getUserByUser(user, data);
             const warnings = await WarnModel.find({userId: dbUser._id});
             const visible = interaction.options.getBoolean('hidden') ?? false;
             await interaction.reply({ephemeral: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});

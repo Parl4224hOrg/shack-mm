@@ -6,9 +6,10 @@ import tokens from "../tokens";
 import {updateUser} from "../modules/updaters/updateUser";
 import {grammaticalTime} from "./grammatical";
 import ActionModel, {Actions} from "../database/models/ActionModel";
+import {Data} from "../data";
 
-export const abandon = async (userId: ObjectId, discordId: string, guild: Guild, acceptFail: boolean) => {
-    const user = await getUserById(userId);
+export const abandon = async (userId: ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data) => {
+    const user = await getUserById(userId, data);
     const now = moment().unix();
     switch (user.banCounter) {
         case 0: user.lastBan = now; user.banUntil = now + 30 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
@@ -16,7 +17,7 @@ export const abandon = async (userId: ObjectId, discordId: string, guild: Guild,
         default: user.lastBan = now; user.banUntil = now + 2 ** (user.banCounter - 1) * 12 * 60 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
     }
     user.banCounter++;
-    await updateUser(user);
+    await updateUser(user, data);
 
     await ActionModel.create({
         action: acceptFail ? Actions.AcceptFail : Actions.Abandon,

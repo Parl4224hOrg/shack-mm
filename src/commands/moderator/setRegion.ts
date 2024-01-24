@@ -34,7 +34,7 @@ export const setRegion: Command = {
                     value: "APAC"
                 }
             )),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             const member = await interaction.guild!.members.fetch(interaction.options.getUser('user', true));
             for (let role of member.roles.cache.keys()) {
@@ -42,7 +42,7 @@ export const setRegion: Command = {
                     await member.roles.remove(role);
                 }
             }
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true));
+            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             switch (interaction.options.getString('region', true)) {
                 case "NAE": dbUser.region = Regions.NAE; await member.roles.add(tokens.RegionRoles.NAE); break;
                 case "NAW": dbUser.region = Regions.NAW; await member.roles.add(tokens.RegionRoles.NAW); break;
@@ -50,7 +50,7 @@ export const setRegion: Command = {
                 case "EUW": dbUser.region = Regions.EUW; await member.roles.add(tokens.RegionRoles.EUW); break;
                 case "APAC": dbUser.region = Regions.APAC; await member.roles.add(tokens.RegionRoles.APAC); break;
             }
-            await updateUser(dbUser);
+            await updateUser(dbUser, data);
             await interaction.reply({ephemeral: true, content: "updated user's region"});
         } catch (e) {
             await logError(e, interaction);

@@ -10,7 +10,7 @@ export const abandon: Command = {
         .setDescription('Abandons you from the game'),
     run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.user);
+            const dbUser = await getUserByUser(interaction.user, data);
             const game = data.findGame(dbUser._id);
             if (game) {
                 await interaction.deferReply();

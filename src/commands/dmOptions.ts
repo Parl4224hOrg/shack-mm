@@ -20,9 +20,9 @@ export const dmOptions: Command = {
             .setName("auto")
             .setDescription("Sets your preference for DMs about being auto re readied")
             .setRequired(false)),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.user);
+            const dbUser = await getUserByUser(interaction.user, data);
             const queue = interaction.options.getBoolean('queue');
             const match = interaction.options.getBoolean('match');
             const auto = interaction.options.getBoolean('auto');

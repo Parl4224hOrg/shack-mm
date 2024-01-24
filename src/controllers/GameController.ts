@@ -174,6 +174,8 @@ export class GameController {
 
     server: Server | null;
 
+    acceptMessageId: string = "";
+
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: Server | null = null) {
         this.id = id;
         this.client = client;
@@ -250,19 +252,23 @@ export class GameController {
                     if (this.tickCount % 60 == 0 && this.server) {
                         const dbUsers: UserInt[] = [];
                         for (let user of this.users) {
-                            dbUsers.push(await getUserById(user.dbId));
+                            dbUsers.push(await getUserById(user.dbId, this.data));
                         }
                         const RefreshList = await this.server.refreshList()
-                        for (let user of RefreshList.PlayerList) {
-                            let found = false;
-                            for (let dbUser of dbUsers) {
-                                if (dbUser.oculusName == user.UniqueId) {
-                                    found = true;
+                        if (RefreshList.PlayerList) {
+                            for (let user of RefreshList.PlayerList) {
+                                let found = false;
+                                for (let dbUser of dbUsers) {
+                                    if (dbUser.oculusName == user.UniqueId) {
+                                        found = true;
+                                    }
+                                }
+                                if (!found) {
+                                    await this.server.kick(user.UniqueId);
                                 }
                             }
-                            if (!found) {
-                                await this.server.kick(user.UniqueId);
-                            }
+                        } else {
+                            await logWarn("Player list is empty", this.client);
                         }
                     }
                 } break;
@@ -311,10 +317,12 @@ export class GameController {
 
             await updateGame(game);
 
+            this.processed = true;
+
             for (let user of this.users) {
-                const dbUser = await getUserById(user.dbId);
+                const dbUser = await getUserById(user.dbId, this.data);
                 dbUser.gamesPlayedSinceReduction++;
-                await updateUser(dbUser);
+                await updateUser(dbUser, this.data);
             }
 
             try {
@@ -331,7 +339,6 @@ export class GameController {
 
             await updateRanks(this.users, this.client);
             this.processing = false
-            this.processed = true;
         }
     }
 
@@ -366,7 +373,7 @@ export class GameController {
                 if (!member.dmChannel) {
                     await member.createDM(true);
                 }
-                const dbUser = await getUserById(user.dbId);
+                const dbUser = await getUserById(user.dbId, this.data);
                 if (dbUser.dmMatch) {
                     await member.dmChannel!.send(`A game has started please accept the game here ${acceptChannel.url} within 3 minutes`);
                 }
@@ -374,6 +381,7 @@ export class GameController {
 
             const message = await acceptChannel.send({content: `${matchRole.toString()} ${tokens.AcceptMessage}`, components: [acceptView()]});
             await message.pin();
+            this.acceptMessageId = message.id;
         }
         let accepted = true;
         for (let user of this.users) {
@@ -385,12 +393,27 @@ export class GameController {
         if (accepted) {
             this.state++;
         }
+
+
+
+        if (this.acceptCountdown == 60) {
+            const acceptChannel = await this.client.channels.fetch(this.acceptChannelId) as TextChannel
+            for (let user of this.users) {
+                if (!user.accepted) {
+                    await acceptChannel.send({content: `<@${user.discordId}> you have 1 minute accept the match`})
+                }
+            }
+        }
+
         if (this.acceptCountdown <= 0 && !this.abandoned && !this.pleaseStop) {
             this.pleaseStop = true;
+            const acceptChannel = await this.client.channels.fetch(this.acceptChannelId) as TextChannel
+            const message = await acceptChannel.messages.fetch(this.acceptMessageId);
+            await message.edit({content: message.content, components: []});
             const newUsers: GameUser[] = [];
             for (let user of this.users) {
                 if (!user.accepted) {
-                    await this.abandon(user, true);
+                    await this.abandon(user, true, true);
                 } else {
                     newUsers.push(user);
                 }
@@ -403,21 +426,33 @@ export class GameController {
         return this.acceptChannelId == id || this.finalChannelId == id || this.teamAChannelId == id || this.teamBChannelId == id;
     }
 
-    async abandon(user: GameUser, acceptFail: boolean) {
+    async abandon(user: GameUser, acceptFail: boolean, forced: boolean = false) {
         let validAbandon = true;
         if (this.server) {
-            const serverInfo = await this.server.serverInfo()
-            if (Number(serverInfo.ServerInfo.Team0Score) >= 6 || Number(serverInfo.ServerInfo.Team1Score) >= 6) {
-                validAbandon = false;
+            try {
+                const serverInfo = await this.server.serverInfo()
+                try {
+                    if (Number(serverInfo.ServerInfo.Team0Score) >= 6 || Number(serverInfo.ServerInfo.Team1Score) >= 6) {
+                        validAbandon = false;
+                    }
+                } catch (e) {
+                    if (e instanceof TypeError) {
+                        validAbandon = true;
+                    }
+                    await logWarn("Score returned by server nonexistent", this.client);
+                }
+            }
+            catch (e) {
+                await logWarn(`${e}`, this.client);
             }
         }
-        if (validAbandon) {
+        if (validAbandon || forced) {
             this.abandoned = true;
             this.abandonCountdown = tokens.AbandonTime;
             if (this.state < 10) {
                 this.state += 10;
             }
-            await abandon(user.dbId, user.discordId, this.guild, acceptFail);
+            await abandon(user.dbId, user.discordId, this.guild, acceptFail, this.data);
             await this.sendAbandonMessage(user.discordId);
             if (!acceptFail && this.startTime + 5 * 60 >= moment().unix()) {
                 const temp: GameUser[] = [];
@@ -834,17 +869,17 @@ export class GameController {
                     case 'overpass': mapId = tokens.MapIds.Overpass; break;
                     case 'inferno': mapId = tokens.MapIds.Inferno; break;
                     case 'harbor': mapId = tokens.MapIds.Harbor; break;
-                    case 'industry': mapId = tokens.MapIds.Industry; break;
+                    case 'lumber': mapId = tokens.MapIds.Lumber; break;
                 }
                 await this.server.switchMap(mapId, "SND");
                 await this.server.updateServerName(`SMM Match-${this.matchNumber}`);
                 message = await finalChannel.send({components: [initialSubmitServer()],
-                    embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)],
+                    embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
                     content: `This match should be played on the server titled: \`SMM Match-${this.matchNumber}\``
                 });
             } else {
                 message = await finalChannel.send({components: [initialSubmit()],
-                    embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides)],
+                    embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
                     content: `This match should be played in the ${region} region`
                 });
             }
@@ -1211,7 +1246,7 @@ export class GameController {
             if (!member.dmChannel) {
                 await member.createDM(true);
             }
-            const dbUser = await getUserById(user.dbId);
+            const dbUser = await getUserById(user.dbId, this.data);
             if (dbUser.dmMatch) {
                 await member.dmChannel!.send("A player has abandoned the match, the channel will be deleted in 30 seconds. You can ready up again now.");
             }

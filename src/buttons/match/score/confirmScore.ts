@@ -11,7 +11,7 @@ export const confirmScore: Button = {
         .setCustomId('score-accept'),
     run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.user);
+            const dbUser = await getUserByUser(interaction.user, data);
             const controller = data.findController();
             if (controller) {
                 const game = controller.findGame(dbUser._id);

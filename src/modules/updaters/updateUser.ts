@@ -1,6 +1,11 @@
 import UserModel, {UserInt} from "../../database/models/UserModel";
+import {Data} from "../../data";
 
-export const updateUser = async (user: UserInt) => {
+export const updateUser = async (user: UserInt, data?: Data) => {
     const filter = {_id: user._id};
-    return UserModel.findOneAndUpdate(filter, user, {new: true, upsert: true});
+    const newUser = await UserModel.findOneAndUpdate(filter, user, {upsert: true, returnDocument: 'after'});
+    if (data) {
+        data.cacheUser(newUser)
+    }
+    return newUser
 }

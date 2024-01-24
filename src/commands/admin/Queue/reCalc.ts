@@ -16,7 +16,7 @@ export const reCalc: SubCommand = {
         .setName('re_calc')
         .setDescription('re_calcs mmr for a queue')
         .addStringOption(queues),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             await interaction.deferReply({ephemeral: true});
             const games = await GameModel.find({scoreB: {"$gte": 0}, scoreA: {'$gte': 0}}).sort({matchId: 1});
@@ -26,7 +26,7 @@ export const reCalc: SubCommand = {
                 let teamB = [];
                 let users: GameUser[] = [];
                 for (let player of game.teamA) {
-                    const user = await getUserById(player)
+                    const user = await getUserById(player, data)
                     users.push({
                         dbId: player,
                         discordId: user.id,
@@ -37,7 +37,7 @@ export const reCalc: SubCommand = {
                     teamA.push(user);
                 }
                 for (let player of game.teamB) {
-                    const user = await getUserById(player)
+                    const user = await getUserById(player, data)
                     users.push({
                         dbId: player,
                         discordId: user.id,

@@ -13,7 +13,7 @@ import moment from "moment";
 import {GameController} from "./controllers/GameController";
 import {getUserById, getUserByUser} from "./modules/getters/getUser";
 import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
-import UserModel from "./database/models/UserModel";
+import UserModel, {UserInt} from "./database/models/UserModel";
 import {getStats} from "./modules/getters/getStats";
 import {getRank, roleRemovalCallback} from "./utility/ranking";
 import userModel from "./database/models/UserModel";
@@ -22,6 +22,8 @@ import {Server} from "./server/server";
 
 export class Data {
     private readonly client: Client;
+    private userCache = new Map<string, UserInt>();
+    private discordToObject = new Map<string, string>();
     private tickLoop = cron.schedule('*/1 * * * * *', async () => {
         await this.tick()
     });
@@ -45,7 +47,7 @@ export class Data {
                     user.banCounter --;
                     user.lastReduction = now;
                     user.gamesPlayedSinceReduction = 0;
-                    await updateUser(user);
+                    user = await updateUser(user);
                 }
             }
             if (user.gamesPlayedSinceReduction >= 7) {
@@ -53,19 +55,22 @@ export class Data {
                     user.banCounter --;
                     user.lastReduction = now;
                     user.gamesPlayedSinceReduction = 0;
-                    await updateUser(user);
+                    user = await updateUser(user);
                 }
             }
+            this.userCache.set(String(user._id), user);
+            this.discordToObject.set(user.id, String(user._id))
         }
     })
     private readonly FILL_SND: QueueController;
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
     nextPing: number = moment().unix();
-    readonly Leaderboard = new LeaderboardControllerClass();
+    readonly Leaderboard = new LeaderboardControllerClass(this);
     private botStatus = "";
     private statusChannel: VoiceChannel | null = null;
     private tickCount = 0;
     private servers: Server[] = [];
+    private loaded: boolean = false;
 
     constructor(client: Client) {
         this.client = client
@@ -73,6 +78,21 @@ export class Data {
         for (let server of tokens.Servers) {
             this.servers.push(new Server(server.ip, server.port, server.password, server.name,client));
         }
+    }
+
+    checkCacheByDiscord(id: string) {
+        const dbId = this.discordToObject.get(id);
+        if (!dbId) {return undefined}
+        return this.userCache.get(dbId);
+    }
+
+    checkCache(id: string) {
+        return this.userCache.get(id);
+    }
+
+    cacheUser(user: UserInt) {
+        this.userCache.set(String(user._id), user);
+        this.discordToObject.set(user.id, String(user._id));
     }
 
     async updateRoles() {
@@ -90,6 +110,8 @@ export class Data {
                     await member.roles.add(rank.roleId);
                 }
             }
+            this.userCache.set(String(user._id), user);
+            this.discordToObject.set(user.id, String(user._id));
         }
     }
 
@@ -98,6 +120,10 @@ export class Data {
         this.roleUpdate.start();
         this.banCounter.start();
         await logInfo("Data Loaded!", this.client);
+    }
+
+    setLoaded(value: boolean) {
+        this.loaded = value;
     }
 
     getGames() {
@@ -120,7 +146,7 @@ export class Data {
             }
             await this.FILL_SND.tick()
             const check = `${this.FILL_SND.inQueueNumber()} in queue`;
-            if (check != this.botStatus) {
+            if (check != this.botStatus && this.loaded) {
                 this.botStatus = check;
                 this.client.user!.setActivity({
                     name: check,
@@ -138,6 +164,7 @@ export class Data {
                 this.Leaderboard.changed = false;
             }
         } catch (e) {
+            console.error(e)
             await logWarn("Error in main tick loop", this.client);
         }
     }
@@ -183,10 +210,10 @@ export class Data {
     async addAbandoned(users: GameUser[]) {
         const queue: QueueUser[] = [];
         for (let user of users) {
-            const dbUser = await getUserById(user.dbId);
+            const dbUser = await getUserById(user.dbId, this);
             if (dbUser.requeue == null) {
                 dbUser.requeue = true;
-                await updateUser(dbUser);
+                await updateUser(dbUser, this);
             }
             if (dbUser.requeue) {
                 const stats = await getStats(user.dbId, "SND");
@@ -212,7 +239,7 @@ export class Data {
     }
 
     async ready(queueId: string, queue: string, user: User, time: number): Promise<InternalResponse> {
-        const dbUser = await getUserByUser(user);
+        const dbUser = await getUserByUser(user, this);
         if (!dbUser.oculusName) {
             return {success: false, message: "You need to set a name using `/register` before queueing"};
         }

@@ -38,7 +38,7 @@ export const logScoreSubmit = async (userId: string, matchId: number, score: num
 
 
 export const matchVotes = async (interaction: ButtonInteraction, data: Data) => {
-    const dbUser = await getUserByUser(interaction.user);
+    const dbUser = await getUserByUser(interaction.user, data);
     const controller = data.findController();
     if (controller) {
         const game = controller.findGame(dbUser._id);
@@ -59,13 +59,13 @@ export const matchReady = async (interaction: ButtonInteraction | ChatInputComma
 }
 
 export const matchUnready = async (interaction: ButtonInteraction | ChatInputCommandInteraction, data: Data, queueId: string) => {
-    const dbUser = await getUserByUser(interaction.user);
+    const dbUser = await getUserByUser(interaction.user, data);
     data.removeFromQueue(dbUser._id, queueId);
     await interaction.reply({ephemeral: true, content: `You have unreadied from ${queueId} queues`})
 }
 
 export const matchScore = async (interaction: ButtonInteraction, data: Data, score: number)=> {
-    const dbUser = await getUserByUser(interaction.user);
+    const dbUser = await getUserByUser(interaction.user, data);
     const controller = data.findController();
     if (controller) {
         const game = controller.findGame(dbUser._id);

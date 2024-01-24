@@ -4,6 +4,7 @@ import tokens from "../tokens";
 import {GameInt} from "../database/models/GameModel";
 import {getUserById} from "../modules/getters/getUser";
 import {GameController} from "../controllers/GameController";
+import {Data} from "../data";
 
 export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
     const embed = new EmbedBuilder();
@@ -57,8 +58,8 @@ export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
         embed.setImage(tokens.Images.Vertigo);
     } else if (game.map.toLowerCase() == 'harbor') {
         embed.setImage(tokens.Images.Harbor);
-    } else if (game.map.toLowerCase() == 'industry') {
-        embed.setImage(tokens.Images.Industry);
+    } else if (game.map.toLowerCase() == 'lumber') {
+        embed.setImage(tokens.Images.Lumber);
     }
 
     return embed.toJSON();
@@ -84,14 +85,14 @@ export const matchConfirmEmbed = (scores: number[]) => {
     return embed.toJSON();
 }
 
-export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: string, map: string, sides: string[]) => {
+export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: string, map: string, sides: string[], data: Data) => {
     const embed = new EmbedBuilder()
 
     let teamA = '';
     let teamB = '';
 
     for (let user of users) {
-        const dbUser = await getUserById(user.dbId);
+        const dbUser = await getUserById(user.dbId, data);
         if (user.team == 0) {
             teamA += `<@${user.discordId}>:${dbUser.oculusName}\n`
         } else {
@@ -129,8 +130,8 @@ export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: 
         embed.setImage(tokens.Images.Vertigo);
     } else if (map.toLowerCase() == 'harbor') {
         embed.setImage(tokens.Images.Harbor);
-    } else if (map.toLowerCase() == 'industry') {
-        embed.setImage(tokens.Images.Industry);
+    } else if (map.toLowerCase() == 'lumber') {
+        embed.setImage(tokens.Images.Lumber);
     }
 
     return embed.toJSON();

@@ -14,11 +14,11 @@ export const removeCooldown: Command = {
         .setDescription("Removed a cooldown without changing the user's ban counter")
         .addUserOption(userOption('User to remove cooldown of'))
         .addStringOption(reason),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true));
+            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             dbUser.banUntil = 0;
-            await updateUser(dbUser);
+            await updateUser(dbUser, data);
             await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown removed`});
             await createActionUser(Actions.RemoveCooldown, interaction.user.id, dbUser.id, interaction.options.getString('reason', true), 'cooldown removed');
         } catch (e) {

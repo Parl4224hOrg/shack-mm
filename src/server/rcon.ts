@@ -33,8 +33,17 @@ export class RCON {
             if(!data.toString().startsWith('{')) {
                 return;
             }
-
-            const json = JSON.parse(data.toString());
+            let json;
+            try {
+                json = JSON.parse(data.toString());
+            } catch (e) {
+                logWarn(`Could not parse: \`\`\`${data.toString()}\`\`\``, this.client);
+                json = {Command: "error"}
+                this.socket!.on("error", (data: any) => {
+                    logWarn(data.toString(), this.client);
+                    this.close().then(() => {this.connect().then()});
+                });
+            }
             return this.socket!.emit(json.Command, json);
         });
         this.socket!.on("error", (data: any) => {

@@ -12,9 +12,9 @@ export const warnings: Command = {
         .setName('warnings')
         .setDescription("View a user's warnings")
         .addUserOption(userOption("User to view warnings of")),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true));
+            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             const warnings = await WarnModel.find({userId: dbUser._id});
             await interaction.reply({content: "Displaying Warnings", embeds: [warningEmbeds(interaction.options.getUser('user', true), warnings)]});
         } catch (e) {

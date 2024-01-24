@@ -58,9 +58,7 @@ export class QueueController {
     }
 
     setInQueue(users: QueueUser[]) {
-        console.log("here6");
         this.inQueue = users.concat(this.inQueue);
-        console.log("here7");
     }
 
     async addPingMe(userId: string, inQueue: number, expire_time: number) {
@@ -96,7 +94,7 @@ export class QueueController {
         }
         if (user.frozen == null) {
             user.frozen = false;
-            await updateUser(user);
+            await updateUser(user, this.data);
         }
         if (user.frozen) {
             return {success: false, message: "You cannot queue as you have a pending ticket please go resolve it in order to queue"}
@@ -132,7 +130,7 @@ export class QueueController {
                 if (!member.dmChannel) {
                     await member.createDM(true);
                 }
-                const dbUser = await getUserById(user.dbId);
+                const dbUser = await getUserById(user.dbId, this.data);
                 if (dbUser.dmQueue) {
                     await member.dmChannel!.send("Your queue time expires in 3 minutes. If you wish to re ready please do so");
                 }
@@ -155,7 +153,7 @@ export class QueueController {
                 }
                 this.lastPlayedMaps.push(game.map);
                 for (let user of arrayClone) {
-                    const dbUser = await getUserById(user);
+                    const dbUser = await getUserById(user, this.data);
                     const member = await guild.members.fetch(dbUser.id);
                     const response = await this.addUser(dbUser, 15, false);
                     if (!member.dmChannel) {
@@ -172,7 +170,7 @@ export class QueueController {
                 const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
                 game.requeueArray = [];
                 for (let user of arrayClone) {
-                    const dbUser = await getUserById(user);
+                    const dbUser = await getUserById(user, this.data);
                     const member = await guild.members.fetch(dbUser.id);
                     const response = await this.addUser(dbUser, 15, false);
                     if (!member.dmChannel) {

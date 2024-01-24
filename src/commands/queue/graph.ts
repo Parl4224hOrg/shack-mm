@@ -13,7 +13,7 @@ export const graph: Command = {
         .setDescription("Get rank graph")
         .addIntegerOption(games)
         .addUserOption(userOptional("User to get graph of")),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             let gameNumber = interaction.options.getInteger('games');
             if (!gameNumber) {
@@ -23,7 +23,7 @@ export const graph: Command = {
             if (!user) {
                 user = interaction.user;
             }
-            const dbUser = await getUserByUser(user);
+            const dbUser = await getUserByUser(user, data);
             const stats = await getStats(dbUser._id, "SND");
             const start = stats.gamesPlayed - gameNumber + 1;
             if (stats.gamesPlayed < 20) {

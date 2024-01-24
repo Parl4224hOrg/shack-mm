@@ -16,9 +16,9 @@ export const setMMR: SubCommand = {
             .setName('mmr')
             .setDescription("MMR to set player's to")
             .setRequired(true)),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true));
+            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             const stats = await getStats(dbUser._id, "SND");
             const currentMMR = stats.mmr;
             const mmrDiff = interaction.options.getNumber('mmr', true) - currentMMR;

@@ -17,10 +17,9 @@ export const nullify: Command = {
             if (!game) {
                 await interaction.reply({ephemeral: true, content: 'Could not find game'});
             } else {
-                await interaction.deferReply();
+                await interaction.reply("game nullified");
                 await game.abandonCleanup(true);
                 await createAction(Actions.Nullify, interaction.user.id, interaction.options.getString('reason', true), `Game ${game.id} nullified`);
-                await interaction.followUp("game nullified");
             }
         } catch (e) {
             await logError(e, interaction);

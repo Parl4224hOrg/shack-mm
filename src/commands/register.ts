@@ -14,15 +14,15 @@ export const register: Command = {
             .setName('name')
             .setDescription("Name to register")
             .setRequired(true)),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.user);
+            const dbUser = await getUserByUser(interaction.user, data);
             let registered = true;
             if (dbUser.oculusName == null) {
                 registered = false;
             }
             dbUser.oculusName = interaction.options.getString('name', true).replace("<@", "").replace(">", "");
-            await updateUser(dbUser);
+            await updateUser(dbUser, data);
             if (!registered) {
                 const member = await interaction.guild!.members.fetch(interaction.user);
                 await member.roles.add(tokens.Player);

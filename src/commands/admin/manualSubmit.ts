@@ -36,7 +36,7 @@ export const manualSubmit: Command = {
             .setRequired(true)
             .setDescription('score for team a')
         ),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
             await interaction.deferReply({ephemeral: true});
             const gameTemp = await getGameByMatchId(interaction.options.getInteger('match_id', true));
@@ -54,11 +54,11 @@ export const manualSubmit: Command = {
             }
             let users: GameUser[] = []
             for (let user of game.teamA) {
-                const dbUser = await getUserById(user);
+                const dbUser = await getUserById(user, data);
                 users.push({dbId: user, discordId: dbUser.id, team: 0, accepted: true, region: Regions.APAC});
             }
             for (let user of game.teamB) {
-                const dbUser = await getUserById(user);
+                const dbUser = await getUserById(user, data);
                 users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true, region: Regions.APAC});
             }
             const changes = await processMMR(users, [game.scoreA, game.scoreB], "SND", tokens.ScoreLimitSND);

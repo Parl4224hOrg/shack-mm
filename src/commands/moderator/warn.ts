@@ -17,9 +17,9 @@ export const warn: Command = {
             .setName("reason")
             .setDescription("Reason for the warning")
             .setRequired(true)),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true));
+            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             await warnModel.create({
                 userId: dbUser._id,
                 reason: interaction.options.getString('reason', true),

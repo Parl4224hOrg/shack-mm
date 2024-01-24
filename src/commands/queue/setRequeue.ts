@@ -8,11 +8,11 @@ export const setRequeue: Command = {
     data: new SlashCommandBuilder()
         .setName('set_requeue')
         .setDescription("Changes whether you should be auto requeued or not"),
-    run: async (interaction) => {
+    run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.user);
+            const dbUser = await getUserByUser(interaction.user, data);
             dbUser.requeue = !dbUser.requeue;
-            await updateUser(dbUser);
+            await updateUser(dbUser, data);
             if (dbUser.requeue) {
                 await interaction.reply({ephemeral: true, content: "You have updated your preference to be requeued"});
             } else {

@@ -132,28 +132,26 @@ export const getRankDistGraph = async (ranks: string[], percents: string[]) => {
             label: 'Rank Distribution',
             data: percents,
             backgroundColor: [
-                'rgba(79, 32, 15, 0.2)',
-                'rgba(163, 87, 65, 0.2)',
-                'rgba(102, 99, 91, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(176, 129, 56, 0.2)',
-                'rgba(170, 169, 173, 0.2)',
-                'rgba(255, 215, 0, 0.2)',
-                'rgba(36, 161, 142, 0.2)',
-                'rgba(0, 195, 255, 0.2)',
-                'rgba(255, 36, 58, 0.2)',
+                'rgba(79, 32, 15, 0.2)', // Wood
+                'rgba(163, 87, 65, 0.2)', // Copper
+                'rgba(102, 99, 91, 0.2)', // Iron
+                'rgba(176, 129, 56, 0.2)', // Bronze
+                'rgba(170, 169, 173, 0.2)', // Silver
+                'rgba(255, 215, 0, 0.2)', // Gold
+                'rgba(36, 161, 142, 0.2)', // Platinum
+                'rgba(0, 195, 255, 0.2)', // Diamond
+                'rgba(255, 36, 58, 0.2)', // Master
             ],
             borderColor: [
-                'rgba(79, 32, 15, 1)',
-                'rgba(163, 87, 65, 1)',
-                'rgba(102, 99, 91, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(176, 129, 56, 1)',
-                'rgba(170, 169, 173, 1)',
-                'rgba(255, 215, 0, 1)',
-                'rgba(36, 161, 142, 1)',
-                'rgba(0, 195, 255, 1)',
-                'rgba(255, 36, 58, 1)',
+                'rgba(79, 32, 15, 1)', // Wood
+                'rgba(163, 87, 65, 1)', // Copper
+                'rgba(102, 99, 91, 1)', // Iron
+                'rgba(176, 129, 56, 1)', // Bronze
+                'rgba(170, 169, 173, 1)', // Silver
+                'rgba(255, 215, 0, 1)', // Gold
+                'rgba(36, 161, 142, 1)', // Platinum
+                'rgba(0, 195, 255, 1)', // Diamond
+                'rgba(255, 36, 58, 1)', // Master
             ],
             borderWidth: 1
         }]

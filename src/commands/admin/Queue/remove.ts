@@ -14,7 +14,7 @@ export const remove: SubCommand = {
     run: async (interaction, data) => {
         try {
             const user = interaction.options.getUser('user', true);
-            const dbUser = await getUserByUser(user);
+            const dbUser = await getUserByUser(user, data);
             data.removeFromAllQueues(dbUser._id);
             await interaction.reply({ephemeral: true, content: `<@${user.id}> Has been removed from queue`});
         } catch (e) {
