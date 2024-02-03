@@ -1,5 +1,4 @@
-import {Command, SubCommand} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {SubCommand} from "../../interfaces/Command";
 import {SlashCommandSubcommandBuilder, SlashCommandUserOption} from "discord.js";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";

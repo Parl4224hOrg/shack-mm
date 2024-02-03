@@ -1,9 +1,8 @@
 import {StringSelectMenu} from "../interfaces/SelectMenu";
 import {Collection} from "discord.js";
-import {modSelectMenu} from "./modSelectMenu";
 
 
-const selectMenuList: StringSelectMenu[] = [modSelectMenu]
+const selectMenuList: StringSelectMenu[] = []
 
 let SelectMenuMap: Collection<string, StringSelectMenu> = new Collection<string, StringSelectMenu>();
 

@@ -17,6 +17,7 @@ import {rankDist} from "./rankDist";
 import {removeCooldown} from "./removeCooldown";
 import {reverseCooldown} from "./reverseCooldown";
 import {scoreDist} from "./scoreDist";
+import {setMMR} from "../admin/Queue/setMMR";
 import {setRegion} from "./setRegion";
 import {transferUser} from "./transferUser";
 import {warn} from "./warn";
@@ -24,7 +25,7 @@ import {warnings} from "./warnings";
 import {warnRemove} from "./warnRemove";
 
 const subCommandListTemp: SubCommand[] = [actions, adjustMMR, cooldown, easyTime, findUser, forceAbandon, forceScore, freeze, mapPlay, nullify,
-    rankDist, removeCooldown, reverseCooldown, scoreDist, setRegion, transferUser, warn, warnings, warnRemove];
+    rankDist, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -32,7 +33,7 @@ for (let subCommand of subCommandListTemp) {
 
 const SubCommandList = SubCommandMap;
 
-export const _queue: Command = {
+export const _mod: Command = {
     data: new SlashCommandBuilder()
         .setName('queue')
         .setDescription('does the queue stuff')
@@ -50,6 +51,7 @@ export const _queue: Command = {
         .addSubcommand(removeCooldown.data)
         .addSubcommand(reverseCooldown.data)
         .addSubcommand(scoreDist.data)
+        .addSubcommand(setMMR.data)
         .addSubcommand(setRegion.data)
         .addSubcommand(transferUser.data)
         .addSubcommand(warn.data)
