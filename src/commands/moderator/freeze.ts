@@ -1,13 +1,14 @@
-import {Command} from "../../interfaces/Command";
+import {Command, SubCommand} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {userOption} from "../../utility/options";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {updateUser} from "../../modules/updaters/updateUser";
 import tokens from "../../tokens";
+import {SlashCommandSubcommandBuilder} from "discord.js";
 
-export const freeze: Command = {
-    data: new SlashCommandBuilder()
+export const freeze: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('freeze')
         .setDescription("Freezes a user")
         .addUserOption(userOption("User to freeze")),

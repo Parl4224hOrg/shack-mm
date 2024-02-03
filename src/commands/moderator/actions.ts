@@ -1,5 +1,4 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {SubCommand} from "../../interfaces/Command";
 import {userOption} from "../../utility/options";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
@@ -8,10 +7,10 @@ import ActionModel from "../../database/models/ActionModel";
 import {ActionEmbed} from "../../embeds/ModEmbeds";
 import WarnModel from "../../database/models/WarnModel";
 import {warningEmbeds} from "../../embeds/statsEmbed";
-import {SlashCommandBooleanOption} from "discord.js";
+import {SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
 
-export const actions: Command = {
-    data: new SlashCommandBuilder()
+export const actions: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName("actions")
         .setDescription("Displays actions against a user")
         .addUserOption(userOption("User to view actions for"))

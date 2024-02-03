@@ -1,4 +1,4 @@
-import {Command} from "../../interfaces/Command";
+import {Command, SubCommand} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {reason, userOption} from "../../utility/options";
 import tokens from "../../tokens";
@@ -7,9 +7,10 @@ import {getUserByUser} from "../../modules/getters/getUser";
 import {Regions} from "../../database/models/UserModel";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
+import {SlashCommandSubcommandBuilder} from "discord.js";
 
-export const forceAbandon: Command = {
-    data: new SlashCommandBuilder()
+export const forceAbandon: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('force_abandon')
         .setDescription('Abandons a user from the match')
         .addUserOption(userOption('User to abandon'))

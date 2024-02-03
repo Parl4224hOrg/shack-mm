@@ -1,13 +1,14 @@
-import {Command} from "../../interfaces/Command";
+import {Command, SubCommand} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {reason, score} from "../../utility/options";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
+import {SlashCommandSubcommandBuilder} from "discord.js";
 
-export const forceScore: Command = {
-    data: new SlashCommandBuilder()
+export const forceScore: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('force_score')
         .setDescription('Force submit scores for a match')
         .addIntegerOption(score('team_a'))

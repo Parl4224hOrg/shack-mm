@@ -25,8 +25,8 @@ import {echo} from "./admin/echo";
 import {games} from "./queue/games";
 import {actions} from "./moderator/actions";
 import {cooldown} from "./moderator/cooldown";
-import {map_play} from "./moderator/map_play";
-import {rank_dist} from "./moderator/rank_dist";
+import {mapPlay} from "./moderator/mapPlay";
+import {rankDist} from "./moderator/rankDist";
 import {setRegion} from "./moderator/setRegion";
 import {findUser} from "./moderator/findUser";
 import {setRequeue} from "./queue/setRequeue";
@@ -44,7 +44,7 @@ import {scoreDist} from "./moderator/scoreDist";
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, forceAbandon, abandon,
     stats, manualSubmit, forceScore, graph, reverseCooldown, nullify, register, ratingChange, warn, warnings,
-warnRemove, pingMe, echo, games, actions, cooldown, map_play, rank_dist, setRegion, findUser, setRequeue, checkBan,
+warnRemove, pingMe, echo, games, actions, cooldown, mapPlay, rankDist, setRegion, findUser, setRequeue, checkBan,
 freeze, help, easyTime, checkDms, dmOptions, removeCooldown, adjustMMR, transferUser, scoreDist];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 

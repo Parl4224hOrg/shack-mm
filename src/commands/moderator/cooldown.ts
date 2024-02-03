@@ -1,4 +1,4 @@
-import {Command} from "../../interfaces/Command";
+import {Command, SubCommand} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {reason, userOption} from "../../utility/options";
 import {logError} from "../../loggers";
@@ -9,10 +9,10 @@ import {getUserByUser} from "../../modules/getters/getUser";
 import {grammaticalTime} from "../../utility/grammatical";
 import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
-import {SlashCommandStringOption} from "discord.js";
+import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 
-export const cooldown: Command = {
-    data: new SlashCommandBuilder()
+export const cooldown: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName("cooldown")
         .setDescription("Cooldown a user based on ban counter")
         .addUserOption(userOption("User to cooldown"))

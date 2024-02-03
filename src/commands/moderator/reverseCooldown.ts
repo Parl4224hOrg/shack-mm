@@ -1,4 +1,4 @@
-import {Command} from "../../interfaces/Command";
+import {Command, SubCommand} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {reason, userOption} from "../../utility/options";
 import tokens from "../../tokens";
@@ -7,9 +7,10 @@ import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {updateUser} from "../../modules/updaters/updateUser";
+import {SlashCommandSubcommandBuilder} from "discord.js";
 
-export const reverseCooldown: Command = {
-    data: new SlashCommandBuilder()
+export const reverseCooldown: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('reverse_cooldown')
         .setDescription('Reverses a cooldown given by a bot')
         .addUserOption(userOption('User to reverse cooldown of'))

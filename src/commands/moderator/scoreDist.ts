@@ -1,12 +1,13 @@
-import {Command} from "../../interfaces/Command";
+import {Command, SubCommand} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {logError} from "../../loggers";
 import {getGames} from "../../modules/getters/getGame";
 import {getScoreDistGraph} from "../../utility/graph";
 import tokens from "../../tokens";
+import {SlashCommandSubcommandBuilder} from "discord.js";
 
-export const scoreDist: Command = {
-    data: new SlashCommandBuilder()
+export const scoreDist: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('score_distribution')
         .setDescription("Displays a graph with the score distribution"),
     run: async (interaction) => {

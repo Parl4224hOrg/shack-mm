@@ -1,4 +1,4 @@
-import {Command} from "../../interfaces/Command";
+import {Command, SubCommand} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {reason, userOption} from "../../utility/options";
 import tokens from "../../tokens";
@@ -7,9 +7,10 @@ import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {updateUser} from "../../modules/updaters/updateUser";
+import {SlashCommandSubcommandBuilder} from "discord.js";
 
-export const removeCooldown: Command = {
-    data: new SlashCommandBuilder()
+export const removeCooldown: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('remove_cooldown')
         .setDescription("Removed a cooldown without changing the user's ban counter")
         .addUserOption(userOption('User to remove cooldown of'))
