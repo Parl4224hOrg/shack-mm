@@ -35,5 +35,5 @@ export const setMMR: SubCommand = {
         }
     },
     name: 'set_mmr',
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

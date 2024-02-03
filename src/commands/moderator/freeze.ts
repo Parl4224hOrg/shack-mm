@@ -35,5 +35,5 @@ export const freeze: Command = {
         }
     },
     name: 'freeze',
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

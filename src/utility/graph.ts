@@ -125,6 +125,93 @@ export const getMMRGraph = async (history: number[], start: number, end: number,
 }
 
 
+export const getScoreDistGraph = async (scores: string[], percents: number[]) => {
+    const data = {
+        labels: scores,
+        datasets: [{
+            label: "Score Distribution",
+            data: percents,
+            backgroundColor: [
+                'rgba(255, 36, 58, 0.2)', // Master
+                'rgba(79, 32, 15, 0.2)', // Wood
+                'rgba(163, 87, 65, 0.2)', // Copper
+                'rgba(102, 99, 91, 0.2)', // Iron
+                'rgba(176, 129, 56, 0.2)', // Bronze
+                'rgba(170, 169, 173, 0.2)', // Silver
+                'rgba(255, 215, 0, 0.2)', // Gold
+                'rgba(36, 161, 142, 0.2)', // Platinum
+                'rgba(0, 195, 255, 0.2)', // Diamond
+                'rgba(255, 36, 58, 0.2)', // Master
+            ],
+            borderColor: [
+                'rgba(255, 36, 58, 1)', // Master
+                'rgba(79, 32, 15, 1)', // Wood
+                'rgba(163, 87, 65, 1)', // Copper
+                'rgba(102, 99, 91, 1)', // Iron
+                'rgba(176, 129, 56, 1)', // Bronze
+                'rgba(170, 169, 173, 1)', // Silver
+                'rgba(255, 215, 0, 1)', // Gold
+                'rgba(36, 161, 142, 1)', // Platinum
+                'rgba(0, 195, 255, 1)', // Diamond
+                'rgba(255, 36, 58, 1)', // Master
+            ],
+            borderWidth: 1
+        }]
+    };
+
+    const config: any = {
+        type: 'bar',
+        data: data,
+        options: {
+            scales: {
+                x: {
+                    ticks: tickSettings,
+                    grid: gridSettings,
+                    title: axisTitle("Score"),
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: tickSettings,
+                    grid: gridSettings,
+                    title: axisTitle("Percentage"),
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false,
+                    labels: {
+                        display: false,
+                        color: white,
+                        padding: 20,
+                        font: {
+                            size: 30,
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: "Score Distribution",
+                    color: white,
+                    font: {
+                        size: 30,
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 10
+                    }
+                },
+                chartAreaBorder: {
+                    borderColor: white,
+                    borderWidth: 2,
+                }
+            }
+        },
+    }
+
+    return await canvas.renderToBuffer(config);
+}
+
+
 export const getRankDistGraph = async (ranks: string[], percents: string[]) => {
     const data = {
         labels: ranks,

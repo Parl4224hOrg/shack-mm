@@ -22,5 +22,5 @@ export const warnings: Command = {
         }
     },
     name: "warnings",
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

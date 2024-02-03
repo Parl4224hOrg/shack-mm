@@ -35,5 +35,5 @@ export const findUser: Command = {
         }
     },
     name: 'find_user',
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

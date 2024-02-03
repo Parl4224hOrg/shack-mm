@@ -9,10 +9,12 @@ export const getUserByUser = async (user: User | GuildMember, data: Data) => {
     if (doc) {
         return doc;
     }
-    return (
-        await UserModel.findOne({id: user.id}))
-            ||
-        await createUser(user)
+    const docFound = await UserModel.findOne({id: user.id});
+    if (docFound) {
+        data.cacheUser(docFound);
+        return docFound
+    }
+    return createUser(user);
 }
 
 export const getUserById = async (userId: ObjectId, data: Data) => {
@@ -20,6 +22,10 @@ export const getUserById = async (userId: ObjectId, data: Data) => {
     if (doc) {
         return doc;
     }
-    return (
-        await UserModel.findOne({_id: userId})) || createBlankUser()
+    const docFound = await UserModel.findOne({_id: userId});
+    if (docFound) {
+        data.cacheUser(docFound);
+        return docFound
+    }
+    return createBlankUser();
 }

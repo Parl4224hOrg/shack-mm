@@ -30,5 +30,5 @@ export const forceScore: Command = {
         }
     },
     name: 'force_score',
-    allowedRoles: [tokens.ModRole, tokens.AdminRole],
+    allowedRoles: tokens.Mods,
 }

@@ -33,9 +33,9 @@ export const timeScales: SlashCommandStringOption = new SlashCommandStringOption
     .setRequired(true)
     .setChoices({name: 'Minutes', value: 'm'}, {name: 'Hours', value: 'h'}, {name: 'Days', value: 'd'}, {name: 'Weeks', value: 'w'});
 
-export const timeOption: SlashCommandNumberOption = new SlashCommandNumberOption()
-    .setName('time')
-    .setDescription('Time for the action can be decimal')
+export const mmrOption: SlashCommandNumberOption = new SlashCommandNumberOption()
+    .setName('mmr')
+    .setDescription('The MMR to adjust to')
     .setRequired(true);
 
 export const queues: SlashCommandStringOption = new SlashCommandStringOption()

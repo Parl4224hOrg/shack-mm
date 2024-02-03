@@ -26,5 +26,5 @@ export const removeCooldown: Command = {
         }
     },
     name: 'remove_cooldown',
-    allowedRoles: [tokens.ModRole, tokens.AdminRole],
+    allowedRoles: tokens.Mods,
 }

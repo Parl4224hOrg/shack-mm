@@ -11,13 +11,23 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
         embed.setDescription("User has no actions");
         return embed.toJSON();
     }
+    let desc = ""
     if (moment().unix() > user.banUntil) {
-        embed.setDescription(`<@${actions[0].userId}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter: ${user.banCounter}\n${frozen}`);
+        desc += `<@${actions[0].userId}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter: ${user.banCounter}\n${frozen}`;
     } else {
-        embed.setDescription(`<@${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\nBan Counter: ${user.banCounter}\n${frozen}`);
+        desc += `<@${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\nBan Counter: ${user.banCounter}\n${frozen}`;
     }
 
-    for (let action of actions) {
+    let truncatedActions: ActionInt[];
+
+    if (actions.length > 25) {
+        desc += `\nThere are ${actions.length - 25} older actions not shown`;
+        truncatedActions = actions.slice(actions.length - 25, actions.length);
+    } else {
+        truncatedActions = actions;
+    }
+
+    for (let action of truncatedActions) {
         let title: string;
         if (action.action == Actions.Abandon) {
             title = "Abandon";
@@ -31,6 +41,8 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
             title = "User's cooldown was reversed'";
         } else if (action.action == Actions.ForceScore) {
             title = "User forced a score";
+        } else if (action.action == Actions.RemoveCooldown) {
+            title = "User's cooldown was removed";
         } else {
             title = "If you see this Parl messed up"
         }
@@ -39,5 +51,6 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
             value: `Action by: <@${action.modId}>\nDate: <t:${action.time}:F>\nReason: ${action.reason}\nData: ${action.actionData}`,
         });
     }
+    embed.setDescription(desc);
     return embed.toJSON();
 }

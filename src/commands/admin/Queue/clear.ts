@@ -18,5 +18,5 @@ export const clear: SubCommand = {
         }
     },
     name: 'clear',
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

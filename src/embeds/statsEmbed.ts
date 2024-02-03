@@ -13,7 +13,7 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, rank: n
     if (stats.gamesPlayed >= 10) {
         embed.setTitle(`${name}'s Stats - [${rank}]`);
         embed.setDescription(`${getRank(stats.mmr).name}-${stats.mmr.toFixed(1)} MMR\nGames played - ${stats.gamesPlayed}\n
-        https://shackmm.com/players/${user._id}/stats`);
+        [Website Stats](https://shackmm.com/players/${user._id}/stats)`);
     } else {
         embed.setTitle(`${name}'s Stats`);
         if (stats.gamesPlayed == 9) {
@@ -79,15 +79,29 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, rank: n
 export const warningEmbeds = (user: User, warnings: WarnInt[]): APIEmbed => {
     const embed = new EmbedBuilder();
     embed.setTitle(`Warnings for ${user.username}`);
-    embed.setDescription(`<@${user.id}>`);
-    for (let warn of warnings) {
-        if (!warn.removed) {
-            const timestamp = "<t:" + warn.timeStamp + ":F>"
-            embed.addFields({
-                name: `${warn._id}`,
-                value: `Reason: ${warn.reason}\nDate: ${timestamp}\nMod: <@${warn.modId}>`
-            });
+    if (warnings.length > 25) {
+        embed.setDescription(`<@${user.id}>\nThere are ${warnings.length - 25} older warnings not shown`);
+        for (let warn of warnings.slice(warnings.length - 25, warnings.length)) {
+            if (!warn.removed) {
+                const timestamp = "<t:" + warn.timeStamp + ":F>"
+                embed.addFields({
+                    name: `${warn._id}`,
+                    value: `Reason: ${warn.reason}\nDate: ${timestamp}\nMod: <@${warn.modId}>`
+                });
+            }
+        }
+    } else {
+        embed.setDescription(`<@${user.id}>`);
+        for (let warn of warnings) {
+            if (!warn.removed) {
+                const timestamp = "<t:" + warn.timeStamp + ":F>"
+                embed.addFields({
+                    name: `${warn._id}`,
+                    value: `Reason: ${warn.reason}\nDate: ${timestamp}\nMod: <@${warn.modId}>`
+                });
+            }
         }
     }
+
     return embed.toJSON();
 }

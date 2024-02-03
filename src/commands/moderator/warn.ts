@@ -33,5 +33,5 @@ export const warn: Command = {
         }
     },
     name: 'warn',
-    allowedRoles: [tokens.ModRole]
+    allowedRoles: tokens.Mods
 }

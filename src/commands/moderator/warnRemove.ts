@@ -32,5 +32,5 @@ export const warnRemove: Command = {
         }
     },
     name: 'remove_warn',
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

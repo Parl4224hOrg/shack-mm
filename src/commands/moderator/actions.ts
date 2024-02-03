@@ -32,5 +32,5 @@ export const actions: Command = {
         }
     },
     name: "actions",
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

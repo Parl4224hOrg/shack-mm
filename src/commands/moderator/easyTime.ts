@@ -34,5 +34,5 @@ export const easyTime: Command = {
         }
     },
     name: 'easy_time',
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

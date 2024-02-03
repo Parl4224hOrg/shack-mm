@@ -30,5 +30,5 @@ export const reverseCooldown: Command = {
         }
     },
     name: 'reverse_cooldown',
-    allowedRoles: [tokens.ModRole, tokens.AdminRole],
+    allowedRoles: tokens.Mods,
 }

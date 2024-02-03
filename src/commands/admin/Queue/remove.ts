@@ -22,5 +22,5 @@ export const remove: SubCommand = {
         }
     },
     name: 'remove',
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

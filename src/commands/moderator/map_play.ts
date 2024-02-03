@@ -33,5 +33,5 @@ export const map_play: Command = {
         }
     },
     name: "play_rates",
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

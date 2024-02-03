@@ -61,5 +61,5 @@ export const cooldown: Command = {
         }
     },
     name: 'cooldown',
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

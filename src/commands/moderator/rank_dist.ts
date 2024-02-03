@@ -48,5 +48,5 @@ export const rank_dist: Command = {
         }
     },
     name: "rank_distribution",
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }

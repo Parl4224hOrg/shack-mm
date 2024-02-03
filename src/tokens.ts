@@ -43,6 +43,7 @@ export default {
     DoNotPing: "1186750217962401844",
     ScoreboardChannel: "1182844040937484339",
     MutedRole: "1186750217962401844",
+    Mods: ['1152657002212884550', '1200954518590984313'],
     // constants
     StartingMMR: 1500,
     PlayerCount: 10,

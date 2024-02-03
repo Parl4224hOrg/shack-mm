@@ -57,5 +57,5 @@ export const setRegion: Command = {
         }
     },
     name: "set_region",
-    allowedRoles: [tokens.ModRole],
+    allowedRoles: tokens.Mods,
 }
