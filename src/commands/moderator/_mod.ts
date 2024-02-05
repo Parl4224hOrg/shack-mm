@@ -23,6 +23,8 @@ import {transferUser} from "./transferUser";
 import {warn} from "./warn";
 import {warnings} from "./warnings";
 import {warnRemove} from "./warnRemove";
+import {onSubCommand} from "../../events/onSubCommand";
+import {commandPermission} from "../../utility/commandPermission";
 
 const subCommandListTemp: SubCommand[] = [actions, adjustMMR, cooldown, easyTime, findUser, forceAbandon, forceScore, freeze, mapPlay, nullify,
     rankDist, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove];
@@ -35,8 +37,8 @@ const SubCommandList = SubCommandMap;
 
 export const _mod: Command = {
     data: new SlashCommandBuilder()
-        .setName('queue')
-        .setDescription('does the queue stuff')
+        .setName('mod')
+        .setDescription('Mod commands')
         .addSubcommand(actions.data)
         .addSubcommand(adjustMMR.data)
         .addSubcommand(cooldown.data)
@@ -59,7 +61,8 @@ export const _mod: Command = {
         .addSubcommand(warnRemove.data),
     run: async (interaction, data) => {
         try {
-            await SubCommandList.get(interaction.options.getSubcommand())!.run(interaction, data);
+            const command = SubCommandList.get(interaction.options.getSubcommand())!
+            await onSubCommand(interaction, command, data, await commandPermission(interaction, command));
         } catch (e) {
             await logError(e, interaction);
         }
