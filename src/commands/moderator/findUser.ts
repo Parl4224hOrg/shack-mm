@@ -1,13 +1,12 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommandStringOption} from "discord.js";
+import {SubCommand} from "../../interfaces/Command";
+import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import UserModel, {UserInt} from "../../database/models/UserModel";
 import {getEditDistance} from "../../utility/grammatical";
 
-export const findUser: Command = {
-    data: new SlashCommandBuilder()
+export const findUser: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName("find_user")
         .setDescription("Finds a user's discord based off of a close ign")
         .addStringOption(new SlashCommandStringOption()

@@ -1,14 +1,14 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {SubCommand} from "../../interfaces/Command";
 import {userOption} from "../../utility/options";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import WarnModel from "../../database/models/WarnModel";
 import {warningEmbeds} from "../../embeds/statsEmbed";
 import tokens from "../../tokens";
+import {SlashCommandSubcommandBuilder} from "discord.js";
 
-export const warnings: Command = {
-    data: new SlashCommandBuilder()
+export const warnings: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('warnings')
         .setDescription("View a user's warnings")
         .addUserOption(userOption("User to view warnings of")),

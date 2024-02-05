@@ -674,8 +674,7 @@ export class GameController {
         this.voteCountdown--;
         if (!this.voteChannelsGen) {
             this.voteChannelsGen = true;
-            const acceptChannel = await this.guild.channels.fetch(this.acceptChannelId);
-            await acceptChannel?.delete();
+
 
             const teamARole = await this.guild.roles.create({
                 name: `team-a-${this.matchNumber}`,
@@ -737,6 +736,9 @@ export class GameController {
             this.voteA1MessageId = teamAMessage.id;
 
             await teamBChannel.send({content: `Team B - ${teamBStr}Team A is banning 3 maps`});
+
+            const acceptChannel = await this.guild.channels.fetch(this.acceptChannelId);
+            await acceptChannel?.delete();
         } else if (this.voteCountdown <= 0 && !this.working) {
             this.working = true;
             const bans = await this.calcVotes(2);

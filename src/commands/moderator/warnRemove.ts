@@ -1,6 +1,5 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommandStringOption} from "discord.js";
+import {SubCommand} from "../../interfaces/Command";
+import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import WarnModel, {WarnInt} from "../../database/models/WarnModel";
@@ -9,8 +8,8 @@ const getWarnById = async (id: string): Promise<WarnInt | null> => {
     return WarnModel.findOne({_id: id}).exec();
 }
 
-export const warnRemove: Command = {
-    data: new SlashCommandBuilder()
+export const warnRemove: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('remove_warn')
         .setDescription("Removes a warning from a user")
         .addStringOption(new SlashCommandStringOption()

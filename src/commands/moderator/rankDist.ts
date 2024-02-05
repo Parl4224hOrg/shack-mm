@@ -1,14 +1,13 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {SubCommand} from "../../interfaces/Command";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import StatsModel from "../../database/models/StatsModel";
-import {Collection} from "discord.js";
+import {Collection, SlashCommandSubcommandBuilder} from "discord.js";
 import {getRank} from "../../utility/ranking";
 import {getRankDistGraph} from "../../utility/graph";
 
-export const rank_dist: Command = {
-    data: new SlashCommandBuilder()
+export const rankDist: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName("rank_distribution")
         .setDescription("Displays the rank distribution"),
     run: async (interaction) => {

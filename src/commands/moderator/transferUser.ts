@@ -1,14 +1,13 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommandUserOption} from "discord.js";
+import {SubCommand} from "../../interfaces/Command";
+import {SlashCommandSubcommandBuilder, SlashCommandUserOption} from "discord.js";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {getStats} from "../../modules/getters/getStats";
 import {updateStats} from "../../modules/updaters/updateStats";
 
-export const transferUser: Command = {
-    data: new SlashCommandBuilder()
+export const transferUser: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('transfer_user')
         .setDescription("Transfers a user's stats")
         .addUserOption(new SlashCommandUserOption()

@@ -313,8 +313,4 @@ export class QueueController {
         }
         return null;
     }
-
-    getInQueue() {
-        return this.inQueue
-    }
 }

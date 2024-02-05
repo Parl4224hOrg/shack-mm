@@ -1,12 +1,11 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {SubCommand} from "../../interfaces/Command";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import GameModel from "../../database/models/GameModel";
-import {Collection} from "discord.js";
+import {Collection, SlashCommandSubcommandBuilder} from "discord.js";
 
-export const map_play: Command = {
-    data: new SlashCommandBuilder()
+export const mapPlay: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName("play_rates")
         .setDescription("Show how much each map has been played"),
     run: async (interaction) => {

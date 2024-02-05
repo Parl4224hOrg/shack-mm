@@ -1,12 +1,11 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommandStringOption} from "discord.js";
+import {SubCommand} from "../../interfaces/Command";
+import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {userOption} from "../../utility/options";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 
-export const easyTime: Command = {
-    data: new SlashCommandBuilder()
+export const easyTime: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('easy_time')
         .setDescription("Sends a message to join with a built in discord timestamp")
         .addUserOption(userOption("User to mention in message"))

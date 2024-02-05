@@ -1,13 +1,13 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {SubCommand} from "../../interfaces/Command";
 import {reason} from "../../utility/options";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
+import {SlashCommandSubcommandBuilder} from "discord.js";
 
-export const nullify: Command = {
-    data: new SlashCommandBuilder()
+export const nullify: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('nullify')
         .setDescription('Nullifies a match')
         .addStringOption(reason),

@@ -1,15 +1,14 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {SubCommand} from "../../interfaces/Command";
 import {userOption} from "../../utility/options";
-import {SlashCommandStringOption} from "discord.js";
+import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {Regions} from "../../database/models/UserModel";
 import {updateUser} from "../../modules/updaters/updateUser";
 
-export const setRegion: Command = {
-    data: new SlashCommandBuilder()
+export const setRegion: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName("set_region")
         .setDescription("Set's a user's region")
         .addUserOption(userOption("user to set region of"))
