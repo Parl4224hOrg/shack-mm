@@ -19,6 +19,7 @@ import {getRank, roleRemovalCallback} from "./utility/ranking";
 import userModel from "./database/models/UserModel";
 import {updateUser} from "./modules/updaters/updateUser";
 import {Server} from "./server/server";
+import SaveModel from "./database/models/SaveModel";
 
 export class Data {
     private readonly client: Client;
@@ -71,6 +72,7 @@ export class Data {
     private tickCount = 0;
     private servers: Server[] = [];
     private loaded: boolean = false;
+    private saveCache = "";
 
     constructor(client: Client) {
         this.client = client
@@ -116,6 +118,10 @@ export class Data {
     }
 
     async load() {
+        const data = await SaveModel.findOne({id: 'test'});
+        if (data) {
+            await this.FILL_SND.load(data.data);
+        }
         this.tickLoop.start();
         this.roleUpdate.start();
         this.banCounter.start();
@@ -136,6 +142,7 @@ export class Data {
 
     async tick() {
         try {
+            await this.save();
             this.tickCount++;
             if (!this.statusChannel || this.tickCount % 60 == 0) {
                 const guild = await this.client.guilds.fetch(tokens.GuildID);
@@ -169,6 +176,27 @@ export class Data {
         }
     }
 
+    async save() {
+        let queue = JSON.stringify(this.FILL_SND, function (key, value) {
+            try {
+                if (key == 'client' || key == 'data' || key == 'guild') {
+                    return;
+                }
+                return value;
+            } catch (e) {
+                console.error(e);
+            }
+        });
+        if (queue != this.saveCache) {
+            const doc = await SaveModel.findOne({id: "test"});
+            if (!doc) {
+                await SaveModel.create({id: 'test', data: queue});
+            } else {
+                await SaveModel.updateOne({id: "test"}, {id: "test", data: queue});
+            }
+        }
+    }
+
     async createMatch(regionId: string, queue: QueueController, queueId: string, scoreLimit: number) {
         queue.generating = true;
         let users: QueueUser[] = []
@@ -196,7 +224,8 @@ export class Data {
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
             let serv: Server | null = null;
             for (let server of this.servers) {
-                if (!server.isInUse()) {
+                const info = await server.serverInfo();
+                if (!server.isInUse() && server.getMatchId() > 0 && Number(info.ServerInfo.PlayerCount) < 8) {
                     serv = server;
                 }
             }

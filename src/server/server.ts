@@ -25,6 +25,10 @@ export class Server extends RCON {
         this.connect().then();
     }
 
+    getMatchId() {
+        return this.matchId;
+    }
+
     getName() {
         return this.name;
     }

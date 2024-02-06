@@ -1,4 +1,4 @@
-import {ObjectId} from "mongoose";
+import mongoose, {ObjectId} from "mongoose";
 import {ChannelType, Client, Collection, EmbedBuilder, Guild, TextChannel} from "discord.js";
 import {getGameById} from "../modules/getters/getGame";
 import moment from "moment/moment";
@@ -110,7 +110,7 @@ export class GameController {
     users: GameUser[] = [];
     readonly queueId: string = '';
     readonly scoreLimit: number = 0;
-    readonly startTime;
+    startTime;
     readonly data: Data;
 
     acceptChannelGen = false;
@@ -214,9 +214,66 @@ export class GameController {
             this.allBans.push(ban);
         }
         this.server = server;
-        if (server) {
-            server.registerGame(matchNumber);
+        if (this.server) {
+            this.server.registerGame(matchNumber);
         }
+    }
+
+    load(data: any) {
+        this.tickCount = data.tickCount;
+        this.state = data.state;
+        this.users = data.users;
+        this.startTime = data.startTime;
+
+        this.acceptChannelGen = data.acceptChannelGen;
+        this.acceptChannelId = data.acceptChannelId;
+        this.matchRoleId = data.matchRoleId;
+        this.acceptCountdown = data.acceptCountdown;
+
+        this.voteChannelsGen = data.voteChannelsGen;
+        this.teamAChannelId = data.teamAChannelId;
+        this.teamARoleId = data.teamARoleId;
+        this.teamBChannelId = data.teamBChannelId;
+        this.teamBRoleId = data.teamBRoleId;
+        this.voteA1MessageId = data.voteA1MessageId;
+        this.voteB1MessageId = data.voteB1MessageId;
+        this.voteA2MessageId = data.voteA2MessageId;
+        this.voteB2MessageId = data.voteB2MessageId;
+        this.voteCountdown = data.voteCountdown;
+
+        this.mapSet = data.mapSet;
+        this.sideSet = data.sideSet;
+        this.currentMaxVotes = data.currentMaxVotes;
+        this.allBans = data.allBans;
+
+        this.map = data.map;
+        this.sides = data.sides;
+
+        this.finalChannelGen = data.finalChannelGen;
+        this.finalChannelId = data.finalChannelId;
+
+        this.scores = data.scores;
+        this.scoresAccept = data.scoresAccept;
+        this.scoresConfirmMessageSent = data.scoresConfirmMessageSent;
+        this.processed = data.processed;
+
+        this.abandoned = data.abandoned;
+        this.cleanedUp = data.cleanedUp;
+
+        this.submitCooldown = data.submitCooldown;
+        this.pleaseStop = data.pleaseStop;
+
+        this.processing = data.processing;
+        this.working = data.working;
+        this.finalGenTime = data.finalGenTime;
+
+        for (let requeue of data.requeueArray) {
+            this.requeueArray.push(new mongoose.Types.ObjectId(requeue) as any as ObjectId)
+        }
+
+        this.server = null;
+
+        this.acceptMessageId = data.acceptMessageId;
     }
 
     async tick() {

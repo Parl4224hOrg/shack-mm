@@ -5,7 +5,7 @@ import {Data} from "../data";
 import moment from "moment";
 import {getStats} from "../modules/getters/getStats";
 import {grammaticalList, grammaticalTime} from "../utility/grammatical";
-import {ObjectId} from "mongoose";
+import mongoose, {ObjectId} from "mongoose";
 import {GameController} from "./GameController";
 import {UserInt} from "../database/models/UserModel";
 import tokens from "../tokens";
@@ -59,6 +59,23 @@ export class QueueController {
 
     setInQueue(users: QueueUser[]) {
         this.inQueue = users.concat(this.inQueue);
+    }
+
+    async load(data: string) {
+        const parsed = JSON.parse(data);
+        this.inQueue = parsed.inQueue;
+        for (let ping of parsed.pingMe) {
+            this.pingMe.set(ping.id, ping);
+        }
+        for (let game of parsed.activeGames) {
+            const newGame = new GameController(new mongoose.Types.ObjectId(game.id) as any as ObjectId,
+                this.client, await this.client.guilds.fetch(tokens.GuildID), game.matchNumber, [], [], "SND",
+                game.scoreLimit, game.allBans, this.data, null);
+            newGame.load(game);
+            this.activeGames.push(newGame);
+        }
+        this.lastPlayedMaps = parsed.lastPlayedMaps;
+        this.generating = parsed.generating;
     }
 
     async addPingMe(userId: string, inQueue: number, expire_time: number) {
