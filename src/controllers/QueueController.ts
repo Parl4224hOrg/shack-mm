@@ -13,6 +13,7 @@ import {updateUser} from "../modules/updaters/updateUser";
 import {logReady, logUnready} from "../utility/match";
 import {getUserById} from "../modules/getters/getUser";
 import {shuffleArray} from "../utility/makeTeams";
+import {logWarn} from "../loggers";
 
 interface PingMeUser {
     id: string;
@@ -149,7 +150,11 @@ export class QueueController {
                 }
                 const dbUser = await getUserById(user.dbId, this.data);
                 if (dbUser.dmQueue) {
-                    await member.dmChannel!.send("Your queue time expires in 3 minutes. If you wish to re ready please do so");
+                    try {
+                        await member.dmChannel!.send("Your queue time expires in 3 minutes. If you wish to re ready please do so");
+                    } catch (e) {
+                        await logWarn(`Could not dm user -${dbUser.id}`, this.client);
+                    }
                 }
             }
         }
@@ -177,7 +182,11 @@ export class QueueController {
                         await member.createDM(true);
                     }
                     if (dbUser.dmAuto) {
-                        await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
+                        try {
+                            await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
+                        } catch (e) {
+                            await logWarn(`Could not dm user -${dbUser.id}`, this.client);
+                        }
                     }
                 }
                 game.requeueArray = [];
@@ -194,7 +203,11 @@ export class QueueController {
                         await member.createDM(true);
                     }
                     if (dbUser.dmAuto) {
-                        await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
+                        try {
+                            await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
+                        } catch (e) {
+                            await logWarn(`Could not dm user -${dbUser.id}`, this.client);
+                        }
                     }
                 }
             }

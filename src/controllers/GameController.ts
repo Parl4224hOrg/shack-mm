@@ -432,7 +432,11 @@ export class GameController {
                 }
                 const dbUser = await getUserById(user.dbId, this.data);
                 if (dbUser.dmMatch) {
-                    await member.dmChannel!.send(`A game has started please accept the game here ${acceptChannel.url} within 3 minutes`);
+                    try {
+                        await member.dmChannel!.send(`A game has started please accept the game here ${acceptChannel.url} within 3 minutes`);
+                    } catch (e) {
+                        await logWarn(`Could not dm user -${dbUser.id}`, this.client);
+                    }
                 }
             }
 
@@ -1307,7 +1311,11 @@ export class GameController {
             }
             const dbUser = await getUserById(user.dbId, this.data);
             if (dbUser.dmMatch) {
-                await member.dmChannel!.send("A player has abandoned the match, the channel will be deleted in 30 seconds. You can ready up again now.");
+                try {
+                    await member.dmChannel!.send("A player has abandoned the match, the channel will be deleted in 30 seconds. You can ready up again now.");
+                } catch (e) {
+                    await logWarn(`Could not dm user -${dbUser.id}`, this.client);
+                }
             }
         }
         return;

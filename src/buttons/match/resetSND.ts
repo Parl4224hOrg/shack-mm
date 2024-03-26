@@ -3,6 +3,8 @@ import {ButtonBuilder} from "@discordjs/builders";
 import {ButtonStyle} from "discord.js";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
+import axios from "axios";
+import tokens from "../../tokens";
 
 export const resetSND: Button = {
     data: new ButtonBuilder()
@@ -16,12 +18,25 @@ export const resetSND: Button = {
             if (!game) {
                 await interaction.reply({ephemeral: true, content: "Could not find game"});
             } else {
-                const res = await game.resetSND();
-                if (res.Successful) {
-                    await interaction.reply({ephemeral: false, content: `Game started by <@${dbUser.id}>`});
+                await game.resetSND();
+                const name = game.server!.getName()
+                if (name == "SMM NAE ONE") {
+                    await axios.post(`https://shackmm.com/NAE-ONE/start?game=${game.matchNumber}`, {},
+                        {
+                        headers: {
+                            key: tokens.ServerKey,
+                        }
+                    })
                 } else {
-                    await interaction.reply({ephemeral: true, content: "Could not start game if this persists please contact mods"});
+                    await axios.post(`https://shackmm.com/NAE-TWO/start?game=${game.matchNumber}`, {},
+                        {
+                            headers: {
+                                key: tokens.ServerKey,
+                            }
+                        })
                 }
+
+                await interaction.reply({ephemeral: false, content: `Game started by <@${dbUser.id}>`});
             }
         } catch (e) {
             await logError(e, interaction);

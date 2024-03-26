@@ -8,6 +8,7 @@ export default {
     DB_URI: process.env.DB_URI ?? '',
     ClientID: process.env.CLIENT_ID ?? '',
     BotKey: process.env.BOT_KEY ?? 'no-key',
+    ServerKey: process.env.SERVER_KEY ?? 'no-key',
     // Discord stuff
     GuildID: '1152652407856189560',
     Parl: '484100069688344606',

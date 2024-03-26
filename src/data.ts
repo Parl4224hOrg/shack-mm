@@ -224,8 +224,7 @@ export class Data {
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
             let serv: Server | null = null;
             for (let server of this.servers) {
-                const info = await server.serverInfo();
-                if (!server.isInUse() && server.getMatchId() > 0 && Number(info.ServerInfo.PlayerCount) < 8) {
+                if (!server.isInUse() && server.getMatchId() < 0) {
                     serv = server;
                 }
             }
