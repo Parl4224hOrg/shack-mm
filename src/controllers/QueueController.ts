@@ -164,9 +164,7 @@ export class QueueController {
                 shuffleArray(game.requeueArray);
                 const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
                 game.requeueArray = [];
-                if (game.abandoned) {
-                    await game.abandonCleanup(false);
-                } else {
+                if (!game.abandoned) {
                     await game.cleanup();
                 }
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
@@ -191,7 +189,7 @@ export class QueueController {
                 }
                 game.requeueArray = [];
             }
-            if (game.abandoned) {
+            if (game.abandoned && !game.autoReadied) {
                 shuffleArray(game.requeueArray);
                 const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
                 game.requeueArray = [];

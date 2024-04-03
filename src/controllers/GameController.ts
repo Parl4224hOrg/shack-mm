@@ -176,6 +176,8 @@ export class GameController {
 
     acceptMessageId: string = "";
 
+    autoReadied = false;
+
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: Server | null = null) {
         this.id = id;
         this.client = client;
@@ -274,6 +276,8 @@ export class GameController {
         this.server = null;
 
         this.acceptMessageId = data.acceptMessageId;
+
+        this.autoReadied = data.autoReadied ?? false
     }
 
     async tick() {
@@ -516,7 +520,8 @@ export class GameController {
             }
             await abandon(user.dbId, user.discordId, this.guild, acceptFail, this.data);
             await this.sendAbandonMessage(user.discordId);
-            if (!acceptFail && this.startTime + 5 * 60 >= moment().unix()) {
+            if (!acceptFail && (this.finalGenTime + 15 * 60 >= moment().unix() || this.finalGenTime == 0)) {
+                this.autoReadied = true;
                 const temp: GameUser[] = [];
                 for (let userCheck of this.users) {
                     if (!(user.discordId == userCheck.discordId)) {
