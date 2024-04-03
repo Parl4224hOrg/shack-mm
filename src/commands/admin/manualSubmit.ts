@@ -11,6 +11,8 @@ import {matchFinalEmbed} from "../../embeds/matchEmbeds";
 import {GameUser} from "../../interfaces/Game";
 import {getUserById} from "../../modules/getters/getUser";
 import {Regions} from "../../database/models/UserModel";
+import {createAction} from "../../modules/constructors/createAction";
+import {Actions} from "../../database/models/ActionModel";
 
 export const manualSubmit: Command = {
     data: new SlashCommandBuilder()
@@ -39,7 +41,8 @@ export const manualSubmit: Command = {
     run: async (interaction, data) => {
         try {
             await interaction.deferReply({ephemeral: true});
-            const gameTemp = await getGameByMatchId(interaction.options.getInteger('match_id', true));
+            const matchId = interaction.options.getInteger('match_id', true)
+            const gameTemp = await getGameByMatchId(matchId);
             let game = gameTemp!;
             game.map = interaction.options.getString('map', true);
             game.scoreA = interaction.options.getInteger('score_a', true);
@@ -71,6 +74,7 @@ export const manualSubmit: Command = {
 
             await channel.send({content: `Match ${game.matchId}`, embeds: [matchFinalEmbed(game!, users)]});
             await interaction.followUp({ephemeral: true, content: "Game has been submitted"});
+            await createAction(Actions.ManualSubmit, interaction.user.id, interaction.options.getString('reason', true), `Score manually submitted for match ${matchId}: ${game.scoreA}-${game.scoreB}`);
         }
         catch (e) {
             await logError(e, interaction);

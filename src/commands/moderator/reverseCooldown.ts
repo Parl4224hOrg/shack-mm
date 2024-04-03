@@ -1,5 +1,5 @@
 import {SubCommand} from "../../interfaces/Command";
-import {reason, userOption} from "../../utility/options";
+import {cdType, reason, userOption} from "../../utility/options";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {createActionUser} from "../../modules/constructors/createAction";
@@ -13,17 +13,26 @@ export const reverseCooldown: SubCommand = {
         .setName('reverse_cooldown')
         .setDescription('Reverses a cooldown given by a bot')
         .addUserOption(userOption('User to reverse cooldown of'))
+        .addStringOption(cdType)
         .addStringOption(reason),
     run: async (interaction, data) => {
         try {
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
-            dbUser.banCounter--;
-            dbUser.banUntil = 0;
-            if (dbUser.banCounter < 0) {
-                dbUser.banCounter = 0;
+            if (interaction.options.getString('type', true) == 'abandon') {
+                dbUser.banCounterAbandon--;
+                dbUser.banUntil = 0;
+                if (dbUser.banCounterAbandon < 0) {
+                    dbUser.banCounterAbandon = 0;
+                }
+            } else {
+                dbUser.banCounterFail--;
+                dbUser.banUntil = 0;
+                if (dbUser.banCounterFail < 0) {
+                    dbUser.banCounterFail = 0;
+                }
             }
             await updateUser(dbUser, data);
-            await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown reversed`});
+            await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown of reversed`});
             await createActionUser(Actions.ReverseCooldown, interaction.user.id, dbUser.id, interaction.options.getString('reason', true), 'Bot cooldown reversed');
         } catch (e) {
             await logError(e, interaction);

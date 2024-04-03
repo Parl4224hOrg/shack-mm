@@ -25,9 +25,10 @@ import {warnings} from "./warnings";
 import {warnRemove} from "./warnRemove";
 import {onSubCommand} from "../../events/onSubCommand";
 import {commandPermission} from "../../utility/commandPermission";
+import {mute} from "./mute";
 
 const subCommandListTemp: SubCommand[] = [actions, adjustMMR, cooldown, easyTime, findUser, forceAbandon, forceScore, freeze, mapPlay, nullify,
-    rankDist, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove];
+    rankDist, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -58,7 +59,8 @@ export const _mod: Command = {
         .addSubcommand(transferUser.data)
         .addSubcommand(warn.data)
         .addSubcommand(warnings.data)
-        .addSubcommand(warnRemove.data),
+        .addSubcommand(warnRemove.data)
+        .addSubcommand(mute.data),
     run: async (interaction, data) => {
         try {
             const command = SubCommandList.get(interaction.options.getSubcommand())!

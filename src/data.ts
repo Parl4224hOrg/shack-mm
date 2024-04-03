@@ -25,44 +25,11 @@ export class Data {
     private readonly client: Client;
     private userCache = new Map<string, UserInt>();
     private discordToObject = new Map<string, string>();
-    private tickLoop = cron.schedule('*/1 * * * * *', async () => {
-        await this.tick()
-    });
+    private tickLoop = cron.schedule('*/1 * * * * *', this.tick)
     private roleUpdate = cron.schedule("0 * * * *", async () => {
         await this.updateRoles();
     });
-    private banCounter = cron.schedule("*/10 * * * *", async () => {
-        const now = moment().unix()
-        const users = await userModel.find({});
-        for (let user of users) {
-            if (!user.lastReduction) {
-                user.lastReduction = 0;
-                user = await updateUser(user);
-            }
-            if (!user.gamesPlayedSinceReduction) {
-                user.gamesPlayedSinceReduction = 0;
-                user = await updateUser(user);
-            }
-            if (user.lastReduction + 60 * 60 * 24 * 14 < now) {
-                if (user.banCounter > 0) {
-                    user.banCounter --;
-                    user.lastReduction = now;
-                    user.gamesPlayedSinceReduction = 0;
-                    user = await updateUser(user);
-                }
-            }
-            if (user.gamesPlayedSinceReduction >= 7) {
-                if (user.banCounter > 0) {
-                    user.banCounter --;
-                    user.lastReduction = now;
-                    user.gamesPlayedSinceReduction = 0;
-                    user = await updateUser(user);
-                }
-            }
-            this.userCache.set(String(user._id), user);
-            this.discordToObject.set(user.id, String(user._id))
-        }
-    })
+    private banCounter = cron.schedule("*/10 * * * *", this.banReductionTask);
     private readonly FILL_SND: QueueController;
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
     nextPing: number = moment().unix();
@@ -79,6 +46,58 @@ export class Data {
         this.FILL_SND = new QueueController(this, client, "FILL");
         for (let server of tokens.Servers) {
             this.servers.push(new Server(server.ip, server.port, server.password, server.name,client));
+        }
+    }
+
+    private async banReductionTask() {
+        const now = moment().unix()
+        const users = await userModel.find({});
+        const guild = await this.client.guilds.fetch(tokens.GuildID);
+        for (let user of users) {
+            if (user.muteUntil <= now && user.muteUntil > 0) {
+                try {
+                    const member = await guild.members.fetch(user.id);
+                    await member.roles.remove(tokens.MutedRole);
+                } catch (e) {
+                    await logWarn("User is no longer in server", this.client);
+                }
+            }
+            if (user.banUntil <= now) {
+                // Check for two week reduction
+                if (user.lastReductionAbandon + 60 * 60 * 24 * 14 <= now) {
+                    if (user.banCounterAbandon > 0) {
+                        user.banCounterAbandon--;
+                        user.lastReductionAbandon = now;
+                        user.gamesPlayedSinceReductionAbandon = 0;
+                        user = await updateUser(user, this);
+                    }
+                }
+                if (user.lastReductionFail + 60 * 60 * 24 * 14 <= now) {
+                    if (user.banCounterFail > 0) {
+                        user.banCounterFail--;
+                        user.lastReductionFail = now;
+                        user.gamesPlayedSinceReductionFail = 0;
+                        user = await updateUser(user, this);
+                    }
+                }
+                // Check for game count reduction
+                if (user.gamesPlayedSinceReductionAbandon >= tokens.ReductionGames) {
+                    if (user.banCounterAbandon > 0) {
+                        user.banCounterAbandon--;
+                        user.lastReductionAbandon = now;
+                        user.gamesPlayedSinceReductionAbandon = 0;
+                        user = await updateUser(user, this);
+                    }
+                }
+                if (user.gamesPlayedSinceReductionFail >= tokens.ReductionGames) {
+                    if (user.banCounterFail > 0) {
+                        user.banCounterFail--;
+                        user.lastReductionFail = now;
+                        user.gamesPlayedSinceReductionFail = 0;
+                        user = await updateUser(user, this);
+                    }
+                }
+            }
         }
     }
 

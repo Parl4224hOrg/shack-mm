@@ -63,6 +63,7 @@ export default {
         Industry: "https://shackmm.com/static/images/industry.png",
         Lumber: "https://shackmm.com/static/images/lumber.png",
     },
+    ReductionGames: 10,
     MapPool: ["Mirage", "Dust 2", "Cache", "Oilrig", "Inferno", "Overpass", "Harbor", "Lumber"],
     PingToPlayTime: 90 * 60,
     Ranks: [
@@ -77,6 +78,7 @@ export default {
         {name: 'Wood', threshold: -99999, roleId: '1152691861186682880'}],
     RankRoles: ['1152692826669326398', '1152692676035088464', '1152692485332664411', '1152692439342141531', '1152692319749931050',
     '1152692197439836331', '1152692103256744086', '1152659149017075894', '1152691861186682880'],
+    RankedRole: '1225164446263939203',
     // messages
     AcceptMessage: messages.acceptMessage,
     SignUpMessage: messages.signUp,

@@ -378,7 +378,8 @@ export class GameController {
 
             for (let user of this.users) {
                 const dbUser = await getUserById(user.dbId, this.data);
-                dbUser.gamesPlayedSinceReduction++;
+                dbUser.gamesPlayedSinceReductionAbandon++;
+                dbUser.gamesPlayedSinceReductionFail++;
                 await updateUser(dbUser, this.data);
             }
 
@@ -938,7 +939,7 @@ export class GameController {
                 await this.server.updateServerName(`SMM Match-${this.matchNumber}`);
                 message = await finalChannel.send({components: [initialSubmitServer()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
-                    content: `This match should be played on the server titled: \`SMM Match-${this.matchNumber}\``
+                    content: `This match should be played on the server titled: \`SMM Match-${this.matchNumber}\`\nLobby region: ${region}`
                 });
             } else {
                 message = await finalChannel.send({components: [initialSubmit()],

@@ -28,7 +28,7 @@ export const updateRanks = async (users: GameUser[], client: Client) => {
         member.roles.cache.forEach((value) => {roleRemovalCallback(value, member)});
         if (stats.gamesPlayed >= 10) {
             const rank = getRank(stats.mmr);
-            await member.roles.add(rank.roleId);
+            await member.roles.add(rank.roleId, tokens.RankedRole);
         }
     }
 }

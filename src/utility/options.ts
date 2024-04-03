@@ -51,6 +51,25 @@ export const userOption = (description: string): SlashCommandUserOption => {
         .setRequired(true);
 }
 
+export const timeOption: SlashCommandNumberOption = new SlashCommandNumberOption()
+    .setName('time')
+    .setDescription("Time can be a decimal value")
+    .setRequired(true)
+
+export const cdType: SlashCommandStringOption = new SlashCommandStringOption()
+    .setName('type')
+    .setDescription("The type of cd to remove or reverse")
+    .setRequired(true)
+    .setChoices(
+        {
+            name: "Abandon",
+            value: "abandon",
+        },{
+            name: "Fail to Accept",
+            value: "fail",
+        }
+    )
+
 export const userOptional = (description: string): SlashCommandUserOption => {
     return new SlashCommandUserOption()
         .setName('user')
