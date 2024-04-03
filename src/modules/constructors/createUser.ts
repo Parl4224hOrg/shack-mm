@@ -1,8 +1,8 @@
-import {GuildMember, User} from "discord.js";
+import {GuildMember, PartialGuildMember, User} from "discord.js";
 import UserModel from "../../database/models/UserModel";
 
 
-export const createUser = async (user: User | GuildMember)=> {
+export const createUser = async (user: User | GuildMember | PartialGuildMember)=> {
     return (await UserModel.create({
         id: user.id,
         name: !(user instanceof User) ? user.displayName : user.username,
