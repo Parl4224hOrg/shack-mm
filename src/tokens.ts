@@ -87,13 +87,13 @@ export default {
     // servers
     Servers: [
         {
-            ip: "45.63.22.116",
+            ip: "15.204.218.198",
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
             name: "SMM NAE ONE",
         },
         {
-            ip: "66.135.26.89",
+            ip: "15.204.218.215",
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
             name: "SMM NAE TWO",
