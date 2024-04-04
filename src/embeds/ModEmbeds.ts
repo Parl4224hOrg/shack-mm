@@ -5,7 +5,7 @@ import moment from "moment";
 
 export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
     const embed = new EmbedBuilder()
-    embed.setTitle(`Actions against ${user.name}: ${user.oculusName}`);
+    embed.setTitle(`Actions against ${user.name}`);
     const frozen = `The user is currently ${user.frozen ? "frozen" : "not frozen"}`;
     if (actions.length == 0) {
         embed.setDescription("User has no actions");
@@ -13,9 +13,9 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
     }
     let desc = ""
     if (moment().unix() > user.banUntil) {
-        desc += `<@${actions[0].userId}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter: ${user.banCounter}\n${frozen}`;
+        desc += `<@${actions[0].userId}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter Abandon: ${user.banCounterAbandon}\nBan Counter fail to accept: ${user.banCounterFail}\n${frozen}`;
     } else {
-        desc += `<@${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\nBan Counter: ${user.banCounter}\n${frozen}`;
+        desc += `<@${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\nBan Counter: ${user.banCounterAbandon}\nBan Counter fail to accept: ${user.banCounterFail}\n${frozen}`;
     }
 
     let truncatedActions: ActionInt[];

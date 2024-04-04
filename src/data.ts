@@ -25,11 +25,15 @@ export class Data {
     private readonly client: Client;
     private userCache = new Map<string, UserInt>();
     private discordToObject = new Map<string, string>();
-    private tickLoop = cron.schedule('*/1 * * * * *', this.tick)
+    private tickLoop = cron.schedule('*/1 * * * * *', async () => {
+        await this.tick();
+    })
     private roleUpdate = cron.schedule("0 * * * *", async () => {
         await this.updateRoles();
     });
-    private banCounter = cron.schedule("*/10 * * * *", this.banReductionTask);
+    private banCounter = cron.schedule("*/10 * * * *", async () => {
+        await this.banReductionTask();
+    });
     private readonly FILL_SND: QueueController;
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
     nextPing: number = moment().unix();
@@ -214,6 +218,7 @@ export class Data {
                 await SaveModel.updateOne({id: "test"}, {id: "test", data: queue});
             }
         }
+        return;
     }
 
     async createMatch(regionId: string, queue: QueueController, queueId: string, scoreLimit: number) {
