@@ -22,7 +22,7 @@ import {onMessage} from "./events/onMessage";
     );
     BOT.on(
         "guildMemberAdd",
-        async (member) => await onJoin(member)
+        async (member) => await onJoin(member, data)
     );
     BOT.on(
         "messageCreate",

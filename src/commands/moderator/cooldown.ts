@@ -37,13 +37,13 @@ export const cooldown: SubCommand = {
             const user = await getUserByUser(interaction.options.getUser('user', true), data);
             const now = moment().unix();
             const extra = Number(interaction.options.getString("action_type", true)) ?? 0;
-            user.banCounter += extra
-            switch (user.banCounter) {
-                case 0: user.lastBan = now; user.banUntil = now + 30 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
-                case 1: user.lastBan = now; user.banUntil = now + 8 * 60 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
-                default: user.lastBan = now; user.banUntil = now + 2 ** (user.banCounter - 1) * 12 * 60 * 60; user.lastReduction = now; user.gamesPlayedSinceReduction = 0; break;
+            user.banCounterAbandon += extra
+            switch (user.banCounterAbandon) {
+                case 0: user.lastBan = now; user.banUntil = now + 30 * 60; user.lastReductionAbandon = now; user.gamesPlayedSinceReductionAbandon = 0; break;
+                case 1: user.lastBan = now; user.banUntil = now + 8 * 60 * 60; user.lastReductionAbandon = now; user.gamesPlayedSinceReductionAbandon = 0; break;
+                default: user.lastBan = now; user.banUntil = now + 2 ** (user.banCounterAbandon - 1) * 12 * 60 * 60; user.lastReductionAbandon = now; user.gamesPlayedSinceReductionAbandon = 0; break;
             }
-            user.banCounter++;
+            user.banCounterAbandon++;
             await updateUser(user, data);
             let action;
             if (extra == 0) {
