@@ -273,8 +273,6 @@ export class GameController {
             this.requeueArray.push(new mongoose.Types.ObjectId(requeue) as any as ObjectId)
         }
 
-        this.server = null;
-
         this.acceptMessageId = data.acceptMessageId;
 
         this.autoReadied = data.autoReadied ?? false

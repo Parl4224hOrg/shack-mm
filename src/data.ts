@@ -155,6 +155,15 @@ export class Data {
         await logInfo("Data Loaded!", this.client);
     }
 
+    getServer(name: string) {
+        for (let server of this.servers) {
+            if (name == server.name) {
+                return server;
+            }
+        }
+        return null;
+    }
+
     setLoaded(value: boolean) {
         this.loaded = value;
     }

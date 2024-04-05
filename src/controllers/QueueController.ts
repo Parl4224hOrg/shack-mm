@@ -69,9 +69,10 @@ export class QueueController {
             this.pingMe.set(ping.id, ping);
         }
         for (let game of parsed.activeGames) {
+            const server = this.data.getServer(game.server.name ?? "none");
             const newGame = new GameController(new mongoose.Types.ObjectId(game.id) as any as ObjectId,
                 this.client, await this.client.guilds.fetch(tokens.GuildID), game.matchNumber, [], [], "SND",
-                game.scoreLimit, game.allBans, this.data, null);
+                game.scoreLimit, game.allBans, this.data, server);
             newGame.load(game);
             this.activeGames.push(newGame);
         }

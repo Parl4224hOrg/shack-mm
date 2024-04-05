@@ -22,10 +22,11 @@ import {help} from "./help";
 import {checkDms} from "./admin/checkDms";
 import {dmOptions} from "./dmOptions";
 import {_mod} from "./moderator/_mod";
+import {serverStatus} from "./admin/serverStatus";
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, manualSubmit, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
-    help, checkDms, dmOptions, _mod];
+    help, checkDms, dmOptions, _mod, serverStatus];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

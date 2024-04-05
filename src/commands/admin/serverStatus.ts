@@ -20,5 +20,5 @@ export const serverStatus: Command = {
         }
     },
     name: 'server_status',
-    allowedRoles: [tokens.Parl],
+    allowedUsers: [tokens.Parl],
 }
