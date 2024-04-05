@@ -2,9 +2,17 @@ import {RCON} from "./rcon";
 import {
     InspectAllResponse,
     InspectPlayerResponse,
-    InspectTeamResponse, KickResponse, PauseMatchResponse,
+    InspectTeamResponse,
+    KickResponse,
+    PauseMatchResponse,
     RefreshListResponse,
-    ResetSNDResponse, RotateMapResponse, ServerInfoResponse, SetPinResponse, SwitchMapResponse, UpdateServerNameResponse
+    ResetSNDResponse,
+    RotateMapResponse,
+    ServerInfoResponse,
+    SetPinResponse,
+    SwitchMapResponse,
+    SwitchTeamResponse,
+    UpdateServerNameResponse
 } from "./rconTypes";
 import {Client} from "discord.js";
 
@@ -144,6 +152,17 @@ export class Server extends RCON {
         let res: any = '';
         let count = 0;
         await this.send(`SwitchMap ${mapId} ${gamemode}`, "SwitchMap",(response: any) => {res = response});
+        while (res == '' && count < 60) {
+            await delay(50);
+            count++;
+        }
+        return res;
+    }
+
+    async switchTeam(playerId: string, teamId: string): Promise<SwitchTeamResponse> {
+        let res: any = '';
+        let count = 0;
+        await this.send(`SwitchTeam ${playerId} ${teamId}`, "SwitchTeam",(response: any) => {res = response});
         while (res == '' && count < 60) {
             await delay(50);
             count++;

@@ -322,11 +322,35 @@ export class GameController {
                                 for (let dbUser of dbUsers) {
                                     if (dbUser.oculusName == user.UniqueId) {
                                         found = true;
+                                        const playerInfo = await this.server.inspectPlayer(user.UniqueId);
+                                        for (let gameUser of this.users) {
+                                            if (gameUser.discordId == dbUser.id) {
+                                                if (playerInfo.PlayerInfo.TeamId == '0') {
+                                                    // Player is on CT
+                                                    if (gameUser.team == 0 && this.sides[0] == "T") {
+                                                        await this.server.switchTeam(user.UniqueId, "1");
+                                                    }
+                                                    if (gameUser.team == 1 && this.sides[1] == "T") {
+                                                        await this.server.switchTeam(user.UniqueId, "1");
+                                                    }
+                                                } else {
+                                                    // Player is on T
+                                                    if (gameUser.team == 0 && this.sides[0] == "CT") {
+                                                        await this.server.switchTeam(user.UniqueId, "0");
+                                                    }
+                                                    if (gameUser.team == 1 && this.sides[1] == "CT") {
+                                                        await this.server.switchTeam(user.UniqueId, "0");
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 if (!found) {
                                     await this.server.kick(user.UniqueId);
                                 }
+                                // 1 is T 0 is CT
+
                             }
                         } else {
                             await logWarn("Player list is empty", this.client);

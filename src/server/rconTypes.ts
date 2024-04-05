@@ -69,6 +69,11 @@ export interface SwitchMapResponse extends BaseCommandResponse {
     SwitchMap: boolean;
 }
 
+export interface SwitchTeamResponse extends BaseCommandResponse {
+    SwitchTeam: boolean;
+    UniqueID: string;
+}
+
 export interface UpdateServerNameResponse extends BaseCommandResponse {
     UpdateServerName: boolean;
 }
