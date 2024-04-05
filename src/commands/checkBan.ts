@@ -29,6 +29,7 @@ export const checkBan: Command = {
             if (dbUser.frozen) {
                 cd += "\nYou are frozen from queueing due to a pending ticket";
             }
+            cd += `Registered Name: ${dbUser.oculusName}`
             await interaction.reply({ephemeral: true, content: cd})
         } catch (e) {
             await logError(e, interaction);

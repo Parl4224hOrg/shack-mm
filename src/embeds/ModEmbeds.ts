@@ -5,7 +5,7 @@ import moment from "moment";
 
 export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
     const embed = new EmbedBuilder()
-    embed.setTitle(`Actions against ${user.name}`);
+    embed.setTitle(`Actions against ${user.name}: ${user.oculusName}`);
     const frozen = `The user is currently ${user.frozen ? "frozen" : "not frozen"}`;
     if (actions.length == 0) {
         embed.setDescription("User has no actions");
