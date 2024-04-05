@@ -178,7 +178,7 @@ export class GameController {
 
     autoReadied = false;
 
-    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: Server | null = null) {
+    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: Server | null) {
         this.id = id;
         this.client = client;
         this.guild = guild;
