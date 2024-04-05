@@ -53,6 +53,10 @@ export class Data {
         }
     }
 
+    public getServers() {
+        return this.servers;
+    }
+
     private async banReductionTask() {
         const now = moment().unix()
         const users = await userModel.find({});
