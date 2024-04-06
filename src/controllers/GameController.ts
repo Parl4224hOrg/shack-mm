@@ -303,17 +303,25 @@ export class GameController {
                     const time = moment().unix();
                     if (time - this.finalGenTime == 5 * 60) {
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+                        const lateUsers: GameUser[] = [];
                         for (let user of this.users) {
                             if (!user.joined) {
+                                lateUsers.push(user);
+                            }
+                        }
+                        await channel.send("5 minutes have passed");
+                        if (lateUsers.length < 7) {
+                            for (let user of lateUsers) {
                                 const dbUser = await autoLate(user.dbId, this.data);
                                 let times = "";
                                 for (let time of dbUser.lateTimes) {
                                     times += `<t:${time}:F>\n`;
                                 }
-                                await channel.send(`<@${dbUser.id}> Has been given a late\nTotal Count ${dbUser.lates}\nTimes:\n${times}`)
+                                await channel.send(`<@${dbUser.id}> Has been given a late\nTotal Count ${dbUser.lates}\nTimes:\n${times}`);
                             }
+                        } else {
+                            await channel.send("Assuming lobby is being used no lates are being applied");
                         }
-                        await channel.send("5 minutes have passed");
                     }
                     if (time - this.finalGenTime == 10 * 60) {
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
