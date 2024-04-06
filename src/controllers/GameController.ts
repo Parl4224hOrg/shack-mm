@@ -8,7 +8,7 @@ import {getGuildMember} from "../utility/discordGetters";
 import {getAcceptPerms, getMatchPerms} from "../utility/channelPerms";
 import tokens from "../tokens";
 import {acceptView} from "../views/acceptView";
-import {abandon} from "../utility/punishment";
+import {abandon, autoLate} from "../utility/punishment";
 import {voteA1, voteA2, voteB1, voteB2} from "../views/voteViews";
 import {initialSubmit, initialSubmitServer} from "../views/submitScoreViews";
 import {matchConfirmEmbed, matchFinalEmbed, teamsEmbed} from "../embeds/matchEmbeds";
@@ -191,7 +191,8 @@ export class GameController {
                 discordId: user.discord,
                 team: 0,
                 accepted: false,
-                region: user.region
+                region: user.region,
+                joined: false
             });
         }
         for (let user of teamB) {
@@ -200,7 +201,8 @@ export class GameController {
                 discordId: user.discord,
                 team: 1,
                 accepted: false,
-                region: user.region
+                region: user.region,
+                joined: false,
             });
         }
         this.data = data;
@@ -301,6 +303,16 @@ export class GameController {
                     const time = moment().unix();
                     if (time - this.finalGenTime == 5 * 60) {
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+                        for (let user of this.users) {
+                            if (!user.joined) {
+                                const dbUser = await autoLate(user.dbId, this.data);
+                                let times = "";
+                                for (let time of dbUser.lateTimes) {
+                                    times += `<t:${time}:F>\n`;
+                                }
+                                await channel.send(`<@${dbUser.id}> Has been given a late\nTotal Count ${dbUser.lates}\nTimes:\n${times}`)
+                            }
+                        }
                         await channel.send("5 minutes have passed");
                     }
                     if (time - this.finalGenTime == 10 * 60) {
@@ -323,6 +335,7 @@ export class GameController {
                                         const playerInfo = await this.server.inspectPlayer(user.UniqueId);
                                         for (let gameUser of this.users) {
                                             if (gameUser.discordId == dbUser.id) {
+                                                gameUser.joined = true;
                                                 if (playerInfo.PlayerInfo.TeamId == '0') {
                                                     // Player is on CT
                                                     if (gameUser.team == 0 && this.sides[0] == "T") {
@@ -371,6 +384,22 @@ export class GameController {
         } catch (e) {
             console.error(e);
         }
+    }
+
+    async switchMap() {
+        let mapId = "";
+        switch (this.map.toLowerCase()) {
+            case 'oilrig': mapId = tokens.MapIds.Oilrig; break;
+            case 'mirage': mapId = tokens.MapIds.Mirage; break;
+            case 'dust 2': mapId = tokens.MapIds.Dust2; break;
+            case 'cache': mapId = tokens.MapIds.Cache; break;
+            case 'overpass': mapId = tokens.MapIds.Overpass; break;
+            case 'inferno': mapId = tokens.MapIds.Inferno; break;
+            case 'harbor': mapId = tokens.MapIds.Harbor; break;
+            case 'lumber': mapId = tokens.MapIds.Lumber; break;
+        }
+        await this.server!.switchMap(mapId, "SND");
+        await this.server!.updateServerName(`SMM Match-${this.matchNumber}`);
     }
 
     async processMatch() {
@@ -951,19 +980,7 @@ export class GameController {
             }
             let message;
             if (this.server) {
-                let mapId = "";
-                switch (this.map.toLowerCase()) {
-                    case 'oilrig': mapId = tokens.MapIds.Oilrig; break;
-                    case 'mirage': mapId = tokens.MapIds.Mirage; break;
-                    case 'dust 2': mapId = tokens.MapIds.Dust2; break;
-                    case 'cache': mapId = tokens.MapIds.Cache; break;
-                    case 'overpass': mapId = tokens.MapIds.Overpass; break;
-                    case 'inferno': mapId = tokens.MapIds.Inferno; break;
-                    case 'harbor': mapId = tokens.MapIds.Harbor; break;
-                    case 'lumber': mapId = tokens.MapIds.Lumber; break;
-                }
-                await this.server.switchMap(mapId, "SND");
-                await this.server.updateServerName(`SMM Match-${this.matchNumber}`);
+                await this.switchMap();
                 message = await finalChannel.send({components: [initialSubmitServer()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
                     content: `This match should be played on the server titled: \`SMM Match-${this.matchNumber}\`\nLobby region: ${region}`
@@ -979,6 +996,12 @@ export class GameController {
             this.finalGenTime = moment().unix();
             await teamAChannel.delete();
             await teamBChannel.delete();
+
+            const gameTemp = await getGameById(this.id);
+            const game = gameTemp!;
+            game.map = this.map;
+            game.sides = this.sides;
+            await updateGame(game);
         }
     }
 

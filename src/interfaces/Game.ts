@@ -22,6 +22,7 @@ export interface GameUser {
     team: number;
     accepted: boolean;
     region: Regions;
+    joined: boolean;
 }
 
 export interface Vote {

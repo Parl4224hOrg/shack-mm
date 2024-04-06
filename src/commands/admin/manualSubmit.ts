@@ -13,6 +13,7 @@ import {getUserById} from "../../modules/getters/getUser";
 import {Regions} from "../../database/models/UserModel";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
+import {reason} from "../../utility/options";
 
 export const manualSubmit: Command = {
     data: new SlashCommandBuilder()
@@ -37,7 +38,8 @@ export const manualSubmit: Command = {
             .setName('score_b')
             .setRequired(true)
             .setDescription('score for team a')
-        ),
+        )
+        .addStringOption(reason),
     run: async (interaction, data) => {
         try {
             await interaction.deferReply({ephemeral: true});
@@ -58,11 +60,11 @@ export const manualSubmit: Command = {
             let users: GameUser[] = []
             for (let user of game.teamA) {
                 const dbUser = await getUserById(user, data);
-                users.push({dbId: user, discordId: dbUser.id, team: 0, accepted: true, region: Regions.APAC});
+                users.push({dbId: user, discordId: dbUser.id, team: 0, accepted: true, region: Regions.APAC, joined: false});
             }
             for (let user of game.teamB) {
                 const dbUser = await getUserById(user, data);
-                users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true, region: Regions.APAC});
+                users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true, region: Regions.APAC, joined: false});
             }
             const changes = await processMMR(users, [game.scoreA, game.scoreB], "SND", tokens.ScoreLimitSND);
             game.teamAChanges = changes[0];

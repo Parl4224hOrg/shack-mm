@@ -5,6 +5,7 @@ import {loss} from "../buttons/match/score/loss";
 import {confirmScore} from "../buttons/match/score/confirmScore";
 import {autoReady} from "../buttons/match/autoReady";
 import {resetSND} from "../buttons/match/resetSND";
+import {switchMap} from "../buttons/match/switchMap";
 
 export const initialSubmit = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -13,7 +14,7 @@ export const initialSubmit = () => {
 
 export const initialSubmitServer = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(win.data, loss.data, autoReady.data, resetSND.data).toJSON();
+        .addComponents(win.data, loss.data, autoReady.data, resetSND.data, switchMap.data).toJSON();
 }
 
 export const roundsWon = () => {

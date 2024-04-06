@@ -33,6 +33,8 @@ export interface UserInt extends Document {
     region: Regions;
     games: ObjectId[];
     muteUntil: number;
+    lates: number;
+    lateTimes: number[];
 }
 
 export const UserSchema = new Schema({
@@ -62,6 +64,8 @@ export const UserSchema = new Schema({
     },
     games: [Schema.Types.ObjectId],
     muteUntil: Number,
+    lates: Number,
+    lateTimes: [Number],
 })
 
 export default model<UserInt>('users', UserSchema)

@@ -33,6 +33,7 @@ export const reCalc: SubCommand = {
                         team: 0,
                         accepted: true,
                         region: Regions.APAC,
+                        joined: false,
                     })
                     teamA.push(user);
                 }
@@ -44,6 +45,7 @@ export const reCalc: SubCommand = {
                         team: 1,
                         accepted: true,
                         region: Regions.APAC,
+                        joined: false,
                     })
                     teamB.push(user);
                 }
