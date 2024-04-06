@@ -21,4 +21,5 @@ export const serverStatus: Command = {
     },
     name: 'server_status',
     allowedUsers: [tokens.Parl],
+    allowedRoles: tokens.Mods,
 }
