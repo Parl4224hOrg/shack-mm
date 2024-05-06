@@ -21,38 +21,38 @@ export const autoLate = async (id: ObjectId, data: Data) => {
 }
 
 export const punishment = async (user: UserInt, data: Data, acceptFail: boolean, severity: number, now: number): Promise<UserInt> => {
-    switch (acceptFail ? user.banCounterFail : user.banCounterAbandon) {
+    switch (acceptFail ? user.banCounterFail + severity: user.banCounterAbandon + severity) {
         case 0: {
             user.lastBan = now;
             user.banUntil = now + 30 * 60;
             user.lastReductionAbandon = now;
-            user.gamesPlayedSinceReduction = 0;
+            user.gamesPlayedSinceReductionAbandon = 0;
             user.lastReductionFail = now;
             user.gamesPlayedSinceReductionFail = 0;
         } break;
         case 1: {
             user.lastBan = now;
             user.banUntil = now + 8 * 60 * 60;
-            user.lastReduction = now;
-            user.gamesPlayedSinceReduction = 0;
+            user.lastReductionAbandon = now;
+            user.gamesPlayedSinceReductionAbandon = 0;
             user.lastReductionFail = now;
             user.gamesPlayedSinceReductionFail = 0;
         } break;
         default: {
             user.lastBan = now;
-            user.banUntil = now + 2 ** (user.banCounter - 1) * 12 * 60 * 60;
-            user.lastReduction = now;
-            user.gamesPlayedSinceReduction = 0;
+            user.banUntil = now + 2 ** (user.banCounterAbandon - 1) * 12 * 60 * 60;
+            user.lastReductionAbandon = now;
+            user.gamesPlayedSinceReductionAbandon = 0;
             user.lastReductionFail = now;
             user.gamesPlayedSinceReductionFail = 0;
         } break;
     }
     if (acceptFail) {
-        user.banCounterFail += severity;
+        user.banCounterFail += severity + 1;
     } else {
-        user.banCounterAbandon += severity;
+        user.banCounterAbandon += severity + 1;
     }
-    return await updateUser(user, data);
+    return updateUser(user, data);
 }
 
 export const abandon = async (userId: ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data) => {

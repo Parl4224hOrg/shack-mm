@@ -5,13 +5,13 @@ import {getRank} from "../utility/ranking";
 import tokens from "../tokens";
 import {WarnInt} from "../database/models/WarnModel";
 
-export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, rank: number, imageURL: string): APIEmbed => {
+export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, imageURL: string): APIEmbed => {
     const embed = new EmbedBuilder();
 
 
 
     if (stats.gamesPlayed >= 10) {
-        embed.setTitle(`${name}'s Stats - [${rank}]`);
+        embed.setTitle(`${name}'s Stats - [${stats.rank}]`);
         embed.setDescription(`${getRank(stats.mmr).name}-${stats.mmr.toFixed(1)} MMR\nGames played - ${stats.gamesPlayed}\n
         [Website Stats](https://shackmm.com/players/${user._id}/stats)`);
     } else {

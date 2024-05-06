@@ -24,7 +24,7 @@ export const unregisterServer: Command = {
             let found = false
             for (let server of data.getServers()) {
                 if (server.name == interaction.options.getString("server", true)) {
-                    server.unregisterGame();
+                    await server.unregisterServer();
                     found = true;
                 }
             }

@@ -60,6 +60,12 @@ export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
         embed.setImage(tokens.Images.Harbor);
     } else if (game.map.toLowerCase() == 'lumber') {
         embed.setImage(tokens.Images.Lumber);
+    } else if (game.map.toLowerCase() == 'reachsky') {
+        embed.setImage(tokens.Images.Reachsky);
+    } else if (game.map.toLowerCase() == 'industry') {
+        embed.setImage(tokens.Images.Industry);
+    } else if (game.map.toLowerCase() == 'manor') {
+        embed.setImage(tokens.Images.Manor);
     }
 
     return embed.toJSON();
@@ -132,7 +138,14 @@ export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: 
         embed.setImage(tokens.Images.Harbor);
     } else if (map.toLowerCase() == 'lumber') {
         embed.setImage(tokens.Images.Lumber);
+    } else if (map.toLowerCase() == 'reachsky') {
+        embed.setImage(tokens.Images.Reachsky);
+    } else if (map.toLowerCase() == 'industry') {
+        embed.setImage(tokens.Images.Industry);
+    } else if (map.toLowerCase() == 'manor') {
+        embed.setImage(tokens.Images.Manor);
     }
+
 
     return embed.toJSON();
 

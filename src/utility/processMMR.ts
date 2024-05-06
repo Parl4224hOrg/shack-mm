@@ -1,6 +1,6 @@
 import {GameUser} from "../interfaces/Game";
 import {getStats} from "../modules/getters/getStats";
-import {StatsInt} from "../database/models/StatsModel";
+import StatsModel, {StatsInt} from "../database/models/StatsModel";
 import {updateStats} from "../modules/updaters/updateStats";
 import {win} from "../buttons/match/score/win";
 
@@ -160,7 +160,38 @@ export const processMMR = async (users: GameUser[], scores: number[], queueId: s
 
         await updateStats(teamA[i]);
         await updateStats(teamB[i]);
+
     }
+
+    const stats = await StatsModel.find({}).sort({mmr: -1});
+
+    for (let i = 0; i < teamAChanges.length; i++) {
+        const userA = teamA[i];
+        const userB = teamB[i];
+
+        let foundA = false;
+        let foundB = false;
+
+        let j = 0;
+        while (!foundA && !foundB) {
+            if (String(userA.userId) == String(stats[j])) {
+                userA.rank = j + 1;
+                await updateStats(userA);
+                foundA = true;
+            }
+            if (String(userB.userId) == String(stats[j])) {
+                userA.rank = j + 1;
+                await updateStats(userB);
+                foundB = true;
+            }
+            j++;
+            if (j >= stats.length) {
+                break;
+            }
+        }
+    }
+
+
 
     return [teamAChanges, teamBChanges];
 }

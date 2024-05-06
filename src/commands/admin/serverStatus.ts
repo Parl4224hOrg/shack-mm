@@ -11,7 +11,7 @@ export const serverStatus: Command = {
         try {
             let status = "```";
             for (let server of data.getServers()) {
-                status += `${server.name}: ${server.getMatchId()}, ${server.isInUse()}\n`;
+                status += `${server.name}: ${server.name}, ${server.isInUse()}\n`;
             }
             status += "```";
             await interaction.reply({ephemeral: true, content: status});

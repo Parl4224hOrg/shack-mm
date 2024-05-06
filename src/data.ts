@@ -1,4 +1,4 @@
-import {Client, Collection, User, ActivityType, VoiceChannel, TextChannel} from "discord.js";
+import {ActivityType, Client, Collection, TextChannel, User, VoiceChannel} from "discord.js";
 import cron from 'node-cron';
 import {logInfo, logWarn} from "./loggers";
 import {QueueController} from "./controllers/QueueController";
@@ -13,12 +13,12 @@ import moment from "moment";
 import {GameController} from "./controllers/GameController";
 import {getUserById, getUserByUser} from "./modules/getters/getUser";
 import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
-import UserModel, {UserInt} from "./database/models/UserModel";
+import UserModel from "./database/models/UserModel";
+import userModel, {Regions, UserInt} from "./database/models/UserModel";
 import {getStats} from "./modules/getters/getStats";
 import {getRank, roleRemovalCallback} from "./utility/ranking";
-import userModel from "./database/models/UserModel";
 import {updateUser} from "./modules/updaters/updateUser";
-import {Server} from "./server/server";
+import {GameServer} from "./server/server";
 import SaveModel from "./database/models/SaveModel";
 
 export class Data {
@@ -41,7 +41,7 @@ export class Data {
     private botStatus = "";
     private statusChannel: VoiceChannel | null = null;
     private tickCount = 0;
-    private servers: Server[] = [];
+    private servers: GameServer[] = [];
     private loaded: boolean = false;
     private saveCache = "";
 
@@ -49,7 +49,7 @@ export class Data {
         this.client = client
         this.FILL_SND = new QueueController(this, client, "FILL");
         for (let server of tokens.Servers) {
-            this.servers.push(new Server(server.ip, server.port, server.password, server.name,client));
+            this.servers.push(new GameServer(server.ip, server.port, server.password, server.name, Regions.NAE));
         }
     }
 
@@ -259,9 +259,9 @@ export class Data {
         try {
             const gameNum = await this.getIdSND()
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
-            let serv: Server | null = null;
+            let serv: GameServer | null = null;
             for (let server of this.servers) {
-                if (!server.isInUse() && server.getMatchId() < 0) {
+                if (!server.isInUse() && server.getMatchNumber() < 0) {
                     serv = server;
                 }
             }

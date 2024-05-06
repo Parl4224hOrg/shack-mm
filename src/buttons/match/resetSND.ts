@@ -19,8 +19,8 @@ export const resetSND: Button = {
                 await interaction.reply({ephemeral: true, content: "Could not find game"});
             } else {
                 await game.resetSND();
-                const name = game.server!.getName()
-                if (name == "SMM NAE ONE") {
+                const name = game.server!.name
+                if (name == "NAE-ONE shackmm.com") {
                     await axios.post(`https://shackmm.com/NAE-ONE/start?game=${game.matchNumber}`, {},
                         {
                         headers: {

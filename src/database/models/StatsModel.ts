@@ -12,6 +12,7 @@ export interface StatsInt extends Document {
     draws: number;
     gameHistory: string[];
     winRate: number;
+    rank: number;
 }
 
 export const StatsSchema = new Schema({
@@ -26,6 +27,7 @@ export const StatsSchema = new Schema({
     draws: Number,
     gameHistory: [String],
     winRate: Number,
+    rank: Number,
 });
 
 export default model<StatsInt>('stats', StatsSchema);

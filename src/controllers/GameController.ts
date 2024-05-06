@@ -23,7 +23,7 @@ import {Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
 import {logAccept, logScoreSubmit} from "../utility/match";
-import {Server} from "../server/server";
+import {GameServer} from "../server/server";
 import axios from "axios";
 
 
@@ -172,13 +172,15 @@ export class GameController {
 
     requeueArray: ObjectId[] = [];
 
-    server: Server | null;
+    server: GameServer | null;
 
     acceptMessageId: string = "";
 
     autoReadied = false;
 
-    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: Server | null) {
+    initServer = false;
+
+    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: GameServer | null) {
         this.id = id;
         this.client = client;
         this.guild = guild;
@@ -219,7 +221,7 @@ export class GameController {
         }
         this.server = server;
         if (this.server) {
-            this.server.registerGame(matchNumber);
+            this.initServer = true;
         }
     }
 
@@ -282,6 +284,10 @@ export class GameController {
 
     async tick() {
         try {
+            if (this.initServer) {
+                this.initServer = false;
+                await this.server!.registerServer(this.matchNumber);
+            }
             this.tickCount++;
             switch (this.state) {
                 case 0:
@@ -310,7 +316,7 @@ export class GameController {
                             }
                         }
                         await channel.send("5 minutes have passed");
-                        if (lateUsers.length < 7) {
+                        if (lateUsers.length < 7 && tokens.ApplyLates) {
                             for (let user of lateUsers) {
                                 const dbUser = await autoLate(user.dbId, this.data);
                                 let times = "";
@@ -405,6 +411,9 @@ export class GameController {
             case 'inferno': mapId = tokens.MapIds.Inferno; break;
             case 'harbor': mapId = tokens.MapIds.Harbor; break;
             case 'lumber': mapId = tokens.MapIds.Lumber; break;
+            case 'industry': mapId = tokens.MapIds.Industry; break;
+            case 'reachsky': mapId = tokens.MapIds.Reachsky; break;
+            case 'manor': mapId = tokens.MapIds.Manor; break;
         }
         await this.server!.switchMap(mapId, "SND");
         await this.server!.updateServerName(`SMM Match-${this.matchNumber}`);
@@ -962,8 +971,8 @@ export class GameController {
             for (let user of this.users) {
                 switch (user.region) {
                     case Regions.APAC: regionTotal -= 2; APAC = true; break;
-                    case Regions.EUE: regionTotal += 1; EU = true; break;
-                    case Regions.EUW: regionTotal += 2; EU = true; break;
+                    case Regions.EUE: regionTotal += 2; EU = true; break;
+                    case Regions.EUW: regionTotal += 1; EU = true; break;
                     case Regions.NAE: NA = true; break;
                     case Regions.NAW: regionTotal -= 1; NA = true; NAW = true; break;
                 }
@@ -973,7 +982,7 @@ export class GameController {
                 region = "NAW";
             } else if (regionTotal <= -5) {
                 region = "NAC";
-            } else if (regionTotal <= 4) {
+            } else if (regionTotal <= 5) {
                 region = "NAE";
             } else if (regionTotal <= 9) {
                 region = "EUE";
@@ -983,7 +992,7 @@ export class GameController {
             if (NAW && EU) {
                 region = "NAE";
             }
-            if (NA && EU && APAC) {
+            if (NAW && EU && APAC) {
                 region = "NAC";
             }
             let message;
@@ -1279,8 +1288,7 @@ export class GameController {
     }
 
     async cleanup() {
-        this.server?.updateServerName(this.server?.getName());
-        this.server?.unregisterGame()
+        await this.server?.unregisterServer()
         try {
             const role = await this.guild.roles.fetch(this.matchRoleId);
             await role?.delete();

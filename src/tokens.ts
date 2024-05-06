@@ -46,6 +46,7 @@ export default {
     MutedRole: "1186750217962401844",
     Mods: ['1152657002212884550', '1200954518590984313'],
     // constants
+    ApplyLates: true,
     StartingMMR: 1500,
     PlayerCount: 10,
     ScoreLimitSND: 10,
@@ -62,9 +63,11 @@ export default {
         Harbor: "https://shackmm.com/static/images/harbor.png",
         Industry: "https://shackmm.com/static/images/industry.png",
         Lumber: "https://shackmm.com/static/images/lumber.png",
+        Reachsky: "https://shackmm.com/static/images/reachsky.png",
+        Manor: "https://shackmm.com/static/images/manor.png",
     },
     ReductionGames: 10,
-    MapPool: ["Mirage", "Dust 2", "Cache", "Oilrig", "Inferno", "Overpass", "Harbor", "Lumber"],
+    MapPool: ["Dust 2", "Cache", "Overpass", "Harbor", "Reachsky", "Industry", "Manor", "Mirage", "Oilrig"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Master', threshold: 1950, roleId: '1152692826669326398'},
@@ -84,19 +87,20 @@ export default {
     SignUpMessage: messages.signUp,
     InfoMessage: messages.info,
     RegionSelectMessage: messages.region,
+    NoMessage: messages.no,
     // servers
     Servers: [
         {
             ip: "15.204.218.198",
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
-            name: "SMM NAE ONE",
+            name: "NAE-ONE shackmm.com",
         },
         {
             ip: "15.204.218.215",
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
-            name: "SMM NAE TWO",
+            name: "NAE-TWO shackmm.com",
         }
     ],
     MapIds: {
@@ -108,6 +112,8 @@ export default {
         Inferno: "UGC3430252",
         Harbor: "harbor",
         Industry: "industry",
-        Lumber: "UGC3505396"
+        Lumber: "UGC3505396",
+        Reachsky: "UGC3748612",
+        Manor: "UGC3765846",
     }
 }

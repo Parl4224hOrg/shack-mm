@@ -4,7 +4,7 @@ import {userOption} from "../../utility/options";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
-import {getRankNumber, getStats} from "../../modules/getters/getStats";
+import {getStats} from "../../modules/getters/getStats";
 import {statsEmbed} from "../../embeds/statsEmbed";
 
 export const stats: Command = {
@@ -24,7 +24,8 @@ export const stats: Command = {
             // @ts-ignore
             if (queueId != "ALL") {
                 const stats = await getStats(dbUser._id, queueId);
-                await interaction.reply({ephemeral: false, embeds: [statsEmbed(stats, dbUser, user.username, await getRankNumber(dbUser._id, queueId), user.avatarURL()!)]});
+                const embed = statsEmbed(stats, dbUser, user.username, user.avatarURL()!)
+                await interaction.reply({ephemeral: false, embeds: [embed]});
             } else {
                 await interaction.reply({ephemeral: true, content: 'getting stats for all is not currently supported'});
             }

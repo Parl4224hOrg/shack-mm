@@ -9,6 +9,16 @@ export const onMessage = async (message: Message) => {
                 await message.delete();
             }
         }
+        if (message.content == "!no") {
+            const guild = await message.client.guilds.fetch(tokens.GuildID);
+            const member = await guild.members.fetch(message.member!.id);
+            for (let role of member.roles.cache.values()) {
+                if (tokens.Mods.includes(role.id)) {
+                    await message.reply(tokens.NoMessage);
+                    break;
+                }
+            }
+        }
     } catch (e) {
         await logWarn("Message could not be processed", message.client);
     }
