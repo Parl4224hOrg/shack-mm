@@ -30,7 +30,7 @@
     "mongoose": "^7.3.4",
     "net": "^1.0.2",
     "node-cron": "^3.0.2",
-    "rcon-pavlov": "^1.0.1",
+    "rcon-pavlov": "^1.0.2",
     "text-table": "^0.2.0",
     "ts-node": "^10.9.1"
   },

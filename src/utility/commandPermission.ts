@@ -24,6 +24,9 @@ export const commandPermission = async (interaction: Interaction, command: Comma
         if (command.allowedUsers.includes(interaction.user.id)) {
             valid = true;
         }
+        if (!valid) {
+            return {valid: valid, limited: limited, channel: channel, guild: false};
+        }
     }
     if (command.allowedRoles && !limited && !channel) {
         const member = await interaction.guild!.members.fetch(interaction.user.id);

@@ -420,55 +420,59 @@ export class GameController {
     }
 
     async processMatch() {
-        this.state = 8;
+        try {
+            this.state = 8;
 
-        const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
-        await channel.send({content: "Scores have been accepted"});
+            const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
+            await channel.send({content: "Scores have been accepted"});
 
-        const gameTemp = await getGameById(this.id);
-        const game = gameTemp!;
-        game.map = this.map;
-        game.scoreA = this.scores[0];
-        game.scoreB = this.scores[1];
-        game.endDate = moment().unix();
-        if (game.scoreA == 10) {
-            game.winner = 0;
-        } else if (game.scoreB == 10) {
-            game.winner = 1;
-        } else {
-            game.winner = -1;
-        }
-        if (!this.processing && !this.processed) {
-            this.processing = true;
-            const changes = await processMMR(this.users, this.scores, this.queueId, this.scoreLimit);
-            game.teamAChanges = changes[0];
-            game.teamBChanges = changes[1];
-
-            await updateGame(game);
-
-            this.processed = true;
-
-            for (let user of this.users) {
-                const dbUser = await getUserById(user.dbId, this.data);
-                dbUser.gamesPlayedSinceReductionAbandon++;
-                dbUser.gamesPlayedSinceReductionFail++;
-                await updateUser(dbUser, this.data);
+            const gameTemp = await getGameById(this.id);
+            const game = gameTemp!;
+            game.map = this.map;
+            game.scoreA = this.scores[0];
+            game.scoreB = this.scores[1];
+            game.endDate = moment().unix();
+            if (game.scoreA == 10) {
+                game.winner = 0;
+            } else if (game.scoreB == 10) {
+                game.winner = 1;
+            } else {
+                game.winner = -1;
             }
+            if (!this.processing && !this.processed) {
+                this.processing = true;
+                const changes = await processMMR(this.users, this.scores, this.queueId, this.scoreLimit);
+                game.teamAChanges = changes[0];
+                game.teamBChanges = changes[1];
 
-            try {
-                await axios.post("https://shackmm.com/bot/update/leaderboard", {
-                    matchNumber: this.matchNumber,
-                }, {
-                    headers: {
-                        key: tokens.BotKey,
-                    }
-                })
-            } catch (e) {
-                await logWarn("Post did not work", this.client);
+                await updateGame(game);
+
+                this.processed = true;
+
+                for (let user of this.users) {
+                    const dbUser = await getUserById(user.dbId, this.data);
+                    dbUser.gamesPlayedSinceReductionAbandon++;
+                    dbUser.gamesPlayedSinceReductionFail++;
+                    await updateUser(dbUser, this.data);
+                }
+
+                try {
+                    await axios.post("https://shackmm.com/bot/update/leaderboard", {
+                        matchNumber: this.matchNumber,
+                    }, {
+                        headers: {
+                            key: tokens.BotKey,
+                        }
+                    })
+                } catch (e) {
+                    await logWarn("Post did not work", this.client);
+                }
+
+                await updateRanks(this.users, this.client);
+                this.processing = false
             }
-
-            await updateRanks(this.users, this.client);
-            this.processing = false
+        } catch (e) {
+            console.error(e);
         }
     }
 
@@ -997,7 +1001,11 @@ export class GameController {
             }
             let message;
             if (this.server) {
-                await this.switchMap();
+                try {
+                    await this.switchMap();
+                } catch (e) {
+                    console.error(e);
+                }
                 message = await finalChannel.send({components: [initialSubmitServer()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
                     content: `This match should be played on the server titled: \`SMM Match-${this.matchNumber}\`\nLobby region: ${region}`

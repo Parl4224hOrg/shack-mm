@@ -7,7 +7,7 @@ import {Data} from "./data";
 import {onJoin} from "./events/onJoin";
 import {onMessage} from "./events/onMessage";
 
-(async () => {
+const main = async () => {
     const BOT = new Client({
         intents: IntentOptions,
         partials: PartialsOptions,
@@ -30,4 +30,10 @@ import {onMessage} from "./events/onMessage";
     )
 
     await BOT.login(tokens.BotToken);
-})();
+}
+
+try {
+    main().then(async () => {console.log("Started")})
+} catch (error) {
+    console.error(error);
+}

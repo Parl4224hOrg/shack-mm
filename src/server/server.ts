@@ -8,7 +8,7 @@ export class GameServer extends Server {
     public readonly region: Regions
 
     constructor(ip: string, port: number, password: string, name: string, region: Regions) {
-        super(ip, port, password, 4);
+        super(ip, port, password, 8);
         this.name = name;
         this.region = region;
     }
@@ -23,7 +23,7 @@ export class GameServer extends Server {
         this.inUse = false;
         this.matchNumber = -1;
         await this.updateServerName(this.name);
-        await this.close();
+        // await this.close();
     }
 
     public getMatchNumber(): number {
