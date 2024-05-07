@@ -2,7 +2,7 @@ import {
     SlashCommandBuilder,
     SlashCommandSubcommandsOnlyBuilder,
 } from "@discordjs/builders";
-import {ChatInputCommandInteraction, SlashCommandSubcommandBuilder} from "discord.js";
+import {ChatInputCommandInteraction, SlashCommandOptionsOnlyBuilder, SlashCommandSubcommandBuilder} from "discord.js";
 import {Data} from "../data";
 import {RateLimiter} from "discord.js-rate-limiter";
 
