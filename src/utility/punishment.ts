@@ -66,7 +66,7 @@ export const abandon = async (userId: ObjectId, discordId: string, guild: Guild,
         userId: discordId,
         reason: "Auto punishment by bot",
         time: now,
-        actionData: `User was punished for ${grammaticalTime(user.banUntil - now)}\nWith a ban counter of ${user.banCounter} after the punishment`,
+        actionData: `User was punished for ${grammaticalTime(user.banUntil - now)}\nWith a ban counter of ${user.banCounterAbandon} after the punishment`,
     })
 
     const channel = await guild.channels.fetch(tokens.GeneralChannel) as TextChannel;

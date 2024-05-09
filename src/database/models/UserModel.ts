@@ -15,7 +15,6 @@ export interface UserInt extends Document {
     stats: ObjectId[];
     banUntil: number;
     lastBan: number;
-    banCounter: number;
     banCounterAbandon: number;
     banCounterFail: number;
     oculusName: string;
@@ -43,7 +42,6 @@ export const UserSchema = new Schema({
     stats: [Schema.Types.ObjectId],
     banUntil: Number,
     lastBan: Number,
-    banCounter: Number,
     banCounterAbandon: Number,
     banCounterFail: Number,
     oculusName: String,
