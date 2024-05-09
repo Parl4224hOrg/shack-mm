@@ -27,10 +27,11 @@ import {late} from "./moderator/late";
 import {categoryDelete} from "./admin/categoryDelete";
 import {unregisterServer} from "./admin/unregisterServer";
 import {ping} from "./ping";
+import {fixCDs} from "./admin/fixCDs";
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, manualSubmit, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
-    help, checkDms, dmOptions, _mod, serverStatus, late, categoryDelete, unregisterServer, ping];
+    help, checkDms, dmOptions, _mod, serverStatus, late, categoryDelete, unregisterServer, ping, fixCDs];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

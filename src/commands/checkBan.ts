@@ -17,7 +17,7 @@ export const checkBan: Command = {
                 cd = `<@${dbUser.id}>\nNo current cooldown, Last cooldown was <t:${dbUser.lastBan}:R>\nBan Counter for Abandon: ${dbUser.banCounterAbandon}\n`;
                 cd += `Ban Counter for fail to accept: ${dbUser.banCounterFail}`;
             } else {
-                cd = `<@${dbUser.id}>\nCooldown ends <t:${dbUser.banUntil}:R>\nBan Counter: ${dbUser.banCounterAbandon}\n`;
+                cd = `<@${dbUser.id}>\nCooldown ends <t:${dbUser.banUntil}:R>\nBan Counter for Abandon: ${dbUser.banCounterAbandon}\n`;
                 cd += `Ban Counter for fail to accept: ${dbUser.banCounterFail}`;
             }
             cd += `\nConsecutive games for Abandons: ${dbUser.gamesPlayedSinceReductionAbandon}, Next reduction by time: <t:${dbUser.lastReductionAbandon + 1209600}:F>`
