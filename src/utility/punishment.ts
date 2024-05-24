@@ -59,7 +59,7 @@ export const punishment = async (user: UserInt, data: Data, acceptFail: boolean,
 export const abandon = async (userId: ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data) => {
     let user = await getUserById(userId, data);
     const now = moment().unix();
-    user = await punishment(user, data, acceptFail, 1, now);
+    user = await punishment(user, data, acceptFail, 0, now);
     await ActionModel.create({
         action: acceptFail ? Actions.AcceptFail : Actions.Abandon,
         modId: "1058875839296577586",

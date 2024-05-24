@@ -67,7 +67,7 @@ export default {
         Manor: "https://shackmm.com/static/images/manor.png",
     },
     ReductionGames: 10,
-    MapPool: ["Dust 2", "Cache", "Overpass", "Harbor", "Reachsky", "Industry", "Manor", "Mirage", "Oilrig"],
+    MapPool: ["Dust 2", "Cache", "Overpass", "Harbor", "Reachsky", "Industry", "Vertigo", "Mirage", "Oilrig"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Master', threshold: 1950, roleId: '1152692826669326398'},
@@ -115,5 +115,6 @@ export default {
         Lumber: "UGC3505396",
         Reachsky: "UGC3748612",
         Manor: "UGC3765846",
+        Vertigo: "UGC3309849",
     }
 }

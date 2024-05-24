@@ -1,11 +1,11 @@
 import {ActionInt, Actions} from "../database/models/ActionModel";
-import {EmbedBuilder} from "discord.js";
+import {EmbedBuilder, EmbedField} from "discord.js";
 import {UserInt} from "../database/models/UserModel";
 import moment from "moment";
 
 export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
     const embed = new EmbedBuilder()
-    embed.setTitle(`Actions against ${user.name}: ${user.oculusName}`);
+    embed.setTitle(`Actions against ${user.name}`);
     const frozen = `The user is currently ${user.frozen ? "frozen" : "not frozen"}`;
     if (actions.length == 0) {
         embed.setDescription("User has no actions");
@@ -15,17 +15,20 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
     if (moment().unix() > user.banUntil) {
         desc += `<@${actions[0].userId}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter Abandon: ${user.banCounterAbandon}\nBan Counter fail to accept: ${user.banCounterFail}\n${frozen}`;
     } else {
-        desc += `<@${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\nBan Counter Abandon: ${user.banCounterAbandon}\nBan Counter fail to accept: ${user.banCounterFail}\n${frozen}`;
+        desc += `<@${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\nBan Counter: ${user.banCounterAbandon}\nBan Counter fail to accept: ${user.banCounterFail}\n${frozen}`;
     }
 
     let truncatedActions: ActionInt[];
 
+    let notShown = 0;
     if (actions.length > 25) {
-        desc += `\nThere are ${actions.length - 25} older actions not shown`;
+        notShown = actions.length - 25;
         truncatedActions = actions.slice(actions.length - 25, actions.length);
     } else {
         truncatedActions = actions;
     }
+
+    let fields: EmbedField[] = [];
 
     for (let action of truncatedActions) {
         let title: string;
@@ -43,14 +46,29 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
             title = "User forced a score";
         } else if (action.action == Actions.RemoveCooldown) {
             title = "User's cooldown was removed";
+        } else if (action.action == Actions.ManualSubmit) {
+            title = "Match was manually submitted";
         } else {
             title = "If you see this Parl messed up"
         }
-        embed.addFields({
+        let content = `Action by: <@${action.modId}>\nDate: <t:${action.time}:F>\nReason: ${action.reason}\nData: ${action.actionData}`;
+        if (content.length > 1024) {
+            content = `Action by: <@${action.modId}>\nDate: <t:${action.time}:F>\nReason: Too many characters not shown\nData: ${action.actionData}`;
+        }
+        fields.push({
             name: title,
-            value: `Action by: <@${action.modId}>\nDate: <t:${action.time}:F>\nReason: ${action.reason}\nData: ${action.actionData}`,
+            value: content,
+            inline: false,
         });
     }
+    embed.setFields(fields);
+    while (embed.length + desc.length + 39> 6000) {
+        console.log("here")
+        fields = fields.slice(1, fields.length);
+        embed.setFields(fields);
+        notShown++;
+    }
+    desc += `\nThere are ${notShown} older actions not shown`;
     embed.setDescription(desc);
     return embed.toJSON();
 }

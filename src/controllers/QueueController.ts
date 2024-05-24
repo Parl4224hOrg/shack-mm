@@ -172,10 +172,10 @@ export class QueueController {
                     await game.cleanup();
                 }
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
+                this.lastPlayedMaps.push(game.map);
                 while (this.lastPlayedMaps.length > tokens.MapPool.length - 7) {
                     this.lastPlayedMaps.shift();
                 }
-                this.lastPlayedMaps.push(game.map);
                 for (let user of arrayClone) {
                     const dbUser = await getUserById(user, this.data);
                     const member = await guild.members.fetch(dbUser.id);

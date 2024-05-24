@@ -9,7 +9,8 @@ import {RateLimiter} from "discord.js-rate-limiter";
 export interface Command {
     data:
         | Omit<SlashCommandBuilder, "addSubcommandGroup" | "addSubcommand">
-        | SlashCommandSubcommandsOnlyBuilder;
+        | SlashCommandSubcommandsOnlyBuilder
+        | SlashCommandOptionsOnlyBuilder;
     run: (interaction: ChatInputCommandInteraction, data: Data) => Promise<void>;
     name: string;
     allowedRoles?: string[];
