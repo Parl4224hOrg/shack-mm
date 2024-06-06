@@ -6,7 +6,7 @@ import {matchUnready} from "../../../utility/match";
 
 export const unready: Button = {
     data: new ButtonBuilder()
-        .setLabel('Unready')
+        .setLabel('Unready foobar')
         .setCustomId('unready-snd')
         .setStyle(ButtonStyle.Danger),
     run: async (interaction, data) => {
