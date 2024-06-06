@@ -188,7 +188,7 @@ export class Data {
                 await this.createMatch("NA", this.FILL_SND, 'SND', tokens.ScoreLimitSND);
             }
             await this.FILL_SND.tick()
-            const check = `${this.FILL_SND.inQueueNumber()} in queue`;
+            const check = `${this.FILL_SND.inQueueNumber()} in q`;
             if (check != this.botStatus && this.loaded) {
                 this.botStatus = check;
                 this.client.user!.setActivity({
