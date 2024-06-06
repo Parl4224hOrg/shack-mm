@@ -2,7 +2,7 @@ name: SMM Deployment CI
 
 on:
   push:
-    branches: ["devlop"]
+    branches: ["develop"]
 
 
 jobs:
