@@ -2,7 +2,7 @@ name: SMM Deployment CI
 
 on:
   push:
-    branches: ["master"]
+    branches: ["devlop"]
 
 
 jobs:
@@ -28,4 +28,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/shack-mm:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/mm-test-bot:latest
