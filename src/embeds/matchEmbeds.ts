@@ -66,6 +66,8 @@ export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
         embed.setImage(tokens.Images.Industry);
     } else if (game.map.toLowerCase() == 'manor') {
         embed.setImage(tokens.Images.Manor);
+    } else if (game.map.toLowerCase() == 'autumn') {
+        embed.setImage(tokens.Images.Autumn);
     }
 
     return embed.toJSON();
@@ -144,6 +146,8 @@ export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: 
         embed.setImage(tokens.Images.Industry);
     } else if (map.toLowerCase() == 'manor') {
         embed.setImage(tokens.Images.Manor);
+    } else if (map.toLowerCase() == 'autumn') {
+        embed.setImage(tokens.Images.Autumn);
     }
 
 
