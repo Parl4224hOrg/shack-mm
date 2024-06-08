@@ -68,7 +68,7 @@ export default {
         Autumn: "https://shackmm.com/static/images/manor.png",
     },
     ReductionGames: 10,
-    MapPool: ["Dust 2", "Cache", "Overpass", "Harbor", "Reachsky", "Autumn", "Vertigo", "Mirage", "Oilrig"],
+    MapPool: ["Dust 2", "Cache", "Overpass", "Harbor", "Oilrig", "Autumn", "Vertigo", "Mirage", "Reachsky"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Master', threshold: 1950, roleId: '1152692826669326398'},
