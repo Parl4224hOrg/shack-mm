@@ -23,7 +23,7 @@ export const adjustMMR: SubCommand = {
             }
             stats.mmr += mmrDelta;
             await updateStats(stats);
-            await interaction.reply({content: `<@${dbUser.id}>'s MMR has been adjusted by ${mmrDelta}. New MMR is ${newMMR}.` });
+            await interaction.reply({content: `<@${dbUser.id}>'s MMR has been adjusted by ${mmrDelta}. New MMR is ${stats.mmr}.` });
         } catch (e) {
             await logError(e, interaction);
         }
