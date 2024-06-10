@@ -10,21 +10,20 @@ import {SlashCommandSubcommandBuilder} from "discord.js";
 export const adjustMMR: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName('adjust_mmr')
-        .setDescription("Adjusts a user's mmr")
+        .setDescription("Adjusts a user's mmr by a specified amount")
         .addUserOption(userOption("User to adjust mmr of"))
-        .addNumberOption(mmrOption),
+        .addNumberOption(option => option.setName('mmr_delta').setDescription('Amount to change MMR by').setRequired(true)),
     run: async (interaction, data) => {
         try {
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             const stats = await getStats(dbUser._id, "SND");
-            const newMMR = interaction.options.getNumber('mmr', true);
-            const diff = newMMR - stats.mmr;
+            const mmrDelta = interaction.options.getNumber('mmr_delta', true);
             for (let mmr of stats.mmrHistory) {
-                mmr += diff;
+                mmr += mmrDelta;
             }
-            stats.mmr = newMMR;
+            stats.mmr += mmrDelta;
             await updateStats(stats);
-            await interaction.reply({ephemeral: true, content: `<@${dbUser.id}>'s mmr has been adjusted to ${newMMR}`});
+            await interaction.reply({content: `<@${dbUser.id}>'s MMR has been adjusted by ${mmrDelta}. New MMR is ${newMMR}.` });
         } catch (e) {
             await logError(e, interaction);
         }
