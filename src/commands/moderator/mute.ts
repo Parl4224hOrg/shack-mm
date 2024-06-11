@@ -15,6 +15,10 @@ export const mute: SubCommand = {
         .addUserOption(userOption("User to mute"))
         .addStringOption(timeScales)
         .addNumberOption(timeOption),
+        .addStringOption(new SlashCommandStringOption()
+            .setName("reason")
+            .setDescription("Reason for the warning")
+            .setRequired(true)),
     run: async (interaction, data) => {
         try {
             let multiplier: number = 0;
@@ -44,6 +48,13 @@ export const mute: SubCommand = {
                 await member.roles.add(tokens.MutedRole);
                 await interaction.reply({ephemeral: true, content: `<@${user.id}> has been muted for ${grammaticalTime(time * multiplier)}`});
             }
+            await warnModel.create({
+                userId: dbUser._id,
+                reason: interaction.options.getString('reason', true),
+                timeStamp: moment().unix(),
+                modId: interaction.user.id,
+                removed: false,
+            });
         } catch (e) {
             await logError(e, interaction);
         }
