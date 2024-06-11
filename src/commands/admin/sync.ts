@@ -30,5 +30,5 @@ export const sync: Command = {
         }
     },
     name: 'sync',
-    allowedUsers: [tokens.Parl],
+    allowedRoles: tokens.Mods,
 }
