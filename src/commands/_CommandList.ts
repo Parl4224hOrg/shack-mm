@@ -28,7 +28,7 @@ import {categoryDelete} from "./admin/categoryDelete";
 import {unregisterServer} from "./admin/unregisterServer";
 import {ping} from "./ping";
 import {fixCDs} from "./admin/fixCDs";
-import {unmute} from "./admin/unmute.js";
+import {unmute} from "./admin/unmute";
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, manualSubmit, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
