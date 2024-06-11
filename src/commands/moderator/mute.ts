@@ -1,5 +1,5 @@
 import {SubCommand} from "../../interfaces/Command";
-import {SlashCommandSubcommandBuilder} from "discord.js";
+import { SlashCommandSubcommandBuilder, SlashCommandStringOption } from "discord.js";
 import {timeOption, timeScales, userOption} from "../../utility/options";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
@@ -7,6 +7,7 @@ import {getUserByUser} from "../../modules/getters/getUser";
 import moment from "moment";
 import {updateUser} from "../../modules/updaters/updateUser";
 import {grammaticalTime} from "../../utility/grammatical";
+import warnModel from "../../database/models/WarnModel";
 
 export const mute: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
