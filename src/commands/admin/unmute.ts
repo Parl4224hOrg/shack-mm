@@ -25,8 +25,8 @@ export const unmute: Command = {
             await interaction.reply({ephemeral: true, content: `<@${user.id}> has been un-muted`});
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
-            embed.setTitle(`User <@${user.id}> has been unmuted`);
-            embed.setDescription(`Un-muted by <@${interaction.user.id}>`);
+            embed.setTitle(`User ${user.id} has been unmuted`);
+            embed.setDescription(`<@${user.id}> un-muted by <@${interaction.user.id}>`);
             await channel.send({embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);
