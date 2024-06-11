@@ -31,6 +31,7 @@ export default {
     LeaderboardChannel: "1171851273499312159",
     GameLogChannel: "1185432060173746236",
     QueueLogChannel: "1191799332924559360",
+    ModeratorLogChannel: "1249964183588438158",
     LeadModRole: "1175171342736294028",
     RegionRoles: {
         NAE: "1186176045829849089",
