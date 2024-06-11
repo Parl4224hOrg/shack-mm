@@ -5,9 +5,10 @@ import tokens from "../../tokens";
 import { logError } from "../../loggers";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { updateUser } from "../../modules/updaters/updateUser";
+import {Client, EmbedBuilder, TextChannel} from "discord.js";
 
 export const unmute: Command = {
-    data: new SlashCommandSubcommandBuilder()
+    data: new SlashCommandBuilder()
         .setName('unmute')
         .setDescription("Unmutes a player")
         .addUserOption(userOption("User to unmute")),
@@ -17,7 +18,7 @@ export const unmute: Command = {
             const dbUser = await getUserByUser(user, data);
             const member = await interaction.guild!.members.fetch(user.id);
 
-            dbUser.muteUntil = moment().unix() + time * multiplier;
+            dbUser.muteUntil = moment().unix();
             await updateUser(dbUser, data);
             await member.roles.remove(tokens.MutedRole);
             await interaction.reply({ephemeral: true, content: `<@${user.id}> has been un-muted`});
