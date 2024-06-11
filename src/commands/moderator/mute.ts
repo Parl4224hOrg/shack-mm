@@ -33,25 +33,33 @@ export const mute: SubCommand = {
             const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user, data);
             const member = await interaction.guild!.members.fetch(user.id);
+            let reason = interaction.options.getString('reason', true);
+            let muteDuration = time * multiplier;
+            let muteMessage = '';
+            
             if (time < 0) {
                 dbUser.muteUntil = -1;
                 await updateUser(dbUser, data);
                 await member.roles.add(tokens.MutedRole);
+                reason = `Muted indefinitely because: ${reason}`;
                 await interaction.reply({ephemeral: true, content: `<@${user.id}> has been muted indefinitely`});
             } else if (time == 0) {
                 dbUser.muteUntil = moment().unix() + time * multiplier;
                 await updateUser(dbUser, data);
                 await member.roles.remove(tokens.MutedRole);
+                reason = `Un-muted because: ${reason}`;
                 await interaction.reply({ephemeral: true, content: `<@${user.id}> has been un-muted`});
             } else {
                 dbUser.muteUntil = moment().unix() + time * multiplier;
                 await updateUser(dbUser, data);
                 await member.roles.add(tokens.MutedRole);
-                await interaction.reply({ephemeral: true, content: `<@${user.id}> has been muted for ${grammaticalTime(time * multiplier)}`});
+                muteMessage = `<@${user.id}> has been muted for ${grammaticalTime(muteDuration)}`;
+                reason = `Muted for ${time} ${durationText} because: ${reason}`;
+                await interaction.reply({ ephemeral: true, content: muteMessage });
             }
             await warnModel.create({
                 userId: dbUser._id,
-                reason: interaction.options.getString('reason', true),
+                reason: reason,
                 timeStamp: moment().unix(),
                 modId: interaction.user.id,
                 removed: false,
