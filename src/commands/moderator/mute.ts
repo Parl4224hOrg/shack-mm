@@ -23,11 +23,12 @@ export const mute: SubCommand = {
     run: async (interaction, data) => {
         try {
             let multiplier: number = 0;
+            let durationText: string = '';
             switch (interaction.options.getString('time_scale', true)) {
-                case 'm': {multiplier = 60} break;
-                case 'h': {multiplier = 60 * 60} break;
-                case 'd': {multiplier = 60 * 60 * 24} break;
-                case 'w': {multiplier = 60 * 60 * 24 * 7} break;
+                case 'm': { multiplier = 60; durationText = 'minutes'; } break;
+                case 'h': { multiplier = 60 * 60; durationText = 'hours'; } break;
+                case 'd': { multiplier = 60 * 60 * 24; durationText = 'days'; } break;
+                case 'w': { multiplier = 60 * 60 * 24 * 7; durationText = 'weeks'; } break;
             }
             const time = interaction.options.getNumber('time', true);
             const user = interaction.options.getUser('user', true);
