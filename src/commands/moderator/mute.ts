@@ -14,7 +14,7 @@ export const mute: SubCommand = {
         .setDescription("Mutes a player for a set amount of time or infinite if less than 0")
         .addUserOption(userOption("User to mute"))
         .addStringOption(timeScales)
-        .addNumberOption(timeOption),
+        .addNumberOption(timeOption)
         .addStringOption(new SlashCommandStringOption()
             .setName("reason")
             .setDescription("Reason for the warning")
