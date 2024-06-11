@@ -21,11 +21,15 @@ export const actions: SubCommand = {
     run: async (interaction, data) => {
         try {
             const user = interaction.options.getUser("user", true)
-            const actions = await ActionModel.find({userId: user.id});
+            const actions = await ActionModel.find({userId: user.id})
+                                             .sort({createdAt: -1})
+                                             .limit(10);
             const dbUser = await getUserByUser(user, data);
-            const warnings = await WarnModel.find({userId: dbUser._id});
+            const warnings = await WarnModel.find({userId: dbUser._id})
+                                            .sort({createdAt: -1})
+                                            .limit(10); // Fetch latest 10 warnings
             const visible = interaction.options.getBoolean('hidden') ?? false;
-            await interaction.reply({ephemeral: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
+            await interaction.reply({ephemeral: visible, content: `Showing last 10 actions and warnings for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
         } catch (e) {
             await logError(e, interaction);
         }
