@@ -1,4 +1,4 @@
-import { SubCommand } from "../../interfaces/Command";
+import { Command } from "../../interfaces/Command";
 import { SlashCommandSubcommandBuilder } from "discord.js";
 import { userOption } from "../../utility/options";
 import tokens from "../../tokens";
@@ -6,7 +6,7 @@ import { logError } from "../../loggers";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { updateUser } from "../../modules/updaters/updateUser";
 
-export const unmute: SubCommand = {
+export const unmute: Command = {
     data: new SlashCommandSubcommandBuilder()
         .setName('unmute')
         .setDescription("Unmutes a player")
