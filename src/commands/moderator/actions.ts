@@ -20,43 +20,21 @@ export const actions: SubCommand = {
             .setRequired(false)),
     run: async (interaction, data) => {
         try {
-            
             const user = interaction.options.getUser("user", true);
             const dbUser = await getUserByUser(user, data);
             const visible = interaction.options.getBoolean('hidden') ?? false;
-            
-            // Fetch the latest 10 actions and warnings
-            const actions = await ActionModel.find({ userId: user.id }).sort({ time: -1 }).limit(10);
-            const warnings = await WarnModel.find({ userId: dbUser._id }).sort({ timeStamp: -1 }).limit(10);
-            
-            // Combine and sort by time fields
-            const allItems = [...actions, ...warnings];
 
-            // Type guards to ensure TypeScript understands the structure
-            const isAction = (item: any): item is ActionInt => 'time' in item;
-            const isWarning = (item: any): item is WarnInt => 'timestamp' in item;
+            // Fetch the latest 10 actions
+            const actions = await ActionModel.find({
+                userId: user.id
+            }).sort({ time: -1 }).limit(10);
 
-            // Sort combined items by either 'time' or 'timestamp'
-            allItems.sort((a, b) => {
-                const timeA = isAction(a) ? a.time : a.timestamp;
-                const timeB = isAction(b) ? b.time : b.timestamp;
-                return timeB - timeA;
-            });
+            // Fetch the latest 10 warnings
+            const warnings = await WarnModel.find({
+                userId: dbUser._id
+            }).sort({ timeStamp: -1 }).limit(10);
             
-            // Prepare the embed content
-            const embedContent = allItems.map(item => {
-              if (item.time) { // Action
-                return ActionEmbed(item, dbUser);
-              } else { // Warning
-                return warningEmbeds(user, item);
-              }
-            });
-            
-            await interaction.reply({
-              ephemeral: visible,
-              content: `Showing the latest 20 actions and warnings for ${user.username}`,
-              embeds: embedContent,
-            });            
+            await interaction.reply({ephemeral: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
         } catch (e) {
             await logError(e, interaction);
         }
