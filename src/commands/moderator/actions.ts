@@ -32,11 +32,21 @@ export const actions: SubCommand = {
             // Combine actions and warnings into a single array
             const allItems = [...actions, ...warnings];
             
-            // Sort the combined array chronologically (descending order)
-            allItems.sort((a, b) => (b.time || b.timeStamp) - (a.time || a.timeStamp));
+            allItems.sort((a, b) => {
+                // Check for existence of properties in descending order (latest first)
+                const timeA = a.time;
+                const timeB = b.time;
+                if (timeB !== undefined) {
+                    return timeA === undefined ? 1 : timeB - timeA;
+                } else {
+                const timeStampA = a.timeStamp;
+                const timeStampB = b.timeStamp;
+                return timeStampB === undefined ? 1 : timeStampB - timeStampA;
+              }
+            });
             
             // Prepare the embed content
-            const embedContent = latestItems.map(item => {
+            const embedContent = allItems.map(item => {
               if (item.time) { // Action
                 return ActionEmbed(item, dbUser);
               } else { // Warning
