@@ -32,7 +32,7 @@ export const actions: SubCommand = {
             // Fetch the latest 10 warnings
             const warnings = await WarnModel.find({
                 userId: dbUser._id
-            }).sort({ timestamp: -1 }).limit(10);
+            }).sort({ timeStamp: -1 }).limit(10);
             
             // Normalize and combine actions and warnings
             const normalizedActions = actions.map(action => ({
@@ -43,7 +43,7 @@ export const actions: SubCommand = {
             const normalizedWarnings = warnings.map(warning => ({
                 type: 'warning',
                 data: warning,
-                time: warning.timestamp
+                time: warning.timeStamp
             }));
             const combined = [...normalizedActions, ...normalizedWarnings]
                 .sort((a, b) => b.time - a.time)
