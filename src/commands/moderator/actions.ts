@@ -49,15 +49,17 @@ export const actions: SubCommand = {
                 .sort((a, b) => b.time - a.time)
                 .slice(0, 10);
 
-            // Generate embeds for the combined results
-            const embeds = combined.map(item =>
-                item.type === 'action'
-                    ? ActionEmbed(item.data, dbUser)
-                    : warningEmbeds(user, [item.data])
-            );
+           // Generate embeds for the combined results
+            const actionEmbeds = combined
+                .filter(item => item.type === 'action')
+                .map(item => ActionEmbed([item.data as ActionInt], dbUser));
+            const warningEmbedsList = combined
+                .filter(item => item.type === 'warning')
+                .map(item => warningEmbeds(user, [item.data as WarnInt]));
+
+            const embeds = [...actionEmbeds, ...warningEmbedsList];
 
             await interaction.reply({ ephemeral: visible, content: `Showing last 10 actions and warnings for ${user.username}`, embeds });
-
         } catch (e) {
             await logError(e, interaction);
         }
