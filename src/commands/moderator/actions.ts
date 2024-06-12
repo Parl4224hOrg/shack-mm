@@ -31,11 +31,15 @@ export const actions: SubCommand = {
             
             // Combine and sort by time fields
             const allItems = [...actions, ...warnings];
-            
+
+            // Type guards to ensure TypeScript understands the structure
+            const isAction = (item: any): item is ActionInt => 'time' in item;
+            const isWarning = (item: any): item is WarnInt => 'timestamp' in item;
+
             // Sort combined items by either 'time' or 'timestamp'
             allItems.sort((a, b) => {
-                const timeA = a.time || a.timestamp;
-                const timeB = b.time || b.timestamp;
+                const timeA = isAction(a) ? a.time : a.timestamp;
+                const timeB = isAction(b) ? b.time : b.timestamp;
                 return timeB - timeA;
             });
             
