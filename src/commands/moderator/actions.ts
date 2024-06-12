@@ -20,16 +20,27 @@ export const actions: SubCommand = {
             .setRequired(false)),
     run: async (interaction, data) => {
         try {
-            const user = interaction.options.getUser("user", true)
-            const actions = await ActionModel.find({userId: user.id})
-                                             .sort({createdAt: -1})
-                                             .limit(10);
+            const user = interaction.options.getUser("user", true);
             const dbUser = await getUserByUser(user, data);
-            const warnings = await WarnModel.find({userId: dbUser._id})
-                                            .sort({createdAt: -1})
-                                            .limit(10); // Fetch latest 10 warnings
             const visible = interaction.options.getBoolean('hidden') ?? false;
-            await interaction.reply({ephemeral: visible, content: `Showing last 10 actions and warnings for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
+
+            // Fetch the latest 10 actions
+            const actions = await ActionModel.find({
+                userId: user.id
+            }).sort({ time: -1 }).limit(10);
+
+            // Fetch the latest 10 warnings
+            const warnings = await WarnModel.find({
+                userId: dbUser._id
+            }).sort({ timestamp: -1 }).limit(10);
+
+            // Combine actions and warnings and sort by createdAt
+            const combined = [...actions, ...warnings].sort((a, b) => b.createdAt - a.createdAt).slice(0, 10);
+
+            // Generate embeds for the combined results
+            const actionEmbeds = combined.map(item => item instanceof ActionModel ? ActionEmbed(item, dbUser) : warningEmbeds(user, [item]));
+
+            await interaction.reply({ ephemeral: visible, content: `Showing last 10 actions and warnings for ${user.username}`, embeds: actionEmbeds });
         } catch (e) {
             await logError(e, interaction);
         }
