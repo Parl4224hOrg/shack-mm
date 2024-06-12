@@ -34,32 +34,9 @@ export const actions: SubCommand = {
                 userId: dbUser._id
             }).sort({ timeStamp: -1 }).limit(10);
             
-            // Normalize and combine actions and warnings
-            const normalizedActions = actions.map(action => ({
-                type: 'action',
-                data: action,
-                time: action.time
-            }));
-            const normalizedWarnings = warnings.map(warning => ({
-                type: 'warning',
-                data: warning,
-                time: warning.timeStamp
-            }));
-            const combined = [...normalizedActions, ...normalizedWarnings]
-                .sort((a, b) => b.time - a.time)
-                .slice(0, 10);
+            await interaction.reply({ephemeral: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
 
-           // Generate embeds for the combined results
-            const actionEmbeds = combined
-                .filter(item => item.type === 'action')
-                .map(item => ActionEmbed([item.data as ActionInt], dbUser));
-            const warningEmbedsList = combined
-                .filter(item => item.type === 'warning')
-                .map(item => warningEmbeds(user, [item.data as WarnInt]));
-
-            const embeds = [...actionEmbeds, ...warningEmbedsList];
-
-            await interaction.reply({ ephemeral: visible, content: `Showing last 10 actions and warnings for ${user.username}`, embeds });
+            
         } catch (e) {
             await logError(e, interaction);
         }
