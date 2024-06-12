@@ -33,14 +33,31 @@ export const actions: SubCommand = {
             const warnings = await WarnModel.find({
                 userId: dbUser._id
             }).sort({ timestamp: -1 }).limit(10);
-
-            // Combine actions and warnings and sort by createdAt
-            const combined = [...actions, ...warnings].sort((a, b) => b.createdAt - a.createdAt).slice(0, 10);
+            
+            // Normalize and combine actions and warnings
+            const normalizedActions = actions.map(action => ({
+                type: 'action',
+                data: action,
+                time: action.time
+            }));
+            const normalizedWarnings = warnings.map(warning => ({
+                type: 'warning',
+                data: warning,
+                time: warning.timestamp
+            }));
+            const combined = [...normalizedActions, ...normalizedWarnings]
+                .sort((a, b) => b.time - a.time)
+                .slice(0, 10);
 
             // Generate embeds for the combined results
-            const actionEmbeds = combined.map(item => item instanceof ActionModel ? ActionEmbed(item, dbUser) : warningEmbeds(user, [item]));
+            const embeds = combined.map(item =>
+                item.type === 'action'
+                    ? ActionEmbed(item.data, dbUser)
+                    : warningEmbeds(user, [item.data])
+            );
 
-            await interaction.reply({ ephemeral: visible, content: `Showing last 10 actions and warnings for ${user.username}`, embeds: actionEmbeds });
+            await interaction.reply({ ephemeral: visible, content: `Showing last 10 actions and warnings for ${user.username}`, embeds });
+
         } catch (e) {
             await logError(e, interaction);
         }
