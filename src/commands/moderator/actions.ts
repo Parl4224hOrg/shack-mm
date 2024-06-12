@@ -29,20 +29,14 @@ export const actions: SubCommand = {
             const actions = await ActionModel.find({ userId: user.id }).sort({ time: -1 }).limit(10);
             const warnings = await WarnModel.find({ userId: dbUser._id }).sort({ timeStamp: -1 }).limit(10);
             
-            // Combine actions and warnings into a single array
+            // Combine and sort by time fields
             const allItems = [...actions, ...warnings];
             
+            // Sort combined items by either 'time' or 'timestamp'
             allItems.sort((a, b) => {
-                // Check for existence of properties in descending order (latest first)
-                const timeA = a.time;
-                const timeB = b.time;
-                if (timeB !== undefined) {
-                    return timeA === undefined ? 1 : timeB - timeA;
-                } else {
-                const timeStampA = a.timeStamp;
-                const timeStampB = b.timeStamp;
-                return timeStampB === undefined ? 1 : timeStampB - timeStampA;
-              }
+                const timeA = a.time || a.timestamp;
+                const timeB = b.time || b.timestamp;
+                return timeB - timeA;
             });
             
             // Prepare the embed content
