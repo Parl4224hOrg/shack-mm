@@ -282,16 +282,14 @@ export class Data {
             }
             if (dbUser.requeue) {
                 const stats = await getStats(user.dbId, "SND");
-                if (!queue.some(user => user.dbId === dbIdToCheck)) {
-                    queue.unshift({
-                        dbId: user.dbId,
-                        discordId: user.discordId,
-                        queueExpire: moment().unix() + 15 * 60,
-                        mmr: stats.mmr,
-                        name: dbUser.name,
-                        region: dbUser.region,
-                    });
-                }
+                queue.unshift({
+                    dbId: user.dbId,
+                    discordId: user.discordId,
+                    queueExpire: moment().unix() + 15 * 60,
+                    mmr: stats.mmr,
+                    name: dbUser.name,
+                    region: dbUser.region,
+                });
             }
         }
         this.FILL_SND.setInQueue(queue);
