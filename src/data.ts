@@ -282,7 +282,7 @@ export class Data {
             }
             if (dbUser.requeue) {
                 const stats = await getStats(user.dbId, "SND");
-                queue.push({
+                queue.unshift({
                     dbId: user.dbId,
                     discordId: user.discordId,
                     queueExpire: moment().unix() + 15 * 60,
