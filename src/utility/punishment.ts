@@ -39,6 +39,14 @@ export const punishment = async (user: UserInt, data: Data, acceptFail: boolean,
             user.lastReductionFail = now;
             user.gamesPlayedSinceReductionFail = 0;
         } break;
+        case 2: {
+            user.lastBan = now;
+            user.banUntil = now + 24 * 60 * 60;
+            user.lastReductionAbandon = now;
+            user.gamesPlayedSinceReductionAbandon = 0;
+            user.lastReductionFail = now;
+            user.gamesPlayedSinceReductionFail = 0;
+        } break;
         default: {
             user.lastBan = now;
             user.banUntil = now + 2 ** (banCounter - 1) * 12 * 60 * 60;
