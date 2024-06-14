@@ -9,7 +9,7 @@ import {reCalc} from "./reCalc";
 import {remove} from "./remove";
 import tokens from "../../../tokens";
 
-const subCommandListTemp: SubCommand[] = [clear, info, lock, remove]
+const subCommandListTemp: SubCommand[] = [clear, info, lock, reCalc, remove]
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -24,6 +24,7 @@ export const _queue: Command = {
         .addSubcommand(clear.data)
         .addSubcommand(info.data)
         .addSubcommand(lock.data)
+        .addSubcommand(reCalc.data)
         .addSubcommand(remove.data),
     run: async (interaction, data) => {
         try {
