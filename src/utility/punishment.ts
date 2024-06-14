@@ -21,7 +21,7 @@ export const autoLate = async (id: ObjectId, data: Data) => {
 }
 
 export const punishment = async (user: UserInt, data: Data, acceptFail: boolean, severity: number, now: number): Promise<UserInt> => {
-    const banCounter = acceptFail ? user.banCounterFail + severity: user.banCounterAbandon + severity
+    const banCounter = acceptFail ? user.banCounterFail : user.banCounterAbandon
     switch (banCounter) {
         case 0: {
             user.lastBan = now;
@@ -57,9 +57,9 @@ export const punishment = async (user: UserInt, data: Data, acceptFail: boolean,
         } break;
     }
     if (acceptFail) {
-        user.banCounterFail += severity + 1;
+        user.banCounterFail += severity;
     } else {
-        user.banCounterAbandon += severity + 1;
+        user.banCounterAbandon += severity;
     }
     return updateUser(user, data);
 }
@@ -67,7 +67,7 @@ export const punishment = async (user: UserInt, data: Data, acceptFail: boolean,
 export const abandon = async (userId: ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data) => {
     let user = await getUserById(userId, data);
     const now = moment().unix();
-    user = await punishment(user, data, acceptFail, 0, now);
+    user = await punishment(user, data, acceptFail, 1, now);
     await ActionModel.create({
         action: acceptFail ? Actions.AcceptFail : Actions.Abandon,
         modId: "1058875839296577586",
