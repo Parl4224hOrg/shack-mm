@@ -1,4 +1,4 @@
-import {SubCommand} from "../../../interfaces/Command";
+import {Command} from "../../../interfaces/Command";
 import {SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../../loggers";
 import {queues} from "../../../utility/options";
@@ -11,8 +11,8 @@ import tokens from "../../../tokens";
 import StatsModel from "../../../database/models/StatsModel";
 import {Regions} from "../../../database/models/UserModel";
 
-export const reCalc: SubCommand = {
-    data: new SlashCommandSubcommandBuilder()
+export const reCalc: Command = {
+    data: new SlashCommandBuilder()
         .setName('re_calc')
         .setDescription('Re-calculates MMR for a specific game')
         .addIntegerOption(option =>
@@ -91,6 +91,6 @@ export const reCalc: SubCommand = {
             await logError(e, interaction)
         }
     },
-    name: 're_calc',
+    name: 'recalc',
     allowedUsers: [tokens.Mods],
 }
