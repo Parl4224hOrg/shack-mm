@@ -14,11 +14,43 @@ import {Regions} from "../../../database/models/UserModel";
 export const reCalc: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName('re_calc')
-        .setDescription('re_calcs mmr for a queue')
-        .addStringOption(queues),
+        .setDescription('Re-calculates MMR for a specific game')
+        .addIntegerOption(option =>
+            option.setName('game_id')
+                .setDescription('ID of the game to recalculate')
+                .setRequired(true))
+        .addIntegerOption(option =>
+            option.setName('team_a_score')
+                .setDescription('Score of team A')
+                .setRequired(true))
+        .addIntegerOption(option =>
+            option.setName('team_b_score')
+                .setDescription('Score of team B')
+                .setRequired(true)),
     run: async (interaction, data) => {
         try {
             await interaction.deferReply({ephemeral: true});
+            
+            const updateGameId = interaction.options.getInteger('game_id', true);
+            const teamAScore = interaction.options.getInteger('team_a_score', true);
+            const teamBScore = interaction.options.getInteger('team_b_score', true);
+
+            // Validation check
+            if (!((teamAScore === 10 && teamBScore >= 0 && teamBScore <= 9) || (teamBScore === 10 && teamAScore >= 0 && teamAScore <= 9))) {
+                return await interaction.followUp({ ephemeral: true, content: 'Invalid scores. One score must be 10, and the other must be between 0 and 9.' });
+            }
+
+            // Find the game
+            const updateGame = await GameModel.findOne({ matchId: updateGameId, scoreB: { "$gte": 0 }, scoreA: { '$gte': 0 } });
+            if (!updateGame) {
+                return await interaction.followUp({ ephemeral: true, content: 'Game not found.' });
+            }
+            
+            // Update the game with new scores
+            updateGame.scoreA = teamAScore;
+            updateGame.scoreB = teamBScore;
+            await game.save();
+            
             const games = await GameModel.find({scoreB: {"$gte": 0}, scoreA: {'$gte': 0}}).sort({matchId: 1});
             await StatsModel.deleteMany({queueId: "SND"})
             for (let game of games) {
@@ -60,5 +92,5 @@ export const reCalc: SubCommand = {
         }
     },
     name: 're_calc',
-    allowedUsers: [tokens.Parl],
+    allowedUsers: [tokens.Mods],
 }
