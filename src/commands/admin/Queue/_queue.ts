@@ -24,7 +24,6 @@ export const _queue: Command = {
         .addSubcommand(clear.data)
         .addSubcommand(info.data)
         .addSubcommand(lock.data)
-        .addSubcommand(reCalc.data)
         .addSubcommand(remove.data),
     run: async (interaction, data) => {
         try {
