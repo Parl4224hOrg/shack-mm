@@ -9,7 +9,7 @@ import {reCalc} from "./reCalc";
 import {remove} from "./remove";
 import tokens from "../../../tokens";
 
-const subCommandListTemp: SubCommand[] = [clear, info, lock, reCalc, remove]
+const subCommandListTemp: SubCommand[] = [clear, info, lock, remove]
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
