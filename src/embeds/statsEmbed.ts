@@ -80,7 +80,7 @@ export const warningEmbeds = (user: User, warnings: WarnInt[]): APIEmbed => {
     const embed = new EmbedBuilder();
     embed.setTitle(`Warnings for ${user.username}`);
     if (warnings.length > 25) {
-        embed.setDescription(`<@${user.id}>\nThere are ${warnings.length - 25} older warnings not shown`);
+        embed.setDescription(`<${user.id}>\nThere are ${warnings.length - 25} older warnings not shown`);
         for (let warn of warnings.slice(warnings.length - 25, warnings.length)) {
             if (!warn.removed) {
                 const timestamp = "<t:" + warn.timeStamp + ":F>"
@@ -91,7 +91,7 @@ export const warningEmbeds = (user: User, warnings: WarnInt[]): APIEmbed => {
             }
         }
     } else {
-        embed.setDescription(`<@${user.id}>`);
+        embed.setDescription(`<${user.id}>`);
         for (let warn of warnings) {
             if (!warn.removed) {
                 const timestamp = "<t:" + warn.timeStamp + ":F>"
