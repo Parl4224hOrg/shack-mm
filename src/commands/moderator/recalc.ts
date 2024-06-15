@@ -1,12 +1,15 @@
-import { Command } from "../../interfaces/Command";
-import { SlashCommandBuilder } from "discord.js";
-import { userOption } from "../../utility/options";
+import {Command} from "../../interfaces/Command";
+import {SlashCommandBuilder} from "@discordjs/builders";
+import {logError} from "../../loggers";
+import {queues} from "../../utility/options";
+import GameModel from "../../database/models/GameModel";
+import {getUserById} from "../../modules/getters/getUser";
+import {processMMR} from "../../utility/processMMR";
+import {GameUser} from "../../interfaces/Game";
+import {updateGame} from "../../modules/updaters/updateGame";
 import tokens from "../../tokens";
-import { logError } from "../../loggers";
-import { getUserByUser } from "../../modules/getters/getUser";
-import { updateUser } from "../../modules/updaters/updateUser";
-import {Client, EmbedBuilder, TextChannel} from "discord.js";
-import moment from "moment";
+import StatsModel from "../../database/models/StatsModel";
+import {Regions} from "../../database/models/UserModel";
 
 export const recalc: Command = {
     data: new SlashCommandBuilder()
