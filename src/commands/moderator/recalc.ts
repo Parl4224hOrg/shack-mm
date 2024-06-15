@@ -10,10 +10,21 @@ import moment from "moment";
 
 export const recalc: Command = {
     data: new SlashCommandBuilder()
-        .setName('recalc')
-        .setDescription("Unmutes a player")
-        .addUserOption(userOption("User to unmute")),
-    run: async (interaction, data) => {
+        .setName('re_calc')
+        .setDescription('Re-calculates MMR for a specific game')
+        .addIntegerOption(option =>
+            option.setName('game_id')
+                .setDescription('ID of the game to recalculate')
+                .setRequired(true))
+        .addIntegerOption(option =>
+            option.setName('team_a_score')
+                .setDescription('Score of team A')
+                .setRequired(true))
+        .addIntegerOption(option =>
+            option.setName('team_b_score')
+                .setDescription('Score of team B')
+                .setRequired(true)),
+    run: async (interaction: CommandInteraction, data) => {
         try {
             await interaction.deferReply({ephemeral: true});
             
