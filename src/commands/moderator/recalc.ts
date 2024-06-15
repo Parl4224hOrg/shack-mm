@@ -1,32 +1,18 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
-import {logError} from "../../loggers";
-import {queues} from "../../utility/options";
-import GameModel from "../../database/models/GameModel";
-import {getUserById} from "../../modules/getters/getUser";
-import {processMMR} from "../../utility/processMMR";
-import {GameUser} from "../../interfaces/Game";
-import {updateGame} from "../../modules/updaters/updateGame";
+import { Command } from "../../interfaces/Command";
+import { SlashCommandBuilder } from "discord.js";
+import { userOption } from "../../utility/options";
 import tokens from "../../tokens";
-import StatsModel from "../../database/models/StatsModel";
-import {Regions} from "../../database/models/UserModel";
+import { logError } from "../../loggers";
+import { getUserByUser } from "../../modules/getters/getUser";
+import { updateUser } from "../../modules/updaters/updateUser";
+import {Client, EmbedBuilder, TextChannel} from "discord.js";
+import moment from "moment";
 
 export const recalc: Command = {
     data: new SlashCommandBuilder()
         .setName('recalc')
-        .setDescription('Re-calculates MMR for a specific game')
-        .addIntegerOption(option =>
-            option.setName('game_id')
-                .setDescription('ID of the game to recalculate')
-                .setRequired(true))
-        .addIntegerOption(option =>
-            option.setName('team_a_score')
-                .setDescription('Score of team A')
-                .setRequired(true))
-        .addIntegerOption(option =>
-            option.setName('team_b_score')
-                .setDescription('Score of team B')
-                .setRequired(true)),
+        .setDescription("Unmutes a player")
+        .addUserOption(userOption("User to unmute")),
     run: async (interaction, data) => {
         try {
             await interaction.deferReply({ephemeral: true});
@@ -88,9 +74,9 @@ export const recalc: Command = {
             }
             await interaction.followUp({ephemeral: true, content: 'done'});
         } catch (e) {
-            await logError(e, interaction)
+            await logError(e, interaction);
         }
     },
     name: 'recalc',
-    allowedUsers: [tokens.Mods],
-}
+    allowedRoles: [tokens.Mods],
+};
