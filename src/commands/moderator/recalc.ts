@@ -1,3 +1,4 @@
+import { CommandInteraction } from "discord.js";
 import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {logError} from "../../loggers";
@@ -49,7 +50,7 @@ export const recalc: Command = {
             // Update the game with new scores
             updateGame.scoreA = teamAScore;
             updateGame.scoreB = teamBScore;
-            await game.save();
+            await updateGame.save();
             
             const games = await GameModel.find({scoreB: {"$gte": 0}, scoreA: {'$gte': 0}}).sort({matchId: 1});
             await StatsModel.deleteMany({queueId: "SND"})
