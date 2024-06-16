@@ -37,5 +37,5 @@ export const recalc: Command = {
         return undefined;
     },
     name: 'recalc',
-    allowedRoles: [tokens.Mods],
+    allowedRoles: tokens.Mods,
 };
