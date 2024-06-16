@@ -28,7 +28,7 @@ export const recalc: Command = {
             option.setName('team_b_score')
                 .setDescription('Score of team B')
                 .setRequired(true)),
-    run: async (interaction: CommandInteraction<CacheType>, data: any): Promise<void> => {
+    run: async (interaction, data) => {
         try {
             await interaction.deferReply({ephemeral: true});
 
