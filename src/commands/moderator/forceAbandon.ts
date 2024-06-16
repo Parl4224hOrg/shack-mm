@@ -18,11 +18,12 @@ export const forceAbandon: SubCommand = {
         .addStringOption(reason),
     run: async (interaction, data) => {
         try {
+            let reason = interaction.options.getString('reason', true);
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             const game = data.findGame(dbUser._id);
             if (game) {
                 await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC, joined: false}, false, true);
-                await createAction(Actions.ForceAbandon, interaction.user.id, interaction.options.getString('reason', true), `<@${dbUser.id}> force abandoned from game ${game.id}`);
+                await createAction(Actions.ForceAbandon, interaction.user.id, reason, `<@${dbUser.id}> force abandoned from game ${game.id}`);
                 const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                 const embed = new EmbedBuilder();
                 embed.setTitle(`User ${dbUser.id} has been force abandoned`);
