@@ -29,7 +29,7 @@ import {unregisterServer} from "./admin/unregisterServer";
 import {ping} from "./ping";
 import {fixCDs} from "./admin/fixCDs";
 import {unmute} from "./admin/unmute";
-import {recalc} from "./moderator/updateMatchScore";
+import {updateMatchScore} from "./moderator/updateMatchScore";
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, manualSubmit, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
