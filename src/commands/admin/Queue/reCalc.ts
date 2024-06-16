@@ -61,5 +61,5 @@ export const reCalc: SubCommand = {
         }
     },
     name: 're_calc',
-    allowedUsers: [tokens.Parl],
+    allowedRoles: [tokens.LeadModRole],
 }
