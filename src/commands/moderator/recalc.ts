@@ -38,13 +38,13 @@ export const recalc: Command = {
             const updateGame = await GameModel.findOne({ matchId: updateGameId, scoreB: { "$gte": 0 }, scoreA: { '$gte': 0 } });
             if (!updateGame) {
                 await interaction.followUp({ ephemeral: true, content: 'Game not found.' });
+            } else {
+                // Update the game with new scores
+                updateGame.scoreA = teamAScore;
+                updateGame.scoreB = teamBScore;
+                await updateGame.save();
+                await interaction.followUp({ephemeral: true, content: 'done'});
             }
-            
-            // Update the game with new scores
-            updateGame.scoreA = teamAScore;
-            updateGame.scoreB = teamBScore;
-            await game.save();
-            await interaction.followUp({ephemeral: true, content: 'done'});
         } catch (e) {
             await logError(e, interaction);
         }
