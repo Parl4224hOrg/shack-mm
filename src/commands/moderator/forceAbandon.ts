@@ -7,6 +7,8 @@ import {Regions} from "../../database/models/UserModel";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {SlashCommandSubcommandBuilder} from "discord.js";
+import {Client, EmbedBuilder, TextChannel} from "discord.js";
+
 
 export const forceAbandon: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -21,6 +23,11 @@ export const forceAbandon: SubCommand = {
             if (game) {
                 await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC, joined: false}, false, true);
                 await createAction(Actions.ForceAbandon, interaction.user.id, interaction.options.getString('reason', true), `<@${dbUser.id}> force abandoned from game ${game.id}`);
+                const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+                const embed = new EmbedBuilder();
+                embed.setTitle(`User ${dbUser.id} has been force abandoned`);
+                embed.setDescription(`<@${dbUser.id}> force abandoned by <@${interaction.user.id}> because: ${reason}`);
+                await channel.send({embeds: [embed.toJSON()]});
                 await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> has been abandoned`});
             } else {
                 await interaction.reply({ephemeral: true, content: 'User not in a game'});
@@ -30,5 +37,5 @@ export const forceAbandon: SubCommand = {
         }
     },
     name: 'force_abandon',
-    allowedRoles: tokens.Mods,
+    allowedRoles: [tokens.Mods, tokens.Referee]
 }
