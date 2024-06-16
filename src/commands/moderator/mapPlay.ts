@@ -6,12 +6,27 @@ import {Collection, SlashCommandSubcommandBuilder} from "discord.js";
 
 export const mapPlay: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
-        .setName("play_rates")
+        .setName("map_play_rates")
         .setDescription("Show how much each map has been played"),
+        .addIntegerOption(option => 
+            option.setName("days")
+                .setDescription("Number of days to look back")
+                .setRequired(true)
+        ),
     run: async (interaction) => {
         try {
             await interaction.deferReply();
-            const games = await GameModel.find({scoreB: {"$gte": 0}, scoreA: {'$gte': 0}}).sort({matchId: 1});
+
+            // Get the number of days from the interaction
+            const days = interaction.options.getInteger("days", true);
+            const startDate = subDays(new Date(), days);
+            
+            const games = await GameModel.find({
+                scoreB: {"$gte": 0},
+                scoreA: {'$gte': 0},
+                creationDate: {"$gte": startDate}
+            }).sort({matchId: 1});
+            
             const totals = new Collection<string, number>()
             for (let game of games) {
                 const check = totals.get(game.map);
@@ -31,6 +46,6 @@ export const mapPlay: SubCommand = {
             await logError(e, interaction);
         }
     },
-    name: "play_rates",
+    name: "map_play_rates",
     allowedRoles: tokens.Mods,
 }
