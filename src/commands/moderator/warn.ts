@@ -1,3 +1,4 @@
+import { ChannelType } from "discord.js";
 import {SubCommand} from "../../interfaces/Command";
 import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {userOption} from "../../utility/options";
