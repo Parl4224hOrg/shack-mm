@@ -3,7 +3,7 @@ import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import GameModel from "../../database/models/GameModel";
 import {Collection, SlashCommandSubcommandBuilder} from "discord.js";
-import {subDays} from "date-fns";
+import moment from "moment";
 
 
 export const mapPlay: SubCommand = {
@@ -21,7 +21,7 @@ export const mapPlay: SubCommand = {
 
             // Get the number of days from the interaction
             const days = interaction.options.getInteger("days", true);
-            const startDate = subDays(new Date(), days);
+            const startDate = moment().subtract(days, 'days').toDate();  // Subtract days using moment
             
             const games = await GameModel.find({
                 scoreB: {"$gte": 0},
