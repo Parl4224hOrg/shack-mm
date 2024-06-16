@@ -31,6 +31,7 @@ export const recalc: Command = {
     run: async (interaction: CommandInteraction, data) => {
         try {
             await interaction.deferReply({ephemeral: true});
+
             
             const updateGameId = interaction.options.getInteger('game_id', true);
             const teamAScore = interaction.options.getInteger('team_a_score', true);
