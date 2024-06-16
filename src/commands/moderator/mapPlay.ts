@@ -3,7 +3,7 @@ import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import GameModel from "../../database/models/GameModel";
 import {Collection, SlashCommandSubcommandBuilder} from "discord.js";
-import {subDays} from 'date-fns'
+import {subDays} from "date-fns";
 
 
 export const mapPlay: SubCommand = {
