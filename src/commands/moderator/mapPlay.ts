@@ -7,7 +7,7 @@ import {Collection, SlashCommandSubcommandBuilder} from "discord.js";
 export const mapPlay: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName("map_play_rates")
-        .setDescription("Show how much each map has been played"),
+        .setDescription("Show how much each map has been played")
         .addIntegerOption(option => 
             option.setName("days")
                 .setDescription("Number of days to look back")
