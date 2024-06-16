@@ -12,9 +12,9 @@ import tokens from "../../tokens";
 import StatsModel from "../../database/models/StatsModel";
 import {Regions} from "../../database/models/UserModel";
 
-export const recalc: Command = {
+export const updateMatchScore: Command = {
     data: new SlashCommandBuilder()
-        .setName('re_calc')
+        .setName('updateMatchScore')
         .setDescription('Re-calculates MMR for a specific game')
         .addIntegerOption(option =>
             option.setName('game_id')
@@ -50,6 +50,6 @@ export const recalc: Command = {
         }
         return undefined;
     },
-    name: 'recalc',
+    name: 'updateMatchScore',
     allowedRoles: tokens.Mods,
 };
