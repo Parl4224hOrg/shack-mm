@@ -29,11 +29,11 @@ import {unregisterServer} from "./admin/unregisterServer";
 import {ping} from "./ping";
 import {fixCDs} from "./admin/fixCDs";
 import {unmute} from "./admin/unmute";
-import {recalc} from "./moderator/recalc";
+import {recalc} from "./moderator/updateMatchScore";
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, manualSubmit, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
-    help, checkDms, dmOptions, _mod, serverStatus, late, categoryDelete, unregisterServer, ping, fixCDs, unmute, recalc];
+    help, checkDms, dmOptions, _mod, serverStatus, late, categoryDelete, unregisterServer, ping, fixCDs, unmute, updateMatchScore];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 
