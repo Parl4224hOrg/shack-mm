@@ -11,14 +11,16 @@ import {updateGame} from "../../modules/updaters/updateGame";
 import tokens from "../../tokens";
 import StatsModel from "../../database/models/StatsModel";
 import {Regions} from "../../database/models/UserModel";
+import {Client, EmbedBuilder, TextChannel} from "discord.js";
+
 
 export const updateMatchScore: Command = {
     data: new SlashCommandBuilder()
-        .setName('updateMatchScore')
-        .setDescription('Re-calculates MMR for a specific game')
+        .setName('update_match_score')
+        .setDescription('Updates a game with the supplied team scores')
         .addIntegerOption(option =>
             option.setName('game_id')
-                .setDescription('ID of the game to recalculate')
+                .setDescription('ID of the game to update')
                 .setRequired(true))
         .addIntegerOption(option =>
             option.setName('team_a_score')
@@ -27,9 +29,14 @@ export const updateMatchScore: Command = {
         .addIntegerOption(option =>
             option.setName('team_b_score')
                 .setDescription('Score of team B')
+                .setRequired(true))
+        .addStringOption(option =>  
+            option.setName('reason')
+                .setDescription('Reason for the update')
                 .setRequired(true)),
     run: async (interaction, data) => {
         try {
+            let reason = interaction.options.getString('reason', true);
             const updateGameId = interaction.options.getInteger('game_id', true);
             const teamAScore = interaction.options.getInteger('team_a_score', true);
             const teamBScore = interaction.options.getInteger('team_b_score', true);
@@ -43,14 +50,18 @@ export const updateMatchScore: Command = {
                 updateGame.scoreA = teamAScore;
                 updateGame.scoreB = teamBScore;
                 await updateGame.save();
+                const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+                const embed = new EmbedBuilder();
+                embed.setTitle(`Game ${updateGameId} has been updated`);
+                embed.setDescription(`Team A score now: ${teamAScore} and Team B score now: ${teamBScore} updated by <@${interaction.user.id}> because: ${reason}`);
+                await channel.send({embeds: [embed.toJSON()]});
                 await interaction.followUp({ephemeral: true, content: 'done'});
             }
-            
         } catch (e) {
             await logError(e, interaction);
         }
         return undefined;
     },
-    name: 'updateMatchScore',
+    name: 'update_match_score',
     allowedRoles: tokens.Mods,
 };
