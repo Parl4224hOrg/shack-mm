@@ -45,6 +45,7 @@ export const updateMatchScore: Command = {
                 await updateGame.save();
                 await interaction.followUp({ephemeral: true, content: 'done'});
             }
+            
         } catch (e) {
             await logError(e, interaction);
         }
