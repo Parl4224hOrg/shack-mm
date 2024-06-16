@@ -8,6 +8,7 @@ import moment from "moment";
 import {updateUser} from "../../modules/updaters/updateUser";
 import {grammaticalTime} from "../../utility/grammatical";
 import warnModel from "../../database/models/WarnModel";
+import {Client, EmbedBuilder, TextChannel} from "discord.js";
 
 export const mute: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -44,11 +45,23 @@ export const mute: SubCommand = {
                 await member.roles.add(tokens.MutedRole);
                 reason = `Muted indefinitely because: ${reason}`;
                 await interaction.reply({ephemeral: true, content: `<@${user.id}> has been muted indefinitely`});
+                await warnModel.create({
+                    userId: dbUser._id,
+                    reason: reason,
+                    timeStamp: moment().unix(),
+                    modId: interaction.user.id,
+                    removed: false,
+                });
             } else if (time == 0) {
                 dbUser.muteUntil = moment().unix() + time * multiplier;
                 await updateUser(dbUser, data);
                 await member.roles.remove(tokens.MutedRole);
                 reason = `Un-muted because: ${reason}`;
+                const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+                const embed = new EmbedBuilder();
+                embed.setTitle(`User ${user.id} has been unmuted`);
+                embed.setDescription(`<@${user.id}> un-muted by <@${interaction.user.id}> because: ${reason}`);
+                await channel.send({embeds: [embed.toJSON()]});
                 await interaction.reply({ephemeral: true, content: `<@${user.id}> has been un-muted`});
             } else {
                 dbUser.muteUntil = moment().unix() + time * multiplier;
@@ -57,14 +70,14 @@ export const mute: SubCommand = {
                 muteMessage = `<@${user.id}> has been muted for ${grammaticalTime(muteDuration)}`;
                 reason = `Muted for ${time} ${durationText} because: ${reason}`;
                 await interaction.reply({ ephemeral: true, content: muteMessage });
+                await warnModel.create({
+                    userId: dbUser._id,
+                    reason: reason,
+                    timeStamp: moment().unix(),
+                    modId: interaction.user.id,
+                    removed: false,
+                });
             }
-            await warnModel.create({
-                userId: dbUser._id,
-                reason: reason,
-                timeStamp: moment().unix(),
-                modId: interaction.user.id,
-                removed: false,
-            });
         } catch (e) {
             await logError(e, interaction);
         }
