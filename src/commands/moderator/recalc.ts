@@ -92,6 +92,7 @@ export const recalc: Command = {
         } catch (e) {
             await logError(e, interaction);
         }
+        return undefined;
     },
     name: 'recalc',
     allowedRoles: [tokens.Mods],
