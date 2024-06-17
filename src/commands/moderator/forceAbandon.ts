@@ -7,7 +7,7 @@ import {Regions} from "../../database/models/UserModel";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {SlashCommandSubcommandBuilder} from "discord.js";
-import {Client, EmbedBuilder, TextChannel} from "discord.js";
+import {EmbedBuilder, TextChannel} from "discord.js";
 
 
 export const forceAbandon: SubCommand = {
