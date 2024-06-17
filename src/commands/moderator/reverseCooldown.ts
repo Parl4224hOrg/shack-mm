@@ -32,8 +32,14 @@ export const reverseCooldown: SubCommand = {
                 }
             }
             await updateUser(dbUser, data);
-            await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown of reversed`});
             await createActionUser(Actions.ReverseCooldown, interaction.user.id, dbUser.id, interaction.options.getString('reason', true), 'Bot cooldown reversed');
+            if (interaction.channel?.type === ChannelType.GuildPublicThread ||
+                interaction.channel?.type === ChannelType.GuildPrivateThread ||
+                interaction.channel?.type === ChannelType.GuildNewsThread) {
+                await interaction.reply({ephemeral: false, content: `<${dbUser.username}> cooldown of reversed`});
+            } else {
+                await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown of reversed`});
+            }
         } catch (e) {
             await logError(e, interaction);
         }
