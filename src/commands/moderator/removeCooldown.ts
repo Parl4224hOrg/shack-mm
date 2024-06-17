@@ -1,3 +1,4 @@
+import { ChannelType } from "discord.js";
 import {SubCommand} from "../../interfaces/Command";
 import {reason, userOption} from "../../utility/options";
 import tokens from "../../tokens";
@@ -25,14 +26,14 @@ export const removeCooldown: SubCommand = {
             if (interaction.channel?.type === ChannelType.GuildPublicThread ||
                 interaction.channel?.type === ChannelType.GuildPrivateThread ||
                 interaction.channel?.type === ChannelType.GuildNewsThread) {
-                await interaction.reply({ephemeral: false, content: `<${dbUser.username}> cooldown removed`});
+                await interaction.reply({ephemeral: false, content: `<${dbUser.id}> cooldown removed`});
             } else {
                 await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown removed`});
             }
             await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown removed`});
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
-            embed.setTitle(`User ${dbUser.username} has been cooldown removed`);
+            embed.setTitle(`User ${dbUser.id} has been cooldown removed`);
             embed.setDescription(`<@${dbUser.id}> cooldown removed by <@${interaction.user.id}> because: ${reason}`);
             await channel.send({embeds: [embed.toJSON()]});
         } catch (e) {
