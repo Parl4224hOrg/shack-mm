@@ -60,8 +60,8 @@ export const cooldown: SubCommand = {
             await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
-            embed.setTitle(`User ${dbUser.id} has been cooldowned`);
-            embed.setDescription(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action by <@${interaction.user.id}> because: ${reason}`);
+            embed.setTitle(`User ${user.id} has been cooldowned`);
+            embed.setDescription(`<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action by <@${interaction.user.id}> because: ${reason}`);
             await channel.send({embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);
