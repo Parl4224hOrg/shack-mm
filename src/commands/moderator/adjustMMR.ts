@@ -28,7 +28,7 @@ export const adjustMMR: SubCommand = {
             await interaction.reply({content: `<@${dbUser.id}>'s MMR has been adjusted by ${mmrDelta}. New MMR is ${stats.mmr}.` });
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
-            embed.setTitle(`User ${dbUser.username} has been MMR adjusted`);
+            embed.setTitle(`User ${dbUser.id} has been MMR adjusted`);
             embed.setDescription(`<@${dbUser.id}> MMR has been adjusted by ${mmrDelta}. New MMR is ${stats.mmr}. Done by <@${interaction.user.id}>`);
             await channel.send({embeds: [embed.toJSON()]});
         } catch (e) {
