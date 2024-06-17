@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import messages from "./messages.json"
+import messages from "./messages.json";
 dotenv.config();
 
 export default {
@@ -12,8 +12,8 @@ export default {
     // Discord stuff
     GuildID: '1152652407856189560',
     Parl: '484100069688344606',
-    LogChannel: '1152978645632155829',
-    MasterGuild: '1058879957461381251',
+    LogChannel: '1250198758625382420',
+    MasterGuild: '1204816540231401472',
     MatchCategory: '1171850272465764402',
     ModRole: '1152657002212884550',
     AdminRole: '1152652534763241542',
