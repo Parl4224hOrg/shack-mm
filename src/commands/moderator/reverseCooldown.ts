@@ -45,8 +45,8 @@ export const reverseCooldown: SubCommand = {
             }
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
-            embed.setTitle(`User ${user.id} cooldown reversed`);
-            embed.setDescription(`<@${user.id}> cooldown reversed by <@${interaction.user.id}> because: ${reason}`);
+            embed.setTitle(`User ${dbUser.id} cooldown reversed`);
+            embed.setDescription(`<@${dbUser.id}> cooldown reversed by <@${interaction.user.id}> because: ${reason}`);
             await channel.send({embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);
