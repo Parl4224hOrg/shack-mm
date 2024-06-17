@@ -14,6 +14,8 @@ export const nullify: SubCommand = {
         .addStringOption(reason),
     run: async (interaction, data) => {
         try {
+            // Check if the command was run under /ref or /mod
+            const isReferee = interaction.commandName === 'ref';
             let reason = interaction.options.getString('reason', true);
             const game = data.getGameByChannel(interaction.channelId);
             if (!game) {
@@ -23,7 +25,12 @@ export const nullify: SubCommand = {
                 await interaction.followUp("game nullified");
                 await game.abandonCleanup(true);
                 await createAction(Actions.Nullify, interaction.user.id, reason, `Game ${game.id} nullified`);
-                const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+                let channel: TextChannel;
+                if (isReferee) {
+                    channel = await interaction.client.channels.fetch(tokens.RefereeLogChannel) as TextChannel;
+                } else { 
+                    channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+                }
                 const embed = new EmbedBuilder();
                 embed.setTitle(`Game ${game.id} nullified`);
                 embed.setDescription(`Game ${game.id} nullified by <@${interaction.user.id}> because: ${reason}`);
