@@ -20,9 +20,8 @@ export const warn: SubCommand = {
             .setRequired(true)),
     run: async (interaction, data) => {
         try {
-             // Check if the user running the command is a referee
-            const commandUser = await getUserByUser(interaction.user, data);
-            const isReferee = commandUser.referee;
+            // Check if the command was run under /ref or /mod
+            const isReferee = interaction.commandName === 'ref';
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             if (isReferee) {
                 await warnModel.create({
