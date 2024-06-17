@@ -33,5 +33,5 @@ export const nullify: SubCommand = {
         }
     },
     name: 'nullify',
-    allowedRoles: [tokens.Mods, tokens.Referee]
+    allowedRoles: tokens.Mods.concat(tokens.Referee)
 }
