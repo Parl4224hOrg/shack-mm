@@ -19,7 +19,8 @@ export const nullify: SubCommand = {
             if (!game) {
                 await interaction.reply({ephemeral: true, content: 'Could not find game'});
             } else {
-                await interaction.reply("game nullified");
+                await interaction.reply({ ephemeral: true, content: "nullify is working" });
+                await interaction.followUp("game nullified");
                 await game.abandonCleanup(true);
                 await createAction(Actions.Nullify, interaction.user.id, reason, `Game ${game.id} nullified`);
                 const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
