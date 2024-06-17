@@ -26,7 +26,7 @@ export const forceAbandon: SubCommand = {
                 await createAction(Actions.ForceAbandon, interaction.user.id, reason, `<@${dbUser.id}> force abandoned from game ${game.id}`);
                 const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                 const embed = new EmbedBuilder();
-                embed.setTitle(`User ${dbUser.username} has been force abandoned`);
+                embed.setTitle(`User ${dbUser.id} has been force abandoned`);
                 embed.setDescription(`<@${dbUser.id}> force abandoned by <@${interaction.user.id}> because: ${reason}`);
                 await channel.send({embeds: [embed.toJSON()]});
                 await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> has been abandoned`});
@@ -38,5 +38,5 @@ export const forceAbandon: SubCommand = {
         }
     },
     name: 'force_abandon',
-    allowedRoles: [tokens.Mods, tokens.Referee]
+    allowedRoles: tokens.Mods.concat(tokens.Referee)
 }
