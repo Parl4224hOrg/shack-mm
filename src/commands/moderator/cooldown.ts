@@ -1,3 +1,4 @@
+import { ChannelType } from "discord.js";
 import {SubCommand} from "../../interfaces/Command";
 import {reason, userOption} from "../../utility/options";
 import {logError} from "../../loggers";
