@@ -38,5 +38,5 @@ export const forceAbandon: SubCommand = {
         }
     },
     name: 'force_abandon',
-    allowedRoles: tokens.Mods.concat(tokens.Referee)
+    allowedRoles: tokens.Mods
 }
