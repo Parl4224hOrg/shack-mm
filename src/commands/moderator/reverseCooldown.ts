@@ -47,7 +47,6 @@ export const reverseCooldown: SubCommand = {
             embed.setTitle(`User ${user.username} cooldown reversed`);
             embed.setDescription(`<@${user.id}> cooldown reversed by <@${interaction.user.id}> because: ${reason}`);
             await channel.send({embeds: [embed.toJSON()]});
-            await interaction.reply({ephemeral: true, content: `<@${user.id}> has been cooldown reversed`});
         } catch (e) {
             await logError(e, interaction);
         }
