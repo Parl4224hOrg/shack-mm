@@ -8,7 +8,7 @@ import {getGuildMember} from "../utility/discordGetters";
 import {getAcceptPerms, getMatchPerms} from "../utility/channelPerms";
 import tokens from "../tokens";
 import {acceptView} from "../views/acceptView";
-import {abandon, autoLate} from "../utility/punishment";
+import {abandon} from "../utility/punishment";
 import {voteA1, voteA2, voteB1, voteB2} from "../views/voteViews";
 import {initialSubmit, initialSubmitServer} from "../views/submitScoreViews";
 import {matchConfirmEmbed, matchFinalEmbed, teamsEmbed} from "../embeds/matchEmbeds";
@@ -25,6 +25,7 @@ import {updateUser} from "../modules/updaters/updateUser";
 import {logAccept, logScoreSubmit} from "../utility/match";
 import {GameServer} from "../server/server";
 import axios from "axios";
+import warnModel from "../database/models/WarnModel";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -310,20 +311,33 @@ export class GameController {
                     if (time - this.finalGenTime == 5 * 60) {
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
                         const lateUsers: GameUser[] = [];
+                        const playerList = await this.server?.refreshList();
                         for (let user of this.users) {
+                            if (!user.joined) {
+                                const dbUser = await getUserById(user.dbId, this.data);
+                                if (dbUser) {
+                                    for (let player of playerList!.PlayerList) {
+                                        if (player.UniqueId == dbUser.oculusName) {
+                                            user.joined = true;
+                                        }
+                                    }
+                                }
+                            }
                             if (!user.joined) {
                                 lateUsers.push(user);
                             }
                         }
                         await channel.send("5 minutes have passed");
-                        if (lateUsers.length < 7 && tokens.ApplyLates) {
+                        if (tokens.ApplyLates) {
                             for (let user of lateUsers) {
-                                const dbUser = await autoLate(user.dbId, this.data);
-                                let times = "";
-                                for (let time of dbUser.lateTimes) {
-                                    times += `<t:${time}:F>\n`;
-                                }
-                                await channel.send(`<@${dbUser.id}> Has been given a late\nTotal Count ${dbUser.lates}\nTimes:\n${times}`);
+                                await warnModel.create({
+                                    userId: user.dbId,
+                                    reason: "late",
+                                    timeStamp: moment().unix(),
+                                    modId: tokens.ClientID,
+                                    removed: false,
+                                });
+                                await channel.send(`<@${user.discordId}> has been given a late`);
                             }
                         } else {
                             await channel.send("Assuming lobby is being used no lates are being applied");
