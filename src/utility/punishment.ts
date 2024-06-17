@@ -24,39 +24,51 @@ export const punishment = async (user: UserInt, data: Data, acceptFail: boolean,
     const banCounter = acceptFail ? user.banCounterFail : user.banCounterAbandon
     const adjustedBanCounter = banCounter + severity - 1; // Adjust the ban counter based on severity
 
+    user.lastBan = now;
+    user.lastReductionAbandon = now;
+    user.gamesPlayedSinceReductionAbandon = 0;
+    user.lastReductionFail = now;
+    user.gamesPlayedSinceReductionFail = 0;
+
+    const DAY = 24 * 60 * 60; // Number of seconds in a day
+    
     switch (adjustedBanCounter) {
-        case 0: {
-            user.lastBan = now;
+        case 0:
             user.banUntil = now + 30 * 60;
-            user.lastReductionAbandon = now;
-            user.gamesPlayedSinceReductionAbandon = 0;
-            user.lastReductionFail = now;
-            user.gamesPlayedSinceReductionFail = 0;
-        } break;
-        case 1: {
-            user.lastBan = now;
+            break;
+        case 1:
             user.banUntil = now + 8 * 60 * 60;
-            user.lastReductionAbandon = now;
-            user.gamesPlayedSinceReductionAbandon = 0;
-            user.lastReductionFail = now;
-            user.gamesPlayedSinceReductionFail = 0;
-        } break;
-        case 2: {
-            user.lastBan = now;
-            user.banUntil = now + 24 * 60 * 60;
-            user.lastReductionAbandon = now;
-            user.gamesPlayedSinceReductionAbandon = 0;
-            user.lastReductionFail = now;
-            user.gamesPlayedSinceReductionFail = 0;
-        } break;
-        default: {
-            user.lastBan = now;
-            user.banUntil = now + 2 ** (banCounter - 1) * 12 * 60 * 60;
-            user.lastReductionAbandon = now;
-            user.gamesPlayedSinceReductionAbandon = 0;
-            user.lastReductionFail = now;
-            user.gamesPlayedSinceReductionFail = 0;
-        } break;
+            break;
+        case 2:
+            user.banUntil = now + DAY;
+            break;
+        case 3:
+            user.banUntil = now + DAY * 2;
+            break;
+        case 4:
+            user.banUntil = now + DAY * 4;
+            break;
+        case 5:
+            user.banUntil = now + DAY * 8;
+            break;
+        case 6:
+            user.banUntil = now + DAY * 16;
+            break;
+        case 7:
+            user.banUntil = now + DAY * 32;
+            break;
+        case 8:
+            user.banUntil = now + DAY * 64;
+            break;
+        case 9:
+            user.banUntil = now + DAY * 128;
+            break;
+        case 10:
+            user.banUntil = now + DAY * 256;
+            break;
+        default:
+            user.banUntil = now + DAY * 512;
+            break;
     }
     if (acceptFail) {
         user.banCounterFail += severity;
