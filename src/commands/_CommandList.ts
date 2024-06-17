@@ -30,11 +30,12 @@ import {ping} from "./ping";
 import {fixCDs} from "./admin/fixCDs";
 import {unmute} from "./admin/unmute";
 import {updateMatchScore} from "./moderator/updateMatchScore";
+import {_ref} from "./ref/_ref";
 
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, manualSubmit, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
-    help, checkDms, dmOptions, _mod, serverStatus, late, categoryDelete, unregisterServer, ping, fixCDs, unmute, updateMatchScore];
+    help, checkDms, dmOptions, _mod, serverStatus, late, categoryDelete, unregisterServer, ping, fixCDs, unmute, updateMatchScore, _ref];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

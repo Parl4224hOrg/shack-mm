@@ -8,7 +8,7 @@ import {Actions} from "../../database/models/ActionModel";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {updateUser} from "../../modules/updaters/updateUser";
 import {SlashCommandSubcommandBuilder} from "discord.js";
-import {Client, EmbedBuilder, TextChannel} from "discord.js";
+import {EmbedBuilder, TextChannel} from "discord.js";
 
 export const removeCooldown: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -23,9 +23,9 @@ export const removeCooldown: SubCommand = {
             dbUser.banUntil = 0;
             await updateUser(dbUser, data);
             await createActionUser(Actions.RemoveCooldown, interaction.user.id, dbUser.id, interaction.options.getString('reason', true), 'cooldown removed');
-            if (interaction.channel?.type === ChannelType.GuildPublicThread ||
-                interaction.channel?.type === ChannelType.GuildPrivateThread ||
-                interaction.channel?.type === ChannelType.GuildNewsThread) {
+            if (interaction.channel?.type === ChannelType.PublicThread ||
+                interaction.channel?.type === ChannelType.PrivateThread ||
+                interaction.channel?.type === ChannelType.AnnouncementThread) {
                 await interaction.reply({ephemeral: false, content: `<${dbUser.id}> cooldown removed`});
             } else {
                 await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown removed`});

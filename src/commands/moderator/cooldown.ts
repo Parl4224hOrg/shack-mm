@@ -10,7 +10,7 @@ import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {punishment} from "../../utility/punishment";
-import {Client, EmbedBuilder, TextChannel} from "discord.js";
+import {EmbedBuilder, TextChannel} from "discord.js";
 
 export const cooldown: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -50,9 +50,9 @@ export const cooldown: SubCommand = {
                 action = "Major"
             }
             await createActionUser(Actions.Cooldown, interaction.user.id, user.id,interaction.options.getString('reason', true), `Cooldown that scales with ban counter for ${user.banUntil - now} seconds, it was a ${action} action`);
-            if (interaction.channel?.type === ChannelType.GuildPublicThread ||
-                interaction.channel?.type === ChannelType.GuildPrivateThread ||
-                interaction.channel?.type === ChannelType.GuildNewsThread) {
+            if (interaction.channel?.type === ChannelType.PublicThread ||
+                interaction.channel?.type === ChannelType.PrivateThread ||
+                interaction.channel?.type === ChannelType.AnnouncementThread) {
                 await interaction.reply({content: `<${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
             } else {
                 await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
