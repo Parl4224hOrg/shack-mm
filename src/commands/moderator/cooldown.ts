@@ -47,6 +47,13 @@ export const cooldown: SubCommand = {
                 action = "Major"
             }
             await createActionUser(Actions.Cooldown, interaction.user.id, user.id,interaction.options.getString('reason', true), `Cooldown that scales with ban counter for ${user.banUntil - now} seconds, it was a ${action} action`);
+            if (interaction.channel?.type === ChannelType.GuildPublicThread ||
+                interaction.channel?.type === ChannelType.GuildPrivateThread ||
+                interaction.channel?.type === ChannelType.GuildNewsThread) {
+                await interaction.reply({content: `<${user.username}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
+            } else {
+                await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
+            }
             await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
         } catch (e) {
             await logError(e, interaction);
