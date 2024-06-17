@@ -18,10 +18,9 @@ export const forceAbandon: SubCommand = {
         .addStringOption(reason),
     run: async (interaction, data) => {
         try {
+            // Check if the command was run under /ref or /mod
+            const isReferee = interaction.commandName === 'ref';
             let reason = interaction.options.getString('reason', true);
-            // Check if the user running the command is a referee
-            const commandUser = await getUserByUser(interaction.user, data);
-            const isReferee = commandUser.referee;
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             const game = data.findGame(dbUser._id);
             if (game) {
@@ -31,7 +30,12 @@ export const forceAbandon: SubCommand = {
                 } else { 
                     await createAction(Actions.ForceAbandon, interaction.user.id, reason, `<@${dbUser.id}> force abandoned from game ${game.id}`);
                 }
-                const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+                let channel: TextChannel;
+                if (isReferee) {
+                    channel = await interaction.client.channels.fetch(tokens.RefereeLogChannel) as TextChannel;
+                } else { 
+                    channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+                }
                 const embed = new EmbedBuilder();
                 embed.setTitle(`User ${dbUser.id} has been force abandoned`);
                 embed.setDescription(`<@${dbUser.id}> force abandoned by <@${interaction.user.id}> because: ${reason}`);
