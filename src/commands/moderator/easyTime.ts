@@ -33,5 +33,5 @@ export const easyTime: SubCommand = {
         }
     },
     name: 'easy_time',
-    allowedRoles: [tokens.Mods, tokens.Referee]
+    allowedRoles: tokens.Mods.concat(tokens.Referee)
 }
