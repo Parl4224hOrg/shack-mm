@@ -19,8 +19,15 @@ export const removeCooldown: SubCommand = {
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             dbUser.banUntil = 0;
             await updateUser(dbUser, data);
-            await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown removed`});
             await createActionUser(Actions.RemoveCooldown, interaction.user.id, dbUser.id, interaction.options.getString('reason', true), 'cooldown removed');
+            if (interaction.channel?.type === ChannelType.GuildPublicThread ||
+                interaction.channel?.type === ChannelType.GuildPrivateThread ||
+                interaction.channel?.type === ChannelType.GuildNewsThread) {
+                await interaction.reply({ephemeral: false, content: `<${dbUser.username}> cooldown removed`});
+            } else {
+                await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown removed`});
+            }
+            await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown removed`});
         } catch (e) {
             await logError(e, interaction);
         }
