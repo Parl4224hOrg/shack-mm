@@ -21,12 +21,12 @@ export const nullify: SubCommand = {
             } else {
                 await interaction.reply("game nullified");
                 await game.abandonCleanup(true);
+                await createAction(Actions.Nullify, interaction.user.id, reason, `Game ${game.id} nullified`);
                 const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                 const embed = new EmbedBuilder();
                 embed.setTitle(`Game ${game.id} nullified`);
                 embed.setDescription(`Game ${game.id} nullified by <@${interaction.user.id}> because: ${reason}`);
                 await channel.send({embeds: [embed.toJSON()]});
-                await createAction(Actions.Nullify, interaction.user.id, reason, `Game ${game.id} nullified`);
             }
         } catch (e) {
             await logError(e, interaction);
