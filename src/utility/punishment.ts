@@ -22,7 +22,9 @@ export const autoLate = async (id: ObjectId, data: Data) => {
 
 export const punishment = async (user: UserInt, data: Data, acceptFail: boolean, severity: number, now: number): Promise<UserInt> => {
     const banCounter = acceptFail ? user.banCounterFail : user.banCounterAbandon
-    switch (banCounter) {
+    const adjustedBanCounter = banCounter + severity - 1; // Adjust the ban counter based on severity
+
+    switch (adjustedBanCounter) {
         case 0: {
             user.lastBan = now;
             user.banUntil = now + 30 * 60;

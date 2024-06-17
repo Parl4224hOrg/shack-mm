@@ -59,7 +59,7 @@ export const mute: SubCommand = {
                 reason = `Un-muted because: ${reason}`;
                 const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                 const embed = new EmbedBuilder();
-                embed.setTitle(`User ${user.id} has been unmuted`);
+                embed.setTitle(`User ${user.username} has been unmuted`);
                 embed.setDescription(`<@${user.id}> un-muted by <@${interaction.user.id}> because: ${reason}`);
                 await channel.send({embeds: [embed.toJSON()]});
                 await interaction.reply({ephemeral: true, content: `<@${user.id}> has been un-muted`});

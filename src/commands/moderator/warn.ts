@@ -39,5 +39,5 @@ export const warn: SubCommand = {
         }
     },
     name: 'warn',
-    allowedRoles: tokens.Mods
+    allowedRoles: [tokens.Mods, tokens.Referee]
 }
