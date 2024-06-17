@@ -10,6 +10,7 @@ import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {punishment} from "../../utility/punishment";
+import {Client, EmbedBuilder, TextChannel} from "discord.js";
 
 export const cooldown: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -35,6 +36,7 @@ export const cooldown: SubCommand = {
         .addStringOption(reason),
     run: async (interaction, data) => {
         try {
+            let reason = interaction.options.getString('reason', true);
             let user = await getUserByUser(interaction.options.getUser('user', true), data);
             const now = moment().unix();
             const severity = Number(interaction.options.getString("action_type", true)) ?? 0;
@@ -56,6 +58,11 @@ export const cooldown: SubCommand = {
                 await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
             }
             await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
+            const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+            const embed = new EmbedBuilder();
+            embed.setTitle(`User ${dbUser.id} has been cooldowned`);
+            embed.setDescription(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action by <@${interaction.user.id}> because: ${reason}`);
+            await channel.send({embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);
         }
