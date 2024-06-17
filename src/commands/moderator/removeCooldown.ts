@@ -7,6 +7,7 @@ import {Actions} from "../../database/models/ActionModel";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {updateUser} from "../../modules/updaters/updateUser";
 import {SlashCommandSubcommandBuilder} from "discord.js";
+import {Client, EmbedBuilder, TextChannel} from "discord.js";
 
 export const removeCooldown: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -16,6 +17,7 @@ export const removeCooldown: SubCommand = {
         .addStringOption(reason),
     run: async (interaction, data) => {
         try {
+            let reason = interaction.options.getString('reason', true);
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             dbUser.banUntil = 0;
             await updateUser(dbUser, data);
@@ -28,6 +30,12 @@ export const removeCooldown: SubCommand = {
                 await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown removed`});
             }
             await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown removed`});
+            const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+            const embed = new EmbedBuilder();
+            embed.setTitle(`User ${dbUser.username} has been cooldown removed`);
+            embed.setDescription(`<@${dbUser.id}> cooldown removed by <@${interaction.user.id}> because: ${reason}`);
+            await channel.send({embeds: [embed.toJSON()]});
+            await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> has been cooldown removed`});
         } catch (e) {
             await logError(e, interaction);
         }
