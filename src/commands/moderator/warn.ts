@@ -27,9 +27,9 @@ export const warn: SubCommand = {
                 modId: interaction.user.id,
                 removed: false,
             });
-            if (interaction.channel?.type === ChannelType.GuildPublicThread ||
-                interaction.channel?.type === ChannelType.GuildPrivateThread ||
-                interaction.channel?.type === ChannelType.GuildNewsThread) {
+            if (interaction.channel?.type === ChannelType.PublicThread ||
+                interaction.channel?.type === ChannelType.PrivateThread ||
+                interaction.channel?.type === ChannelType.AnnouncementThread) {
                 await interaction.reply({content: `<${interaction.options.getUser('user', true).username}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``});
             } else {
                 await interaction.reply({content: `<@${interaction.options.getUser('user', true).id}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``});
