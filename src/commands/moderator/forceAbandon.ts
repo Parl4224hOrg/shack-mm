@@ -37,9 +37,9 @@ export const forceAbandon: SubCommand = {
                 embed.setDescription(`<@${dbUser.id}> force abandoned by <@${interaction.user.id}> because: ${reason}`);
                 await channel.send({embeds: [embed.toJSON()]});
                 await interaction.reply({ ephemeral: true, content: "Force abandon is working" });
-                await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> has been abandoned`});
+                await interaction.followUp({ephemeral: false, content: `<@${dbUser.id}> has been abandoned`});
             } else {
-                await interaction.followUp({ephemeral: true, content: 'User not in a game'});
+                await interaction.reply({ephemeral: true, content: 'User not in a game'});
             }
         } catch (e) {
             await logError(e, interaction);
