@@ -7,6 +7,7 @@ import {getUserByUser} from "../../modules/getters/getUser";
 import warnModel from "../../database/models/WarnModel";
 import moment from "moment";
 import tokens from "../../tokens";
+import {EmbedBuilder, TextChannel} from "discord.js";
 
 export const warn: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -19,21 +20,41 @@ export const warn: SubCommand = {
             .setRequired(true)),
     run: async (interaction, data) => {
         try {
+             // Check if the user running the command is a referee
+            const commandUser = await getUserByUser(interaction.user, data);
+            const isReferee = commandUser.referee;
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
-            await warnModel.create({
-                userId: dbUser._id,
-                reason: interaction.options.getString('reason', true),
-                timeStamp: moment().unix(),
-                modId: interaction.user.id,
-                removed: false,
-            });
+            if (isReferee) {
+                await warnModel.create({
+                    userId: dbUser._id,
+                    reason: interaction.options.getString('reason', true),
+                    timeStamp: moment().unix(),
+                    modId: 'by Referee',
+                    removed: false,
+                });
+            } else {
+                await warnModel.create({
+                    userId: dbUser._id,
+                    reason: interaction.options.getString('reason', true),
+                    timeStamp: moment().unix(),
+                    modId: interaction.user.id,
+                    removed: false,
+                });
+            }
             if (interaction.channel?.type === ChannelType.PublicThread ||
                 interaction.channel?.type === ChannelType.PrivateThread ||
                 interaction.channel?.type === ChannelType.AnnouncementThread) {
-                await interaction.reply({content: `<${interaction.options.getUser('user', true).username}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``});
+                await interaction.reply({ ephemeral: true, content: "Warn is working" });
+                await interaction.followUp({content: `<${interaction.options.getUser('user', true).username}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``});
             } else {
-                await interaction.reply({content: `<@${interaction.options.getUser('user', true).id}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``});
+                await interaction.reply({ ephemeral: true, content: "Warn is working" });
+                await interaction.followUp({content: `<@${interaction.options.getUser('user', true).id}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``});
             }
+            const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+            const embed = new EmbedBuilder();
+            embed.setTitle(`User ${dbUser.id} has been warned`);
+            embed.setDescription(<@${interaction.options.getUser('user', true).id}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\` by <@${interaction.user.id}>`);
+            await channel.send({embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);
         }
