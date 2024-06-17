@@ -35,7 +35,6 @@ export const removeCooldown: SubCommand = {
             embed.setTitle(`User ${dbUser.username} has been cooldown removed`);
             embed.setDescription(`<@${dbUser.id}> cooldown removed by <@${interaction.user.id}> because: ${reason}`);
             await channel.send({embeds: [embed.toJSON()]});
-            await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> has been cooldown removed`});
         } catch (e) {
             await logError(e, interaction);
         }
