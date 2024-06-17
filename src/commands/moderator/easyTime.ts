@@ -32,6 +32,7 @@ export const easyTime: SubCommand = {
         } catch (e) {
             await logError(e, interaction);
         }
+        
     },
     name: 'easy_time',
     allowedRoles: tokens.Mods
