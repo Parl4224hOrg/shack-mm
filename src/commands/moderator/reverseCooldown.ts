@@ -1,3 +1,4 @@
+import { ChannelType } from "discord.js";
 import {SubCommand} from "../../interfaces/Command";
 import {cdType, reason, userOption} from "../../utility/options";
 import tokens from "../../tokens";
@@ -38,13 +39,13 @@ export const reverseCooldown: SubCommand = {
             if (interaction.channel?.type === ChannelType.GuildPublicThread ||
                 interaction.channel?.type === ChannelType.GuildPrivateThread ||
                 interaction.channel?.type === ChannelType.GuildNewsThread) {
-                await interaction.reply({ephemeral: false, content: `<${dbUser.username}> cooldown reversed`});
+                await interaction.reply({ephemeral: false, content: `<${dbUser.id}> cooldown reversed`});
             } else {
                 await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown reversed`});
             }
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
-            embed.setTitle(`User ${user.username} cooldown reversed`);
+            embed.setTitle(`User ${user.id} cooldown reversed`);
             embed.setDescription(`<@${user.id}> cooldown reversed by <@${interaction.user.id}> because: ${reason}`);
             await channel.send({embeds: [embed.toJSON()]});
         } catch (e) {
