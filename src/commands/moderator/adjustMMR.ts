@@ -27,24 +27,20 @@ export const adjustMMR: SubCommand = {
             const logEmbed = new EmbedBuilder();
             logEmbed.setTitle(`Adjust MMR logging`);
             logEmbed.setDescription(`line 29`);
-            await channel.send({embeds: [logEmbed.toJSON()]});
+            await logChannel.send({embeds: [logEmbed.toJSON()]});
             
             for (let mmr of stats.mmrHistory) {
                 mmr += mmrDelta;
             }
             
-            logEmbed = new EmbedBuilder();
-            logEmbed.setTitle(`Adjust MMR logging`);
             logEmbed.setDescription(`line 38`);
-            await channel.send({embeds: [logEmbed.toJSON()]});
+            await logChannel.send({embeds: [logEmbed.toJSON()]});
             
             stats.mmr += mmrDelta;
             await updateStats(stats);
 
-            logEmbed = new EmbedBuilder();
-            logEmbed.setTitle(`Adjust MMR logging`);
             logEmbed.setDescription(`line 46`);
-            await channel.send({embeds: [logEmbed.toJSON()]});
+            await logChannel.send({embeds: [logEmbed.toJSON()]});
             
             await interaction.followUp({content: `<@${dbUser.id}>'s MMR has been adjusted by ${mmrDelta}. New MMR is ${stats.mmr}.` });
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
