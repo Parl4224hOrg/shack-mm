@@ -265,7 +265,7 @@ export class Data {
                 inUseServers.push(game.serverId)
             }
             for (let server of this.servers) {
-                if (!server.isInUse() && server.getMatchNumber() < 0) {
+                if (!server.isInUse() && server.getMatchNumber() > 0) {
                     serv = server;
                 }
             }
