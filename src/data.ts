@@ -261,7 +261,7 @@ export class Data {
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
             let serv: GameServer | null = null;
             for (let server of this.servers) {
-                if (!server.isInUse() && server.getMatchNumber() > 0) {
+                if (!server.isInUse() && server.getMatchNumber() < 0) {
                     serv = server;
                 }
             }
