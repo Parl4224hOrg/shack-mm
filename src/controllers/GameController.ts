@@ -586,9 +586,9 @@ export class GameController {
             try {
                 const serverInfo = await this.server.serverInfo()
                 try {
-                    if (Number(serverInfo.ServerInfo.Team0Score) >= 6 || Number(serverInfo.ServerInfo.Team1Score) >= 6) {
-                        validAbandon = false;
-                    }
+                    //if (Number(serverInfo.ServerInfo.Team0Score) >= 6 || Number(serverInfo.ServerInfo.Team1Score) >= 6) {
+                        //validAbandon = false;
+                    //}
                 } catch (e) {
                     if (e instanceof TypeError) {
                         validAbandon = true;
