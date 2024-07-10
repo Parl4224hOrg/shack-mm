@@ -64,5 +64,5 @@ export const prepare: Command = {
         }
     },
     name: 'prepare',
-    allowedUsers: [tokens.Parl],
+    allowedUsers: [tokens.LeadModRole],
 }
