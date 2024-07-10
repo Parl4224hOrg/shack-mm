@@ -984,10 +984,10 @@ export class GameController {
             });
             this.finalChannelId = finalChannel.id;
             let totalAPAC = 0;
-            let totalEUE = false;
-            let totalEUW = false;
-            let totalNAE = false;
-            let totalNAW = false;
+            let totalEUE = 0;
+            let totalEUW = 0;
+            let totalNAE = 0;
+            let totalNAW = 0;
             for (let user of this.users) {
                 switch (user.region) {
                     case Regions.APAC: totalAPAC++; break;
