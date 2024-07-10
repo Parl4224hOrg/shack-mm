@@ -1027,7 +1027,7 @@ export class GameController {
                 if (totalEUE > 0) {
                     message = "There are APAC and EUE players in this game. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
                 } else {
-                    if ( (totalEUE + totalEUW) > 0) ) {
+                    if ((totalEUE + totalEUW) > 0) {
                         message = "Play on NAC because there are APAC players and EUW players in this game.";
                     } else {
                         message = "Play on NAW because there are APAC players and no EU players in this game. NAC may also be played.";
