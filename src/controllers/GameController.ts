@@ -1036,6 +1036,7 @@ export class GameController {
                 serverMessage = "The bot failed to pick a region. Please let the moderators know.";
             }
           
+            let message;
             if (this.server) {
                 try {
                     await this.switchMap();
