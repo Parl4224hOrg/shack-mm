@@ -1060,11 +1060,11 @@ export class GameController {
             }
 
             await finalChannel.messages.pin(message);
+            await finalChannel.send({ content: `\`\`\`${serverMessage}\`\`\`` });
             this.finalGenTime = moment().unix();
             await teamAChannel.delete();
             await teamBChannel.delete();
-            await finalChannel.send({ content: `${serverMessage}` });
-
+          
             const gameTemp = await getGameById(this.id);
             const game = gameTemp!;
             game.map = this.map;
