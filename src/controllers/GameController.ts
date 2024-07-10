@@ -983,38 +983,61 @@ export class GameController {
                 reason: 'Create final match channel',
             });
             this.finalChannelId = finalChannel.id;
-            let regionTotal = 0;
-            let APAC = false;
-            let EU = false;
-            let NA = false;
-            let NAW = false;
+            let totalAPAC = 0;
+            let totalEUE = false;
+            let totalEUW = false;
+            let totalNAE = false;
+            let totalNAW = false;
             for (let user of this.users) {
                 switch (user.region) {
-                    case Regions.APAC: regionTotal -= 2; APAC = true; break;
-                    case Regions.EUE: regionTotal += 2; EU = true; break;
-                    case Regions.EUW: regionTotal += 1; EU = true; break;
-                    case Regions.NAE: NA = true; break;
-                    case Regions.NAW: regionTotal -= 1; NA = true; NAW = true; break;
+                    case Regions.APAC: totalAPAC++; break;
+                    case Regions.EUE: totalEUE++; break;
+                    case Regions.EUW: totalEUW++; break;
+                    case Regions.NAE: totalNAE++; break;
+                    case Regions.NAW: totalNAW++; break;
                 }
             }
-            let region;
-            if (regionTotal <= -7) {
-                region = "NAW";
-            } else if (regionTotal <= -5) {
-                region = "NAC";
-            } else if (regionTotal <= 5) {
-                region = "NAE";
-            } else if (regionTotal <= 9) {
-                region = "EUE";
+            let message;
+            if (totalAPAC === 0 && totalEUE === 0 && totalEUW === 0) {
+                if (totalNAE > 0 && totalNAW === 0) {
+                    message = "Play on NAE.";
+                } else if (totalNAW > 0 && totalNAE === 0) {
+                    message = "Play in order of priority: NAW, NAC, NAE.";
+                } else if (totalNAE > 0 && totalNAW > 0) {
+                    message = "Play in order of priority: NAC, NAE, NAW.";  
+                }
+            } else if (totalAPAC === 0 && totalNAE === 0 && totalNAW === 0) {
+                message = "Play on EU.";  
+            } else if (totalEUE === 0 && totalEUW === 0 && totalNAE === 0 && totalNAW === 0) {
+                message = "Play on APAC.";  
+            } else if (totalAPAC === 0) {
+                // No APAC, only NA + EU
+                console.log("Only NA + EU players");
+                if (totalNAW > 0) {
+                    message = "Play on NAE.";
+                } else if (totalNAW === 0 && totalEUE > 0) {
+                    message = "Play on EU. If all EUE players agree, NAE may be used.";
+                } else if ( (totalNAE + totalNAW) > (totalEUE + totalEUW) ) { 
+                    message = "Play on NAE because majority NA over EU. If all NA players agree, EU may be used.";
+                } else {
+                    message = "Play on EU because majority EU over NA. If all EU players agree, NAE may be used.";
+                }
+            } else if (totalAPAC > 0) {
+                // There are APAC players, but not only APAC players
+                if (totalEUE > 0) {
+                    message = "There are APAC and EUE players in this game. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
+                } else {
+                    if ( (totalEUE + totalEUW) > 0) ) {
+                        message = "Play on NAC because there are APAC players and EUW players in this game.";
+                    } else {
+                        message = "Play on NAW because there are APAC players and no EU players in this game. NAC may also be played.";
+                    }
+                }
             } else {
-                region = "EUW";
+                message = "The bot failed to pick a region. Please let the moderators know.";
+                typo
             }
-            if (NAW && EU) {
-                region = "NAE";
-            }
-            if (NAW && EU && APAC) {
-                region = "NAC";
-            }
+        
             let message;
             if (this.server) {
                 try {
@@ -1024,12 +1047,12 @@ export class GameController {
                 }
                 message = await finalChannel.send({components: [initialSubmitServer()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
-                    content: `This match should be played on the server titled: \`SMM Match-${this.matchNumber}\`\nLobby region: ${region}`
+                    content: `${message}. This match should be played on the server titled: \`SMM Match-${this.matchNumber}\`\n`
                 });
             } else {
                 message = await finalChannel.send({components: [initialSubmit()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
-                    content: `This match should be played in the ${region} region`
+                    content: `${message}`
                 });
             }
 
