@@ -1035,7 +1035,6 @@ export class GameController {
                 }
             } else {
                 message = "The bot failed to pick a region. Please let the moderators know.";
-                typo
             }
         
             let message;
