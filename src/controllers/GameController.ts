@@ -332,7 +332,7 @@ export class GameController {
                             }
                         }
                         await channel.send("5 minutes have passed");
-                        if (tokens.ApplyLates && result?.serverSetup) {
+                        if (tokens.ApplyLates && result?.serverSetup && lateUsers.length < 6) {
                             for (let user of lateUsers) {
                                 await warnModel.create({
                                     userId: user.dbId,
@@ -1066,6 +1066,7 @@ export class GameController {
             this.finalGenTime = moment().unix();
             await teamAChannel.delete();
             await teamBChannel.delete();
+            await finalChannel.send({ content: `${serverMessage}` });
 
             const gameTemp = await getGameById(this.id);
             const game = gameTemp!;
