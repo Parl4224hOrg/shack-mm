@@ -7,7 +7,7 @@ import {getUserByUser} from "../modules/getters/getUser";
 import moment from "moment/moment";
 import {updateUser} from "../modules/updaters/updateUser";
 
-export const games: Button = {
+export const checkBanButton: Button = {
     data: new ButtonBuilder()
         .setStyle(ButtonStyle.Primary)
         .setLabel("Check Ban")
