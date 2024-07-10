@@ -305,8 +305,10 @@ export class GameController {
                     break;
                 case 4:
                     const result = await this.voteB2();
-                    const serverMessage = result.serverMessage;
-                    const serverSetup = result.serverSetup;
+                    if (result) {
+                        const serverMessage = result.serverMessage;
+                        const serverSetup = result.serverSetup;
+                    }
                     break;
                 case 5: {
                     const time = moment().unix();
@@ -330,7 +332,7 @@ export class GameController {
                             }
                         }
                         await channel.send("5 minutes have passed");
-                        if (tokens.ApplyLates && serverSetup) {
+                        if (tokens.ApplyLates && result?.serverSetup) {
                             for (let user of lateUsers) {
                                 await warnModel.create({
                                     userId: user.dbId,
