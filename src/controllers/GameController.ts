@@ -304,7 +304,9 @@ export class GameController {
                     await this.voteA2();
                     break;
                 case 4:
-                    await this.voteB2();
+                    const result = await this.voteB2();
+                    const serverMessage = result.serverMessage;
+                    const serverSetup = result.serverSetup;
                     break;
                 case 5: {
                     const time = moment().unix();
@@ -328,11 +330,11 @@ export class GameController {
                             }
                         }
                         await channel.send("5 minutes have passed");
-                        if (tokens.ApplyLates) {
+                        if (tokens.ApplyLates && serverSetup) {
                             for (let user of lateUsers) {
                                 await warnModel.create({
                                     userId: user.dbId,
-                                    reason: "late",
+                                    reason: "bot late",
                                     timeStamp: moment().unix(),
                                     modId: tokens.ClientID,
                                     removed: false,
@@ -998,30 +1000,34 @@ export class GameController {
                 }
             }
             let serverMessage = "";
+            let serverSetup = true;
             if (totalAPAC === 0 && totalEUE === 0 && totalEUW === 0) {
                 if (totalNAE > 0 && totalNAW === 0) {
-                    serverMessage = "Play on NAE.";
+                    serverMessage = "Play on NAE because all players are NA and there are no west coast players.";
                 } else if (totalNAW > 0 && totalNAE === 0) {
-                    serverMessage = "Play in order of priority: NAW, NAC, NAE.";
+                    serverMessage = "Play in order of priority: NAW, NAC, NAE because all players are NA and there are no east coast players.";
                 } else if (totalNAE > 0 && totalNAW > 0) {
-                    serverMessage = "Play in order of priority: NAC, NAE, NAW.";  
+                    serverMessage = "Play in order of priority: NAC, NAE, NAW because all players are NA.";  
                 }
             } else if (totalAPAC === 0 && totalNAE === 0 && totalNAW === 0) {
-                serverMessage = "Play on EU.";  
+                serverMessage = "Play on EU because all players are EU.";  
+                serverSetup = false;
             } else if (totalEUE === 0 && totalEUW === 0 && totalNAE === 0 && totalNAW === 0) {
-                serverMessage = "Play on APAC.";  
+                serverMessage = "Play on APAC because all players are APAC.";  
+                serverSetup = false;
             } else if (totalAPAC === 0) {
                 // No APAC, only NA + EU
                 if (totalNAW > 0) {
-                    serverMessage = "Play on NAE.";
+                    serverMessage = "Play on NAE because there are NAW players and EU players.";
                 } else if (totalNAW === 0 && totalEUE > 0) {
-                    serverMessage = "Play on EU. If all EUE players agree, NAE may be used.";
+                    serverMessage = "Play on EU because there are EUE players and no NAW players. If all EUE players agree, NAE may be used.";
                 } else if ( (totalNAE + totalNAW) > (totalEUE + totalEUW) ) { 
                     serverMessage = "Play on NAE because majority NA over EU. If all NA players agree, EU may be used.";
                 } else {
                     serverMessage = "Play on EU because majority EU over NA. If all EU players agree, NAE may be used.";
                 }
             } else if (totalAPAC > 0) {
+                serverSetup = false;
                 // There are APAC players, but not only APAC players
                 if (totalEUE > 0) {
                     serverMessage = "There are APAC and EUE players in this game. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
@@ -1037,7 +1043,7 @@ export class GameController {
             }
           
             let message;
-            if (this.server) {
+            if (this.server && serverSetup) {
                 try {
                     await this.switchMap();
                 } catch (e) {
@@ -1045,7 +1051,7 @@ export class GameController {
                 }
                 message = await finalChannel.send({components: [initialSubmitServer()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
-                    content: `${serverMessage}. This match should be played on the server titled: \`SMM Match-${this.matchNumber}\`\n`
+                    content: `${serverMessage}. This match might be played on the server titled: \`SMM Match-${this.matchNumber}\`\n`
                 });
             } else {
                 message = await finalChannel.send({components: [initialSubmit()],
@@ -1064,6 +1070,7 @@ export class GameController {
             game.map = this.map;
             game.sides = this.sides;
             await updateGame(game);
+            return { serverMessage, serverSetup };
         }
     }
 
