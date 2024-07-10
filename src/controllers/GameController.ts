@@ -305,10 +305,7 @@ export class GameController {
                     break;
                 case 4:
                     const result = await this.voteB2();
-                    if (result) {
-                        const serverMessage = result.serverMessage;
-                        const serverSetup = result.serverSetup;
-                    }
+                    const serverSetup = result?.serverSetup;
                     break;
                 case 5: {
                     const time = moment().unix();
@@ -332,7 +329,7 @@ export class GameController {
                             }
                         }
                         await channel.send("5 minutes have passed");
-                        if (tokens.ApplyLates && result?.serverSetup && lateUsers.length < 6) {
+                        if (tokens.ApplyLates && serverSetup && lateUsers.length < 6) {
                             for (let user of lateUsers) {
                                 await warnModel.create({
                                     userId: user.dbId,
@@ -1073,7 +1070,7 @@ export class GameController {
             game.map = this.map;
             game.sides = this.sides;
             await updateGame(game);
-            return { serverMessage, serverSetup };
+            return { serverSetup };
         }
     }
 
