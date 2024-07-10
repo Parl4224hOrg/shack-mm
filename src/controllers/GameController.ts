@@ -997,47 +997,45 @@ export class GameController {
                     case Regions.NAW: totalNAW++; break;
                 }
             }
-            let message;
+            let serverMessage = "";
             if (totalAPAC === 0 && totalEUE === 0 && totalEUW === 0) {
                 if (totalNAE > 0 && totalNAW === 0) {
-                    message = "Play on NAE.";
+                    serverMessage = "Play on NAE.";
                 } else if (totalNAW > 0 && totalNAE === 0) {
-                    message = "Play in order of priority: NAW, NAC, NAE.";
+                    serverMessage = "Play in order of priority: NAW, NAC, NAE.";
                 } else if (totalNAE > 0 && totalNAW > 0) {
-                    message = "Play in order of priority: NAC, NAE, NAW.";  
+                    serverMessage = "Play in order of priority: NAC, NAE, NAW.";  
                 }
             } else if (totalAPAC === 0 && totalNAE === 0 && totalNAW === 0) {
-                message = "Play on EU.";  
+                serverMessage = "Play on EU.";  
             } else if (totalEUE === 0 && totalEUW === 0 && totalNAE === 0 && totalNAW === 0) {
-                message = "Play on APAC.";  
+                serverMessage = "Play on APAC.";  
             } else if (totalAPAC === 0) {
                 // No APAC, only NA + EU
-                console.log("Only NA + EU players");
                 if (totalNAW > 0) {
-                    message = "Play on NAE.";
+                    serverMessage = "Play on NAE.";
                 } else if (totalNAW === 0 && totalEUE > 0) {
-                    message = "Play on EU. If all EUE players agree, NAE may be used.";
+                    serverMessage = "Play on EU. If all EUE players agree, NAE may be used.";
                 } else if ( (totalNAE + totalNAW) > (totalEUE + totalEUW) ) { 
-                    message = "Play on NAE because majority NA over EU. If all NA players agree, EU may be used.";
+                    serverMessage = "Play on NAE because majority NA over EU. If all NA players agree, EU may be used.";
                 } else {
-                    message = "Play on EU because majority EU over NA. If all EU players agree, NAE may be used.";
+                    serverMessage = "Play on EU because majority EU over NA. If all EU players agree, NAE may be used.";
                 }
             } else if (totalAPAC > 0) {
                 // There are APAC players, but not only APAC players
                 if (totalEUE > 0) {
-                    message = "There are APAC and EUE players in this game. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
+                    serverMessage = "There are APAC and EUE players in this game. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
                 } else {
                     if ((totalEUE + totalEUW) > 0) {
-                        message = "Play on NAC because there are APAC players and EUW players in this game.";
+                        serverMessage = "Play on NAC because there are APAC players and EUW players in this game.";
                     } else {
-                        message = "Play on NAW because there are APAC players and no EU players in this game. NAC may also be played.";
+                        serverMessage = "Play on NAW because there are APAC players and no EU players in this game. NAC may also be played.";
                     }
                 }
             } else {
-                message = "The bot failed to pick a region. Please let the moderators know.";
+                serverMessage = "The bot failed to pick a region. Please let the moderators know.";
             }
-        
-            let message;
+          
             if (this.server) {
                 try {
                     await this.switchMap();
@@ -1046,12 +1044,12 @@ export class GameController {
                 }
                 message = await finalChannel.send({components: [initialSubmitServer()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
-                    content: `${message}. This match should be played on the server titled: \`SMM Match-${this.matchNumber}\`\n`
+                    content: `${serverMessage}. This match should be played on the server titled: \`SMM Match-${this.matchNumber}\`\n`
                 });
             } else {
                 message = await finalChannel.send({components: [initialSubmit()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
-                    content: `${message}`
+                    content: `${serverMessage}`
                 });
             }
 
