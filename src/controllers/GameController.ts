@@ -329,7 +329,7 @@ export class GameController {
                             }
                         }
                         await channel.send("5 minutes have passed");
-                        if (tokens.ApplyLates && serverSetup && lateUsers.length < 6) {
+                        if (tokens.ApplyLates && serverSetup) {
                             for (let user of lateUsers) {
                                 await warnModel.create({
                                     userId: user.dbId,
@@ -1002,12 +1002,13 @@ export class GameController {
             let serverSetup = true;
             if (totalAPAC === 0 && totalEUE === 0 && totalEUW === 0) {
                 if (totalNAE > 0 && totalNAW === 0) {
-                    serverMessage = "Play on NAE because all players are NA and there are no west coast players.";
+                    //serverMessage = "Play on NAE because all players are NA and there are no west coast players.";
                 } else if (totalNAW > 0 && totalNAE === 0) {
-                    serverMessage = "Play in order of priority: NAW, NAC, NAE because all players are NA and there are no east coast players.";
+                    //serverMessage = "Play in order of priority: NAW, NAC, NAE because all players are NA and there are no east coast players.";
                 } else if (totalNAE > 0 && totalNAW > 0) {
-                    serverMessage = "Play in order of priority: NAC, NAE, NAW because all players are NA.";  
+                    //serverMessage = "Play in order of priority: NAC, NAE, NAW because all players are NA.";  
                 }
+                serverMessage = "Play on NA server because all players are NA.";
             } else if (totalAPAC === 0 && totalNAE === 0 && totalNAW === 0) {
                 serverMessage = "Play on EU because all players are EU.";  
                 serverSetup = false;
