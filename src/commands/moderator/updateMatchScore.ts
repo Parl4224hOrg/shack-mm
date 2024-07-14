@@ -36,6 +36,7 @@ export const updateMatchScore: Command = {
                 .setRequired(true)),
     run: async (interaction, data) => {
         try {
+            await interaction.deferReply();
             let reason = interaction.options.getString('reason', true);
             const updateGameId = interaction.options.getInteger('game_id', true);
             const teamAScore = interaction.options.getInteger('team_a_score', true);
