@@ -47,16 +47,27 @@ export const updateMatchScore: Command = {
             if (!updateGame) {
                 await interaction.followUp({ ephemeral: true, content: 'Game not found.' });
             } else {
-                // Update the game with new scores
-                updateGame.scoreA = teamAScore;
-                updateGame.scoreB = teamBScore;
-                await updateGame.save();
-                const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
-                const embed = new EmbedBuilder();
-                embed.setTitle(`Game ${updateGameId} has been updated`);
-                embed.setDescription(`Team A score now: ${teamAScore} and Team B score now: ${teamBScore} updated by <@${interaction.user.id}> because: ${reason}`);
-                await channel.send({embeds: [embed.toJSON()]});
-                await interaction.followUp({ephemeral: true, content: 'done'});
+                if (teamAScore !== 10 && teamBScore !== 10) {
+                    await interaction.followUp({ ephemeral: true, content: 'One team must have scored 10.' });
+                } else if (teamAScore === 10 && teamBScore === 10) {
+                    await interaction.followUp({ ephemeral: true, content: 'Both teams can\'t get 10.' });
+                } else {
+                    // Update the game with new scores
+                    updateGame.scoreA = teamAScore;
+                    updateGame.scoreB = teamBScore;
+                    updateGame.winner = teamAScore === 10 ? 0 : 1;
+                    // Set endDate to be 40 minutes from creationDate
+                    updateGame.endDate = updateGame.creationDate + 40 * 60;
+                    await updateGame.save();
+                    const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+                    const embed = new EmbedBuilder();
+                    embed.setTitle(`Game ${updateGameId} has been updated`);
+                    embed.setDescription(`Team A score now: ${teamAScore} and Team B score now: ${teamBScore} updated by <@${interaction.user.id}> because: ${reason}`);
+                    await channel.send({embeds: [embed.toJSON()]});
+                    await interaction.followUp({
+                        ephemeral: true,
+                        content: `Game ${updateGameId} has been updated:\n- Team A score: ${teamAScore}\n- Team B score: ${teamBScore}\n- Winner: ${updateGame.winner === 0 ? 'Team A' : 'Team B'}\n- End date set to 40 minutes from creation date\n- Reason: ${reason}`
+                    });                }
             }
         } catch (e) {
             await logError(e, interaction);
