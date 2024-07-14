@@ -14,6 +14,8 @@ import {logReady, logUnready} from "../utility/match";
 import {getUserById} from "../modules/getters/getUser";
 import {shuffleArray} from "../utility/makeTeams";
 import {logWarn} from "../loggers";
+import {Regions} from "../database/models/UserModel";
+
 
 interface PingMeUser {
     id: string;
