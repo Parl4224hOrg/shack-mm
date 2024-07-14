@@ -43,7 +43,7 @@ export const updateMatchScore: Command = {
             const teamBScore = interaction.options.getInteger('team_b_score', true);
 
             // Find the game
-            const updateGame = await GameModel.findOne({ matchId: updateGameId, scoreB: { "$gte": 0 }, scoreA: { '$gte': 0 } });
+            const updateGame = await GameModel.findOne({ matchId: updateGameId });
             if (!updateGame) {
                 await interaction.followUp({ ephemeral: true, content: 'Game not found.' });
             } else {
