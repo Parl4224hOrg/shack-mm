@@ -1,4 +1,4 @@
-import {GameUser} from "../interfaces/Game";
+import {GameUser, RecalcUser} from "../interfaces/Game";
 import {getStats} from "../modules/getters/getStats";
 import StatsModel, {StatsInt} from "../database/models/StatsModel";
 import {updateStats} from "../modules/updaters/updateStats";
@@ -60,17 +60,7 @@ const getMMRChanges = (team: StatsInt[], baseChange: number) => {
     return mmrChanges;
 }
 
-export const processMMR = async (users: GameUser[], scores: number[], queueId: string, scoreLimit: number): Promise<number[][]> => {
-    let teamA: StatsInt[] = [];
-    let teamB: StatsInt[] = [];
-    for (let user of users) {
-        if (user.team == 0) {
-            teamA.push(await getStats(user.dbId, queueId));
-        } else {
-            teamB.push(await getStats(user.dbId, queueId));
-        }
-    }
-
+const getChanges = (scores: number[], scoreLimit: number, teamA: StatsInt[], teamB: StatsInt[]) => {
     const winner = (scores[0] == scoreLimit) ? 0 : 1;
 
     // Calculates the amount a team won by on a 0-1 scale
@@ -125,6 +115,79 @@ export const processMMR = async (users: GameUser[], scores: number[], queueId: s
             }
         }
     }
+
+    return {
+        teamA: teamAChanges,
+        teamB: teamBChanges,
+        winner: winner,
+    }
+}
+
+export const recalcMMR = async (users: RecalcUser[], scores: number[], queueId: string, scoreLimit: number): Promise<{stats: StatsInt[], changes: number[][]}> => {
+    let teamA: StatsInt[] = [];
+    let teamB: StatsInt[] = [];
+    for (let user of users) {
+        if (user.team == 0) {
+            teamA.push(user.stats);
+        } else {
+            teamB.push(user.stats);
+        }
+    }
+
+    const changes = getChanges(scores, scoreLimit, teamA, teamB);
+    const teamAChanges = changes.teamA;
+    const teamBChanges = changes.teamB;
+    const winner = changes.winner;
+
+    for (let i = 0; i < teamAChanges.length; i++) {
+        teamA[i].mmr += teamAChanges[i];
+        teamA[i].mmrHistory.push(teamA[i].mmr);
+        teamA[i].ratingChange = teamAChanges[i];
+        teamA[i].gamesPlayed++;
+
+        teamB[i].mmr += teamBChanges[i];
+        teamB[i].mmrHistory.push(teamB[i].mmr);
+        teamB[i].ratingChange = teamBChanges[i];
+        teamB[i].gamesPlayed++;
+
+        if (winner == 0) {
+            teamA[i].gameHistory.push("win");
+            teamA[i].wins += 1;
+            teamB[i].gameHistory.push("loss");
+            teamB[i].losses += 1;
+        } else if (winner == 1) {
+            teamA[i].gameHistory.push("loss");
+            teamA[i].losses += 1;
+            teamB[i].gameHistory.push("win");
+            teamB[i].wins += 1;
+        } else {
+            teamA[i].gameHistory.push('draw');
+            teamA[i].draws += 1;
+            teamB[i].gameHistory.push('draw');
+            teamB[i].draws += 1;
+        }
+
+        teamA[i].winRate = calcWinRate(teamA[i]);
+        teamB[i].winRate = calcWinRate(teamB[i]);
+    }
+    return {stats: teamA.concat(teamB), changes: [teamAChanges, teamBChanges]};
+}
+
+export const processMMR = async (users: GameUser[], scores: number[], queueId: string, scoreLimit: number): Promise<number[][]> => {
+    let teamA: StatsInt[] = [];
+    let teamB: StatsInt[] = [];
+    for (let user of users) {
+        if (user.team == 0) {
+            teamA.push(await getStats(user.dbId, queueId));
+        } else {
+            teamB.push(await getStats(user.dbId, queueId));
+        }
+    }
+
+    const changes = getChanges(scores, scoreLimit, teamA, teamB);
+    const teamAChanges = changes.teamA;
+    const teamBChanges = changes.teamB;
+    const winner = changes.winner;
 
     // applies mmr changes
     for (let i = 0; i < teamAChanges.length; i++) {

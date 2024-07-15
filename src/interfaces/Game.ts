@@ -1,5 +1,6 @@
 import {ObjectId} from "mongoose";
 import {Regions} from "../database/models/UserModel";
+import {StatsInt} from "../database/models/StatsModel";
 
 export interface ids {
     db: ObjectId;
@@ -23,6 +24,13 @@ export interface GameUser {
     accepted: boolean;
     region: Regions;
     joined: boolean;
+}
+
+export interface RecalcUser {
+    dbId: ObjectId;
+    discordId: string;
+    team: number;
+    stats: StatsInt
 }
 
 export interface Vote {
