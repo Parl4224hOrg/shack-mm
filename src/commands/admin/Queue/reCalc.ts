@@ -15,23 +15,23 @@ import {Data} from "../../../data";
 import {getStats} from "../../../modules/getters/getStats";
 import {updateStats} from "../../../modules/updaters/updateStats";
 
-const getUser = async (id: ObjectId, cache: Map<ObjectId, UserInt>, data: Data) => {
-    const check = cache.get(id);
+const getUser = async (id: ObjectId, cache: Map<string, UserInt>, data: Data) => {
+    const check = cache.get(String(id));
     if (check) {
         return check
     }
     const found = await getUserById(id, data);
-    cache.set(id, found);
+    cache.set(String(id), found);
     return found;
 }
 
-const getCachedStats = async (id: ObjectId, cache: Map<ObjectId, StatsInt>) => {
-    const check = cache.get(id);
+const getCachedStats = async (id: ObjectId, cache: Map<string, StatsInt>) => {
+    const check = cache.get(String(id));
     if (check) {
         return check
     }
     const found = await getStats(id, "SND");
-    cache.set(id, found);
+    cache.set(String(id), found);
     return found;
 }
 
@@ -46,8 +46,8 @@ export const reCalc: SubCommand = {
             const games = await GameModel.find({scoreB: {"$gte": 0}, scoreA: {'$gte': 0}}).sort({matchId: 1});
             await StatsModel.deleteMany({queueId: "SND"});
 
-            const statsMap: Map<ObjectId, StatsInt> = new Map<ObjectId, StatsInt>();
-            const userMap: Map<ObjectId, UserInt> = new Map<ObjectId, UserInt>();
+            const statsMap: Map<string, StatsInt> = new Map<string, StatsInt>();
+            const userMap: Map<string, UserInt> = new Map<string, UserInt>();
 
             const logChannel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
 
@@ -86,11 +86,17 @@ export const reCalc: SubCommand = {
                 game.teamBChanges = results.changes[1];
                 await updateGame(game);
                 for (let stat of results.stats) {
-                    statsMap.set(stat.userId, stat);
+                    statsMap.set(String(stat.userId), stat);
                 }
             }
+            await logChannel.send("Matches have finished recalculating, updating stats");
+            count = 0;
             for (let stat of statsMap.values()) {
+                count++;
                 await updateStats(stat);
+                if (count % 100 == 0) {
+                    await logChannel.send(`${count}/${statsMap.size} stats updated`);
+                }
             }
             await interaction.followUp({ephemeral: true, content: 'done'});
         } catch (e) {
