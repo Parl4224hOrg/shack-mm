@@ -308,11 +308,10 @@ export class GameController {
                     const result = await this.voteB2();
                     serverSetup = result?.serverSetup ?? false;
                     const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                    await logChannel.send("Game controller line 311, serverSetup value: ${serverSetup}");
+                    await logChannel.send(`Game controller line 311, serverSetup value: ${serverSetup}`);
                     break;
                 case 5: {
-                    const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                    await logChannel.send("Game controller line 315, serverSetup value: ${serverSetup}");
+                    
                     const time = moment().unix();
 
                     const minutesPassed = Math.floor((time - this.finalGenTime) / 60);
@@ -320,7 +319,7 @@ export class GameController {
     
                     if (minutesLeft > 0 && minutesLeft <= 4 && (time - this.finalGenTime) % 60 === 0) {
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
-                        await channel.send(`${minutesLeft} minutes left to join!`);
+                        await channel.send(`**__${minutesLeft} minutes left to join!__**`);
                     }
                   
                     if (time - this.finalGenTime == 5 * 60) {
@@ -343,6 +342,8 @@ export class GameController {
                             }
                         }
                         await channel.send("5 minutes have passed");
+                        const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                        await logChannel.send(`Game controller line 346, serverSetup value: ${serverSetup}`);
                         if (tokens.ApplyLates && serverSetup) {
                             for (let user of lateUsers) {
                                 await warnModel.create({
