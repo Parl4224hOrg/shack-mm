@@ -290,6 +290,7 @@ export class GameController {
                 await this.server!.registerServer(this.matchNumber);
             }
             this.tickCount++;
+            const serverSetup = false;
             switch (this.state) {
                 case 0:
                     await this.acceptPhase();
@@ -305,10 +306,23 @@ export class GameController {
                     break;
                 case 4:
                     const result = await this.voteB2();
-                    const serverSetup = result?.serverSetup;
+                    serverSetup = result?.serverSetup;
+                    const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                    await logChannel.send("Game controller line 311, serverSetup value: ${serverSetup}");
                     break;
                 case 5: {
+                    const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                    await logChannel.send("Game controller line 315, serverSetup value: ${serverSetup}");
                     const time = moment().unix();
+
+                    const minutesPassed = Math.floor((time - this.finalGenTime) / 60);
+                    const minutesLeft = 5 - minutesPassed;
+    
+                    if (minutesLeft > 0 && minutesLeft <= 4 && (time - this.finalGenTime) % 60 === 0) {
+                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+                        await channel.send(`${minutesLeft} minutes left to join!`);
+                    }
+                  
                     if (time - this.finalGenTime == 5 * 60) {
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
                         const lateUsers: GameUser[] = [];
