@@ -290,7 +290,7 @@ export class GameController {
                 await this.server!.registerServer(this.matchNumber);
             }
             this.tickCount++;
-            let serverSetup = false;
+            let serverSetup: boolean = false;
             switch (this.state) {
                 case 0:
                     await this.acceptPhase();
@@ -306,7 +306,7 @@ export class GameController {
                     break;
                 case 4:
                     const result = await this.voteB2();
-                    serverSetup = result?.serverSetup;
+                    serverSetup = result?.serverSetup ?? false;
                     const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
                     await logChannel.send("Game controller line 311, serverSetup value: ${serverSetup}");
                     break;
