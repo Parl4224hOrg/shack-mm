@@ -290,7 +290,7 @@ export class GameController {
                 await this.server!.registerServer(this.matchNumber);
             }
             this.tickCount++;
-            const serverSetup = false;
+            let serverSetup = false;
             switch (this.state) {
                 case 0:
                     await this.acceptPhase();
