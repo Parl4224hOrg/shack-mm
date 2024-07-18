@@ -60,8 +60,10 @@ export const updateMatchScore: Command = {
                     updateGame.scoreA = teamAScore;
                     updateGame.scoreB = teamBScore;
                     updateGame.winner = teamAScore === 10 ? 0 : 1;
-                    // Set endDate to be 40 minutes from creationDate
-                    updateGame.endDate = updateGame.creationDate + 40 * 60;
+                    if(updateGame.endDate < 0) {
+                        // Set endDate to be 40 minutes from creationDate
+                        updateGame.endDate = updateGame.creationDate + 40 * 60;
+                    }
                     updateGame.abandoned = false;
                     await updateGame.save();
                     const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
