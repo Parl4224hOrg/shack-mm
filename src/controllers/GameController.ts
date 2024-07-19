@@ -308,7 +308,7 @@ export class GameController {
                 case 4:
                     await this.voteB2();
                     const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                    await logChannel.send(`Game controller line 311, serverSetup value: ${serverSetup}`);
+                    await logChannel.send(`Game controller line 311, serverSetup value: ${this.serverSetup}`);
                     break;
                 case 5: {
                     
@@ -343,8 +343,8 @@ export class GameController {
                         }
                         await channel.send("5 minutes have passed");
                         const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                        await logChannel.send(`Game controller line 346, serverSetup value: ${serverSetup}`);
-                        if (tokens.ApplyLates && serverSetup) {
+                        await logChannel.send(`Game controller line 346, serverSetup value: ${this.serverSetup}`);
+                        if (tokens.ApplyLates && this.serverSetup) {
                             for (let user of lateUsers) {
                                 await warnModel.create({
                                     userId: user.dbId,
@@ -1025,10 +1025,10 @@ export class GameController {
                 serverMessage = "Play on NA server because all players are NA.";
             } else if (totalAPAC === 0 && totalNAE === 0 && totalNAW === 0) {
                 serverMessage = "Play on EU because all players are EU.";  
-                serverSetup = false;
+                this.serverSetup = false;
             } else if (totalEUE === 0 && totalEUW === 0 && totalNAE === 0 && totalNAW === 0) {
                 serverMessage = "Play on APAC because all players are APAC.";  
-                serverSetup = false;
+                this.serverSetup = false;
             } else if (totalAPAC === 0) {
                 // No APAC, only NA + EU
                 if (totalNAW > 0) {
@@ -1041,7 +1041,7 @@ export class GameController {
                     serverMessage = "Play on EU because majority EU over NA. If all EU players agree, NAE may be used.";
                 }
             } else if (totalAPAC > 0) {
-                serverSetup = false;
+                this.serverSetup = false;
                 // There are APAC players, but not only APAC players
                 if (totalEUE > 0) {
                     serverMessage = "There are APAC and EUE players in this game. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
@@ -1057,7 +1057,7 @@ export class GameController {
             }
           
             let message;
-            if (this.server && serverSetup) {
+            if (this.server && this.serverSetup) {
                 try {
                     await this.switchMap();
                 } catch (e) {
