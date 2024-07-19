@@ -327,27 +327,33 @@ export class GameController {
                     //Every 30 seconds check server for players
                     if ((time - this.finalGenTime) % 30 === 0 && (time - this.finalGenTime) <= 5 * 60) {
                         await this.updateJoinedPlayers();
-                        const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                        const joinedPlayersList = Array.from(this.joinedPlayers).join(', ');
-                        await logChannel.send(`Current joined players: ${joinedPlayersList}`);
+                    }
+
+                    if (time - this.finalGenTime == 4 * 60) {
+                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+                        const lateUserMentions: string[] = [];
+                        for (let user of this.users) {
+                            const dbUser = await getUserById(user.dbId, this.data);
+                            if (dbUser && !this.joinedPlayers.has(dbUser.oculusName)) {
+                                const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                                await logChannel.send(`User ${dbUser.oculusName} is late.`);
+                                lateUserMentions.push(`<@${user.discordId}>`);
+                            }
+                        }
+                        if (lateUserMentions.length > 0) {
+                            await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 1 minute left to join!`);
+                        }
                     }
                   
                     if (time - this.finalGenTime == 5 * 60) {
+                        await this.updateJoinedPlayers();
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
                         const lateUsers: GameUser[] = [];
-                        const playerList = await this.server?.refreshList();
                         for (let user of this.users) {
-                            if (!user.joined) {
-                                const dbUser = await getUserById(user.dbId, this.data);
-                                if (dbUser) {
-                                    for (let player of playerList!.PlayerList) {
-                                        if (player.UniqueId == dbUser.oculusName) {
-                                            user.joined = true;
-                                        }
-                                    }
-                                }
-                            }
-                            if (!user.joined) {
+                            const dbUser = await getUserById(user.dbId, this.data);
+                            if (dbUser && !this.joinedPlayers.has(dbUser.oculusName)) {
+                                const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                                await logChannel.send(`User ${dbUser.oculusName} is late.`);
                                 lateUsers.push(user);
                             }
                         }
@@ -447,6 +453,9 @@ export class GameController {
                 this.joinedPlayers.add(player.UniqueId);
             }
         }
+        const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+        const joinedPlayersList = Array.from(this.joinedPlayers).join(', ');
+        await logChannel.send(`Current joined players: ${joinedPlayersList}`);
     }
 
     async switchMap() {
