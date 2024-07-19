@@ -183,6 +183,8 @@ export class GameController {
 
     serverSetup = true;
 
+    joinedPlayers: Set<string> = new Set();
+
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: GameServer | null) {
         this.id = id;
         this.client = client;
@@ -311,15 +313,23 @@ export class GameController {
                     await logChannel.send(`Game controller line 311, serverSetup value: ${this.serverSetup}`);
                     break;
                 case 5: {
-                    
                     const time = moment().unix();
 
                     const minutesPassed = Math.floor((time - this.finalGenTime) / 60);
                     const minutesLeft = 5 - minutesPassed;
-    
+
+                    //Every minute countdown
                     if (minutesLeft > 0 && minutesLeft <= 4 && (time - this.finalGenTime) % 60 === 0) {
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
                         await channel.send(`**__${minutesLeft} minutes left to join!__**`);
+                    }
+
+                    //Every 30 seconds check server for players
+                    if ((time - this.finalGenTime) % 30 === 0 && (time - this.finalGenTime) <= 5 * 60) {
+                        await this.updateJoinedPlayers();
+                        const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                        const joinedPlayersList = Array.from(this.joinedPlayers).join(', ');
+                        await logChannel.send(`Current joined players: ${joinedPlayersList}`);
                     }
                   
                     if (time - this.finalGenTime == 5 * 60) {
@@ -427,6 +437,15 @@ export class GameController {
             }
         } catch (e) {
             console.error(e);
+        }
+    }
+
+    async updateJoinedPlayers() {
+        const playerList = await this.server?.refreshList();
+        if (playerList && playerList.PlayerList) {
+            for (let player of playerList.PlayerList) {
+                this.joinedPlayers.add(player.UniqueId);
+            }
         }
     }
 
