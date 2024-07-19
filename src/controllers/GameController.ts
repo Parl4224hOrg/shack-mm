@@ -350,8 +350,8 @@ export class GameController {
                     if (time - this.finalGenTime == 5 * 60) {
                         await this.updateJoinedPlayers();
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+                        const lateUsers: GameUser[] = [];
                         if (this.serverSetup) {
-                            const lateUsers: GameUser[] = [];
                             for (let user of this.users) {
                                 const dbUser = await getUserById(user.dbId, this.data);
                                 if (dbUser && !this.joinedPlayers.has(dbUser.oculusName)) {
