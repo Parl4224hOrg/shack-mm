@@ -329,7 +329,8 @@ export class GameController {
                         await this.updateJoinedPlayers();
                     }
 
-                    if (time - this.finalGenTime == 4 * 60) {
+                    // 1 minute left
+                    if (time - this.finalGenTime == 4 * 60 && this.serverSetup) {
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
                         const lateUserMentions: string[] = [];
                         for (let user of this.users) {
@@ -344,17 +345,20 @@ export class GameController {
                             await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 1 minute left to join!`);
                         }
                     }
-                  
+
+                    // 5 minute mark
                     if (time - this.finalGenTime == 5 * 60) {
                         await this.updateJoinedPlayers();
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
-                        const lateUsers: GameUser[] = [];
-                        for (let user of this.users) {
-                            const dbUser = await getUserById(user.dbId, this.data);
-                            if (dbUser && !this.joinedPlayers.has(dbUser.oculusName)) {
-                                const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                                await logChannel.send(`User ${dbUser.oculusName} is late.`);
-                                lateUsers.push(user);
+                        if (this.serverSetup) {
+                            const lateUsers: GameUser[] = [];
+                            for (let user of this.users) {
+                                const dbUser = await getUserById(user.dbId, this.data);
+                                if (dbUser && !this.joinedPlayers.has(dbUser.oculusName)) {
+                                    const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                                    await logChannel.send(`User ${dbUser.oculusName} is late.`);
+                                    lateUsers.push(user);
+                                }
                             }
                         }
                         await channel.send("5 minutes have passed");
