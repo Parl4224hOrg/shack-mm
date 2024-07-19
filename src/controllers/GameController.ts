@@ -181,6 +181,8 @@ export class GameController {
 
     initServer = false;
 
+    serverSetup = true;
+
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: GameServer | null) {
         this.id = id;
         this.client = client;
@@ -290,7 +292,6 @@ export class GameController {
                 await this.server!.registerServer(this.matchNumber);
             }
             this.tickCount++;
-            let serverSetup: boolean = false;
             switch (this.state) {
                 case 0:
                     await this.acceptPhase();
@@ -305,8 +306,7 @@ export class GameController {
                     await this.voteA2();
                     break;
                 case 4:
-                    const result = await this.voteB2();
-                    serverSetup = result?.serverSetup ?? false;
+                    await this.voteB2();
                     const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
                     await logChannel.send(`Game controller line 311, serverSetup value: ${serverSetup}`);
                     break;
@@ -1014,7 +1014,6 @@ export class GameController {
                 }
             }
             let serverMessage = "";
-            let serverSetup = true;
             if (totalAPAC === 0 && totalEUE === 0 && totalEUW === 0) {
                 if (totalNAE > 0 && totalNAW === 0) {
                     //serverMessage = "Play on NAE because all players are NA and there are no west coast players.";
@@ -1086,7 +1085,6 @@ export class GameController {
             game.map = this.map;
             game.sides = this.sides;
             await updateGame(game);
-            return { serverSetup };
         }
     }
 
