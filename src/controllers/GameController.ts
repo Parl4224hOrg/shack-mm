@@ -341,7 +341,7 @@ export class GameController {
                                 lateUserMentions.push(`<@${user.discordId}>`);
                             }
                         }
-                        if (lateUserMentions.length > 0) {
+                        if (lateUserMentions.length > 0 && lateUserMentions.length < 7) {
                             await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 1 minute left to join!`);
                         }
                     }
@@ -365,15 +365,17 @@ export class GameController {
                         const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
                         await logChannel.send(`Game controller line 346, serverSetup value: ${this.serverSetup}`);
                         if (tokens.ApplyLates && this.serverSetup) {
-                            for (let user of lateUsers) {
-                                await warnModel.create({
-                                    userId: user.dbId,
-                                    reason: "bot late",
-                                    timeStamp: moment().unix(),
-                                    modId: tokens.ClientID,
-                                    removed: false,
-                                });
-                                await channel.send(`<@${user.discordId}> has been given a late`);
+                            if (lateUsers.length > 0 && lateUsers.length < 7) { 
+                              for (let user of lateUsers) {
+                                  await warnModel.create({
+                                      userId: user.dbId,
+                                      reason: "bot late",
+                                      timeStamp: moment().unix(),
+                                      modId: tokens.ClientID,
+                                      removed: false,
+                                  });
+                                  await channel.send(`<@${user.discordId}> has been given a late`);
+                              }
                             }
                         } else {
                             await channel.send("Assuming lobby is being used no lates are being applied");
