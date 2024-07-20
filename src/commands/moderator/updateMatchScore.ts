@@ -50,6 +50,7 @@ export const updateMatchScore: Command = {
                 const oldScoreA = updateGame.scoreA;
                 const oldScoreB = updateGame.scoreB;
                 const oldAbandoned = updateGame.abandoned;
+                let endDateChanged = false;
                 
                 if (teamAScore !== 10 && teamBScore !== 10) {
                     await interaction.followUp({ ephemeral: true, content: 'One team must have scored 10.' });
@@ -63,6 +64,7 @@ export const updateMatchScore: Command = {
                     if(updateGame.endDate < 0) {
                         // Set endDate to be 40 minutes from creationDate
                         updateGame.endDate = updateGame.creationDate + 40 * 60;
+                        endDateChanged = true;
                     }
                     updateGame.abandoned = false;
                     await updateGame.save();
@@ -71,10 +73,14 @@ export const updateMatchScore: Command = {
                     embed.setTitle(`Game ${updateGameId} has been updated`);
                     embed.setDescription(`Team A score now: ${teamAScore} and Team B score now: ${teamBScore} updated by <@${interaction.user.id}> because: ${reason}\nOld team A score: ${oldScoreA} and old team B score: ${oldScoreB}\nMatch was previously abandoned: ${oldAbandoned}`);
                     await channel.send({embeds: [embed.toJSON()]});
+                    let followUpMessage = `Game ${updateGameId} has been updated:\n- Team A score: ${teamAScore}\n- Team B score: ${teamBScore}\n- Winner: ${updateGame.winner === 0 ? 'Team A' : 'Team B'}\n- Reason: ${reason}`;
+                    if (endDateChanged) {
+                        followUpMessage += `\n- End date set to 40 minutes from creation date`;
+                    }
                     await interaction.followUp({
                         ephemeral: true,
-                        content: `Game ${updateGameId} has been updated:\n- Team A score: ${teamAScore}\n- Team B score: ${teamBScore}\n- Winner: ${updateGame.winner === 0 ? 'Team A' : 'Team B'}\n- End date set to 40 minutes from creation date\n- Reason: ${reason}`
-                    });                
+                        content: followUpMessage
+                    });              
                 }
             }
         } catch (e) {
