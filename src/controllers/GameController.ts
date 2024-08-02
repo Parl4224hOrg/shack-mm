@@ -879,7 +879,7 @@ export class GameController {
         this.voteCountdown--;
         if (!this.voteChannelsGen) {
             this.voteChannelsGen = true;
-
+            this.voteCountdown = tokens.VoteTime;
 
             const teamARole = await this.guild.roles.create({
                 name: `team-a-${this.matchNumber}`,
