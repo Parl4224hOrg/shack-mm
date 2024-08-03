@@ -129,6 +129,7 @@ export class QueueController {
             dbId: user._id,
             discordId: user.id,
             queueExpire: moment().unix() + time * 60,
+            whenQueuedUp: moment().unix(),
             mmr: stats.mmr,
             name: user.name,
             region: user.region,
@@ -275,6 +276,10 @@ export class QueueController {
     removeUser(userId: ObjectId, noMessage: boolean) {
         this.inQueue.forEach( async (user, index) => {
             if (String(user.dbId) == String(userId)) {
+                // Check if the user queued up less than a minute ago
+                if (currentTime < user.whenQueuedUp - 60) {
+                    return;
+                }
                 this.inQueue.splice(index, 1);
                 const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
                 if (!noMessage) {
