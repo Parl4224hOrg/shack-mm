@@ -12,6 +12,7 @@ export interface QueueUser {
     dbId: ObjectId;
     discordId: string;
     queueExpire: number;
+    whenQueuedUp: number;
     mmr: number;
     name: string;
     region: Regions;
