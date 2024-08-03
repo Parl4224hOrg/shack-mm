@@ -286,6 +286,7 @@ export class Data {
                     dbId: user.dbId,
                     discordId: user.discordId,
                     queueExpire: moment().unix() + 15 * 60,
+                    whenQueuedUp: moment().unix(),
                     mmr: stats.mmr,
                     name: dbUser.name,
                     region: dbUser.region,
