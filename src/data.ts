@@ -286,6 +286,7 @@ export class Data {
                     dbId: user.dbId,
                     discordId: user.discordId,
                     queueExpire: moment().unix() + 15 * 60,
+                    whenQueuedUp: moment().unix(),
                     mmr: stats.mmr,
                     name: dbUser.name,
                     region: dbUser.region,
@@ -345,11 +346,12 @@ export class Data {
         this.FILL_SND.removeUser(userId, false);
     }
 
-    removeFromQueue(userId: ObjectId, queueId: string) {
+    removeFromQueue(userId: ObjectId, queueId: string): boolean {
         if (queueId == "SND") {
-            this.FILL_SND.removeUser(userId, false);
+            return this.FILL_SND.removeUser(userId, false);
         } else if (queueId == "ALL") {
             this.removeFromAllQueues(userId);
+            return true;
         }
     }
 
