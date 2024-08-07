@@ -60,8 +60,10 @@ export const matchReady = async (interaction: ButtonInteraction | ChatInputComma
 
 export const matchUnready = async (interaction: ButtonInteraction | ChatInputCommandInteraction, data: Data, queueId: string) => {
     const dbUser = await getUserByUser(interaction.user, data);
-    data.removeFromQueue(dbUser._id, queueId);
-    await interaction.reply({ephemeral: true, content: `You have unreadied from ${queueId} queues`})
+    const removed = data.removeFromQueue(dbUser._id, queueId);
+    if (removed) {
+        await interaction.reply({ephemeral: true, content: `You have unreadied from ${queueId} queues`})
+    }
 }
 
 export const matchScore = async (interaction: ButtonInteraction, data: Data, score: number)=> {
