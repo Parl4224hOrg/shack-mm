@@ -14,6 +14,8 @@ import {logReady, logUnready} from "../utility/match";
 import {getUserById} from "../modules/getters/getUser";
 import {shuffleArray} from "../utility/makeTeams";
 import {logWarn} from "../loggers";
+import {Regions} from "../database/models/UserModel";
+
 
 interface PingMeUser {
     id: string;
@@ -236,11 +238,38 @@ export class QueueController {
 
     getQueueStr() {
         let queueStr = `[**${this.queueId}**] - ${this.inQueue.length} in Queue:\n`;
-        let names = []
+
+        let naUsers = [];
+        let euUsers = [];
+        let apacUsers = [];
+    
         for (let user of this.inQueue) {
-            names.push(user.name);
+            switch (user.region) {
+                case Regions.NAE:
+                case Regions.NAW:
+                    naUsers.push(`${user.name} (${user.region})`);
+                    break;
+                case Regions.EUE:
+                case Regions.EUW:
+                    euUsers.push(`${user.name} (${user.region})`);
+                    break;
+                case Regions.APAC:
+                    apacUsers.push(`${user.name} (${user.region})`);
+                    break;
+            }
         }
-        return queueStr + grammaticalList(names);
+    
+        if (naUsers.length > 0) {
+            queueStr += `\n**NA Users:**\n${grammaticalList(naUsers)}\n`;
+        }
+        if (euUsers.length > 0) {
+            queueStr += `\n**EU Users:**\n${grammaticalList(euUsers)}\n`;
+        }
+        if (apacUsers.length > 0) {
+            queueStr += `\n**APAC Users:**\n${grammaticalList(apacUsers)}\n`;
+        }
+    
+        return queueStr;
     }
 
     removeUser(userId: ObjectId, noMessage: boolean) {

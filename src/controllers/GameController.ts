@@ -181,6 +181,10 @@ export class GameController {
 
     initServer = false;
 
+    serverSetup = true;
+
+    joinedPlayers: Set<string> = new Set();
+
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: GameServer | null) {
         this.id = id;
         this.client = client;
@@ -305,39 +309,73 @@ export class GameController {
                     break;
                 case 4:
                     await this.voteB2();
+                    const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                    await logChannel.send(`Game controller line 311, serverSetup value: ${this.serverSetup}`);
                     break;
                 case 5: {
                     const time = moment().unix();
+
+                    const minutesPassed = Math.floor((time - this.finalGenTime) / 60);
+                    const minutesLeft = 5 - minutesPassed;
+
+                    //Every minute countdown
+                    if (minutesLeft > 0 && minutesLeft <= 4 && (time - this.finalGenTime) % 60 === 0) {
+                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+                        await channel.send(`**__${minutesLeft} minutes left to join!__**`);
+                    }
+
+                    //Every 30 seconds check server for players
+                    if ((time - this.finalGenTime) % 30 === 0 && (time - this.finalGenTime) <= 5 * 60) {
+                        await this.updateJoinedPlayers();
+                    }
+
+                    // 1 minute left
+                    if (time - this.finalGenTime == 4 * 60 && this.serverSetup) {
+                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+                        const lateUserMentions: string[] = [];
+                        for (let user of this.users) {
+                            const dbUser = await getUserById(user.dbId, this.data);
+                            if (dbUser && !this.joinedPlayers.has(dbUser.oculusName)) {
+                                const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                                await logChannel.send(`User ${dbUser.oculusName} is late.`);
+                                lateUserMentions.push(`<@${user.discordId}>`);
+                            }
+                        }
+                        if (lateUserMentions.length > 0 && lateUserMentions.length < 7) {
+                            await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 1 minute left to join!`);
+                        }
+                    }
+
+                    // 5 minute mark
                     if (time - this.finalGenTime == 5 * 60) {
+                        await this.updateJoinedPlayers();
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
                         const lateUsers: GameUser[] = [];
-                        const playerList = await this.server?.refreshList();
-                        for (let user of this.users) {
-                            if (!user.joined) {
+                        if (this.serverSetup) {
+                            for (let user of this.users) {
                                 const dbUser = await getUserById(user.dbId, this.data);
-                                if (dbUser) {
-                                    for (let player of playerList!.PlayerList) {
-                                        if (player.UniqueId == dbUser.oculusName) {
-                                            user.joined = true;
-                                        }
-                                    }
+                                if (dbUser && !this.joinedPlayers.has(dbUser.oculusName)) {
+                                    const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                                    await logChannel.send(`User ${dbUser.oculusName} is late.`);
+                                    lateUsers.push(user);
                                 }
-                            }
-                            if (!user.joined) {
-                                lateUsers.push(user);
                             }
                         }
                         await channel.send("5 minutes have passed");
-                        if (tokens.ApplyLates) {
-                            for (let user of lateUsers) {
-                                await warnModel.create({
-                                    userId: user.dbId,
-                                    reason: "late",
-                                    timeStamp: moment().unix(),
-                                    modId: tokens.ClientID,
-                                    removed: false,
-                                });
-                                await channel.send(`<@${user.discordId}> has been given a late`);
+                        const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                        await logChannel.send(`Game controller line 346, serverSetup value: ${this.serverSetup}`);
+                        if (tokens.ApplyLates && this.serverSetup) {
+                            if (lateUsers.length > 0 && lateUsers.length < 7) { 
+                              for (let user of lateUsers) {
+                                  await warnModel.create({
+                                      userId: user.dbId,
+                                      reason: "bot late",
+                                      timeStamp: moment().unix(),
+                                      modId: tokens.ClientID,
+                                      removed: false,
+                                  });
+                                  await channel.send(`<@${user.discordId}> has been given a late`);
+                              }
                             }
                         } else {
                             await channel.send("Assuming lobby is being used no lates are being applied");
@@ -412,6 +450,18 @@ export class GameController {
         } catch (e) {
             console.error(e);
         }
+    }
+
+    async updateJoinedPlayers() {
+        const playerList = await this.server?.refreshList();
+        if (playerList && playerList.PlayerList) {
+            for (let player of playerList.PlayerList) {
+                this.joinedPlayers.add(player.UniqueId);
+            }
+        }
+        const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+        const joinedPlayersList = Array.from(this.joinedPlayers).join(', ');
+        await logChannel.send(`Current joined players: ${joinedPlayersList}`);
     }
 
     async switchMap() {
@@ -586,9 +636,9 @@ export class GameController {
             try {
                 const serverInfo = await this.server.serverInfo()
                 try {
-                    if (Number(serverInfo.ServerInfo.Team0Score) >= 6 || Number(serverInfo.ServerInfo.Team1Score) >= 6) {
-                        validAbandon = false;
-                    }
+                    //if (Number(serverInfo.ServerInfo.Team0Score) >= 6 || Number(serverInfo.ServerInfo.Team1Score) >= 6) {
+                        //validAbandon = false;
+                    //}
                 } catch (e) {
                     if (e instanceof TypeError) {
                         validAbandon = true;
@@ -829,7 +879,7 @@ export class GameController {
         this.voteCountdown--;
         if (!this.voteChannelsGen) {
             this.voteChannelsGen = true;
-
+            this.voteCountdown = tokens.VoteTime;
 
             const teamARole = await this.guild.roles.create({
                 name: `team-a-${this.matchNumber}`,
@@ -983,40 +1033,65 @@ export class GameController {
                 reason: 'Create final match channel',
             });
             this.finalChannelId = finalChannel.id;
-            let regionTotal = 0;
-            let APAC = false;
-            let EU = false;
-            let NA = false;
-            let NAW = false;
+            let totalAPAC = 0;
+            let totalEUE = 0;
+            let totalEUW = 0;
+            let totalNAE = 0;
+            let totalNAW = 0;
             for (let user of this.users) {
                 switch (user.region) {
-                    case Regions.APAC: regionTotal -= 2; APAC = true; break;
-                    case Regions.EUE: regionTotal += 2; EU = true; break;
-                    case Regions.EUW: regionTotal += 1; EU = true; break;
-                    case Regions.NAE: NA = true; break;
-                    case Regions.NAW: regionTotal -= 1; NA = true; NAW = true; break;
+                    case Regions.APAC: totalAPAC++; break;
+                    case Regions.EUE: totalEUE++; break;
+                    case Regions.EUW: totalEUW++; break;
+                    case Regions.NAE: totalNAE++; break;
+                    case Regions.NAW: totalNAW++; break;
                 }
             }
-            let region;
-            if (regionTotal <= -7) {
-                region = "NAW";
-            } else if (regionTotal <= -5) {
-                region = "NAC";
-            } else if (regionTotal <= 5) {
-                region = "NAE";
-            } else if (regionTotal <= 9) {
-                region = "EUE";
+            let serverMessage = "";
+            if (totalAPAC === 0 && totalEUE === 0 && totalEUW === 0) {
+                if (totalNAE > 0 && totalNAW === 0) {
+                    //serverMessage = "Play on NAE because all players are NA and there are no west coast players.";
+                } else if (totalNAW > 0 && totalNAE === 0) {
+                    //serverMessage = "Play in order of priority: NAW, NAC, NAE because all players are NA and there are no east coast players.";
+                } else if (totalNAE > 0 && totalNAW > 0) {
+                    //serverMessage = "Play in order of priority: NAC, NAE, NAW because all players are NA.";  
+                }
+                serverMessage = "Play on NA server because all players are NA.";
+            } else if (totalAPAC === 0 && totalNAE === 0 && totalNAW === 0) {
+                serverMessage = "Play on EU because all players are EU.";  
+                this.serverSetup = false;
+            } else if (totalEUE === 0 && totalEUW === 0 && totalNAE === 0 && totalNAW === 0) {
+                serverMessage = "Play on APAC because all players are APAC.";  
+                this.serverSetup = false;
+            } else if (totalAPAC === 0) {
+                // No APAC, only NA + EU
+                if (totalNAW > 0) {
+                    serverMessage = "Play on NAE because there are NAW players and EU players.";
+                } else if (totalNAW === 0 && totalEUE > 0) {
+                    serverMessage = "Play on EU because there are EUE players and no NAW players. If all EUE players agree, NAE may be used.";
+                } else if ( (totalNAE + totalNAW) > (totalEUE + totalEUW) ) { 
+                    serverMessage = "Play on NAE because majority NA over EU. If all NA players agree, EU may be used.";
+                } else {
+                    serverMessage = "Play on EU because majority EU over NA. If all EU players agree, NAE may be used.";
+                }
+            } else if (totalAPAC > 0) {
+                this.serverSetup = false;
+                // There are APAC players, but not only APAC players
+                if (totalEUE > 0) {
+                    serverMessage = "There are APAC and EUE players in this game. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
+                } else {
+                    if ((totalEUE + totalEUW) > 0) {
+                        serverMessage = "Play on NAC because there are APAC players and EUW players in this game.";
+                    } else {
+                        serverMessage = "Play on NAW because there are APAC players and no EU players in this game. NAC may also be played.";
+                    }
+                }
             } else {
-                region = "EUW";
+                serverMessage = "The bot failed to pick a region. Please let the moderators know.";
             }
-            if (NAW && EU) {
-                region = "NAE";
-            }
-            if (NAW && EU && APAC) {
-                region = "NAC";
-            }
+          
             let message;
-            if (this.server) {
+            if (this.server && this.serverSetup) {
                 try {
                     await this.switchMap();
                 } catch (e) {
@@ -1024,20 +1099,21 @@ export class GameController {
                 }
                 message = await finalChannel.send({components: [initialSubmitServer()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
-                    content: `This match should be played on the server titled: \`SMM Match-${this.matchNumber}\`\nLobby region: ${region}`
+                    content: `${serverMessage}. This match might be played on the server titled: \`SMM Match-${this.matchNumber}\`\n`
                 });
             } else {
                 message = await finalChannel.send({components: [initialSubmit()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
-                    content: `This match should be played in the ${region} region`
+                    content: `${serverMessage}`
                 });
             }
 
             await finalChannel.messages.pin(message);
+            await finalChannel.send({ content: `\`\`\`${serverMessage}\`\`\`` });
             this.finalGenTime = moment().unix();
             await teamAChannel.delete();
             await teamBChannel.delete();
-
+          
             const gameTemp = await getGameById(this.id);
             const game = gameTemp!;
             game.map = this.map;
