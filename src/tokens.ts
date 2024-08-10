@@ -50,7 +50,7 @@ export default {
     Mods: ['1152657002212884550', '1200954518590984313'],
     // constants
     ApplyLates: true,
-    StartingMMR: 1500,
+    StartingMMR: 1300,
     PlayerCount: 10,
     ScoreLimitSND: 10,
     VoteTime: 30,
@@ -69,6 +69,7 @@ export default {
         Reachsky: "https://shackmm.com/static/images/reachsky.png",
         Manor: "https://shackmm.com/static/images/manor.png",
         Autumn: "https://shackmm.com/static/images/manor.png",
+        Whitesand: "https://shackmm.com/static/images/manor.png",
     },
     ReductionGames: 10,
     MapPool: ["Dust 2", "Cache", "Overpass", "Harbor", "Inferno", "Autumn", "Vertigo", "Mirage", "Reachsky"],
@@ -121,5 +122,6 @@ export default {
         Manor: "UGC3765846",
         Vertigo: "UGC3309849",
         Autumn: "autumn",
+        Whitesand: "UGC3263736",
     }
 }
