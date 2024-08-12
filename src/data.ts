@@ -49,7 +49,7 @@ export class Data {
         this.client = client
         this.FILL_SND = new QueueController(this, client, "FILL");
         for (let server of tokens.Servers) {
-            this.servers.push(new GameServer(server.ip, server.port, server.password, server.name, Regions.NAE));
+            this.servers.push(new GameServer(server.ip, server.port, server.password, server.name, Regions.NAE, server.id));
         }
     }
 
@@ -260,8 +260,12 @@ export class Data {
             const gameNum = await this.getIdSND()
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
             let serv: GameServer | null = null;
+            const inUseServers: string[] = [];
+            for (let game of this.getQueue().activeGames) {
+                inUseServers.push(game.serverId)
+            }
             for (let server of this.servers) {
-                if (!server.isInUse() && server.getMatchNumber() < 0) {
+                if (!inUseServers.includes(server.id)) {
                     serv = server;
                 }
             }

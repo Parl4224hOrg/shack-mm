@@ -100,12 +100,14 @@ export default {
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
             name: "NAE-ONE shackmm.com",
+            id: "NAE-ONE"
         },
         {
             ip: "15.204.218.215",
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
             name: "NAE-TWO shackmm.com",
+            id: "NAE-TWO"
         }
     ],
     MapIds: {
