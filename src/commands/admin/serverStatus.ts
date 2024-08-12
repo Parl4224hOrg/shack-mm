@@ -10,8 +10,8 @@ export const serverStatus: Command = {
     run: async (interaction, data) => {
         try {
             let status = "```";
-            for (let server of data.getServers()) {
-                status += `${server.name}: ${server.name}, ${server.isInUse()}\n`;
+            for (let game of data.getQueue().activeGames) {
+                status += `${game.matchNumber}: ${game.serverId}\n`;
             }
             status += "```";
             await interaction.reply({ephemeral: true, content: status});

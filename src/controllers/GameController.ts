@@ -184,6 +184,8 @@ export class GameController {
     serverSetup = true;
 
     joinedPlayers: Set<string> = new Set();
+    
+    serverId: string;
 
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: GameServer | null) {
         this.id = id;
@@ -225,8 +227,12 @@ export class GameController {
             this.allBans.push(ban);
         }
         this.server = server;
+        
         if (this.server) {
             this.initServer = true;
+            this.serverId = server!.id;
+        } else {
+            this.serverId = ""
         }
     }
 
@@ -285,6 +291,8 @@ export class GameController {
         this.acceptMessageId = data.acceptMessageId;
 
         this.autoReadied = data.autoReadied ?? false
+        
+        this.serverId = data.serverInUse ?? ""
     }
 
     async tick() {
