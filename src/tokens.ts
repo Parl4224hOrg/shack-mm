@@ -2,7 +2,6 @@ import * as dotenv from 'dotenv';
 import messages from "./messages.json";
 dotenv.config();
 
-
 export default {
     // Sensitive
     BotToken: process.env.BOT_TOKEN ?? '',
