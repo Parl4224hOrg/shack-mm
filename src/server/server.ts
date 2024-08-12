@@ -25,7 +25,7 @@ export class GameServer extends Server {
         this.inUse = false;
         this.matchNumber = -1;
         await this.updateServerName(this.name);
-        await this.close();
+        // await this.close();
     }
 
     public getMatchNumber(): number {
