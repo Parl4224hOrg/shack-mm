@@ -16,6 +16,7 @@ export const freeze: SubCommand = {
             if (interaction.channel!.isThread()) {
                 await interaction.reply({ephemeral: true, content: "This command cannot be used in a thread please use it in the ticket itself"})
             } else {
+                await interaction.deferReply();
                 const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
                 const guild = await interaction.client.guilds.fetch(tokens.GuildID);
                 const member = await guild.members.fetch(dbUser.id);
@@ -24,10 +25,10 @@ export const freeze: SubCommand = {
                 if (dbUser.frozen) {
                     await member.roles.add(tokens.MutedRole);
                     data.removeFromQueue(dbUser._id, "ALL");
-                    await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> has been frozen`});
+                    await interaction.followUp({ephemeral: false, content: `<@${dbUser.id}> has been frozen`});
                 } else {
                     await member.roles.remove(tokens.MutedRole);
-                    await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> has been unfrozen`});
+                    await interaction.followUp({ephemeral: false, content: `<@${dbUser.id}> has been unfrozen`});
                 }
             }
         } catch (e) {
