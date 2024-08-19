@@ -49,7 +49,7 @@ export default {
     Mods: ['1152657002212884550', '1200954518590984313'],
     // constants
     ApplyLates: true,
-    StartingMMR: 1500,
+    StartingMMR: 1300,
     PlayerCount: 10,
     ScoreLimitSND: 10,
     VoteTime: 30,
