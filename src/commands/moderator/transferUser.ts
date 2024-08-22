@@ -6,7 +6,6 @@ import {getUserByUser} from "../../modules/getters/getUser";
 import {getStats} from "../../modules/getters/getStats";
 import {updateStats} from "../../modules/updaters/updateStats";
 import {updateUser} from "../../modules/updaters/updateUser";
-import {getUserActions} from "../../modules/getters/getAction";
 import ActionModel from "../../database/models/ActionModel";
 import WarnModel from "../../database/models/WarnModel";
 
