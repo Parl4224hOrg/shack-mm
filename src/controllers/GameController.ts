@@ -569,6 +569,10 @@ export class GameController {
                 name: `match-${this.matchNumber}`,
                 type: ChannelType.GuildText,
                 permissionOverwrites: getAcceptPerms(matchRole),
+                {
+                    id: tokens.MutedRole, // ID of the muted role
+                    deny: ['SEND_MESSAGES'], // Deny sending messages
+                },
                 position: 0,
                 parent: tokens.MatchCategory,
                 reason: 'Create channel for match accept'
@@ -914,6 +918,10 @@ export class GameController {
                     name: `team-a-${this.matchNumber}`,
                     type: ChannelType.GuildText,
                     permissionOverwrites: getMatchPerms(teamARole),
+                    {
+                        id: tokens.MutedRole, // ID of the muted role
+                        deny: ['SEND_MESSAGES'], // Deny sending messages
+                    },
                     position: 0,
                     parent: tokens.MatchCategory,
                     reason: 'Create channel for team a'
@@ -925,6 +933,10 @@ export class GameController {
                     name: `team-b-${this.matchNumber}`,
                     type: ChannelType.GuildText,
                     permissionOverwrites: getMatchPerms(teamBRole),
+                    {
+                        id: tokens.MutedRole, // ID of the muted role
+                        deny: ['SEND_MESSAGES'], // Deny sending messages
+                    },
                     position: 0,
                     parent: tokens.MatchCategory,
                     reason: 'Create channel for team a'
@@ -1036,6 +1048,10 @@ export class GameController {
                 name: `match-${this.matchNumber}`,
                 type: ChannelType.GuildText,
                 permissionOverwrites: getMatchPerms(this.matchRoleId),
+                {
+                    id: tokens.MutedRole, // ID of the muted role
+                    deny: ['SEND_MESSAGES'], // Deny sending messages
+                },
                 position: 0,
                 parent: tokens.MatchCategory,
                 reason: 'Create final match channel',
