@@ -14,7 +14,7 @@ export const getAcceptPerms = (acceptRole: Role | string): OverwriteResolvable[]
         type: 0,
     });
 
-    perms.push(modPerms, denyEverybody);
+    perms.push(modPerms, denyEverybody, getMutedPerms());
 
     return perms;
 }
@@ -32,7 +32,7 @@ export const getMatchPerms = (role: Role | string): OverwriteResolvable[] => {
         type: 0,
     });
 
-    perms.push(modPerms, denyEverybody);
+    perms.push(modPerms, denyEverybody, getMutedPerms());
 
     return perms;
 }
@@ -61,4 +61,12 @@ const denyEverybody: OverwriteResolvable = {
                 PermissionsBitField.Flags.EmbedLinks,
             ],
         type: 0,
+}
+
+const getMutedPerms = (): OverwriteResolvable => {
+    return {
+        id: tokens.MutedRole,
+        deny: [PermissionsBitField.Flags.SendMessages],
+        type: 0,
+    };
 }
