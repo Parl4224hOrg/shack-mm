@@ -559,7 +559,7 @@ export class GameController {
                 reason: 'Create role for match accept',
                 permissions: [
                     // Deny "Use External Apps" by not including it in the allowed permissions
-                ].reduce((acc, perm) => acc & ~PermissionsBitField.Flags.USE_EXTERNAL_APPS, PermissionsBitField.All), // Deny specific permission
+                ].reduce((acc, perm) => acc & ~PermissionsBitField.Flags.UseExternalApplications, PermissionsBitField.All), // Deny specific permission
             });
             this.matchRoleId = matchRole.id;
 
@@ -894,19 +894,13 @@ export class GameController {
 
             const teamARole = await this.guild.roles.create({
                 name: `team-a-${this.matchNumber}`,
-                reason: 'Create role for team a',
-                permissions: [
-                    // Deny "Use External Apps" by not including it in the allowed permissions
-                ].reduce((acc, perm) => acc & ~PermissionsBitField.Flags.USE_EXTERNAL_APPS, PermissionsBitField.All), // Deny specific permission
+                reason: 'Create role for team a'
             });
             this.teamARoleId = teamARole.id;
 
             const teamBRole = await this.guild.roles.create({
                 name: `team-b-${this.matchNumber}`,
-                reason: 'Create role for team b',
-                permissions: [
-                    // Deny "Use External Apps" by not including it in the allowed permissions
-                ].reduce((acc, perm) => acc & ~PermissionsBitField.Flags.USE_EXTERNAL_APPS, PermissionsBitField.All), // Deny specific permission
+                reason: 'Create role for team b'
             });        
             this.teamBRoleId = teamBRole.id;
 
