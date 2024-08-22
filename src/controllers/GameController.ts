@@ -1,5 +1,5 @@
 import mongoose, {ObjectId} from "mongoose";
-import {ChannelType, Client, Collection, EmbedBuilder, Guild, PermissionsBitField, TextChannel} from "discord.js";
+import {ChannelType, Client, Collection, EmbedBuilder, Guild, TextChannel} from "discord.js";
 import {getGameById} from "../modules/getters/getGame";
 import moment from "moment/moment";
 import {processMMR} from "../utility/processMMR";
@@ -557,9 +557,6 @@ export class GameController {
             const matchRole = await this.guild.roles.create({
                 name: `match-${this.matchNumber}`,
                 reason: 'Create role for match accept',
-                permissions: [
-                    // Deny "Use External Apps" by not including it in the allowed permissions
-                ].reduce((acc, perm) => acc & ~PermissionsBitField.Flags.UseExternalApplications, PermissionsBitField.All), // Deny specific permission
             });
             this.matchRoleId = matchRole.id;
 
