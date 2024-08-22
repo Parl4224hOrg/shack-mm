@@ -568,11 +568,13 @@ export class GameController {
             const acceptChannel = await this.guild.channels.create({
                 name: `match-${this.matchNumber}`,
                 type: ChannelType.GuildText,
-                permissionOverwrites: getAcceptPerms(matchRole),
-                {
-                    id: tokens.MutedRole, // ID of the muted role
-                    deny: ['SEND_MESSAGES'], // Deny sending messages
-                },
+                permissionOverwrites: [
+                  ...getAcceptPerms(matchRole),
+                  {
+                      id: tokens.MutedRole, // ID of the muted role
+                      deny: ['SEND_MESSAGES'], // Deny sending messages
+                  },
+                ],
                 position: 0,
                 parent: tokens.MatchCategory,
                 reason: 'Create channel for match accept'
@@ -917,11 +919,13 @@ export class GameController {
             const teamAChannel = await this.guild.channels.create({
                     name: `team-a-${this.matchNumber}`,
                     type: ChannelType.GuildText,
-                    permissionOverwrites: getMatchPerms(teamARole),
-                    {
-                        id: tokens.MutedRole, // ID of the muted role
-                        deny: ['SEND_MESSAGES'], // Deny sending messages
-                    },
+                    permissionOverwrites: [
+                      ...getMatchPerms(teamARole),
+                      {
+                          id: tokens.MutedRole, // ID of the muted role
+                          deny: ['SEND_MESSAGES'], // Deny sending messages
+                      },
+                    ],
                     position: 0,
                     parent: tokens.MatchCategory,
                     reason: 'Create channel for team a'
@@ -932,11 +936,13 @@ export class GameController {
             const teamBChannel = await this.guild.channels.create({
                     name: `team-b-${this.matchNumber}`,
                     type: ChannelType.GuildText,
-                    permissionOverwrites: getMatchPerms(teamBRole),
-                    {
-                        id: tokens.MutedRole, // ID of the muted role
-                        deny: ['SEND_MESSAGES'], // Deny sending messages
-                    },
+                    permissionOverwrites: [
+                      ...getMatchPerms(teamBRole),
+                      {
+                          id: tokens.MutedRole, // ID of the muted role
+                          deny: ['SEND_MESSAGES'], // Deny sending messages
+                      },
+                    ],
                     position: 0,
                     parent: tokens.MatchCategory,
                     reason: 'Create channel for team a'
@@ -1047,11 +1053,13 @@ export class GameController {
             const finalChannel = await this.guild.channels.create({
                 name: `match-${this.matchNumber}`,
                 type: ChannelType.GuildText,
-                permissionOverwrites: getMatchPerms(this.matchRoleId),
-                {
-                    id: tokens.MutedRole, // ID of the muted role
-                    deny: ['SEND_MESSAGES'], // Deny sending messages
-                },
+                permissionOverwrites: [
+                  ...getMatchPerms(this.matchRoleId),
+                  {
+                      id: tokens.MutedRole, // ID of the muted role
+                      deny: ['SEND_MESSAGES'], // Deny sending messages
+                  },
+                ],
                 position: 0,
                 parent: tokens.MatchCategory,
                 reason: 'Create final match channel',
