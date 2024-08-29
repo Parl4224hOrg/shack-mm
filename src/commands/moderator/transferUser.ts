@@ -58,7 +58,7 @@ export const transferUser: SubCommand = {
 
             // Transfer Actions and warnings
             await ActionModel.updateMany({userId: oldUser.id}, {"$set": {"userId": newUser.id}});
-            await WarnModel.updateMany({userId: oldUser._id}, {"$set": {"userId": newUser.id}});
+            await WarnModel.updateMany({userId: oldUser._id}, {"$set": {"userId": newUser._id}});
 
             await interaction.guild!.members.kick(oldUser.id, "Remove transferred user from server")
 
