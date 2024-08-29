@@ -1105,7 +1105,7 @@ export class GameController {
                 } catch (e) {
                     console.error(e);
                 }
-                message = await finalChannel.send({components: [initialSubmitServer()],
+                message = await finalChannel.send({components: [initialSubmit(), initialSubmitServer()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
                     content: `${serverMessage}. This match might be played on the server titled: \`SMM Match-${this.matchNumber}\`\n`
                 });

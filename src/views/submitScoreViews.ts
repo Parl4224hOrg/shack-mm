@@ -6,15 +6,16 @@ import {confirmScore} from "../buttons/match/score/confirmScore";
 import {autoReady} from "../buttons/match/autoReady";
 import {resetSND} from "../buttons/match/resetSND";
 import {switchMap} from "../buttons/match/switchMap";
+import {abandonButton} from "../buttons/match/abandon/abandonButton";
 
 export const initialSubmit = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(win.data, loss.data, autoReady.data).toJSON();
+        .addComponents(win.data, loss.data, autoReady.data, abandonButton.data).toJSON();
 }
 
 export const initialSubmitServer = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(win.data, loss.data, autoReady.data, resetSND.data, switchMap.data).toJSON();
+        .addComponents(resetSND.data, switchMap.data);
 }
 
 export const roundsWon = () => {
