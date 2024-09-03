@@ -23,6 +23,7 @@ export const mute: SubCommand = {
             .setRequired(true)),
     run: async (interaction, data) => {
         try {
+            await interaction.deferReply();
             let multiplier: number = 0;
             let durationText: string = '';
             switch (interaction.options.getString('time_scale', true)) {
@@ -44,7 +45,7 @@ export const mute: SubCommand = {
                 await updateUser(dbUser, data);
                 await member.roles.add(tokens.MutedRole);
                 reason = `Muted indefinitely because: ${reason}`;
-                await interaction.reply({ephemeral: true, content: `<@${user.id}> has been muted indefinitely`});
+                await interaction.followUp({ephemeral: true, content: `<@${user.id}> has been muted indefinitely`});
                 await warnModel.create({
                     userId: dbUser._id,
                     reason: reason,
@@ -62,14 +63,14 @@ export const mute: SubCommand = {
                 embed.setTitle(`User ${user.username} has been unmuted`);
                 embed.setDescription(`<@${user.id}> un-muted by <@${interaction.user.id}> because: ${reason}`);
                 await channel.send({embeds: [embed.toJSON()]});
-                await interaction.reply({ephemeral: true, content: `<@${user.id}> has been un-muted`});
+                await interaction.followUp({ephemeral: true, content: `<@${user.id}> has been un-muted`});
             } else {
                 dbUser.muteUntil = moment().unix() + time * multiplier;
                 await updateUser(dbUser, data);
                 await member.roles.add(tokens.MutedRole);
                 muteMessage = `<@${user.id}> has been muted for ${grammaticalTime(muteDuration)}`;
                 reason = `Muted for ${time} ${durationText} because: ${reason}`;
-                await interaction.reply({ ephemeral: true, content: muteMessage });
+                await interaction.followUp({ ephemeral: true, content: muteMessage });
                 await warnModel.create({
                     userId: dbUser._id,
                     reason: reason,
