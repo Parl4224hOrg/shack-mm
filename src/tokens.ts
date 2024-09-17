@@ -74,6 +74,7 @@ export default {
     MapPool: ["Dust 2", "Cache", "Overpass", "Oilrig", "Harbor", "Reachsky", "Vertigo", "Mirage", "Whitesand"],
     PingToPlayTime: 90 * 60,
     Ranks: [
+        {name: 'Grandmaster', threshold: 2300, roleId: '1285641380600877157'},
         {name: 'Master', threshold: 1950, roleId: '1152692826669326398'},
         {name: 'Diamond', threshold: 1821, roleId: '1152692676035088464'},
         {name: 'Platinum', threshold: 1701, roleId: '1152692485332664411'},
