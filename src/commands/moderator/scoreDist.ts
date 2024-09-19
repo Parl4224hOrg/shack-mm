@@ -11,7 +11,7 @@ export const scoreDist: SubCommand = {
         .setDescription("Displays a graph with the score distribution"),
     run: async (interaction) => {
         try {
-            await interaction.deferReply()
+            await interaction.deferReply();
             const games = await getGames();
             const scoreMap = new Map<number, number>();
             for (let number of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
