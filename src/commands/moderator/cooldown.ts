@@ -57,6 +57,14 @@ export const cooldown: SubCommand = {
             } else {
                 await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
             }
+
+            // Send DM to the user
+            try {
+                await user.send(`<${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`);
+            } catch (dmError) {
+                console.error(`Failed to send DM to user ${user.id}:`, dmError);
+            }
+            
             await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
