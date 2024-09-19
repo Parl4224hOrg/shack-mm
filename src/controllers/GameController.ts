@@ -554,7 +554,6 @@ export class GameController {
         this.acceptCountdown--;
         if (!this.acceptChannelGen) {
             this.acceptChannelGen = true;
-            this.voteCountdown = tokens.VoteTime;
             const matchRole = await this.guild.roles.create({
                 name: `match-${this.matchNumber}`,
                 reason: 'Create role for match accept',
@@ -953,6 +952,7 @@ export class GameController {
 
             const acceptChannel = await this.guild.channels.fetch(this.acceptChannelId);
             await acceptChannel?.delete();
+            this.voteCountdown = tokens.VoteTime;
         } else if (this.voteCountdown <= 0 && !this.working) {
             this.working = true;
             const bans = await this.calcVotes(2);
