@@ -20,6 +20,7 @@ import {getRank, roleRemovalCallback} from "./utility/ranking";
 import {updateUser} from "./modules/updaters/updateUser";
 import {GameServer} from "./server/server";
 import SaveModel from "./database/models/SaveModel";
+import {registerMaps} from "./utility/match";
 
 export class Data {
     private readonly client: Client;
@@ -148,6 +149,7 @@ export class Data {
         const data = await SaveModel.findOne({id: 'test'});
         if (data) {
             await this.FILL_SND.load(data.data);
+            registerMaps(this, tokens.MapPool);
         }
         this.tickLoop.start();
         this.roleUpdate.start();
@@ -269,7 +271,7 @@ export class Data {
                     serv = server;
                 }
             }
-            let game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this.FILL_SND.lastPlayedMaps, this, serv);
+            let game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this, serv);
             queue.addGame(game);
         } catch (e) {
             console.error(e);

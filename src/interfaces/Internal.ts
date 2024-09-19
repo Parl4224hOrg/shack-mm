@@ -1,5 +1,10 @@
 import {ObjectId} from "mongoose";
 
+export interface MapData {
+    mapName: string;
+    lastGame: number;
+}
+
 export interface InternalResponse {
     success: boolean;
     message: string;

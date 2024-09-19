@@ -187,7 +187,7 @@ export class GameController {
     
     serverId: string;
 
-    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, bannedMaps: string[], data: Data, server: GameServer | null) {
+    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, data: Data, server: GameServer | null) {
         this.id = id;
         this.client = client;
         this.guild = guild;
@@ -225,9 +225,6 @@ export class GameController {
             i++;
         }
 
-        for (let ban of bannedMaps) {
-            this.allBans.push(ban);
-        }
         this.server = server;
         
         if (this.server) {
