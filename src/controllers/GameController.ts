@@ -297,6 +297,8 @@ export class GameController {
 
     async tick() {
         try {
+            const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+            await logChannel.send(`Game controller line 301, voteCountdown value: ${this.voteCountdown}`);
             if (this.initServer) {
                 this.initServer = false;
                 await this.server!.registerServer(this.matchNumber);
@@ -304,21 +306,24 @@ export class GameController {
             this.tickCount++;
             switch (this.state) {
                 case 0:
+                    await logChannel.send(`Game controller case 0`);
                     await this.acceptPhase();
                     break;
                 case 1:
+                    await logChannel.send(`Game controller case 1`);
                     await this.voteA1();
                     break;
                 case 2:
+                    await logChannel.send(`Game controller case 2`);
                     await this.voteB1();
                     break;
                 case 3:
+                    await logChannel.send(`Game controller case 3`);
                     await this.voteA2();
                     break;
                 case 4:
+                    await logChannel.send(`Game controller case 4`);
                     await this.voteB2();
-                    const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                    await logChannel.send(`Game controller line 311, serverSetup value: ${this.serverSetup}`);
                     break;
                 case 5: {
                     const time = moment().unix();
