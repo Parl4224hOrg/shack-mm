@@ -58,9 +58,10 @@ export const cooldown: SubCommand = {
                 await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
             }
 
+            const discordUser = await interaction.client.users.fetch(user.id);
             // Send DM to the user
             try {
-                await user.send(`<${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`);
+                await discordUser.send(`<${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`);
             } catch (dmError) {
                 console.error(`Failed to send DM to user ${user.id}:`, dmError);
             }
