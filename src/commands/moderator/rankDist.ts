@@ -12,6 +12,7 @@ export const rankDist: SubCommand = {
         .setDescription("Displays the rank distribution"),
     run: async (interaction) => {
         try {
+            await interaction.deferReply();
             const stats = await StatsModel.find({gamesPlayed: {"$gte": 10}});
             const totals = new Collection<string, number>();
             totals.set("Wood", 0);
@@ -41,7 +42,7 @@ export const rankDist: SubCommand = {
                 data.push((total[1] / totalNumber * 100).toFixed(1));
             }
 
-            await interaction.reply({ephemeral: false, files: [await getRankDistGraph(labels, data)]});
+            await interaction.followUp({ephemeral: false, files: [await getRankDistGraph(labels, data)]});
         } catch (e) {
             await logError(e, interaction);
         }
