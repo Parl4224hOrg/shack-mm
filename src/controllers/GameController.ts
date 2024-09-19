@@ -552,6 +552,7 @@ export class GameController {
         this.acceptCountdown--;
         if (!this.acceptChannelGen) {
             this.acceptChannelGen = true;
+            this.voteCountdown = tokens.VoteTime;
             const matchRole = await this.guild.roles.create({
                 name: `match-${this.matchNumber}`,
                 reason: 'Create role for match accept',
