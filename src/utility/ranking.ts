@@ -26,7 +26,7 @@ export const updateRanks = async (users: GameUser[], client: Client) => {
         const stats = await getStats(user.dbId,  "SND");
         const member = await guild.members.fetch(user.discordId);
         member.roles.cache.forEach((value) => {roleRemovalCallback(value, member)});
-        if (stats.gamesPlayed >= 10) {
+        if (stats.gamesPlayedSinceReset >= 10) {
             const rank = getRank(stats.mmr);
             await member.roles.add(rank.roleId, tokens.RankedRole);
         }

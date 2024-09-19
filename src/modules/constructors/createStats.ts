@@ -9,6 +9,7 @@ export const createStats = async (userId: ObjectId, queueId: string) => {
         mmr: tokens.StartingMMR,
         mmrHistory: [tokens.StartingMMR],
         gamesPlayed: 0,
+        gamesPlayedSinceReset: 0,
         ratingChange: 0,
         wins: 0,
         losses: 0,

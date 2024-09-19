@@ -39,10 +39,10 @@ const getMMRChanges = (team: StatsInt[], baseChange: number) => {
     let mmrChanges = [];
     // iterates through each user to apply individual mmr changes
     for (let player of team) {
-        if (player.gamesPlayed <= 10) {
+        if (player.gamesPlayedSinceReset <= 10) {
             // base mmr change for first ten games (placement)
             mmrChanges.push(placement * baseChange);
-        } else if (player.gamesPlayed <= 30) {
+        } else if (player.gamesPlayedSinceReset <= 30) {
             // additional bonus is to help settle into a proper mmr
             mmrChanges.push(bonus * baseChange);
         } else {
@@ -144,11 +144,13 @@ export const recalcMMR = async (users: RecalcUser[], scores: number[], queueId: 
         teamA[i].mmrHistory.push(teamA[i].mmr);
         teamA[i].ratingChange = teamAChanges[i];
         teamA[i].gamesPlayed++;
+        teamA[i].gamesPlayedSinceReset++;
 
         teamB[i].mmr += teamBChanges[i];
         teamB[i].mmrHistory.push(teamB[i].mmr);
         teamB[i].ratingChange = teamBChanges[i];
         teamB[i].gamesPlayed++;
+        teamB[i].gamesPlayedSinceReset++;
 
         if (winner == 0) {
             teamA[i].gameHistory.push("win");
@@ -195,11 +197,13 @@ export const processMMR = async (users: GameUser[], scores: number[], queueId: s
         teamA[i].mmrHistory.push(teamA[i].mmr);
         teamA[i].ratingChange = teamAChanges[i];
         teamA[i].gamesPlayed++;
+        teamA[i].gamesPlayedSinceReset++;
 
         teamB[i].mmr += teamBChanges[i];
         teamB[i].mmrHistory.push(teamB[i].mmr);
         teamB[i].ratingChange = teamBChanges[i];
         teamB[i].gamesPlayed++;
+        teamB[i].gamesPlayedSinceReset++;
 
         if (winner == 0) {
             teamA[i].gameHistory.push("win");

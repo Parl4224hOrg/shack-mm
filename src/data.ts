@@ -134,7 +134,7 @@ export class Data {
                 member.roles.cache.forEach((value) => {
                     roleRemovalCallback(value, member)
                 });
-                if (stats.gamesPlayed >= 10) {
+                if (stats.gamesPlayedSinceReset >= 10) {
                     const rank = getRank(stats.mmr);
                     await member.roles.add(rank.roleId);
                 }

@@ -25,8 +25,8 @@ export const graph: Command = {
             }
             const dbUser = await getUserByUser(user, data);
             const stats = await getStats(dbUser._id, "SND");
-            const start = stats.gamesPlayed - gameNumber + 1;
-            if (stats.gamesPlayed < 20) {
+            const start = stats.gamesPlayedSinceReset - gameNumber + 1;
+            if (stats.gamesPlayedSinceReset < 20) {
                 await interaction.reply({
                     ephemeral: true,
                     content: "A user must play 20 games before they can be graphed"
@@ -34,12 +34,12 @@ export const graph: Command = {
             } else if (start < 10) {
                 await interaction.reply({
                     ephemeral: true,
-                    content: `You are trying to graph more games than the user has played the largest number you can enter is ${stats.gamesPlayed - 10}`
+                    content: `You are trying to graph more games than the user has played the largest number you can enter is ${stats.gamesPlayedSinceReset - 10}`
                 });
             } else {
                 await interaction.reply({
                     content: "Displaying Graph",
-                    files: [await getMMRGraph(stats.mmrHistory, start, stats.gamesPlayed, user.username)]
+                    files: [await getMMRGraph(stats.mmrHistory, start, stats.gamesPlayedSinceReset, user.username)]
                 });
             }
         } catch (e) {
