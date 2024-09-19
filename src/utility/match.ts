@@ -3,6 +3,26 @@ import {ButtonInteraction, ChatInputCommandInteraction, Client, EmbedBuilder, Te
 import {Data} from "../data";
 import tokens from "../tokens";
 
+export const getMaps = (data: Data, mapPool: string[] = tokens.MapPool) => {
+    const maps: string[] = [];
+    for (let map of mapPool) {
+
+        if (!data.getQueue().lastPlayedMaps.includes(map) && maps.length < tokens.VoteSize) {
+            maps.push(map);
+        }
+    }
+
+    return maps;
+}
+
+export const addLastPlayedMap = (data: Data, map: string, mapPool: string[] = tokens.MapPool) => {
+    const lastPlayedArr = data.getQueue().lastPlayedMaps;
+    while (lastPlayedArr.length >= mapPool.length - tokens.VoteSize) {
+        lastPlayedArr.shift();
+    }
+    lastPlayedArr.push(map);
+    data.getQueue().lastPlayedMaps = lastPlayedArr;
+}
 
 export const logReady = async (userId: string, queueLabel: string, time: number, client: Client) => {
     const channel = await client.channels.fetch(tokens.QueueLogChannel) as TextChannel;

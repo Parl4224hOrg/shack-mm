@@ -53,6 +53,7 @@ export default {
     PlayerCount: 10,
     ScoreLimitSND: 10,
     VoteTime: 30,
+    VoteSize: 7,
     AbandonTime: 30,
     Images: {
         Dust2: "https://shackmm.com/static/images/dust2.png",
