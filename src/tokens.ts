@@ -72,7 +72,7 @@ export default {
         Whitesand: "https://shackmm.com/static/images/manor.png",
     },
     ReductionGames: 10,
-    MapPool: ["Dust 2", "Cache", "Overpass", "Oilrig", "Harbor", "Reachsky", "Vertigo", "Mirage", "Whitesand"],
+    MapPool: ["Dust 2", "Cache", "Overpass", "Oilrig", "Harbor", "Reachsky", "Vertigo", "Mirage", "Inferno", "Autumn"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Grandmaster', threshold: 2300, roleId: '1285641380600877157'},
