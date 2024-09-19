@@ -299,6 +299,7 @@ export class GameController {
         try {
             const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
             await logChannel.send(`Game controller line 301, voteCountdown value: ${this.voteCountdown}`);
+          
             if (this.initServer) {
                 this.initServer = false;
                 await this.server!.registerServer(this.matchNumber);
