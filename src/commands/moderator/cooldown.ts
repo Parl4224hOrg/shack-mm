@@ -61,7 +61,7 @@ export const cooldown: SubCommand = {
             const discordUser = await interaction.client.users.fetch(user.id);
             // Send DM to the user
             try {
-                await discordUser.send(`<${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`);
+                await discordUser.send(`<${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action because: ${reason}`);
             } catch (dmError) {
                 console.error(`Failed to send DM to user ${user.id}:`, dmError);
             }
