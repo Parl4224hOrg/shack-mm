@@ -9,7 +9,7 @@ export const softResetMMR: Command = {
     data: new SlashCommandBuilder()
         .setName("soft_reset_mmr")
         .setDescription("Will soft reset MMR"),
-    run: async (interaction, data) => {
+    run: async (interaction) => {
         try {
             await interaction.deferReply({ephemeral: true});
             await StatsModel.updateMany({}, {gamesPlayedSinceReset: 0});
