@@ -10,7 +10,7 @@ import {GameController} from "./GameController";
 import {UserInt} from "../database/models/UserModel";
 import tokens from "../tokens";
 import {updateUser} from "../modules/updaters/updateUser";
-import {logReady, logUnready} from "../utility/match";
+import {addLastPlayedMap, logReady, logUnready} from "../utility/match";
 import {getUserById} from "../modules/getters/getUser";
 import {shuffleArray} from "../utility/makeTeams";
 import {logWarn} from "../loggers";
@@ -174,10 +174,8 @@ export class QueueController {
                     await game.cleanup();
                 }
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
-                this.lastPlayedMaps.push(game.map);
-                while (this.lastPlayedMaps.length > tokens.MapPool.length - 7) {
-                    this.lastPlayedMaps.shift();
-                }
+                // Add map to last played
+                addLastPlayedMap(this.data, game.map);
                 for (let user of arrayClone) {
                     const dbUser = await getUserById(user, this.data);
                     const member = await guild.members.fetch(dbUser.id);

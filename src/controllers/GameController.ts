@@ -22,7 +22,7 @@ import {Data} from "../data";
 import {Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
-import {logAccept, logScoreSubmit} from "../utility/match";
+import {getMaps, logAccept, logScoreSubmit} from "../utility/match";
 import {GameServer} from "../server/server";
 import axios from "axios";
 import warnModel from "../database/models/WarnModel";
@@ -216,13 +216,15 @@ export class GameController {
         }
         this.data = data;
         this.startTime = moment().unix();
+
+        const maps = getMaps(data);
+
         let i = 1;
-        for (let mapCheck of tokens.MapPool) {
-            if (!bannedMaps.includes(mapCheck) && i <= 7) {
-                this.mapSet[String(i) as "1" | "2" | "3" | "4" | "5" | "6" | "7"] = mapCheck;
-                i++;
-            }
+        for (let map of maps) {
+            this.mapSet[String(i) as "1" | "2" | "3" | "4" | "5" | "6" | "7"] = map;
+            i++;
         }
+
         for (let ban of bannedMaps) {
             this.allBans.push(ban);
         }
