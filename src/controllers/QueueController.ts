@@ -1,6 +1,6 @@
 import {Client, Collection, TextChannel} from "discord.js";
 import {QueueUser} from "../interfaces/Game";
-import {GameData, InternalResponse, QueueData} from "../interfaces/Internal";
+import {GameData, InternalResponse, MapData, QueueData} from "../interfaces/Internal";
 import {Data} from "../data";
 import moment from "moment";
 import {getStats} from "../modules/getters/getStats";
@@ -23,7 +23,6 @@ interface PingMeUser {
     expires: number;
     pinged: boolean;
 }
-
 
 const removeDuplicates = (array: QueueUser[]) => {
     const newArr: QueueUser[] = [];
@@ -50,8 +49,8 @@ export class QueueController {
     private inQueue: QueueUser[] = [];
     private pingMe = new Collection<string, PingMeUser>()
     activeGames: GameController[] = [];
-    lastPlayedMaps: string[] = [];
     generating = false;
+    private mapData: MapData[] = [];
 
 
     constructor(data: Data, client: Client, queueName: string) {
@@ -62,6 +61,10 @@ export class QueueController {
 
     setInQueue(users: QueueUser[]) {
         this.inQueue = users.concat(this.inQueue);
+    }
+
+    public getMapData() {
+        return this.mapData;
     }
 
     async load(data: string) {
@@ -77,12 +80,14 @@ export class QueueController {
             }
             const newGame = new GameController(new mongoose.Types.ObjectId(game.id) as any as ObjectId,
                 this.client, await this.client.guilds.fetch(tokens.GuildID), game.matchNumber, [], [], "SND",
-                game.scoreLimit, game.allBans, this.data, server);
+                game.scoreLimit, this.data, server);
             newGame.load(game);
             this.activeGames.push(newGame);
         }
-        this.lastPlayedMaps = parsed.lastPlayedMaps;
         this.generating = parsed.generating;
+        for (let data of parsed.mapData) {
+            this.mapData.push(data);
+        }
     }
 
     async addPingMe(userId: string, inQueue: number, expire_time: number) {
@@ -175,7 +180,7 @@ export class QueueController {
                 }
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
                 // Add map to last played
-                addLastPlayedMap(this.data, game.map);
+                addLastPlayedMap(this.data, game.map, game.matchNumber);
                 for (let user of arrayClone) {
                     const dbUser = await getUserById(user, this.data);
                     const member = await guild.members.fetch(dbUser.id);

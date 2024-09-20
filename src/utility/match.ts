@@ -3,25 +3,51 @@ import {ButtonInteraction, ChatInputCommandInteraction, Client, EmbedBuilder, Te
 import {Data} from "../data";
 import tokens from "../tokens";
 
-export const getMaps = (data: Data, mapPool: string[] = tokens.MapPool) => {
-    const maps: string[] = [];
-    for (let map of mapPool) {
-
-        if (!data.getQueue().lastPlayedMaps.includes(map) && maps.length < tokens.VoteSize) {
-            maps.push(map);
+export const registerMaps = (data: Data, maps: string[]) => {
+    const mapData = data.getQueue().getMapData();
+    const toAdd: string[] = [];
+    for (let map of maps) {
+        let found = false;
+        for (let mapCheck of mapData) {
+            if (mapCheck.mapName == map) {
+                found = true;
+            }
+        }
+        if (!found) {
+            toAdd.push(map);
         }
     }
+    for (let map of toAdd) {
+        mapData.push({
+            mapName: map,
+            lastGame: 0,
+        })
+    }
+}
 
+export const getMaps = (data: Data) => {
+    const maps: string[] = [];
+    const mapData = data.getQueue().getMapData();
+    // Sort to get least recent first
+    mapData.sort((a, b) => a.lastGame - b.lastGame);
+    for (let i = 0; i < tokens.VoteSize; i++) {
+        maps.push(mapData[i].mapName);
+    }
     return maps;
 }
 
-export const addLastPlayedMap = (data: Data, map: string, mapPool: string[] = tokens.MapPool) => {
-    const lastPlayedArr = data.getQueue().lastPlayedMaps;
-    while (lastPlayedArr.length >= mapPool.length - tokens.VoteSize) {
-        lastPlayedArr.shift();
+export const addLastPlayedMap = (data: Data, map: string, matchNumber: number) => {
+    const mapData = data.getQueue().getMapData();
+    let found = false;
+    for (let mapCheck of mapData) {
+        if (mapCheck.mapName == map) {
+            mapCheck.lastGame = matchNumber;
+            found = true;
+        }
     }
-    lastPlayedArr.push(map);
-    data.getQueue().lastPlayedMaps = lastPlayedArr;
+    if (!found) {
+        mapData.push({mapName: map, lastGame: matchNumber});
+    }
 }
 
 export const logReady = async (userId: string, queueLabel: string, time: number, client: Client) => {
