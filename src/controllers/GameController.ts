@@ -301,6 +301,7 @@ export class GameController {
                 await this.server!.registerServer(this.matchNumber);
             }
             this.tickCount++;
+            this.voteCountdown--;
             switch (this.state) {
                 case 0:
                     await this.acceptPhase();
@@ -881,10 +882,9 @@ export class GameController {
     }
 
     async voteA1() {
-        this.voteCountdown--;
         if (!this.voteChannelsGen) {
             this.voteChannelsGen = true;
-            this.voteCountdown = tokens.VoteTime;
+            this.working = true;
 
             const teamARole = await this.guild.roles.create({
                 name: `team-a-${this.matchNumber}`,
@@ -947,10 +947,13 @@ export class GameController {
 
             await teamBChannel.send({content: `Team B - ${teamBStr}Team A is banning 3 maps`});
 
+            this.voteCountdown = tokens.VoteTime;
+
             const acceptChannel = await this.guild.channels.fetch(this.acceptChannelId);
             await acceptChannel?.delete();
-            this.voteCountdown = tokens.VoteTime;
-        } else if (this.voteCountdown <= 0 && !this.working) {
+            this.working = false;
+        }
+        if (this.voteCountdown <= 0 && !this.working) {
             this.working = true;
             const bans = await this.calcVotes(2);
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
@@ -971,7 +974,6 @@ export class GameController {
     }
 
     async voteB1() {
-        this.voteCountdown--;
         if (this.voteCountdown <= 0 && !this.working) {
             this.working = true;
             const bans = await this.calcVotes(3);
@@ -993,7 +995,6 @@ export class GameController {
     }
 
     async voteA2() {
-        this.voteCountdown--;
         if (this.voteCountdown <= 0 && !this.working) {
             this.working = true;
             const bans = await this.calcVotes(4);
@@ -1015,7 +1016,6 @@ export class GameController {
     }
 
     async voteB2() {
-        this.voteCountdown--;
         if (this.voteCountdown <= 0 && !this.finalChannelGen) {
             this.finalChannelGen = true;
             const bans = await this.calcVotes(5);
