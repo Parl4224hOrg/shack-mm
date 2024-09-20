@@ -13,7 +13,7 @@ import {voteA1, voteA2, voteB1, voteB2} from "../views/voteViews";
 import {initialSubmit, initialSubmitServer} from "../views/submitScoreViews";
 import {matchConfirmEmbed, matchFinalEmbed, teamsEmbed} from "../embeds/matchEmbeds";
 import {GameData, InternalResponse} from "../interfaces/Internal";
-import {logWarn} from "../loggers";
+import {logInfo, logWarn} from "../loggers";
 import {GameUser, ids} from "../interfaces/Game";
 import {Vote} from "../interfaces/Game";
 import {acceptScore} from "../views/submitScoreViews";
@@ -301,6 +301,7 @@ export class GameController {
                 await this.server!.registerServer(this.matchNumber);
             }
             this.tickCount++;
+            this.voteCountdown--;
             switch (this.state) {
                 case 0:
                     await this.acceptPhase();
@@ -881,11 +882,12 @@ export class GameController {
     }
 
     async voteA1() {
-        this.voteCountdown--;
         if (!this.voteChannelsGen) {
             this.voteChannelsGen = true;
-            this.voteCountdown = tokens.VoteTime;
+            this.working = true;
 
+            await logInfo(`Starting vote channel gen\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
+            
             const teamARole = await this.guild.roles.create({
                 name: `team-a-${this.matchNumber}`,
                 reason: 'Create role for team a'
@@ -947,10 +949,15 @@ export class GameController {
 
             await teamBChannel.send({content: `Team B - ${teamBStr}Team A is banning 3 maps`});
 
+            this.voteCountdown = tokens.VoteTime;
+
             const acceptChannel = await this.guild.channels.fetch(this.acceptChannelId);
             await acceptChannel?.delete();
-            this.voteCountdown = tokens.VoteTime;
-        } else if (this.voteCountdown <= 0 && !this.working) {
+            this.working = false;
+            await logInfo(`Finished vote channel gen\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
+        }
+        if (this.voteCountdown <= 0 && !this.working) {
+            await logInfo(`Started vote A1 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
             this.working = true;
             const bans = await this.calcVotes(2);
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
@@ -967,12 +974,13 @@ export class GameController {
                 components: [voteB1(this.mapSet["1"], 0, this.mapSet["2"], 0, this.mapSet["3"], 0, this.mapSet["4"], 0)]});
             this.voteB1MessageId = banMessage.id;
             this.working = false;
+            await logInfo(`Ended vote A1 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
         }
     }
 
     async voteB1() {
-        this.voteCountdown--;
         if (this.voteCountdown <= 0 && !this.working) {
+            await logInfo(`Started vote B1 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
             this.working = true;
             const bans = await this.calcVotes(3);
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
@@ -989,12 +997,13 @@ export class GameController {
                 components: [voteA2(this.mapSet["1"], 0, this.mapSet["2"], 0)]});
             this.voteA2MessageId = banMessage.id;
             this.working = false;
+            await logInfo(`Ended vote B1 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
         }
     }
 
     async voteA2() {
-        this.voteCountdown--;
         if (this.voteCountdown <= 0 && !this.working) {
+            await logInfo(`Started vote A2 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
             this.working = true;
             const bans = await this.calcVotes(4);
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
@@ -1011,12 +1020,13 @@ export class GameController {
                 components: [voteB2(this.sideSet["1"], 0, this.sideSet["2"], 0)]});
             this.voteB2MessageId = banMessage.id;
             this.working = false;
+            await logInfo(`Ended vote A2 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
         }
     }
 
     async voteB2() {
-        this.voteCountdown--;
         if (this.voteCountdown <= 0 && !this.finalChannelGen) {
+            await logInfo(`Started vote B2 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
             this.finalChannelGen = true;
             const bans = await this.calcVotes(5);
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
@@ -1026,6 +1036,8 @@ export class GameController {
             await teamB2Message.edit({content: `~~${teamB2Message.content}~~ Voting has ended`, components: []});
 
             this.sides = [bans[1], bans[0]];
+
+            await logInfo(`Ended vote B2 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
 
             await teamAChannel.send({content: `Selected ${bans[0]}`});
             await teamBChannel.send({content: `Team B selected ${bans[0]}`});
