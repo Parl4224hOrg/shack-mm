@@ -25,7 +25,7 @@ export const lates: SubCommand = {
             // Fetch the latest 20 warnings that contain the word "late"
             const warnings = await WarnModel.find({
                 userId: dbUser._id,
-                message: { $regex: /late/i }
+                reason: { $regex: /late/i }
             }).sort({ timeStamp: -1 }).limit(20);
             
             await interaction.reply({ephemeral: visible, content: `Showing warnings for ${user.username}`, embeds: [warningEmbeds(user, warnings)]});
