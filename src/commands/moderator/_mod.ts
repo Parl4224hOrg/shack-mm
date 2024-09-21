@@ -65,8 +65,8 @@ export const _mod: Command = {
         .addSubcommand(warnRemove.data)
         .addSubcommand(mute.data)
         .addSubcommand(toggleReferee.data)
-        .addSubcommand(mute.lates)
-        .addSubcommand(mute.lateRatio),
+        .addSubcommand(lates.data)
+        .addSubcommand(lateRatio.data),
     run: async (interaction, data) => {
         try {
             const command = SubCommandList.get(interaction.options.getSubcommand())!
