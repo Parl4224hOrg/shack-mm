@@ -33,8 +33,10 @@ export const actions: SubCommand = {
             const warnings = await WarnModel.find({
                 userId: dbUser._id
             }).sort({ timeStamp: -1 }).limit(10);
-            
-            await interaction.reply({ephemeral: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
+            // Filter out warnings that contain the word "late"
+            const filteredWarnings = warnings.filter(warning => !warning.reason.includes("late"));
+                        
+            await interaction.reply({ephemeral: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, filteredWarnings)]});
         } catch (e) {
             await logError(e, interaction);
         }
