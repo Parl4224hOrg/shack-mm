@@ -4,6 +4,7 @@ import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import {getUserByUser} from "../../modules/getters/getUser";
 import StatsModel from "../../database/models/StatsModel";
+import WarnModel from "../../database/models/WarnModel";
 import {SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
 
 export const lateRatio: SubCommand = {
@@ -33,7 +34,26 @@ export const lateRatio: SubCommand = {
 
             const totalGames = stats.gamesPlayed;
 
-            await interaction.reply({ephemeral: visible, content: `${user.username} has played a total of ${totalGames} games.`});
+            // Fetch all warnings that contain the word "late"
+            const warnings = await WarnModel.find({
+                userId: dbUser._id,
+                reason: { $regex: /late/i }
+            }).sort({ timeStamp: -1 });
+
+            if (!warnings.length) {
+                await interaction.reply({ephemeral: visible, content: `No warnings found for ${user.username} containing the word "late".`});
+                return;
+            }
+
+            const totalLates = warnings.length;
+            
+            // Calculate the ratio of lates to games
+            const lateRatio = totalGames > 0 ? (totalLates / totalGames).toFixed(2) : "N/A";
+
+            await interaction.reply({
+                ephemeral: visible,
+                content: `${user.username} has a late-to-games ratio of ${lateRatio}. (${totalLates} lates / ${totalGames} games)`
+            });
         } catch (e) {
             await logError(e, interaction);
         }
