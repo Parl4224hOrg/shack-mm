@@ -29,14 +29,13 @@ export const actions: SubCommand = {
                 userId: user.id
             }).sort({ time: -1 }).limit(10);
 
-            // Fetch the latest 10 warnings
+            // Fetch the latest 10 warnings that do not contain the word "late"
             const warnings = await WarnModel.find({
-                userId: dbUser._id
+                userId: dbUser._id,
+                reason: { $not: /late/i }
             }).sort({ timeStamp: -1 }).limit(10);
-            // Filter out warnings that contain the word "late"
-            const filteredWarnings = warnings.filter(warning => !warning.reason.includes("late"));
                         
-            await interaction.reply({ephemeral: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, filteredWarnings)]});
+            await interaction.reply({ephemeral: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
         } catch (e) {
             await logError(e, interaction);
         }
