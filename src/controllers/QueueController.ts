@@ -180,7 +180,9 @@ export class QueueController {
                 }
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
                 // Add map to last played
-                addLastPlayedMap(this.data, game.map, game.matchNumber);
+                if (game.map != "") {
+                    addLastPlayedMap(this.data, game.map, game.matchNumber);
+                }
                 for (let user of arrayClone) {
                     const dbUser = await getUserById(user, this.data);
                     const member = await guild.members.fetch(dbUser.id);
