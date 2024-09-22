@@ -180,7 +180,7 @@ export class QueueController {
                 }
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
                 // Add map to last played
-                if (game.map != "") {
+                if (game.map != "" && game.scoresAccept[0] && game.scoresAccept[1]) {
                     addLastPlayedMap(this.data, game.map, game.matchNumber);
                 }
                 for (let user of arrayClone) {
