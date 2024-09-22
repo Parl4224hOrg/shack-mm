@@ -219,6 +219,12 @@ export class GameController {
 
         const maps = getMaps(data);
 
+        for (let map of tokens.MapPool) {
+            if (!maps.includes(map)) {
+                this.allBans.push(map);
+            }
+        }
+
         let i = 1;
         for (let map of maps) {
             this.mapSet[String(i) as "1" | "2" | "3" | "4" | "5" | "6" | "7"] = map;
