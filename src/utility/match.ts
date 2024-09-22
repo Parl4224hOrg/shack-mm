@@ -2,6 +2,7 @@ import {getUserByUser} from "../modules/getters/getUser";
 import {ButtonInteraction, ChatInputCommandInteraction, Client, EmbedBuilder, TextChannel} from "discord.js";
 import {Data} from "../data";
 import tokens from "../tokens";
+import {logInfo} from "../loggers";
 
 export const registerMaps = (data: Data, maps: string[]) => {
     const mapData = data.getQueue().getMapData();
@@ -23,16 +24,28 @@ export const registerMaps = (data: Data, maps: string[]) => {
             lastGame: 0,
         })
     }
+    mapData.forEach((map, i) => {if (!maps.includes(map.mapName)) mapData.splice(i, 1)})
 }
 
 export const getMaps = (data: Data) => {
     const maps: string[] = [];
     const mapData = data.getQueue().getMapData();
+    let mapStr = "";
+    for (let map of mapData) {
+        mapStr += `\n${map.mapName} : ${map.lastGame}`;
+    }
+    logInfo(`Maps Pre sort:${mapStr}`, data.getClient());
     // Sort to get least recent first
     mapData.sort((a, b) => a.lastGame - b.lastGame);
+    mapStr = "";
+    for (let map of mapData) {
+        mapStr += `\n${map.mapName} : ${map.lastGame}`;
+    }
+    logInfo(`Maps Post sort:${mapStr}`, data.getClient());
     for (let i = 0; i < tokens.VoteSize; i++) {
         maps.push(mapData[i].mapName);
     }
+    logInfo(`Selected Maps:\n${maps}`, data.getClient());
     return maps;
 }
 

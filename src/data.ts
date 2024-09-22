@@ -54,6 +54,10 @@ export class Data {
         }
     }
 
+    public getClient() {
+        return this.client;
+    }
+
     public getServers() {
         return this.servers;
     }
