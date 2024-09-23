@@ -1,5 +1,5 @@
 import {ChannelType, VoiceState, StageInstancePrivacyLevel} from "discord.js";
-import {logWarn} from "../loggers";
+import {logInfo, logWarn} from "../loggers";
 import {Data} from "../data";
 import tokens from "../tokens";
 
@@ -20,6 +20,9 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
             }
             const isStage = newState.channel.type == ChannelType.GuildStageVoice;
             if (isStage && newState.requestToSpeakTimestamp == null) {
+                await logInfo(`Voice State Info:
+canJoin: ${canJoin}\nisMod: ${isMod}\nisSpeaker: ${isSpeaker}\nisStage: ${isStage}\n
+is Suppressed: ${newState.suppress}\nisStageInstance: ${newState.channel.stageInstance == null}`, newState.client);
                 if (isSpeaker && newState.suppress && !newState.channel.stageInstance) {
                     await newState.channel.createStageInstance({
                         privacyLevel: StageInstancePrivacyLevel.GuildOnly,
