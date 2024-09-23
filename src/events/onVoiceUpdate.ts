@@ -20,7 +20,7 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
             }
             const isStage = newState.channel.type == ChannelType.GuildStageVoice;
             if (isStage && newState.requestToSpeakTimestamp == null) {
-                if (isSpeaker && newState.suppress && newState.channel.stageInstance) {
+                if (isSpeaker && newState.suppress && !newState.channel.stageInstance) {
                     await newState.channel.createStageInstance({
                         privacyLevel: StageInstancePrivacyLevel.GuildOnly,
                         sendStartNotification: false,
