@@ -12,7 +12,7 @@ export const graphButton: Button = {
     data: new ButtonBuilder()
         .setStyle(ButtonStyle.Primary)
         .setLabel("Graph")
-        .setCustomId('games-queue'),
+        .setCustomId('graph-queue'),
     run: async (interaction, data) => {
         try {
             let gameNumber = 10;//modal thing here, one the modal file and code is done
@@ -43,5 +43,5 @@ export const graphButton: Button = {
             await logError(e, interaction);
         }
     },
-    id: 'games-queue',
+    id: 'graph-queue',
 }
