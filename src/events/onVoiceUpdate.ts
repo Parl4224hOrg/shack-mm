@@ -19,8 +19,10 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
                 }
             }
             const isStage = newState.channel.type == ChannelType.GuildStageVoice;
+            await logInfo(`Voice State Info:
+isStage: ${isStage}`, newState.client);
             if (isStage && newState.requestToSpeakTimestamp == null) {
-                await logInfo(`Voice State Info:
+                await logInfo(`Voice State Info:\n
 canJoin: ${canJoin}\nisMod: ${isMod}\nisSpeaker: ${isSpeaker}\nisStage: ${isStage}\n
 is Suppressed: ${newState.suppress}\nisStageInstance: ${newState.channel.stageInstance == null}`, newState.client);
                 if (isSpeaker && newState.suppress && !newState.channel.stageInstance) {
