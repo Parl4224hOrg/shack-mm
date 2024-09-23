@@ -3,7 +3,7 @@ import {SlashCommandBuilder} from "@discordjs/builders";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {TextChannel} from "discord.js";
-import {regionSelectView, signUpView, sndFILLReadyView, SNDFILLReadyView2} from "../../views/staticViews";
+import {regionSelectView, signUpView, sndFILLReadyView, SNDFILLReadyView2, SNDFILLReadyView3} from "../../views/staticViews";
 
 export const prepare: Command = {
     data: new SlashCommandBuilder()
@@ -28,7 +28,7 @@ export const prepare: Command = {
             const view = interaction.options.getString('view')!
             switch (view) {
                 case 'snd_ready': {
-                    await interaction.channel!.send({components: [sndFILLReadyView(), SNDFILLReadyView2()], content: 'Ready up for SND'});
+                    await interaction.channel!.send({components: [sndFILLReadyView(), SNDFILLReadyView2(),  SNDFILLReadyView3()], content: 'Ready up for SND'});
                     await interaction.followUp({ephemeral: true, content: 'prepared snd _ready up view'})
                 } break;
                 case 'signup': {

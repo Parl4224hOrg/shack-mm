@@ -3,17 +3,15 @@ import {userOption} from "../../utility/options";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import {getUserByUser} from "../../modules/getters/getUser";
-import ActionModel from "../../database/models/ActionModel";
-import {ActionEmbed} from "../../embeds/ModEmbeds";
 import WarnModel from "../../database/models/WarnModel";
 import {warningEmbeds} from "../../embeds/statsEmbed";
 import {SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
 
-export const actions: SubCommand = {
+export const lates: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
-        .setName("actions")
-        .setDescription("Displays actions against a user")
-        .addUserOption(userOption("User to view actions for"))
+        .setName("lates")
+        .setDescription("Displays the last 20 warnings containing the word 'late'")
+        .addUserOption(userOption("User to view warnings for"))
         .addBooleanOption(new SlashCommandBooleanOption()
             .setName('hidden')
             .setDescription('if message should be visible')
@@ -24,22 +22,17 @@ export const actions: SubCommand = {
             const dbUser = await getUserByUser(user, data);
             const visible = interaction.options.getBoolean('hidden') ?? false;
 
-            // Fetch the latest 10 actions
-            const actions = await ActionModel.find({
-                userId: user.id
-            }).sort({ time: -1 }).limit(10);
-
-            // Fetch the latest 10 warnings that do not contain the word "late"
+            // Fetch the latest 20 warnings that contain the word "late"
             const warnings = await WarnModel.find({
                 userId: dbUser._id,
-                reason: { $not: /late/i }
-            }).sort({ timeStamp: -1 }).limit(10);
-                        
-            await interaction.reply({ephemeral: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
+                reason: { $regex: /late/i }
+            }).sort({ timeStamp: -1 }).limit(20);
+            
+            await interaction.reply({ephemeral: visible, content: `Showing warnings for ${user.username}`, embeds: [warningEmbeds(user, warnings)]});
         } catch (e) {
             await logError(e, interaction);
         }
     },
-    name: "actions",
+    name: "lates",
     allowedRoles: tokens.Mods,
 }

@@ -2,26 +2,65 @@ import {getUserByUser} from "../modules/getters/getUser";
 import {ButtonInteraction, ChatInputCommandInteraction, Client, EmbedBuilder, TextChannel} from "discord.js";
 import {Data} from "../data";
 import tokens from "../tokens";
+import {logInfo} from "../loggers";
 
-export const getMaps = (data: Data, mapPool: string[] = tokens.MapPool) => {
-    const maps: string[] = [];
-    for (let map of mapPool) {
-
-        if (!data.getQueue().lastPlayedMaps.includes(map) && maps.length < tokens.VoteSize) {
-            maps.push(map);
+export const registerMaps = (data: Data, maps: string[]) => {
+    const mapData = data.getQueue().getMapData();
+    const toAdd: string[] = [];
+    for (let map of maps) {
+        let found = false;
+        for (let mapCheck of mapData) {
+            if (mapCheck.mapName == map) {
+                found = true;
+            }
+        }
+        if (!found) {
+            toAdd.push(map);
         }
     }
+    for (let map of toAdd) {
+        mapData.push({
+            mapName: map,
+            lastGame: 0,
+        })
+    }
+    mapData.forEach((map, i) => {if (!maps.includes(map.mapName)) mapData.splice(i, 1)})
+}
 
+export const getMaps = (data: Data) => {
+    const maps: string[] = [];
+    const mapData = data.getQueue().getMapData();
+    let mapStr = "";
+    for (let map of mapData) {
+        mapStr += `\n${map.mapName} : ${map.lastGame}`;
+    }
+    logInfo(`Maps Pre sort:${mapStr}`, data.getClient());
+    // Sort to get least recent first
+    mapData.sort((a, b) => a.lastGame - b.lastGame);
+    mapStr = "";
+    for (let map of mapData) {
+        mapStr += `\n${map.mapName} : ${map.lastGame}`;
+    }
+    logInfo(`Maps Post sort:${mapStr}`, data.getClient());
+    for (let i = 0; i < tokens.VoteSize; i++) {
+        maps.push(mapData[i].mapName);
+    }
+    logInfo(`Selected Maps:\n${maps}`, data.getClient());
     return maps;
 }
 
-export const addLastPlayedMap = (data: Data, map: string, mapPool: string[] = tokens.MapPool) => {
-    const lastPlayedArr = data.getQueue().lastPlayedMaps;
-    while (lastPlayedArr.length >= mapPool.length - tokens.VoteSize) {
-        lastPlayedArr.shift();
+export const addLastPlayedMap = (data: Data, map: string, matchNumber: number) => {
+    const mapData = data.getQueue().getMapData();
+    let found = false;
+    for (let mapCheck of mapData) {
+        if (mapCheck.mapName == map) {
+            mapCheck.lastGame = matchNumber;
+            found = true;
+        }
     }
-    lastPlayedArr.push(map);
-    data.getQueue().lastPlayedMaps = lastPlayedArr;
+    if (!found) {
+        mapData.push({mapName: map, lastGame: matchNumber});
+    }
 }
 
 export const logReady = async (userId: string, queueLabel: string, time: number, client: Client) => {

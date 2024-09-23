@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import messages from "./messages.json";
 dotenv.config();
 
+
 export default {
     // Sensitive
     BotToken: process.env.BOT_TOKEN ?? '',
@@ -47,6 +48,7 @@ export default {
     ScoreboardChannel: "1182844040937484339",
     MutedRole: "1186750217962401844",
     Mods: ['1152657002212884550', '1200954518590984313'],
+    StreamerRole: "1286113718635204648",
     // constants
     ApplyLates: true,
     StartingMMR: 1300,

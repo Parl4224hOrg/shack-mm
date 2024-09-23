@@ -20,6 +20,7 @@ import {getRank, roleRemovalCallback} from "./utility/ranking";
 import {updateUser} from "./modules/updaters/updateUser";
 import {GameServer} from "./server/server";
 import SaveModel from "./database/models/SaveModel";
+import {registerMaps} from "./utility/match";
 
 export class Data {
     private readonly client: Client;
@@ -51,6 +52,10 @@ export class Data {
         for (let server of tokens.Servers) {
             this.servers.push(new GameServer(server.ip, server.port, server.password, server.name, Regions.NAE, server.id));
         }
+    }
+
+    public getClient() {
+        return this.client;
     }
 
     public getServers() {
@@ -124,6 +129,17 @@ export class Data {
         this.discordToObject.set(user.id, String(user._id));
     }
 
+    canJoinStream(userId: string): boolean {
+        for (let game of this.FILL_SND.activeGames) {
+            for (let user of game.users) {
+                if (user.discordId == userId) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     async updateRoles() {
         const users = await UserModel.find({});
         const guild = await this.client.guilds!.fetch(tokens.GuildID);
@@ -148,6 +164,7 @@ export class Data {
         const data = await SaveModel.findOne({id: 'test'});
         if (data) {
             await this.FILL_SND.load(data.data);
+            registerMaps(this, tokens.MapPool);
         }
         this.tickLoop.start();
         this.roleUpdate.start();
@@ -269,7 +286,7 @@ export class Data {
                     serv = server;
                 }
             }
-            let game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this.FILL_SND.lastPlayedMaps, this, serv);
+            let game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this, serv);
             queue.addGame(game);
         } catch (e) {
             console.error(e);
