@@ -6,6 +6,7 @@ import {onReady} from "./events/onReady";
 import {Data} from "./data";
 import {onJoin} from "./events/onJoin";
 import {onMessage} from "./events/onMessage";
+import {onVoiceUpdate} from "./events/onVoiceUpdate";
 
 const main = async () => {
     const BOT = new Client({
@@ -27,7 +28,11 @@ const main = async () => {
     BOT.on(
         "messageCreate",
         async (message) => await onMessage(message)
-    )
+    );
+    BOT.on(
+        "voiceStateUpdate",
+        async (oldState, newState) => await onVoiceUpdate(oldState, newState, data)
+    );
 
     await BOT.login(tokens.BotToken);
 }
