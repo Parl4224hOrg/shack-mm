@@ -1363,6 +1363,7 @@ export class GameController {
         }
         this.scores = [scoreA, scoreB];
         this.state = 7;
+        this.scoresAccept = [true, true];
         return {success: true, message: `Scores force submitted
         \`team_a: ${scoreA}\nteam_b: ${scoreB}\``}
     }
