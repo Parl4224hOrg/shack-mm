@@ -9,6 +9,10 @@ import {games} from "../buttons/queue/games";
 import {APAC, EUE, EUW, NAE, NAW} from "../buttons/regionSelect";
 import {pingMeButton} from "../buttons/queue/pingMe";
 import {checkBanButton} from "../buttons/queue/checkBan";
+import {graphButton} from "../buttons/queue/graph";
+import { ratingChangeButton } from "../buttons/queue/ratingChange";
+
+
 
 export const sndFILLReadyView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -17,9 +21,13 @@ export const sndFILLReadyView = () => {
 
 export const SNDFILLReadyView2 = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(lfg.data, games.data, stats.data, pingMeButton.data, checkBanButton.data).toJSON();
+        .addComponents(pingMeButton.data, lfg.data, games.data, checkBanButton.data).toJSON();
 }
 
+export const SNDFILLReadyView3 = () => {
+    return new ActionRowBuilder<MessageActionRowComponentBuilder>()
+        .addComponents(stats.data, ratingChangeButton.data, graphButton.data).toJSON();
+}
 
 export const signUpView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
