@@ -39,10 +39,12 @@ const getMMRChanges = (team: StatsInt[], baseChange: number) => {
     let mmrChanges = [];
     // iterates through each user to apply individual mmr changes
     for (let player of team) {
-        if (player.gamesPlayedSinceReset <= 10) {
+        // MARK: replace gamesPlayed with gamesPlayedSinceReset
+        if (player.gamesPlayed <= 10) {
             // base mmr change for first ten games (placement)
             mmrChanges.push(placement * baseChange);
-        } else if (player.gamesPlayedSinceReset <= 30) {
+        // MARK: replace gamesPlayed with gamesPlayedSinceReset
+        } else if (player.gamesPlayed <= 30) {
             // additional bonus is to help settle into a proper mmr
             mmrChanges.push(bonus * baseChange);
         } else {
