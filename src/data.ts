@@ -129,6 +129,17 @@ export class Data {
         this.discordToObject.set(user.id, String(user._id));
     }
 
+    canJoinStream(userId: string): boolean {
+        for (let game of this.FILL_SND.activeGames) {
+            for (let user of game.users) {
+                if (user.discordId == userId) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     async updateRoles() {
         const users = await UserModel.find({});
         const guild = await this.client.guilds!.fetch(tokens.GuildID);
