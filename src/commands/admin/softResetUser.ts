@@ -3,7 +3,6 @@ import {SlashCommandBuilder} from "@discordjs/builders";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import StatsModel from "../../database/models/StatsModel";
-import {TextChannel} from "discord.js";
 
 export const softResetUser: Command = {
     data: new SlashCommandBuilder()
