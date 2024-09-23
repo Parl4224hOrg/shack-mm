@@ -36,7 +36,8 @@ export const graphButton: Button = {
             } else {
                 await interaction.reply({
                     content: "Displaying Graph",
-                    files: [await getMMRGraph(stats.mmrHistory, start, stats.gamesPlayed, user.username)]
+                    files: [await getMMRGraph(stats.mmrHistory, start, stats.gamesPlayed, user.username)],
+                    ephemeral: true,
                 });
             }
         } catch (e) {

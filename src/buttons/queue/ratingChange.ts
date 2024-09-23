@@ -26,9 +26,9 @@ export const ratingChangeButton: Button = {
                 await interaction.reply({ephemeral: true, content: "This user has not played enough games to use this feature yet"});
             } else {
                 if (self) {
-                    await interaction.reply({content: `Your rating changed by ${stats.ratingChange.toFixed(1)} last game`});
+                    await interaction.reply({content: `Your rating changed by ${stats.ratingChange.toFixed(1)} last game`, ephemeral: true});
                 } else {
-                    await interaction.reply({content: `${user.username}'s rating changed by ${stats.ratingChange.toFixed(1)} last game`});
+                    await interaction.reply({content: `${user.username}'s rating changed by ${stats.ratingChange.toFixed(1)} last game`, ephemeral: true});
                 }
             }
         } catch (e) {
