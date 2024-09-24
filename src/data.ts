@@ -180,6 +180,14 @@ export class Data {
         }
         return null;
     }
+    getServerById(id: string) {
+        for (let server of this.servers) {
+            if (id == server.id) {
+                return server;
+            }
+        }
+        return null;
+    }
 
     setLoaded(value: boolean) {
         this.loaded = value;
