@@ -3,11 +3,13 @@ import {SlashCommandBuilder} from "@discordjs/builders";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import StatsModel from "../../database/models/StatsModel";
+import {userOption} from "../../utility/options";
 
 export const softResetUser: Command = {
     data: new SlashCommandBuilder()
         .setName("soft_reset_user")
-        .setDescription("Will soft reset a user"),
+        .setDescription("Will soft reset a user")
+        .addUserOption(userOption("User to soft reset")),
     run: async (interaction) => {
         try {
             await interaction.deferReply({ephemeral: true});
