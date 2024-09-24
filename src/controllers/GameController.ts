@@ -353,9 +353,7 @@ export class GameController {
                                 lateUserMentions.push(`<@${user.discordId}>`);
                             }
                         }
-                        if (lateUserMentions.length > 0 && lateUserMentions.length < 7) {
-                            await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 1 minute left to join!`);
-                        }
+                        await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 1 minute left to join!`);
                     }
 
                     // 5 minute mark
