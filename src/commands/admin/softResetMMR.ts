@@ -28,7 +28,7 @@ export const softResetMMR: Command = {
                 }
             }
             await channel.send(`Processed ${users.size}/${users.size} Users`);
-            await interaction.reply({ephemeral: true, content: "Reset ranks and removed all rank roles"});
+            await interaction.followUp({ephemeral: true, content: "Reset ranks and removed all rank roles"});
         } catch (e) {
             await logError(e, interaction);
         }
