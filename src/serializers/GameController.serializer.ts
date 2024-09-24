@@ -1,10 +1,9 @@
 import {GameController} from "../controllers/GameController";
-import {Collection, Client, Guild} from "discord.js";
+import {Collection, Client} from "discord.js";
 import mongoose, {ObjectId} from "mongoose";
 import tokens from "../tokens";
 import {GameUser} from "../interfaces/Game";
 import {Data} from "../data";
-import {GameServer} from "../server/server";
 import {Regions} from "../database/models/UserModel";
 
 export class GameControllerSerializer {
