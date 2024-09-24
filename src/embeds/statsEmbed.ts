@@ -10,16 +10,16 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, imageUR
 
 
 
-    if (stats.gamesPlayed >= 10) {
+    if (stats.gamesPlayedSinceReset >= 10) {
         embed.setTitle(`${name}'s Stats - [${stats.rank}]`);
-        embed.setDescription(`${getRank(stats.mmr).name}-${stats.mmr.toFixed(1)} MMR\nGames played - ${stats.gamesPlayed}\n
+        embed.setDescription(`${getRank(stats.mmr).name}-${stats.mmr.toFixed(1)} MMR\nGames played - ${stats.gamesPlayedSinceReset}\nTotal games - ${stats.gamesPlayed}\n
         [Website Stats](https://shackmm.com/players/${user._id}/stats)`);
     } else {
         embed.setTitle(`${name}'s Stats`);
-        if (stats.gamesPlayed == 9) {
-            embed.setDescription(`Play 1 more game to get ranked\nGames played - ${stats.gamesPlayed}`);
+        if (stats.gamesPlayedSinceReset == 9) {
+            embed.setDescription(`Play 1 more game to get ranked\nGames played - ${stats.gamesPlayedSinceReset}`);
         } else {
-            embed.setDescription(`Play ${10 - stats.gamesPlayed} more games to get ranked\nGames played - ${stats.gamesPlayed}`);
+            embed.setDescription(`Play ${10 - stats.gamesPlayedSinceReset} more games to get ranked\nGames played - ${stats.gamesPlayedSinceReset}`);
         }
 
     }

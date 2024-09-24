@@ -24,12 +24,12 @@ export class LeaderboardControllerClass {
 
     async getLeaderboard(data: Data): Promise<string> {
         const stats = await getTopTwenty("SND");
-        const tablePlayers: string[][] = [[" Rank ", "Player", " Rank-Rating ", " Games Played ", " Win Rate "]];
+        const tablePlayers: string[][] = [[" Rank ", "Player", " Rank-Rating ", " Games Played ", " Total Games ", " Win Rate "]];
         let i = 0;
         for (let stat of stats) {
             i++;
             const player = await getUserById(stat.userId, data);
-            tablePlayers.push([String(i), " " + player.name + " ", " " + String(getRank(stat.mmr).name) + "-" + String(stat.mmr.toFixed(1)) + " ", String(stat.gamesPlayed), String((stat.winRate * 100).toFixed(1) + "%")])
+            tablePlayers.push([String(i), " " + player.name + " ", " " + String(getRank(stat.mmr).name) + "-" + String(stat.mmr.toFixed(1)) + " ", String(stat.gamesPlayedSinceReset), String(stat.gamesPlayed), String((stat.winRate * 100).toFixed(1) + "%")])
         }
         return "```" + table(tablePlayers, {hsep: '|', align: ['c', 'c', 'c', 'c', 'c', 'c']}) + "```";
     }

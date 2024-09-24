@@ -21,7 +21,7 @@ export const ratingChange: Command = {
 
             const dbUser = await getUserByUser(user, data);
             const stats = await getStats(dbUser._id, "SND");
-            if (stats.gamesPlayed < 11) {
+            if (stats.gamesPlayedSinceReset < 11) {
                 await interaction.reply({ephemeral: true, content: "This user has not played enough games to use this feature yet"});
             } else {
                 if (self) {
