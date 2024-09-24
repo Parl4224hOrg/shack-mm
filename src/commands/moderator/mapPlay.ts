@@ -16,7 +16,7 @@ export const mapPlay: SubCommand = {
         try {
             await interaction.deferReply();
             const days = interaction.options.getInteger("days");
-            let query = {scoreB: {"$gte": 0}, scoreA: {'$gte': 0}};
+            let query: any = {scoreB: {"$gte": 0}, scoreA: {'$gte': 0}};
             let dateRange = "";
             if (days) {
                 const date = new Date();
