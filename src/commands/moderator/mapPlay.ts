@@ -3,7 +3,6 @@ import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import GameModel from "../../database/models/GameModel";
 import {Collection, SlashCommandSubcommandBuilder} from "discord.js";
-import {format} from "date-fns"; // Add this import for date formatting
 
 export const mapPlay: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -22,7 +21,7 @@ export const mapPlay: SubCommand = {
             if (days) {
                 const date = new Date();
                 date.setDate(date.getDate() - days);
-                query = {...query, date: {"$gte": date}};
+                query = {...query, creationDate: {"$gte": date.getTime()}}; // Use creationDate field
                 dateRange = ` (Last ${days} days)`;
             }
             const games = await GameModel.find(query).sort({matchId: 1});
