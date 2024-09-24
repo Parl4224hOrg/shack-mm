@@ -21,7 +21,7 @@ export const mapPlay: SubCommand = {
             if (days) {
                 const date = new Date();
                 date.setDate(date.getDate() - days);
-                query = {...query, creationDate: {"$gte": date.getTime()}}; // Use creationDate field
+                query = {...query, creationDate: {"$gte": Math.floor(date.getTime() / 1000)}}; // Convert to seconds
                 dateRange = ` (Last ${days} days)`;
             }
             const games = await GameModel.find(query).sort({matchId: 1});
