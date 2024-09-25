@@ -9,6 +9,7 @@ import {Regions} from "../database/models/UserModel";
 class GameControllerSerializer {
     private replaceLast(toReplace: string, replaceWith: string): string {
         const trimmed = toReplace.slice(0, -1);
+        console.log(trimmed);
         return trimmed + replaceWith;
     }
 
