@@ -16,7 +16,7 @@ class GameControllerSerializer {
     }
 
     private votesSerializer(toSerialize: Collection<string, string[]>): string {
-        let data = "{";
+        let data = "{ ";
         for (let key of toSerialize.keys()) {
             data += `"${key}": ${JSON.stringify(toSerialize.get(key))},`;
         }
@@ -24,7 +24,7 @@ class GameControllerSerializer {
     }
     
     private joinedPlayersSerializer(toSerialize: Set<string>): string {
-        let data = "[";
+        let data = "[ ";
         for (let entry of toSerialize.values()) {
             data += `${JSON.stringify(entry)},`;
         }
