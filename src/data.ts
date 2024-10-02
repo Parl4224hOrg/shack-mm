@@ -19,7 +19,6 @@ import {getStats} from "./modules/getters/getStats";
 import {getRank, roleRemovalCallback} from "./utility/ranking";
 import {updateUser} from "./modules/updaters/updateUser";
 import {GameServer} from "./server/server";
-import SaveModel from "./database/models/SaveModel";
 import {registerMaps} from "./utility/match";
 import SaveV2Model from "./database/models/SaveV2Model";
 import serializer from "./serializers/serializer";
