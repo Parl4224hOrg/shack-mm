@@ -47,7 +47,7 @@ export class Data {
     private tickCount = 0;
     private servers: GameServer[] = [];
     private loaded: boolean = false;
-    private saveCache = "";
+    private queueSaveCache = "";
 
     constructor(client: Client) {
         this.client = client
@@ -255,10 +255,12 @@ export class Data {
             queueSND: queue,
             games: games,
         };
-        if (!doc) {
-            await SaveV2Model.create(saveObj);
-        } else {
-            await SaveV2Model.findByIdAndUpdate(doc._id, saveObj, {upsert: true});
+        if (queue != this.queueSaveCache || games.length != 0) {
+            if (!doc) {
+                await SaveV2Model.create(saveObj);
+            } else {
+                await SaveV2Model.findByIdAndUpdate(doc._id, saveObj, {upsert: true});
+            }
         }
     }
 
