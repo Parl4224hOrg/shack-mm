@@ -19,8 +19,11 @@ import {getStats} from "./modules/getters/getStats";
 import {getRank, roleRemovalCallback} from "./utility/ranking";
 import {updateUser} from "./modules/updaters/updateUser";
 import {GameServer} from "./server/server";
-import SaveModel from "./database/models/SaveModel";
 import {registerMaps} from "./utility/match";
+import SaveV2Model from "./database/models/SaveV2Model";
+import serializer from "./serializers/serializer";
+
+const SAVE_ID = "saved";
 
 export class Data {
     private readonly client: Client;
@@ -35,7 +38,7 @@ export class Data {
     private banCounter = cron.schedule("*/10 * * * *", async () => {
         await this.banReductionTask();
     });
-    private readonly FILL_SND: QueueController;
+    private FILL_SND: QueueController;
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
     nextPing: number = moment().unix();
     readonly Leaderboard = new LeaderboardControllerClass(this);
@@ -161,11 +164,14 @@ export class Data {
     }
 
     async load() {
-        const data = await SaveModel.findOne({id: 'test'});
+        const data = await SaveV2Model.findOne({id: SAVE_ID});
         if (data) {
-            await this.FILL_SND.load(data.data);
-            registerMaps(this, tokens.MapPool);
+            this.FILL_SND = await serializer.deserializeQueueSND(data.queueSND, this.client, this);
+            for (let game of data.gamesSND) {
+                this.FILL_SND.activeGames.push(await serializer.deserializeGame(game, this.client, this));
+            }
         }
+        registerMaps(this, tokens.MapPool);
         this.tickLoop.start();
         this.roleUpdate.start();
         this.banCounter.start();
@@ -238,25 +244,22 @@ export class Data {
     }
 
     async save() {
-        let queue = JSON.stringify(this.FILL_SND, function (key, value) {
-            try {
-                if (key == 'client' || key == 'data' || key == 'guild') {
-                    return;
-                }
-                return value;
-            } catch (e) {
-                console.error(e);
-            }
-        });
-        if (queue != this.saveCache) {
-            const doc = await SaveModel.findOne({id: "test"});
-            if (!doc) {
-                await SaveModel.create({id: 'test', data: queue});
-            } else {
-                await SaveModel.updateOne({id: "test"}, {id: "test", data: queue});
-            }
+        let queue = serializer.serializeQueueSND(this.FILL_SND);
+        let games = [];
+        for (let game of this.FILL_SND.activeGames) {
+            games.push(serializer.serializeGame(game));
         }
-        return;
+        const doc = await SaveV2Model.findOne({id: SAVE_ID});
+        const saveObj = {
+            id: SAVE_ID,
+            queueSND: queue,
+            games: games,
+        };
+        if (!doc) {
+            await SaveV2Model.create(saveObj);
+        } else {
+            await SaveV2Model.findByIdAndUpdate(doc._id, saveObj, {upsert: true});
+        }
     }
 
     async createMatch(regionId: string, queue: QueueController, queueId: string, scoreLimit: number) {

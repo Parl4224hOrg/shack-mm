@@ -5,8 +5,10 @@ import tokens from "../tokens";
 import {GameUser} from "../interfaces/Game";
 import {Data} from "../data";
 import {Regions} from "../database/models/UserModel";
+import {QueueController} from "../controllers/QueueController";
+import {PingMeUser} from "../interfaces/Internal";
 
-class GameControllerSerializer {
+class Serializer {
     private replaceLast(toReplace: string, replaceWith: string): string {
         console.log(toReplace);
         console.log("----------------------------------------------------");
@@ -22,6 +24,14 @@ class GameControllerSerializer {
         }
         return this.replaceLast(data, "}");
     }
+
+    private pingMeSerializer(toSerialize: Collection<string, PingMeUser>): string {
+        let data = "{ ";
+        for (let key of toSerialize.keys()) {
+            data += `"${key}": ${JSON.stringify(toSerialize.get(key))},`;
+        }
+        return this.replaceLast(data, "}");
+    }
     
     private joinedPlayersSerializer(toSerialize: Set<string>): string {
         let data = "[ ";
@@ -31,7 +41,7 @@ class GameControllerSerializer {
         return this.replaceLast(data, "]");
     }
 
-    public serialize(toSerialize: GameController): string {
+    public serializeGame(toSerialize: GameController): string {
         const alreadySerialized = ["votes", "joinedPlayers"];
         return JSON.stringify({
             id: toSerialize.id,
@@ -97,6 +107,17 @@ class GameControllerSerializer {
         })
     }
 
+    public serializeQueueSND(toSerialize: QueueController): string {
+        return JSON.stringify({
+            queueId: toSerialize.queueId,
+            queueName: toSerialize.queueName,
+            inQueue: toSerialize.inQueue,
+            pingMe: this.pingMeSerializer(toSerialize.pingMe),
+            generating: toSerialize.generating,
+            mapData: toSerialize.mapData,
+        });
+    }
+
     private deSerializeUsers(data: any): GameUser[] {
         const users: GameUser[] = [];
         for (let user of data) {
@@ -120,6 +141,19 @@ class GameControllerSerializer {
         return newCollection;
     }
 
+    private pingMeDeserializer(data: any): Collection<string, PingMeUser> {
+        const newCollection: Collection<string, PingMeUser> = new Collection();
+        for (let key of Object.keys(data)) {
+            newCollection.set(key, {
+                id: data[key].id,
+                inQueue: Number(data[key].inQueue),
+                expires: Number(data[key].expires),
+                pinged: Boolean(data[key].pinged),
+            });
+        }
+        return newCollection;
+    }
+
     private joinedPlayersDeserializer(data: any): Set<string> {
         const newSet: Set<string> = new Set();
         for (let value of data) {
@@ -128,7 +162,7 @@ class GameControllerSerializer {
         return newSet;
     }
 
-    public async deserialize(data: string, client: Client, dataClass: Data): Promise<GameController> {
+    public async deserializeGame(data: string, client: Client, dataClass: Data): Promise<GameController> {
         const parsed = JSON.parse(data);
         
         const id = new mongoose.Types.ObjectId(parsed.id) as any as ObjectId;
@@ -186,6 +220,29 @@ class GameControllerSerializer {
         
         return game;
     }
+
+    public async deserializeQueueSND(data: string, client: Client, dataClass: Data): Promise<QueueController> {
+        const parsed = JSON.parse(data);
+        const queue = new QueueController(dataClass, client, parsed.queueName);
+
+        for (let user of parsed.inQueue) {
+            queue.inQueue.push({
+                dbId: new mongoose.Types.ObjectId(user.dbId) as any as ObjectId,
+                discordId: parsed.discordId,
+                queueExpire: parsed.queueExpire,
+                mmr: parsed.mmr,
+                name: parsed.name,
+                region: parsed.region as Regions,
+            });
+        }
+
+        queue.pingMe = this.pingMeDeserializer(parsed.pingMe);
+        queue.generating = parsed.generating;
+        queue.mapData = parsed.mapData;
+
+
+        return queue;
+    }
 }
 
-export default new GameControllerSerializer();
+export default new Serializer();

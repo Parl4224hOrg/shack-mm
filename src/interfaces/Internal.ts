@@ -1,5 +1,12 @@
 import {ObjectId} from "mongoose";
 
+export interface PingMeUser {
+    id: string;
+    inQueue: number;
+    expires: number;
+    pinged: boolean;
+}
+
 export interface MapData {
     mapName: string;
     lastGame: number;
