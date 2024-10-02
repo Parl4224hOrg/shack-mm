@@ -1,6 +1,6 @@
 import {Client, Collection, TextChannel} from "discord.js";
 import {QueueUser} from "../interfaces/Game";
-import {GameData, InternalResponse, MapData, QueueData} from "../interfaces/Internal";
+import {GameData, InternalResponse, MapData, PingMeUser, QueueData} from "../interfaces/Internal";
 import {Data} from "../data";
 import moment from "moment";
 import {getStats} from "../modules/getters/getStats";
@@ -16,13 +16,6 @@ import {shuffleArray} from "../utility/makeTeams";
 import {logWarn} from "../loggers";
 import {Regions} from "../database/models/UserModel";
 
-
-interface PingMeUser {
-    id: string;
-    inQueue: number;
-    expires: number;
-    pinged: boolean;
-}
 
 const removeDuplicates = (array: QueueUser[]) => {
     const newArr: QueueUser[] = [];
@@ -46,11 +39,11 @@ export class QueueController {
     readonly queueName: string;
     private readonly data: Data;
     private readonly client: Client;
-    private inQueue: QueueUser[] = [];
-    private pingMe = new Collection<string, PingMeUser>()
+    public inQueue: QueueUser[] = [];
+    public pingMe = new Collection<string, PingMeUser>()
     activeGames: GameController[] = [];
     generating = false;
-    private mapData: MapData[] = [];
+    public mapData: MapData[] = [];
 
 
     constructor(data: Data, client: Client, queueName: string) {

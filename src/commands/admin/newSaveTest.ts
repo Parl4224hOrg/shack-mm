@@ -1,7 +1,7 @@
 import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {logError} from "../../loggers";
-import Serializer from "../../serializers/GameController.serializer";
+import Serializer from "../../serializers/serializer";
 import SaveV2Model from "../../database/models/SaveV2Model";
 import tokens from "../../tokens";
 
@@ -14,14 +14,14 @@ export const newSaveTest: Command = {
             await interaction.deferReply({ephemeral: true});
             const game = data.getQueue().activeGames[0];
             if (game) {
-                const serializedData = Serializer.serialize(game);
+                const serializedData = Serializer.serializeGame(game);
                 const save = await SaveV2Model.create({
                     id: new Date().getTime(),
                     data: serializedData,
                 });
                 let replyMessage = `Successfully saved data with id: ${save.id}\n`;
                 try {
-                    await Serializer.deserialize(save.data, interaction.client, data);
+                    await Serializer.deserializeGame(save.data, interaction.client, data);
                     replyMessage += "Successfully loaded data as well";
                 } catch (e) {
                     const temp = e as any

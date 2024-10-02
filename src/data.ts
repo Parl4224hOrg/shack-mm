@@ -21,6 +21,8 @@ import {updateUser} from "./modules/updaters/updateUser";
 import {GameServer} from "./server/server";
 import SaveModel from "./database/models/SaveModel";
 import {registerMaps} from "./utility/match";
+import SaveV2Model from "./database/models/SaveV2Model";
+import serializer from "./serializers/serializer";
 
 export class Data {
     private readonly client: Client;
@@ -35,7 +37,7 @@ export class Data {
     private banCounter = cron.schedule("*/10 * * * *", async () => {
         await this.banReductionTask();
     });
-    private readonly FILL_SND: QueueController;
+    private FILL_SND: QueueController;
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
     nextPing: number = moment().unix();
     readonly Leaderboard = new LeaderboardControllerClass(this);
@@ -161,11 +163,14 @@ export class Data {
     }
 
     async load() {
-        const data = await SaveModel.findOne({id: 'test'});
+        const data = await SaveV2Model.findOne({id: 'saved'});
         if (data) {
-            await this.FILL_SND.load(data.data);
-            registerMaps(this, tokens.MapPool);
+            this.FILL_SND = await serializer.deserializeQueueSND(data.queueSND, this.client, this);
+            for (let game of data.gamesSND) {
+                this.FILL_SND.activeGames.push(await serializer.deserializeGame(game, this.client, this));
+            }
         }
+        registerMaps(this, tokens.MapPool);
         this.tickLoop.start();
         this.roleUpdate.start();
         this.banCounter.start();
