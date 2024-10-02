@@ -24,6 +24,8 @@ import {registerMaps} from "./utility/match";
 import SaveV2Model from "./database/models/SaveV2Model";
 import serializer from "./serializers/serializer";
 
+const SAVE_ID = "saved";
+
 export class Data {
     private readonly client: Client;
     private userCache = new Map<string, UserInt>();
@@ -163,7 +165,7 @@ export class Data {
     }
 
     async load() {
-        const data = await SaveV2Model.findOne({id: 'saved'});
+        const data = await SaveV2Model.findOne({id: SAVE_ID});
         if (data) {
             this.FILL_SND = await serializer.deserializeQueueSND(data.queueSND, this.client, this);
             for (let game of data.gamesSND) {
@@ -243,25 +245,22 @@ export class Data {
     }
 
     async save() {
-        let queue = JSON.stringify(this.FILL_SND, function (key, value) {
-            try {
-                if (key == 'client' || key == 'data' || key == 'guild') {
-                    return;
-                }
-                return value;
-            } catch (e) {
-                console.error(e);
-            }
-        });
-        if (queue != this.saveCache) {
-            const doc = await SaveModel.findOne({id: "test"});
-            if (!doc) {
-                await SaveModel.create({id: 'test', data: queue});
-            } else {
-                await SaveModel.updateOne({id: "test"}, {id: "test", data: queue});
-            }
+        let queue = serializer.serializeQueueSND(this.FILL_SND);
+        let games = [];
+        for (let game of this.FILL_SND.activeGames) {
+            games.push(serializer.serializeGame(game));
         }
-        return;
+        const doc = await SaveV2Model.findOne({id: SAVE_ID});
+        const saveObj = {
+            id: SAVE_ID,
+            queueSND: queue,
+            games: games,
+        };
+        if (!doc) {
+            await SaveV2Model.create(saveObj);
+        } else {
+            await SaveV2Model.findByIdAndUpdate(doc._id, saveObj, {upsert: true});
+        }
     }
 
     async createMatch(regionId: string, queue: QueueController, queueId: string, scoreLimit: number) {
