@@ -256,6 +256,7 @@ export class Data {
             games: games,
         };
         if (queue != this.queueSaveCache || games.length != 0) {
+            this.queueSaveCache = queue;
             if (!doc) {
                 await SaveV2Model.create(saveObj);
             } else {
