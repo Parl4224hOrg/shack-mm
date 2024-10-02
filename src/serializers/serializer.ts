@@ -10,10 +10,7 @@ import {PingMeUser} from "../interfaces/Internal";
 
 class Serializer {
     private replaceLast(toReplace: string, replaceWith: string): string {
-        console.log(toReplace);
-        console.log("----------------------------------------------------");
         const trimmed = toReplace.slice(0, -1);
-        console.log(trimmed + replaceWith);
         return trimmed + replaceWith;
     }
 
@@ -224,6 +221,9 @@ class Serializer {
     public async deserializeQueueSND(data: string, client: Client, dataClass: Data): Promise<QueueController> {
         const parsed = JSON.parse(data);
         const queue = new QueueController(dataClass, client, parsed.queueName);
+
+        console.log(parsed.inQueue);
+        console.log(parsed.pingMe);
 
         for (let user of parsed.inQueue) {
             queue.inQueue.push({
