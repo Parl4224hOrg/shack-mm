@@ -140,12 +140,13 @@ class Serializer {
 
     private pingMeDeserializer(data: any): Collection<string, PingMeUser> {
         const newCollection: Collection<string, PingMeUser> = new Collection();
-        for (let key of Object.keys(data)) {
+        const parsed = JSON.parse(data);
+        for (let key of Object.keys(parsed)) {
             newCollection.set(key, {
-                id: data[key].id,
-                inQueue: Number(data[key].inQueue),
-                expires: Number(data[key].expires),
-                pinged: Boolean(data[key].pinged),
+                id: parsed[key].id,
+                inQueue: parsed[key].inQueue,
+                expires: parsed[key].expires,
+                pinged: parsed[key].pinged,
             });
         }
         return newCollection;
