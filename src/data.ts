@@ -9,7 +9,7 @@ import {createGame} from "./modules/constructors/createGame";
 import {ObjectId} from "mongoose";
 import tokens from "./tokens";
 import {InternalResponse} from "./interfaces/Internal";
-import moment from "moment";
+import moment from "moment-timezone";
 import {GameController} from "./controllers/GameController";
 import {getUserById, getUserByUser} from "./modules/getters/getUser";
 import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
@@ -22,6 +22,8 @@ import {GameServer} from "./server/server";
 import {registerMaps} from "./utility/match";
 import SaveV2Model from "./database/models/SaveV2Model";
 import serializer from "./serializers/serializer";
+import MapTestModel from "./database/models/MapTestModel";
+import mapTestModel from "./database/models/MapTestModel";
 
 const SAVE_ID = "saved";
 
@@ -114,6 +116,34 @@ export class Data {
                     }
                 }
             }
+        }
+
+        const mapTestsToDelete = await MapTestModel.find({time: {"$lte": moment().unix() - 3600 * 6}, deleted: false});
+        const channel = await this.client.channels.fetch(tokens.MapTestAnnouncementChannel) as TextChannel;
+        for (let mapTest of mapTestsToDelete) {
+            try {
+                const message = await channel.messages.fetch(mapTest.messageId);
+                await message.delete();
+                mapTest.deleted = true;
+                await mapTestModel.findByIdAndUpdate(mapTest._id, mapTest);
+            } catch (e) {
+                await logWarn(`Failed to delete message for map test (${mapTest.id})`, this.client);
+            }
+        }
+
+        const mapTestsToNotify = await MapTestModel.find({time: {"$lte": moment().unix() + 3600 * 2}, pinged: false});
+        for (let mapTest of mapTestsToNotify) {
+            for (let player of mapTest.players) {
+                const user = await this.client.users.fetch(player);
+                if (user.dmChannel) {
+                    await user.dmChannel.send(`You have a map test at <t:${mapTest.time}:F> <t:${mapTest.time}:R>`);
+                } else {
+                    await user.createDM(true);
+                    await user.dmChannel!.send(`You have a map test at <t:${mapTest.time}:F> <t:${mapTest.time}:R>`);
+                }
+            }
+            mapTest.pinged = true;
+            await mapTestModel.findByIdAndUpdate(mapTest._id, mapTest);
         }
     }
 

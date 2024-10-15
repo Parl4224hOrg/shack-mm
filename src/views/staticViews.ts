@@ -11,6 +11,9 @@ import {pingMeButton} from "../buttons/queue/pingMe";
 import {checkBanButton} from "../buttons/queue/checkBan";
 import {graphButton} from "../buttons/queue/graph";
 import { ratingChangeButton } from "../buttons/queue/ratingChange";
+import {mapTesterToggle} from "../buttons/mapTesterToggle";
+import {mapTestSignup} from "../buttons/mapTestSignup";
+import {mapTestRemoveSignup} from "../buttons/mapTestRemoveSignup";
 
 
 
@@ -37,5 +40,15 @@ export const signUpView = () => {
 export const regionSelectView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
         .addComponents(NAE.data, NAW.data, EUE.data, EUW.data, APAC.data).toJSON();
+}
+
+export const MapTestView = () => {
+    return new ActionRowBuilder<MessageActionRowComponentBuilder>()
+        .addComponents(mapTestSignup.data, mapTestRemoveSignup.data).toJSON();
+}
+
+export const MapTestSignupView = () => {
+    return new ActionRowBuilder<MessageActionRowComponentBuilder>()
+        .addComponents(mapTesterToggle.data).toJSON();
 }
 
