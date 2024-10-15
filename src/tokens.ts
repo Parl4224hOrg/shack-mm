@@ -18,6 +18,7 @@ export default {
     MatchCategory: '1171850272465764402',
     ModRole: '1152657002212884550',
     AdminRole: '1152652534763241542',
+    OwnerRole: '1204928541045825636',
     GeneralChannel: '1152652410184024247',
     SNDChannel: '1171851238594318387',
     PingToPlayRole: '1171851420639703150',
@@ -49,6 +50,9 @@ export default {
     MutedRole: "1186750217962401844",
     Mods: ['1152657002212884550', '1200954518590984313'],
     StreamerRole: "1286113718635204648",
+    MapTesterRole: "1295849188730470450",
+    MapMakerRole: "1288107816397045801",
+    MapTestAnnouncementChannel: "1295856528494170224",
     // constants
     ApplyLates: true,
     StartingMMR: 1300,
