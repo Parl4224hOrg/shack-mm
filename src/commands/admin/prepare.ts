@@ -3,7 +3,14 @@ import {SlashCommandBuilder} from "@discordjs/builders";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {TextChannel} from "discord.js";
-import {regionSelectView, signUpView, sndFILLReadyView, SNDFILLReadyView2, SNDFILLReadyView3} from "../../views/staticViews";
+import {
+    MapTestSignupView,
+    regionSelectView,
+    signUpView,
+    sndFILLReadyView,
+    SNDFILLReadyView2,
+    SNDFILLReadyView3
+} from "../../views/staticViews";
 
 export const prepare: Command = {
     data: new SlashCommandBuilder()
@@ -19,7 +26,8 @@ export const prepare: Command = {
                 {name: "Info", value: "info"},
                 {name: "cleanup", value: "c"},
                 {name: 'Clear', value: 'c2'},
-                {name: "Region", value: 'region'}
+                {name: "Region", value: 'region'},
+                {name: "Map Test", value: "map"},
             )
         ),
     run: async (interaction) => {
@@ -56,6 +64,10 @@ export const prepare: Command = {
                 case 'region': {
                     await interaction.channel!.send({components: [regionSelectView()], content: tokens.RegionSelectMessage});
                     await interaction.followUp({ephemeral: true, content: 'prepared region select view'})
+                } break;
+                case 'map': {
+                    await interaction.channel!.send({components: [MapTestSignupView()], content: "Use this button to toggle whether or not to be notified about map tests"});
+                    await interaction.followUp({ephemeral: true, content: 'prepared map testing view'});
                 } break;
                 default: break;
             }
