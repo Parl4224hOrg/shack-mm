@@ -119,7 +119,7 @@ export default {
         }
     ],
     MapIds: {
-        Oilrig: "UGC3266780",
+        Oilrig: "oilrig",
         Mirage: "UGC3278975",
         Dust2: "UGC3283822",
         Cache: "UGC3275597",
