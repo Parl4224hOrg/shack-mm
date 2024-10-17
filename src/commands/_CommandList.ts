@@ -35,12 +35,13 @@ import {softResetMMR} from "./admin/softResetMMR";
 import {softResetUser} from "./admin/softResetUser";
 import {newSaveTest} from "./admin/newSaveTest";
 import {createMapTest} from "./createMapTest";
+import {updateMapTest} from "./updateMapTest";
 
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, manualSubmit, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
     help, checkDms, dmOptions, _mod, serverStatus, late, categoryDelete, unregisterServer, ping, fixCDs, unmute, updateMatchScore, _ref,
-    softResetMMR, softResetUser, newSaveTest, createMapTest];
+    softResetMMR, softResetUser, newSaveTest, createMapTest, updateMapTest];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 
