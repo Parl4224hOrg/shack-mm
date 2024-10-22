@@ -77,9 +77,10 @@ export default {
         Autumn: "https://shackmm.com/static/images/manor.png",
         Whitesand: "https://shackmm.com/static/images/manor.png",
         Stahl: "https://shackmm.com/static/images/manor.png",
+        Flashpoint: "https://shackmm.com/static/images/manor.png",
     },
     ReductionGames: 10,
-    MapPool: ["Dust 2", "Cache", "Overpass", "Oilrig", "Harbor", "Reachsky", "Vertigo", "Cobble", "Stockpile", "Stahl"],
+    MapPool: ["Dust 2", "Cache", "Overpass", "Flashpoint", "Harbor", "Reachsky", "Vertigo", "Cobble", "Stockpile", "Stahl"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Grandmaster', threshold: 2300, roleId: '1285641380600877157'},
@@ -136,5 +137,6 @@ export default {
         Stahl: "UGC4332873",
         Stockpile: "UGC4397184",
         Cobble: "UGC4366923",
+        Flashpoint: "UGC3238058",
     }
 }
