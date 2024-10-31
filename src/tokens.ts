@@ -80,7 +80,7 @@ export default {
         Flashpoint: "https://shackmm.com/static/images/manor.png",
     },
     ReductionGames: 10,
-    MapPool: ["Dust 2", "Cache", "Overpass", "Flashpoint", "Harbor", "Reachsky", "Vertigo", "Cobble", "Stockpile", "Stahl"],
+    MapPool: ["Dust 2", "Cache", "Overpass", "Oilrig", "Harbor", "Reachsky", "Vertigo", "Cobble", "Stockpile", "Stahl"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Grandmaster', threshold: 2300, roleId: '1285641380600877157'},
