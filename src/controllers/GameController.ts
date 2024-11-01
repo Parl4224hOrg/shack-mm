@@ -490,6 +490,7 @@ export class GameController {
             case 'manor': mapId = tokens.MapIds.Manor; break;
             case 'vertigo': mapId = tokens.MapIds.Vertigo; break;
             case 'autumn': mapId = tokens.MapIds.Autumn; break;
+            case 'stahlbrecher': mapId = tokens.MapIds.Stahl; break;
         }
         await this.server!.switchMap(mapId, "SND");
         await this.server!.updateServerName(`SMM Match-${this.matchNumber}`);
