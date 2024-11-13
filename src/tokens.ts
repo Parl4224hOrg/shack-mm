@@ -80,7 +80,7 @@ export default {
         Flashpoint: "https://shackmm.com/static/images/manor.png",
     },
     ReductionGames: 10,
-    MapPool: ["Dust 2", "Cache", "Overpass", "Oilrig", "Harbor", "Streets", "Vertigo", "Cobble", "Stockpile", "Stahl"],
+    MapPool: ["Dust 2", "Cache", "Overpass", "Oilrig", "Harbor", "Streets", "Vertigo", "Mirage", "Stockpile", "Stahl"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Grandmaster', threshold: 2300, roleId: '1285641380600877157'},
@@ -121,7 +121,7 @@ export default {
     ],
     MapIds: {
         Oilrig: "oilrig",
-        Mirage: "UGC3278975",
+        Mirage: "UGC4438747",
         Dust2: "UGC3283822",
         Cache: "UGC3275597",
         Overpass: "UGC3283728",
