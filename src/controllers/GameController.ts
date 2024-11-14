@@ -341,6 +341,22 @@ export class GameController {
                         await this.updateJoinedPlayers();
                     }
 
+                    // 2 minutes left
+                    if (time - this.finalGenTime == 3 * 60 && this.serverSetup) {
+                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+                        const lateUserMentions: string[] = [];
+                        for (let user of this.users) {
+                            const dbUser = await getUserById(user.dbId, this.data);
+                            if (dbUser && !this.joinedPlayers.has(dbUser.oculusName)) {
+                                const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                                await logChannel.send(`User ${dbUser.oculusName} is late.`);
+                                lateUserMentions.push(`<@${user.discordId}>`);
+                            }
+                        }
+                        await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 2 minutes left to join!`);
+                    }
+
+
                     // 1 minute left
                     if (time - this.finalGenTime == 4 * 60 && this.serverSetup) {
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
