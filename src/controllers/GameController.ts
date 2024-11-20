@@ -26,6 +26,7 @@ import {getMaps, logAccept, logScoreSubmit} from "../utility/match";
 import {GameServer} from "../server/server";
 import axios from "axios";
 import warnModel from "../database/models/WarnModel";
+import {getMapUGC} from "../utility/map.util";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -491,26 +492,7 @@ export class GameController {
     }
 
     async switchMap() {
-        let mapId = "";
-        switch (this.map.toLowerCase()) {
-            case 'oilrig': mapId = tokens.MapIds.Oilrig; break;
-            case 'mirage': mapId = tokens.MapIds.Mirage; break;
-            case 'dust 2': mapId = tokens.MapIds.Dust2; break;
-            case 'cache': mapId = tokens.MapIds.Cache; break;
-            case 'overpass': mapId = tokens.MapIds.Overpass; break;
-            case 'inferno': mapId = tokens.MapIds.Inferno; break;
-            case 'harbor': mapId = tokens.MapIds.Harbor; break;
-            case 'lumber': mapId = tokens.MapIds.Lumber; break;
-            case 'industry': mapId = tokens.MapIds.Industry; break;
-            case 'reachsky': mapId = tokens.MapIds.Reachsky; break;
-            case 'manor': mapId = tokens.MapIds.Manor; break;
-            case 'vertigo': mapId = tokens.MapIds.Vertigo; break;
-            case 'autumn': mapId = tokens.MapIds.Autumn; break;
-            case 'stahl': mapId = tokens.MapIds.Stahl; break;
-            case 'stockpile': mapId = tokens.MapIds.Stockpile; break;
-            case 'cobble': mapId = tokens.MapIds.Cobble; break;
-            case 'streets': mapId = tokens.MapIds.Streets; break;
-        }
+        let mapId = getMapUGC(this.map);
         await this.server!.switchMap(mapId, "SND");
         await this.server!.updateServerName(`SMM Match-${this.matchNumber}`);
     }
