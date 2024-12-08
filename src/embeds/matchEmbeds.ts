@@ -1,10 +1,10 @@
 import {EmbedBuilder} from "discord.js";
 import {GameUser} from "../interfaces/Game";
-import tokens from "../tokens";
 import {GameInt} from "../database/models/GameModel";
 import {getUserById} from "../modules/getters/getUser";
 import {GameController} from "../controllers/GameController";
 import {Data} from "../data";
+import {getMapImageURL} from "../utility/map.util";
 
 export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
     const embed = new EmbedBuilder();
@@ -42,33 +42,7 @@ export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
         },
     ]);
 
-    if (game.map.toLowerCase() == 'mirage') {
-        embed.setImage(tokens.Images.Mirage);
-    } else if (game.map.toLowerCase() == 'dust 2') {
-        embed.setImage(tokens.Images.Dust2);
-    } else if (game.map.toLowerCase() == 'cache') {
-        embed.setImage(tokens.Images.Cache);
-    } else if (game.map.toLowerCase() == 'oilrig') {
-        embed.setImage(tokens.Images.Oilrig);
-    } else if (game.map.toLowerCase() == 'inferno') {
-        embed.setImage(tokens.Images.Inferno);
-    } else if (game.map.toLowerCase() == 'overpass') {
-        embed.setImage(tokens.Images.Overpass);
-    } else if (game.map.toLowerCase() == 'vertigo') {
-        embed.setImage(tokens.Images.Vertigo);
-    } else if (game.map.toLowerCase() == 'harbor') {
-        embed.setImage(tokens.Images.Harbor);
-    } else if (game.map.toLowerCase() == 'lumber') {
-        embed.setImage(tokens.Images.Lumber);
-    } else if (game.map.toLowerCase() == 'reachsky') {
-        embed.setImage(tokens.Images.Reachsky);
-    } else if (game.map.toLowerCase() == 'industry') {
-        embed.setImage(tokens.Images.Industry);
-    } else if (game.map.toLowerCase() == 'manor') {
-        embed.setImage(tokens.Images.Manor);
-    } else if (game.map.toLowerCase() == 'autumn') {
-        embed.setImage(tokens.Images.Autumn);
-    }
+    embed.setImage(getMapImageURL(game.map));
 
     return embed.toJSON();
 }
@@ -122,34 +96,7 @@ export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: 
         },
     ])
 
-    if (map.toLowerCase() == 'mirage') {
-        embed.setImage(tokens.Images.Mirage);
-    } else if (map.toLowerCase() == 'dust 2') {
-        embed.setImage(tokens.Images.Dust2);
-    } else if (map.toLowerCase() == 'cache') {
-        embed.setImage(tokens.Images.Cache);
-    } else if (map.toLowerCase() == 'oilrig') {
-        embed.setImage(tokens.Images.Oilrig);
-    } else if (map.toLowerCase() == 'inferno') {
-        embed.setImage(tokens.Images.Inferno);
-    } else if (map.toLowerCase() == 'overpass') {
-        embed.setImage(tokens.Images.Overpass);
-    } else if (map.toLowerCase() == 'vertigo') {
-        embed.setImage(tokens.Images.Vertigo);
-    } else if (map.toLowerCase() == 'harbor') {
-        embed.setImage(tokens.Images.Harbor);
-    } else if (map.toLowerCase() == 'lumber') {
-        embed.setImage(tokens.Images.Lumber);
-    } else if (map.toLowerCase() == 'reachsky') {
-        embed.setImage(tokens.Images.Reachsky);
-    } else if (map.toLowerCase() == 'industry') {
-        embed.setImage(tokens.Images.Industry);
-    } else if (map.toLowerCase() == 'manor') {
-        embed.setImage(tokens.Images.Manor);
-    } else if (map.toLowerCase() == 'autumn') {
-        embed.setImage(tokens.Images.Autumn);
-    }
-
+    embed.setImage(getMapImageURL(map));
 
     return embed.toJSON();
 
