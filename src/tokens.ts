@@ -120,7 +120,7 @@ export default {
         }
     ],
     MapIds: {
-        Oilrig: "oilrig",
+        Oilrig: "UGC4499790",
         Mirage: "UGC4438747",
         Dust2: "UGC4460907",
         Cache: "UGC3275597",
@@ -131,7 +131,7 @@ export default {
         Lumber: "UGC3505396",
         Reachsky: "UGC3748612",
         Manor: "UGC3765846",
-        Vertigo: "UGC3309849",
+        Vertigo: "UGC4500480",
         Autumn: "autumn",
         Whitesand: "UGC3263736",
         Stahl: "UGC4332873",
