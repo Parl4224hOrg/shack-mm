@@ -27,6 +27,7 @@ import {GameServer} from "../server/server";
 import axios from "axios";
 import warnModel from "../database/models/WarnModel";
 import {getMapUGC} from "../utility/map.util";
+import {RCONError} from "rcon-pavlov";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -418,46 +419,64 @@ export class GameController {
                         for (let user of this.users) {
                             dbUsers.push(await getUserById(user.dbId, this.data));
                         }
-                        const RefreshList = await this.server.refreshList()
-                        if (RefreshList.PlayerList) {
-                            for (let user of RefreshList.PlayerList) {
-                                let found = false;
-                                for (let dbUser of dbUsers) {
-                                    if (dbUser.oculusName == user.UniqueId) {
-                                        found = true;
-                                        const playerInfo = await this.server.inspectPlayer(user.UniqueId);
-                                        for (let gameUser of this.users) {
-                                            if (gameUser.discordId == dbUser.id) {
-                                                gameUser.joined = true;
-                                                if (playerInfo.PlayerInfo.TeamId == '0') {
-                                                    // Player is on CT
-                                                    if (gameUser.team == 0 && this.sides[0] == "T") {
-                                                        await this.server.switchTeam(user.UniqueId, "1");
+                        try {
+                            const RefreshList = await this.server.refreshList()
+                            if (RefreshList.PlayerList) {
+                                for (let user of RefreshList.PlayerList) {
+                                    let found = false;
+                                    for (let dbUser of dbUsers) {
+                                        if (dbUser.oculusName == user.UniqueId) {
+                                            found = true;
+                                            const playerInfo = await this.server.inspectPlayer(user.UniqueId);
+                                            for (let gameUser of this.users) {
+                                                try {
+                                                    if (gameUser.discordId == dbUser.id) {
+                                                        gameUser.joined = true;
+                                                        if (playerInfo.PlayerInfo.TeamId == '0') {
+                                                            // Player is on CT
+                                                            if (gameUser.team == 0 && this.sides[0] == "T") {
+                                                                await this.server.switchTeam(user.UniqueId, "1");
+                                                            }
+                                                            if (gameUser.team == 1 && this.sides[1] == "T") {
+                                                                await this.server.switchTeam(user.UniqueId, "1");
+                                                            }
+                                                        } else {
+                                                            // Player is on T
+                                                            if (gameUser.team == 0 && this.sides[0] == "CT") {
+                                                                await this.server.switchTeam(user.UniqueId, "0");
+                                                            }
+                                                            if (gameUser.team == 1 && this.sides[1] == "CT") {
+                                                                await this.server.switchTeam(user.UniqueId, "0");
+                                                            }
+                                                        }
                                                     }
-                                                    if (gameUser.team == 1 && this.sides[1] == "T") {
-                                                        await this.server.switchTeam(user.UniqueId, "1");
-                                                    }
-                                                } else {
-                                                    // Player is on T
-                                                    if (gameUser.team == 0 && this.sides[0] == "CT") {
-                                                        await this.server.switchTeam(user.UniqueId, "0");
-                                                    }
-                                                    if (gameUser.team == 1 && this.sides[1] == "CT") {
-                                                        await this.server.switchTeam(user.UniqueId, "0");
+                                                } catch (e) {
+                                                    if (e instanceof RCONError) {
+                                                        await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                                if (!found) {
-                                    await this.server.kick(user.UniqueId);
-                                }
-                                // 1 is T 0 is CT
+                                    try {
+                                        if (!found) {
+                                            await this.server.kick(user.UniqueId);
+                                        }
+                                    } catch (e) {
+                                        if (e instanceof RCONError) {
+                                            await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
+                                        }
+                                    }
+                                    // 1 is T 0 is CT
 
+                                }
+                            } else {
+                                await logWarn("Player list is empty", this.client);
                             }
-                        } else {
-                            await logWarn("Player list is empty", this.client);
+                        } catch (e) {
+                            if (e instanceof RCONError) {
+                                await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
+                            }
                         }
                     }
                 } break;
@@ -646,7 +665,7 @@ export class GameController {
         let validAbandon = true;
         if (this.server) {
             try {
-                const serverInfo = await this.server.serverInfo()
+                // const serverInfo = await this.server.serverInfo()
                 try {
                     //if (Number(serverInfo.ServerInfo.Team0Score) >= 6 || Number(serverInfo.ServerInfo.Team1Score) >= 6) {
                         //validAbandon = false;
