@@ -77,7 +77,7 @@ export class Data {
                     const member = await guild.members.fetch(user.id);
                     await member.roles.remove(tokens.MutedRole);
                 } catch (e) {
-                    await logWarn("User is no longer in server", this.client);
+
                 }
             }
             if (user.banUntil <= now) {

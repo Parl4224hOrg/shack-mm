@@ -83,5 +83,5 @@ export const manualSubmit: Command = {
         }
     },
     name: 'manual_submit',
-    allowedUsers: [tokens.Parl],
+    allowedRoles: [tokens.AdminRole, tokens.OwnerRole],
 }
