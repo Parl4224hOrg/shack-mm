@@ -3,6 +3,7 @@ import {ButtonInteraction, ChatInputCommandInteraction, Client, EmbedBuilder, Te
 import {Data} from "../data";
 import tokens from "../tokens";
 import {logInfo} from "../loggers";
+import {MapData} from "../interfaces/Internal";
 
 export const registerMaps = (data: Data, maps: string[]) => {
     const mapData = data.getQueue().getMapData();
@@ -27,21 +28,30 @@ export const registerMaps = (data: Data, maps: string[]) => {
     mapData.forEach((map, i) => {if (!maps.includes(map.mapName)) mapData.splice(i, 1)})
 }
 
-export const getMaps = (data: Data) => {
-    const maps: string[] = [];
+export const getOrderedMaps = (data: Data, log: boolean = false): MapData[] => {
     const mapData = data.getQueue().getMapData();
     let mapStr = "";
     for (let map of mapData) {
         mapStr += `\n${map.mapName} : ${map.lastGame}`;
     }
-    logInfo(`Maps Pre sort:${mapStr}`, data.getClient());
+    if (log) {
+        logInfo(`Maps Pre sort:${mapStr}`, data.getClient());
+    }
     // Sort to get least recent first
     mapData.sort((a, b) => a.lastGame - b.lastGame);
     mapStr = "";
     for (let map of mapData) {
         mapStr += `\n${map.mapName} : ${map.lastGame}`;
     }
-    logInfo(`Maps Post sort:${mapStr}`, data.getClient());
+    if (log) {
+        logInfo(`Maps Post sort:${mapStr}`, data.getClient());
+    }
+    return mapData;
+}
+
+export const getMaps = (data: Data) => {
+    const mapData = getOrderedMaps(data, true);
+    const maps: string[] = [];
     for (let i = 0; i < tokens.VoteSize; i++) {
         maps.push(mapData[i].mapName);
     }

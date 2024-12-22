@@ -66,6 +66,8 @@ export const manualSubmit: Command = {
                 const dbUser = await getUserById(user, data);
                 users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true, region: Regions.APAC, joined: false});
             }
+            await createAction(Actions.ManualSubmit, interaction.user.id, interaction.options.getString('reason', true), `Score manually submitted for match ${matchId}: ${game.scoreA}-${game.scoreB}`);
+
             const changes = await processMMR(users, [game.scoreA, game.scoreB], "SND", tokens.ScoreLimitSND);
             game.teamAChanges = changes[0];
             game.teamBChanges = changes[1];
@@ -73,15 +75,13 @@ export const manualSubmit: Command = {
             game = await updateGame(game);
 
             const channel = await interaction.guild!.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
-
             await channel.send({content: `Match ${game.matchId}`, embeds: [matchFinalEmbed(game!, users)]});
-            await interaction.followUp({ephemeral: true, content: "Game has been submitted"});
-            await createAction(Actions.ManualSubmit, interaction.user.id, interaction.options.getString('reason', true), `Score manually submitted for match ${matchId}: ${game.scoreA}-${game.scoreB}`);
+            await interaction.followUp({ephemeral: false, content: `Match ${game.matchId} has been submitted with:\nTeam A: ${game.scoreA}\nTeam B: ${game.scoreB}`});
         }
         catch (e) {
             await logError(e, interaction);
         }
     },
     name: 'manual_submit',
-    allowedRoles: [tokens.AdminRole, tokens.OwnerRole],
+    allowedRoles: tokens.Mods.concat(tokens.OwnerRole),
 }
