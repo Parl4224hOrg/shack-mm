@@ -80,7 +80,7 @@ export default {
         Streets: "https://shackmm.com/static/images/streets.png",
     },
     ReductionGames: 10,
-    MapPool: ["Dust 2", "Cache", "Overpass", "Oilrig", "Harbor", "Streets", "Vertigo", "Mirage", "Stockpile", "Stahl", "Cobble"],
+    MapPool: ["Dust 2", "Cache", "Overpass", "Oilrig", "Harbor", "Streets", "Vertigo", "Mirage", "Stockpile", "Stahl", "Cobble", "Manor"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Grandmaster', threshold: 2300, roleId: '1285641380600877157'},
