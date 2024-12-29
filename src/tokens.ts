@@ -140,6 +140,6 @@ export default {
         Cobble: "UGC4366923",
         Flashpoint: "UGC3238058",
         Streets: "UGC4338327",
-        Japan: "4469362",
+        Japan: "UGC4469362",
     }
 }
