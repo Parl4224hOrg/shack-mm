@@ -78,9 +78,10 @@ export default {
         Stockpile: "https://shackmm.com/static/images/stock.jpg",
         Cobble: "https://shackmm.com/static/images/cbble.png",
         Streets: "https://shackmm.com/static/images/streets.png",
+        Japan: "https://shackmm.com/static/images/manor.png",
     },
     ReductionGames: 10,
-    MapPool: ["Dust 2", "Cache", "Overpass", "Oilrig", "Harbor", "Streets", "Vertigo", "Mirage", "Stockpile", "Stahl", "Cobble", "Manor"],
+    MapPool: ["Japan", "Manor", "Streets", "Harbor", "Stockpile", "Oilrig", "Cobble", "Cache", "Vertigo", "Mirage", "Stahl", "Overpass", "Dust 2"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Grandmaster', threshold: 2300, roleId: '1285641380600877157'},
@@ -139,5 +140,6 @@ export default {
         Cobble: "UGC4366923",
         Flashpoint: "UGC3238058",
         Streets: "UGC4338327",
+        Japan: "4469362",
     }
 }
