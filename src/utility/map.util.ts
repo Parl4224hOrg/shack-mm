@@ -20,6 +20,7 @@ export const getMapUGC = (mapName: string) => {
         case 'stockpile': mapId = tokens.MapIds.Stockpile; break;
         case 'cobble': mapId = tokens.MapIds.Cobble; break;
         case 'streets': mapId = tokens.MapIds.Streets; break;
+        case 'japan': mapId = tokens.MapIds.Japan; break;
     }
     return mapId;
 }
