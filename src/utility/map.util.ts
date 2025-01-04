@@ -21,6 +21,7 @@ export const getMapUGC = (mapName: string) => {
         case 'cobble': mapId = tokens.MapIds.Cobble; break;
         case 'streets': mapId = tokens.MapIds.Streets; break;
         case 'japan': mapId = tokens.MapIds.Japan; break;
+        default: mapId = "datacenter"; break;
     }
     return mapId;
 }
@@ -44,6 +45,8 @@ export const getMapImageURL = (mapName: string) => {
         case 'stockpile': url = tokens.Images.Stockpile; break;
         case 'cobble': url = tokens.Images.Cobble; break;
         case 'streets': url = tokens.Images.Streets; break;
+        case 'japan': url = tokens.Images.Streets; break;
+        default: url = "no-url"; break;
     }
     return url;
 }
