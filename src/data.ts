@@ -28,7 +28,7 @@ import mapTestModel from "./database/models/MapTestModel";
 const SAVE_ID = "saved";
 
 export class Data {
-    private readonly client: Client;
+    readonly client: Client;
     private userCache = new Map<string, UserInt>();
     private discordToObject = new Map<string, string>();
     private tickLoop = cron.schedule('*/1 * * * * *', async () => {
@@ -248,7 +248,7 @@ export class Data {
             if (this.FILL_SND.inQueueNumber() >= tokens.PlayerCount) {
                 await this.createMatch("NA", this.FILL_SND, 'SND', tokens.ScoreLimitSND);
             }
-            await this.FILL_SND.tick()
+            await this.FILL_SND.tick();
             const check = `${this.FILL_SND.inQueueNumber()} in q`;
             if (check != this.botStatus && this.loaded) {
                 this.botStatus = check;
@@ -260,12 +260,6 @@ export class Data {
             const active = `Active Games: ${this.FILL_SND.activeGames.length}`;
             if (active != this.statusChannel!.name) {
                 await this.statusChannel!.setName(active);
-            }
-            if (this.Leaderboard.changed) {
-                const channel = await this.client.channels.fetch(tokens.LeaderboardChannel) as TextChannel;
-                const message = await channel.messages.fetch(tokens.LeaderboardMessage);
-                await message.edit({content: this.Leaderboard.leaderboardCacheSND, components: []});
-                this.Leaderboard.changed = false;
             }
         } catch (e) {
             console.error(e)

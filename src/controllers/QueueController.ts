@@ -15,6 +15,7 @@ import {getUserById} from "../modules/getters/getUser";
 import {shuffleArray} from "../utility/makeTeams";
 import {logWarn} from "../loggers";
 import {Regions} from "../database/models/UserModel";
+import {LeaderboardControllerClass} from "./LeaderboardController";
 
 
 const removeDuplicates = (array: QueueUser[]) => {
@@ -192,6 +193,7 @@ export class QueueController {
                     }
                 }
                 game.requeueArray = [];
+                await this.data.Leaderboard.setLeaderboard();
             }
             if (game.abandoned && !game.autoReadied) {
                 shuffleArray(game.requeueArray);
