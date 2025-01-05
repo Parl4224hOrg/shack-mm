@@ -6,7 +6,7 @@ import {logError} from "../../loggers";
 import moment from "moment";
 import {processMMR} from "../../utility/processMMR";
 import {updateGame} from "../../modules/updaters/updateGame";
-import {TextChannel} from "discord.js";
+import {EmbedBuilder, TextChannel} from "discord.js";
 import {matchFinalEmbed} from "../../embeds/matchEmbeds";
 import {GameUser} from "../../interfaces/Game";
 import {getUserById} from "../../modules/getters/getUser";
@@ -23,11 +23,6 @@ export const manualSubmit: Command = {
             .setName('match_id')
             .setRequired(true)
             .setDescription('match id to submit match for')
-        )
-        .addStringOption(opt => opt
-            .setName('map')
-            .setRequired(true)
-            .setDescription('map that was played')
         )
         .addIntegerOption(opt => opt
             .setName('score_a')
@@ -46,7 +41,6 @@ export const manualSubmit: Command = {
             const matchId = interaction.options.getInteger('match_id', true)
             const gameTemp = await getGameByMatchId(matchId);
             let game = gameTemp!;
-            game.map = interaction.options.getString('map', true);
             game.scoreA = interaction.options.getInteger('score_a', true);
             game.scoreB = interaction.options.getInteger('score_b', true);
             game.endDate = moment().unix();
@@ -76,6 +70,12 @@ export const manualSubmit: Command = {
 
             const channel = await interaction.guild!.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
             await channel.send({content: `Match ${game.matchId}`, embeds: [matchFinalEmbed(game!, users)]});
+
+            const modLog = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+            const embed = new EmbedBuilder();
+            embed.setTitle(`Game ${game.matchId} has been manually submitted`);
+            embed.setDescription(`<@${interaction.user.id}> has submitted: Team A: ${game.scoreA}, Team B: ${game.scoreB}`);
+            await modLog.send({embeds: [embed.toJSON()]});
             await interaction.followUp({ephemeral: false, content: `Match ${game.matchId} has been submitted with:\nTeam A: ${game.scoreA}\nTeam B: ${game.scoreB}`});
         }
         catch (e) {
