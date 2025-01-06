@@ -24,7 +24,6 @@ import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
 import {getMaps, logAccept, logScoreSubmit} from "../utility/match";
 import {GameServer} from "../server/server";
-import axios from "axios";
 import warnModel from "../database/models/WarnModel";
 import {getMapUGC} from "../utility/map.util";
 import {RCONError} from "rcon-pavlov";
@@ -551,18 +550,6 @@ export class GameController {
                     dbUser.gamesPlayedSinceReductionAbandon++;
                     dbUser.gamesPlayedSinceReductionFail++;
                     await updateUser(dbUser, this.data);
-                }
-
-                try {
-                    await axios.post("https://shackmm.com/bot/update/leaderboard", {
-                        matchNumber: this.matchNumber,
-                    }, {
-                        headers: {
-                            key: tokens.BotKey,
-                        }
-                    })
-                } catch (e) {
-                    await logWarn("Post did not work", this.client);
                 }
 
                 await updateRanks(this.users, this.client);

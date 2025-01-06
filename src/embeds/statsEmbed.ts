@@ -13,7 +13,7 @@ export const statsEmbed = (stats: StatsInt, user: UserInt, name: string, imageUR
     if (stats.gamesPlayedSinceReset >= 10) {
         embed.setTitle(`${name}'s Stats - [${stats.rank}]`);
         embed.setDescription(`${getRank(stats.mmr).name}-${stats.mmr.toFixed(1)} MMR\nGames played - ${stats.gamesPlayedSinceReset}\nTotal games - ${stats.gamesPlayed}\n
-        [Website Stats](https://shackmm.com/players/${user._id}/stats)`);
+        [Website Stats](https://shackmm.com/player/${user._id})`);
     } else {
         embed.setTitle(`${name}'s Stats`);
         if (stats.gamesPlayedSinceReset == 9) {
