@@ -20,10 +20,11 @@ import {getRank, roleRemovalCallback} from "./utility/ranking";
 import {updateUser} from "./modules/updaters/updateUser";
 import {GameServer} from "./server/server";
 import {registerMaps} from "./utility/match";
-import SaveV2Model from "./database/models/SaveV2Model";
 import serializer from "./serializers/serializer";
 import MapTestModel from "./database/models/MapTestModel";
 import mapTestModel from "./database/models/MapTestModel";
+import fs from "fs";
+import {join} from "path";
 
 const SAVE_ID = "saved";
 
@@ -194,11 +195,20 @@ export class Data {
     }
 
     async load() {
-        const data = await SaveV2Model.findOne({id: SAVE_ID});
-        if (data) {
-            this.FILL_SND = await serializer.deserializeQueueSND(data.queueSND, this.client, this);
-            for (let game of data.gamesSND) {
-                this.FILL_SND.activeGames.push(await serializer.deserializeGame(game, this.client, this));
+        const mountedFolder = join(process.cwd(), "../../mounted");
+        const save = JSON.parse(fs.readFileSync(join(mountedFolder, "save.json")).toString());
+        if (save) {
+            try {
+                this.FILL_SND = await serializer.deserializeQueueSND(save.queueSND, this.client, this);
+            } catch (e) {
+                console.error(e)
+            }
+            for (let game of save.gamesSND) {
+                try {
+                    this.FILL_SND.activeGames.push(await serializer.deserializeGame(game, this.client, this));
+                } catch (e) {
+                    console.error(e)
+                }
             }
         }
         registerMaps(this, tokens.MapPool);
@@ -273,19 +283,14 @@ export class Data {
         for (let game of this.FILL_SND.activeGames) {
             games.push(serializer.serializeGame(game));
         }
-        const doc = await SaveV2Model.findOne({id: SAVE_ID});
         const saveObj = {
             id: SAVE_ID,
             queueSND: queue,
             games: games,
         };
         if (queue != this.queueSaveCache || games.length != 0) {
-            this.queueSaveCache = queue;
-            if (!doc) {
-                await SaveV2Model.create(saveObj);
-            } else {
-                await SaveV2Model.findByIdAndUpdate(doc._id, saveObj, {upsert: true});
-            }
+            const mountedFolder = join(process.cwd(), "../../mounted");
+            fs.writeFileSync(join(mountedFolder, "save.json"), JSON.stringify(saveObj));
         }
     }
 
