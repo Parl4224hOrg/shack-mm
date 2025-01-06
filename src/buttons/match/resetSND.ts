@@ -21,14 +21,14 @@ export const resetSND: Button = {
                 await game.resetSND();
                 const name = game.server!.name
                 if (name == "NAE-ONE shackmm.com") {
-                    await axios.post(`https://shackmm.com/NAE-ONE/start?game=${game.matchNumber}`, {},
+                    await axios.post(`https://shackmm.com/server-feed/NAE-ONE/start?game=${game.matchNumber}`, {},
                         {
                         headers: {
                             key: tokens.ServerKey,
                         }
                     })
                 } else {
-                    await axios.post(`https://shackmm.com/NAE-TWO/start?game=${game.matchNumber}`, {},
+                    await axios.post(`https://shackmm.com/server-feed/NAE-TWO/start?game=${game.matchNumber}`, {},
                         {
                             headers: {
                                 key: tokens.ServerKey,
