@@ -286,7 +286,7 @@ export class Data {
         const saveObj = {
             id: SAVE_ID,
             queueSND: queue,
-            games: games,
+            gamesSND: games,
         };
         if (queue != this.queueSaveCache || games.length != 0) {
             const mountedFolder = join(process.cwd(), "../../mounted");
