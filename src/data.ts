@@ -273,13 +273,13 @@ export class Data {
         for (let game of this.FILL_SND.activeGames) {
             games.push(serializer.serializeGame(game));
         }
-        const doc = await SaveV2Model.findOne({id: SAVE_ID});
         const saveObj = {
             id: SAVE_ID,
             queueSND: queue,
             games: games,
         };
         if (queue != this.queueSaveCache || games.length != 0) {
+            const doc = await SaveV2Model.findOne({id: SAVE_ID});
             this.queueSaveCache = queue;
             if (!doc) {
                 await SaveV2Model.create(saveObj);
