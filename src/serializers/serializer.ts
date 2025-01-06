@@ -223,8 +223,6 @@ class Serializer {
         const parsed = JSON.parse(data);
         const queue = new QueueController(dataClass, client, parsed.queueName);
 
-        console.log(parsed.pingMe);
-
         for (let user of parsed.inQueue) {
             queue.inQueue.push({
                 dbId: new mongoose.Types.ObjectId(user.dbId) as any as ObjectId,
