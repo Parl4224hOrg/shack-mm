@@ -45,7 +45,7 @@ export const getMapImageURL = (mapName: string) => {
         case 'stockpile': url = tokens.Images.Stockpile; break;
         case 'cobble': url = tokens.Images.Cobble; break;
         case 'streets': url = tokens.Images.Streets; break;
-        case 'japan': url = tokens.Images.Streets; break;
+        case 'japan': url = tokens.Images.Japan; break;
         default: url = "no-url"; break;
     }
     return url;

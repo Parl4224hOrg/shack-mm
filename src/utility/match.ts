@@ -4,6 +4,7 @@ import {Data} from "../data";
 import tokens from "../tokens";
 import {logInfo} from "../loggers";
 import {MapData} from "../interfaces/Internal";
+import mapModel from "../database/models/MapModel";
 
 export const registerMaps = (data: Data, maps: string[]) => {
     const mapData = data.getQueue().getMapData();
@@ -55,11 +56,11 @@ export const getMaps = (data: Data) => {
     for (let i = 0; i < tokens.VoteSize; i++) {
         maps.push(mapData[i].mapName);
     }
-    logInfo(`Selected Maps:\n${maps}`, data.getClient());
+    logInfo(`Selected Maps:\n${maps}`, data.getClient()).then();
     return maps;
 }
 
-export const addLastPlayedMap = (data: Data, map: string, matchNumber: number) => {
+export const addLastPlayedMap = async (data: Data, map: string, matchNumber: number) => {
     const mapData = data.getQueue().getMapData();
     let found = false;
     for (let mapCheck of mapData) {
@@ -71,6 +72,15 @@ export const addLastPlayedMap = (data: Data, map: string, matchNumber: number) =
     if (!found) {
         mapData.push({mapName: map, lastGame: matchNumber});
     }
+
+    const mapDoc = await mapModel.findOne({mapName: map});
+    if (mapDoc) {
+        mapDoc.lastPlayed = matchNumber;
+        await mapDoc.save();
+    } else {
+        await logInfo(`Could not find map ${map} in database`, data.getClient());
+    }
+
 }
 
 export const logReady = async (userId: string, queueLabel: string, time: number, client: Client) => {
