@@ -73,7 +73,7 @@ export const addLastPlayedMap = async (data: Data, map: string, matchNumber: num
         mapData.push({mapName: map, lastGame: matchNumber});
     }
 
-    const mapDoc = await mapModel.findOne({mapName: map});
+    const mapDoc = await mapModel.findOne({name: map});
     if (mapDoc) {
         mapDoc.lastPlayed = matchNumber;
         await mapDoc.save();
