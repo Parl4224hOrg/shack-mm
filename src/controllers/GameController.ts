@@ -22,7 +22,7 @@ import {Data} from "../data";
 import {Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
-import {getMaps, logAccept, logScoreSubmit} from "../utility/match";
+import {getMapDB, getMaps, logAccept, logScoreSubmit} from "../utility/match";
 import {GameServer} from "../server/server";
 import warnModel from "../database/models/WarnModel";
 import {getMapUGC} from "../utility/map.util";
@@ -187,6 +187,7 @@ export class GameController {
     joinedPlayers: Set<string> = new Set();
     
     serverId: string;
+    firstTick = false;
 
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, data: Data, server: GameServer | null) {
         this.id = id;
@@ -299,10 +300,15 @@ export class GameController {
         this.autoReadied = data.autoReadied ?? false
         
         this.serverId = data.serverInUse ?? ""
+        this.firstTick = true;
     }
 
     async tick() {
         try {
+            if (this.firstTick) {
+                this.firstTick = false;
+                await getMapDB(this.data);
+            }
             if (this.initServer) {
                 this.initServer = false;
                 await this.server!.registerServer(this.matchNumber);
