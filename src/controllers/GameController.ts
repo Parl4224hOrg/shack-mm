@@ -241,6 +241,7 @@ export class GameController {
         } else {
             this.serverId = ""
         }
+        this.firstTick = true;
     }
 
     load(data: any) {
@@ -299,8 +300,7 @@ export class GameController {
 
         this.autoReadied = data.autoReadied ?? false
         
-        this.serverId = data.serverInUse ?? ""
-        this.firstTick = true;
+        this.serverId = data.serverInUse ?? "";
     }
 
     async tick() {
