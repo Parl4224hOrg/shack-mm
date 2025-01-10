@@ -22,11 +22,12 @@ import {Data} from "../data";
 import {Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
-import {getMapDB, getMaps, logAccept, logScoreSubmit} from "../utility/match";
+import {getMapsDB, logAccept, logScoreSubmit} from "../utility/match";
 import {GameServer} from "../server/server";
 import warnModel from "../database/models/WarnModel";
 import {getMapUGC} from "../utility/map.util";
 import {RCONError} from "rcon-pavlov";
+import {MapInt} from "../database/models/MapModel";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -188,6 +189,7 @@ export class GameController {
     
     serverId: string;
     firstTick = false;
+    maps: MapInt[] = [];
 
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, data: Data, server: GameServer | null) {
         this.id = id;
@@ -218,20 +220,6 @@ export class GameController {
         }
         this.data = data;
         this.startTime = moment().unix();
-
-        const maps = getMaps(data);
-
-        for (let map of tokens.MapPool) {
-            if (!maps.includes(map)) {
-                this.allBans.push(map);
-            }
-        }
-
-        let i = 1;
-        for (let map of maps) {
-            this.mapSet[String(i) as "1" | "2" | "3" | "4" | "5" | "6" | "7"] = map;
-            i++;
-        }
 
         this.server = server;
         
@@ -301,13 +289,19 @@ export class GameController {
         this.autoReadied = data.autoReadied ?? false
         
         this.serverId = data.serverInUse ?? "";
+        this.maps = data.maps;
     }
 
     async tick() {
         try {
             if (this.firstTick) {
                 this.firstTick = false;
-                await getMapDB(this.data);
+                this.maps = await getMapsDB();
+                let i = 1;
+                for (let map of this.maps) {
+                    this.mapSet[String(i) as "1" | "2" | "3" | "4" | "5" | "6" | "7"] = map.name;
+                    i++;
+                }
             }
             if (this.initServer) {
                 this.initServer = false;
@@ -849,9 +843,9 @@ export class GameController {
 
 
         if (state <= 4) {
-            for (let map of tokens.MapPool) {
-                if (!this.allBans.includes(map)) {
-                    newMaps.push(map);
+            for (let map of this.maps) {
+                if (!this.allBans.includes(map.name)) {
+                    newMaps.push(map.name);
                 }
             }
         }
@@ -1083,7 +1077,7 @@ export class GameController {
                     case Regions.NAW: totalNAW++; break;
                 }
             }
-            let serverMessage = "";
+            let serverMessage;
             if (totalAPAC === 0 && totalEUE === 0 && totalEUW === 0) {
                 if (totalNAE > 0 && totalNAW === 0) {
                     //serverMessage = "Play on NAE because all players are NA and there are no west coast players.";

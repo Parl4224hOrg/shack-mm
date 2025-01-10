@@ -7,6 +7,7 @@ import {Data} from "../data";
 import {Regions} from "../database/models/UserModel";
 import {QueueController} from "../controllers/QueueController";
 import {PingMeUser} from "../interfaces/Internal";
+import {MapInt} from "../database/models/MapModel";
 
 class Serializer {
     private replaceLast(toReplace: string, replaceWith: string): string {
@@ -38,8 +39,16 @@ class Serializer {
         return this.replaceLast(data, "]");
     }
 
+    private mapsSerializer(toSerialize: MapInt[]): string {
+        let data = "[ ";
+        for (let entry of toSerialize) {
+            data += `${JSON.stringify(entry)},`;
+        }
+        return this.replaceLast(data, "]");
+    }
+
     public serializeGame(toSerialize: GameController): string {
-        const alreadySerialized = ["votes", "joinedPlayers"];
+        const alreadySerialized = ["votes", "joinedPlayers", "maps"];
         return JSON.stringify({
             id: toSerialize.id,
             matchNumber: toSerialize.matchNumber,
@@ -92,6 +101,7 @@ class Serializer {
             serverSetup: toSerialize.serverSetup,
             joinedPlayers: this.joinedPlayersSerializer(toSerialize.joinedPlayers),
             serverId: toSerialize.serverId,
+            maps: this.mapsSerializer(toSerialize.maps),
         }, (key, value) => {
             try {
                 if (alreadySerialized.includes(key)) {
@@ -160,6 +170,14 @@ class Serializer {
         return newSet;
     }
 
+    private mapsDeserializer(data: any): MapInt[] {
+        const newArray = [];
+        for (let value of data) {
+            newArray.push(value);
+        }
+        return newArray;
+    }
+
     public async deserializeGame(data: string, client: Client, dataClass: Data): Promise<GameController> {
         const parsed = JSON.parse(data);
         
@@ -215,6 +233,7 @@ class Serializer {
         game.serverSetup = parsed.serverSetup;
         game.joinedPlayers = this.joinedPlayersDeserializer(parsed.joinedPlayers);
         game.serverId = parsed.serverId;
+        game.maps = this.mapsDeserializer(parsed.maps);
         
         return game;
     }
