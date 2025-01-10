@@ -10,7 +10,7 @@ export const nextMapPool: SubCommand = {
         .setDescription("Displays the maps that are in pool and which will be in the next match"),
     run: async (interaction) => {
         try {
-            const maps = await getMapsDB(true);
+            const maps = await getMapsDB(100);
             let mapMessage = "```---- Maps In Next Game ----";
             let count = 0;
             for (const map of maps) {

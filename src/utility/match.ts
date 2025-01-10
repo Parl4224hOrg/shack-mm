@@ -29,8 +29,8 @@ export const registerMaps = (data: Data, maps: string[]) => {
     mapData.forEach((map, i) => {if (!maps.includes(map.mapName)) mapData.splice(i, 1)})
 }
 
-export const getMapsDB = async (all: boolean = false) => {
-    return mapModel.find({active: all}).sort({lastPlayed: 1}).limit(tokens.VoteSize);
+export const getMapsDB = async (limit: number = tokens.VoteSize) => {
+    return mapModel.find({active: true}).sort({lastPlayed: 1}).limit(limit);
 }
 
 export const getOrderedMaps = (data: Data, log: boolean = false): MapData[] => {
