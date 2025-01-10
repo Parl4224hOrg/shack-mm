@@ -29,13 +29,8 @@ export const registerMaps = (data: Data, maps: string[]) => {
     mapData.forEach((map, i) => {if (!maps.includes(map.mapName)) mapData.splice(i, 1)})
 }
 
-export const getMapDB = async (data: Data) => {
-    const maps = await mapModel.find({active: true}).sort({lastPlayed: 1}).limit(tokens.VoteSize);
-    let mapStr = "";
-    for (let map of maps) {
-        mapStr += `\n${map.name} : ${map.lastPlayed}`;
-    }
-    await logInfo(`DB Maps:${mapStr}`, data.getClient());
+export const getMapsDB = async (all: boolean = false) => {
+    return mapModel.find({active: all}).sort({lastPlayed: 1}).limit(tokens.VoteSize);
 }
 
 export const getOrderedMaps = (data: Data, log: boolean = false): MapData[] => {
