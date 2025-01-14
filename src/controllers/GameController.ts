@@ -430,8 +430,8 @@ export class GameController {
                                         channelGenTime: this.finalGenTime,
                                         matchId: this.matchNumber,
                                     });
+                                    gameUser.hasBeenGivenLate = true;
                                 }
-                                gameUser.hasBeenGivenLate = true;
                             }
                         }
                     }
