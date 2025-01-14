@@ -82,7 +82,7 @@ export default {
         Japan: "https://shackmm.com/static/images/map/bcae9819-fec6-48be-a267-538f057b0a0f.png",
     },
     ReductionGames: 10,
-    MapPool: ["Japan", "Manor", "Streets", "Harbor", "Stockpile", "Oilrig", "Cobble", "Cache", "Vertigo", "Mirage", "Stahl", "Overpass", "Dust 2"],
+    MapPool: ["Japan", "Manor", "Streets", "Harbor", "Stockpile", "Oilrig", "Cobble", "Cache", "Vertigo", "Mirage", "Stahl", "Overpass", "Dust 2", "Inferno"],
     PingToPlayTime: 90 * 60,
     Ranks: [
         {name: 'Grandmaster', threshold: 2300, roleId: '1285641380600877157'},
@@ -127,7 +127,7 @@ export default {
         Dust2: "UGC4460907",
         Cache: "UGC3275597",
         Overpass: "UGC3283728",
-        Inferno: "UGC3430252",
+        Inferno: "UGC4565441",
         Harbor: "harbor",
         Industry: "industry",
         Lumber: "UGC3505396",
