@@ -24,6 +24,8 @@ export interface GameUser {
     accepted: boolean;
     region: Regions;
     joined: boolean;
+    isLate: boolean;
+    hasBeenGivenLate: boolean;
 }
 
 export interface RecalcUser {

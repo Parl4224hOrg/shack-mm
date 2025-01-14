@@ -18,12 +18,14 @@ export const abandonConfirm: Button = {
                 const game = controller.getGame(dbUser._id);
                 const abandon = await game!.abandon(
                     {
-                    dbId: dbUser._id,
-                    discordId: dbUser.id,
-                    team: 0,
-                    accepted: false,
-                    region: Regions.APAC,
-                    joined: false,
+                        dbId: dbUser._id,
+                        discordId: dbUser.id,
+                        team: 0,
+                        accepted: false,
+                        region: Regions.APAC,
+                        joined: false,
+                        isLate: false,
+                        hasBeenGivenLate: false,
                     }, false);
                 if (abandon) {
                     await interaction.reply({ephemeral: false, content: "You have successfully abandoned"})

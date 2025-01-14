@@ -14,6 +14,7 @@ import {Regions} from "../../database/models/UserModel";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {reason} from "../../utility/options";
+import {getMapData} from "../../utility/match";
 
 export const manualSubmit: Command = {
     data: new SlashCommandBuilder()
@@ -54,11 +55,11 @@ export const manualSubmit: Command = {
             let users: GameUser[] = []
             for (let user of game.teamA) {
                 const dbUser = await getUserById(user, data);
-                users.push({dbId: user, discordId: dbUser.id, team: 0, accepted: true, region: Regions.APAC, joined: false});
+                users.push({dbId: user, discordId: dbUser.id, team: 0, accepted: true, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false});
             }
             for (let user of game.teamB) {
                 const dbUser = await getUserById(user, data);
-                users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true, region: Regions.APAC, joined: false});
+                users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false});
             }
             await createAction(Actions.ManualSubmit, interaction.user.id, interaction.options.getString('reason', true), `Score manually submitted for match ${matchId}: ${game.scoreA}-${game.scoreB}`);
 
@@ -67,9 +68,10 @@ export const manualSubmit: Command = {
             game.teamBChanges = changes[1];
 
             game = await updateGame(game);
+            const mapData = await getMapData(game.map);
 
             const channel = await interaction.guild!.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
-            await channel.send({content: `Match ${game.matchId}`, embeds: [matchFinalEmbed(game!, users)]});
+            await channel.send({content: `Match ${game.matchId}`, embeds: [matchFinalEmbed(game!, users, mapData!)]});
 
             const modLog = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();

@@ -134,7 +134,9 @@ class Serializer {
                 team: user.team,
                 accepted: user.accepted,
                 region: user.region as Regions,
-                joined: user.joined
+                joined: user.joined,
+                isLate: false,
+                hasBeenGivenLate: false,
             });
         }
         return users;

@@ -4,9 +4,9 @@ import {GameInt} from "../database/models/GameModel";
 import {getUserById} from "../modules/getters/getUser";
 import {GameController} from "../controllers/GameController";
 import {Data} from "../data";
-import {getMapImageURL} from "../utility/map.util";
+import {MapInt} from "../database/models/MapModel";
 
-export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
+export const matchFinalEmbed = (game: GameInt, users: GameUser[], mapData: MapInt) => {
     const embed = new EmbedBuilder();
 
     embed.setTitle(`Match ${game.matchId} ${game.map.toUpperCase()} ${game.queueId}`);
@@ -42,7 +42,7 @@ export const matchFinalEmbed = (game: GameInt, users: GameUser[]) => {
         },
     ]);
 
-    embed.setImage(getMapImageURL(game.map));
+    embed.setImage(mapData.imageURL);
 
     return embed.toJSON();
 }
@@ -67,7 +67,7 @@ export const matchConfirmEmbed = (scores: number[]) => {
     return embed.toJSON();
 }
 
-export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: string, map: string, sides: string[], data: Data) => {
+export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: string, map: MapInt, sides: string[], data: Data) => {
     const embed = new EmbedBuilder()
 
     let teamA = '';
@@ -82,7 +82,7 @@ export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: 
         }
     }
 
-    embed.setTitle(`${queue.toUpperCase()}-Match-${matchNumber}: ${map.toUpperCase()}`);
+    embed.setTitle(`${queue.toUpperCase()}-Match-${matchNumber}: ${map.name.toUpperCase()}`);
     embed.setFields([
         {
             name: `Team A: ${sides[0]}`,
@@ -96,7 +96,7 @@ export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: 
         },
     ])
 
-    embed.setImage(getMapImageURL(map));
+    embed.setImage(map.imageURL);
 
     return embed.toJSON();
 

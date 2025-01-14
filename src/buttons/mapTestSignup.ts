@@ -5,6 +5,7 @@ import {logError} from "../loggers";
 import MapTestModel from "../database/models/MapTestModel";
 import {MapTestEmbed} from "../embeds/mapTest.embeds";
 import {MapTestView} from "../views/staticViews";
+import {logPlaytest} from "../utility/log.util";
 
 export const mapTestSignup: Button = {
     data: new ButtonBuilder()
@@ -23,6 +24,7 @@ export const mapTestSignup: Button = {
                 }
                 await MapTestModel.findByIdAndUpdate(doc._id, doc);
                 await interaction.reply({ephemeral: true, content: "Added your signup if not already signed up"});
+                await logPlaytest(interaction.user, false, doc.id, interaction.guild!);
                 await interaction.message.edit({
                     content: interaction.message.content,
                     embeds: [MapTestEmbed(doc.owner, doc.players, doc.time, doc.map, doc.description, doc.id)],

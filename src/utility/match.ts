@@ -33,6 +33,10 @@ export const getMapsDB = async (limit: number = tokens.VoteSize) => {
     return mapModel.find({active: true}).sort({lastPlayed: 1}).limit(limit);
 }
 
+export const getMapData = async (map: string) => {
+    return mapModel.findOne({name: map});
+}
+
 export const getOrderedMaps = (data: Data, log: boolean = false): MapData[] => {
     const mapData = data.getQueue().getMapData();
     let mapStr = "";

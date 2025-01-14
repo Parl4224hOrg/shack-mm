@@ -369,6 +369,11 @@ export class Data {
 
     async ready(queueId: string, queue: string, user: User, time: number): Promise<InternalResponse> {
         const dbUser = await getUserByUser(user, this);
+        // Updates a user's username in db if changed
+        if (dbUser.name != user.username) {
+            dbUser.name = user.username;
+            await updateUser(dbUser, this);
+        }
         if (!dbUser.oculusName) {
             return {success: false, message: "You need to set a name using `/register` before queueing"};
         }

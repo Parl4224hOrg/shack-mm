@@ -22,12 +22,11 @@ import {Data} from "../data";
 import {Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
-import {getMapsDB, logAccept, logScoreSubmit} from "../utility/match";
+import {getMapData, getMapsDB, logAccept, logScoreSubmit} from "../utility/match";
 import {GameServer} from "../server/server";
-import warnModel from "../database/models/WarnModel";
-import {getMapUGC} from "../utility/map.util";
 import {RCONError} from "rcon-pavlov";
 import {MapInt} from "../database/models/MapModel";
+import LateModel from "../database/models/LateModel";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -148,8 +147,8 @@ export class GameController {
     currentMaxVotes = 3;
     allBans: string[] = [];
 
-
-    map = '';
+    map: string = '';
+    mapData: MapInt | null = null;
     sides = ['', ''];
 
     finalChannelGen = false;
@@ -205,7 +204,9 @@ export class GameController {
                 team: 0,
                 accepted: false,
                 region: user.region,
-                joined: false
+                joined: false,
+                isLate: false,
+                hasBeenGivenLate: false,
             });
         }
         for (let user of teamB) {
@@ -216,6 +217,8 @@ export class GameController {
                 accepted: false,
                 region: user.region,
                 joined: false,
+                isLate: false,
+                hasBeenGivenLate: false,
             });
         }
         this.data = data;
@@ -385,6 +388,7 @@ export class GameController {
                                     const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
                                     await logChannel.send(`User ${dbUser.oculusName} is late.`);
                                     lateUsers.push(user);
+                                    user.isLate = true;
                                 }
                             }
                         }
@@ -394,13 +398,14 @@ export class GameController {
                         if (tokens.ApplyLates && this.serverSetup) {
                             if (lateUsers.length > 0 && lateUsers.length < 7) { 
                               for (let user of lateUsers) {
-                                  await warnModel.create({
-                                      userId: user.dbId,
-                                      reason: "bot late",
-                                      timeStamp: moment().unix(),
-                                      modId: tokens.ClientID,
-                                      removed: false,
-                                  });
+                                  // Remove lates but not permanently
+                                  // await warnModel.create({
+                                  //     userId: user.dbId,
+                                  //     reason: "bot late",
+                                  //     timeStamp: moment().unix(),
+                                  //     modId: tokens.ClientID,
+                                  //     removed: false,
+                                  // });
                                   await channel.send(`<@${user.discordId}> has been given a late`);
                               }
                             }
@@ -411,6 +416,24 @@ export class GameController {
                     if (time - this.finalGenTime == 10 * 60) {
                         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
                         await channel.send("10 minutes have passed");
+                    }
+                    if ((time - this.finalGenTime) % 30 == 0 && this.server && time - this.finalGenTime > 5 * 60) {
+                        const RefreshList = await this.server.refreshList();
+                        for (let user of RefreshList.PlayerList) {
+                            for (let gameUser of this.users.filter(user => !user.hasBeenGivenLate)) {
+                                const dbUser = await getUserById(gameUser.dbId, this.data);
+                                if (dbUser.oculusName == user.UniqueId) {
+                                    await LateModel.create({
+                                        user: gameUser.dbId,
+                                        oculusName: user.UniqueId,
+                                        joinTime: moment().unix(),
+                                        channelGenTime: this.finalGenTime,
+                                        matchId: this.matchNumber,
+                                    });
+                                }
+                                gameUser.hasBeenGivenLate = true;
+                            }
+                        }
                     }
                     this.submitCooldown--;
                     if (this.tickCount % 60 == 0 && this.server) {
@@ -510,8 +533,7 @@ export class GameController {
     }
 
     async switchMap() {
-        let mapId = getMapUGC(this.map);
-        await this.server!.switchMap(mapId, "SND");
+        await this.server!.switchMap(this.mapData!.ugc, "SND");
         await this.server!.updateServerName(`SMM Match-${this.matchNumber}`);
     }
 
@@ -1025,6 +1047,7 @@ export class GameController {
             await teamA2Message.edit({content: `~~${teamA2Message.content}~~ Voting has ended`, components: []});
 
             this.map = bans[0];
+            this.mapData = await getMapData(this.map);
 
             await teamAChannel.send({content: `Selected ${bans[0]}`});
             await teamBChannel.send({content: `Team A selected ${bans[0]}`});
@@ -1128,12 +1151,12 @@ export class GameController {
                     console.error(e);
                 }
                 message = await finalChannel.send({components: [initialSubmit(), initialSubmitServer()],
-                    embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
+                    embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.mapData!, this.sides, this.data)],
                     content: `${serverMessage}. This match might be played on the server titled: \`SMM Match-${this.matchNumber}\`\n`
                 });
             } else {
                 message = await finalChannel.send({components: [initialSubmit()],
-                    embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.map, this.sides, this.data)],
+                    embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.mapData!, this.sides, this.data)],
                     content: `${serverMessage}`
                 });
             }
@@ -1453,7 +1476,7 @@ export class GameController {
         this.cleanedUp = true
         const game = await getGameById(this.id);
         const channel = await this.guild.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
-        await channel.send({content: `Match ${this.matchNumber}`, embeds: [matchFinalEmbed(game!, this.users)]});
+        await channel.send({content: `Match ${this.matchNumber}`, embeds: [matchFinalEmbed(game!, this.users, this.mapData!)]});
     }
 
     isProcessed() {
