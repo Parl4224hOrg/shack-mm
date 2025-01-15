@@ -8,7 +8,7 @@ import {getGuildMember} from "../utility/discordGetters";
 import {getAcceptPerms, getMatchPerms} from "../utility/channelPerms";
 import tokens from "../tokens";
 import {acceptView} from "../views/acceptView";
-import {abandon} from "../utility/punishment";
+import {abandon, punishment} from "../utility/punishment";
 import {voteA1, voteA2, voteB1, voteB2} from "../views/voteViews";
 import {initialSubmit, initialSubmitServer} from "../views/submitScoreViews";
 import {matchConfirmEmbed, matchFinalEmbed, teamsEmbed} from "../embeds/matchEmbeds";
@@ -27,6 +27,7 @@ import {GameServer} from "../server/server";
 import {RCONError} from "rcon-pavlov";
 import {MapInt} from "../database/models/MapModel";
 import LateModel from "../database/models/LateModel";
+import {grammaticalTime} from "../utility/grammatical";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -418,19 +419,43 @@ export class GameController {
                         await channel.send("10 minutes have passed");
                     }
                     if ((time - this.finalGenTime) % 30 == 0 && this.server && time - this.finalGenTime > 5 * 60) {
+                        for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
+                            const dbUser = await getUserById(gameUser.dbId, this.data);
+                            const found = await LateModel.findOne({user: dbUser.id, matchId: this.matchNumber});
+                            if (!found) {
+                                await LateModel.create({
+                                    user: gameUser.discordId,
+                                    oculusName: dbUser.oculusName,
+                                    joinTime: moment().unix(),
+                                    channelGenTime: this.finalGenTime,
+                                    matchId: this.matchNumber,
+                                });
+                            } else {
+                                found.joinTime = moment().unix();
+                                await found.save();
+                            }
+                        }
                         const RefreshList = await this.server.refreshList();
+                        const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
                         for (let user of RefreshList.PlayerList) {
-                            for (let gameUser of this.users.filter(user => !user.hasBeenGivenLate)) {
-                                const dbUser = await getUserById(gameUser.dbId, this.data);
-                                if (dbUser.oculusName == user.UniqueId) {
-                                    await LateModel.create({
-                                        user: gameUser.dbId,
-                                        oculusName: user.UniqueId,
-                                        joinTime: moment().unix(),
-                                        channelGenTime: this.finalGenTime,
-                                        matchId: this.matchNumber,
-                                    });
+                            for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
+                                let dbUser = await getUserById(gameUser.dbId, this.data);
+                                if (user.UniqueId == dbUser.oculusName) {
                                     gameUser.hasBeenGivenLate = true;
+                                    const lates = await LateModel.find({user: dbUser.id});
+                                    let totalTime = 0;
+                                    for (const late of lates) {
+                                        // Subtract 60 seconds times 5 minutes to account for allowed join time
+                                        totalTime += (late.joinTime - late.channelGenTime) - 5 * 60;
+                                    }
+                                    const avgLateTime = totalTime / lates.length;
+                                    const latePercent = lates.length / (dbUser.gamesPlayedSinceLates + 1);
+                                    const latePercentNeeded = 53.868 * Math.exp(-0.00402 * avgLateTime);
+                                    if (latePercent >= latePercentNeeded) {
+                                        const now = moment().unix();
+                                        dbUser = await punishment(dbUser, this.data, false, 1, now);
+                                        await channel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late`)
+                                    }
                                 }
                             }
                         }
@@ -571,6 +596,7 @@ export class GameController {
                     const dbUser = await getUserById(user.dbId, this.data);
                     dbUser.gamesPlayedSinceReductionAbandon++;
                     dbUser.gamesPlayedSinceReductionFail++;
+                    dbUser.gamesPlayedSinceLates++;
                     await updateUser(dbUser, this.data);
                 }
 
