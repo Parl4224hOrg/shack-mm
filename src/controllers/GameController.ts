@@ -437,6 +437,7 @@ export class GameController {
                         }
                         const RefreshList = await this.server.refreshList();
                         const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
+                        const logChannel = await this.guild.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                         for (let user of RefreshList.PlayerList) {
                             for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
                                 let dbUser = await getUserById(gameUser.dbId, this.data);
@@ -449,12 +450,16 @@ export class GameController {
                                         totalTime += (late.joinTime - late.channelGenTime) - 5 * 60;
                                     }
                                     const avgLateTime = totalTime / lates.length;
-                                    const latePercent = lates.length / (dbUser.gamesPlayedSinceLates + 1);
+                                    const latePercent = (lates.length / (dbUser.gamesPlayedSinceLates + 1)) * 100;
                                     const latePercentNeeded = 53.868 * Math.exp(-0.00402 * avgLateTime);
                                     if (latePercent >= latePercentNeeded) {
-                                        const now = moment().unix();
-                                        dbUser = await punishment(dbUser, this.data, false, 1, now);
-                                        await channel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late`)
+                                        if (tokens.ApplyNewLates) {
+                                            const now = moment().unix();
+                                            dbUser = await punishment(dbUser, this.data, false, 1, now);
+                                            await channel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late`)
+                                        } else {
+                                            await logChannel.send(`<@${dbUser.id}> should receive a cooldown for being late, but applying lates is disabled\nLate %: ${latePercent}\nLate Avg: ${avgLateTime}`)
+                                        }
                                     }
                                 }
                             }
