@@ -21,12 +21,15 @@ export const freeze: SubCommand = {
                 const guild = await interaction.client.guilds.fetch(tokens.GuildID);
                 const member = await guild.members.fetch(dbUser.id);
                 dbUser.frozen = !dbUser.frozen;
-                await updateUser(dbUser, data);
+                
                 if (dbUser.frozen) {
+                    dbUser.muteUntil = -1;
+                    await updateUser(dbUser, data);
                     await member.roles.add(tokens.MutedRole);
                     data.removeFromQueue(dbUser._id, "ALL");
                     await interaction.followUp({ephemeral: false, content: `<@${dbUser.id}> has been frozen`});
                 } else {
+                    await updateUser(dbUser, data);
                     await member.roles.remove(tokens.MutedRole);
                     await interaction.followUp({ephemeral: false, content: `<@${dbUser.id}> has been unfrozen`});
                 }
