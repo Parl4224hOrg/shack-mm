@@ -56,7 +56,7 @@ export default {
     PlaytestLogChannel: "1328152474640453703",
     // constants
     ApplyLates: true,
-    ApplyNewLates: false,
+    ApplyNewLates: true,
     StartingMMR: 1300,
     PlayerCount: 10,
     ScoreLimitSND: 10,
