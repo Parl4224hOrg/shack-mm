@@ -10,13 +10,11 @@ import tokens from "../tokens";
 import {acceptView} from "../views/acceptView";
 import {abandon, punishment} from "../utility/punishment";
 import {voteA1, voteA2, voteB1, voteB2} from "../views/voteViews";
-import {initialSubmit, initialSubmitServer} from "../views/submitScoreViews";
+import {acceptScore, initialSubmit, initialSubmitServer} from "../views/submitScoreViews";
 import {matchConfirmEmbed, matchFinalEmbed, teamsEmbed} from "../embeds/matchEmbeds";
 import {GameData, InternalResponse} from "../interfaces/Internal";
 import {logInfo, logWarn} from "../loggers";
-import {GameUser, ids} from "../interfaces/Game";
-import {Vote} from "../interfaces/Game";
-import {acceptScore} from "../views/submitScoreViews";
+import {GameUser, ids, Vote} from "../interfaces/Game";
 import {updateRanks} from "../utility/ranking";
 import {Data} from "../data";
 import {Regions, UserInt} from "../database/models/UserModel";
@@ -28,6 +26,8 @@ import {RCONError} from "rcon-pavlov";
 import {MapInt} from "../database/models/MapModel";
 import LateModel from "../database/models/LateModel";
 import {grammaticalTime} from "../utility/grammatical";
+import {createActionUser} from "../modules/constructors/createAction";
+import {Actions} from "../database/models/ActionModel";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -358,7 +358,7 @@ export class GameController {
                                 lateUserMentions.push(`<@${user.discordId}>`);
                             }
                         }
-                        await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 2 minutes left to join!`);
+                        await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 2 minutes left to join or you will receive a cooldown.`);
                     }
 
 
@@ -374,7 +374,7 @@ export class GameController {
                                 lateUserMentions.push(`<@${user.discordId}>`);
                             }
                         }
-                        await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 1 minute left to join!`);
+                        await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 1 minute left to join or you will receive a cooldown.`);
                     }
 
                     // 5 minute mark
@@ -456,6 +456,7 @@ export class GameController {
                                         if (tokens.ApplyNewLates) {
                                             const now = moment().unix();
                                             dbUser = await punishment(dbUser, this.data, false, 1, now);
+                                            await createActionUser(Actions.Cooldown, tokens.ClientID, dbUser.id, "Auto Cooldown for being late", `Cooldown for ${grammaticalTime(dbUser.banUntil - now)}, late ${latePercent}% with average time ${avgLateTime} seconds`)
                                             await channel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late`)
                                         } else {
                                             await logChannel.send(`<@${dbUser.id}> should receive a cooldown for being late, but applying lates is disabled\nLate %: ${latePercent}\nLate Avg: ${avgLateTime}`)

@@ -3,57 +3,35 @@ import {userOption} from "../../utility/options";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import {getUserByUser} from "../../modules/getters/getUser";
-import StatsModel from "../../database/models/StatsModel";
-import WarnModel from "../../database/models/WarnModel";
 import {SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
+import LateModel from "../../database/models/LateModel";
 
 export const lateRatio: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName("late_ratio")
         .setDescription("Displays the total number of games a user has played")
-        .addUserOption(userOption("User to view game stats for"))
+        .addUserOption(userOption("User to view late stats for"))
         .addBooleanOption(new SlashCommandBooleanOption()
             .setName('hidden')
             .setDescription('if message should be visible')
             .setRequired(false)),
     run: async (interaction, data) => {
         try {
-            const user = interaction.options.getUser("user", true);
+            const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user, data);
-            const visible = interaction.options.getBoolean('hidden') ?? false;
-
-            // Fetch the user's game statistics
-            const stats = await StatsModel.findOne({
-                userId: dbUser._id
-            });
-
-            if (!stats) {
-                await interaction.reply({ephemeral: visible, content: `No game stats found for ${user.username}`});
-                return;
+            const lates = await LateModel.find({user: dbUser.id});
+            let totalTime = 0;
+            for (const late of lates) {
+                // Subtract 60 seconds times 5 minutes to account for allowed join time
+                totalTime += (late.joinTime - late.channelGenTime) - 5 * 60;
             }
-
-            const totalGames = stats.gamesPlayed;
-
-            // Fetch all warnings that contain the word "late"
-            const warnings = await WarnModel.find({
-                userId: dbUser._id,
-                reason: { $regex: /late/i }
-            }).sort({ timeStamp: -1 });
-
-            if (!warnings.length) {
-                await interaction.reply({ephemeral: visible, content: `No warnings found for ${user.username} containing the word "late".`});
-                return;
-            }
-
-            const totalLates = warnings.length;
-            
-            // Calculate the ratio of lates to games
-            const lateRatio = totalGames > 0 ? (totalLates / totalGames).toFixed(2) : "N/A";
-
-            await interaction.reply({
-                ephemeral: visible,
-                content: `${user.username} has a late-to-games ratio of ${lateRatio}. (${totalLates} lates / ${totalGames} games)`
-            });
+            const avgLateTime = totalTime / lates.length;
+            const latePercent = (lates.length / (dbUser.gamesPlayedSinceLates + 1)) * 100;
+            const latePercentNeeded = 53.868 * Math.exp(-0.00402 * avgLateTime);
+            const ephemeral = !(interaction.options.getBoolean("hidden") ?? false);
+            await interaction.reply({ephemeral: ephemeral,
+                content: `${user.username} is late ${latePercent.toFixed(2)}% by an average of ${avgLateTime.toFixed(2)} seconds. They need to be late ${latePercentNeeded.toFixed(2)}% to receive a cooldown.`
+            })
         } catch (e) {
             await logError(e, interaction);
         }
