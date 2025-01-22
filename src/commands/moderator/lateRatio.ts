@@ -28,7 +28,7 @@ export const lateRatio: SubCommand = {
             const avgLateTime = totalTime / lates.length;
             const latePercent = (lates.length / (dbUser.gamesPlayedSinceLates + 1)) * 100;
             const latePercentNeeded = 53.868 * Math.exp(-0.00402 * avgLateTime);
-            const ephemeral = !(interaction.options.getBoolean("hidden") ?? false);
+            const ephemeral = interaction.options.getBoolean("hidden") ?? false;
             await interaction.reply({ephemeral: ephemeral,
                 content: `${user.username} is late ${latePercent.toFixed(2)}% by an average of ${avgLateTime.toFixed(2)} seconds. They need to be late ${latePercentNeeded.toFixed(2)}% to receive a cooldown.`
             })
