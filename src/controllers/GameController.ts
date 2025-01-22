@@ -399,15 +399,29 @@ export class GameController {
                         if (tokens.ApplyLates && this.serverSetup) {
                             if (lateUsers.length > 0 && lateUsers.length < 7) { 
                               for (let user of lateUsers) {
-                                  // Remove lates but not permanently
-                                  // await warnModel.create({
-                                  //     userId: user.dbId,
-                                  //     reason: "bot late",
-                                  //     timeStamp: moment().unix(),
-                                  //     modId: tokens.ClientID,
-                                  //     removed: false,
-                                  // });
-                                  await channel.send(`<@${user.discordId}> has been given a late`);
+                                  let dbUser = await getUserById(user.dbId, this.data);
+                                  const lates = await LateModel.find({user: dbUser.id});
+                                  let totalTime = 0;
+                                  for (const late of lates) {
+                                      // Subtract 60 seconds times 5 minutes to account for allowed join time
+                                      totalTime += (late.joinTime - late.channelGenTime) - 5 * 60;
+                                  }
+                                  const avgLateTime = totalTime / lates.length;
+                                  const latePercent = (lates.length / (dbUser.gamesPlayedSinceLates + 1)) * 100;
+                                  const latePercentNeeded = 53.868 * Math.exp(-0.00402 * avgLateTime);
+                                  if (latePercent >= latePercentNeeded) {
+                                      if (tokens.ApplyNewLates) {
+                                          const now = moment().unix();
+                                          dbUser = await punishment(dbUser, this.data, false, 1, now);
+                                          await createActionUser(Actions.Cooldown, tokens.ClientID, dbUser.id, "Auto Cooldown for being late", `Cooldown for ${grammaticalTime(dbUser.banUntil - now)}, late ${latePercent}% with average time ${avgLateTime} seconds`)
+                                          await channel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late`)
+                                      } else {
+                                          await logChannel.send(`<@${dbUser.id}> should receive a cooldown for being late, but applying lates is disabled\nLate %: ${latePercent}\nLate Avg: ${avgLateTime}`)
+                                          await channel.send(`<@${user.discordId}> has been given a late`);
+                                      }
+                                  } else {
+                                      await channel.send(`<@${user.discordId}> has been given a late`);
+                                  }
                               }
                             }
                         } else {
@@ -437,31 +451,11 @@ export class GameController {
                         }
                         const RefreshList = await this.server.refreshList();
                         const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
-                        const logChannel = await this.guild.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                         for (let user of RefreshList.PlayerList) {
                             for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
                                 let dbUser = await getUserById(gameUser.dbId, this.data);
                                 if (user.UniqueId == dbUser.oculusName) {
                                     gameUser.hasBeenGivenLate = true;
-                                    const lates = await LateModel.find({user: dbUser.id});
-                                    let totalTime = 0;
-                                    for (const late of lates) {
-                                        // Subtract 60 seconds times 5 minutes to account for allowed join time
-                                        totalTime += (late.joinTime - late.channelGenTime) - 5 * 60;
-                                    }
-                                    const avgLateTime = totalTime / lates.length;
-                                    const latePercent = (lates.length / (dbUser.gamesPlayedSinceLates + 1)) * 100;
-                                    const latePercentNeeded = 53.868 * Math.exp(-0.00402 * avgLateTime);
-                                    if (latePercent >= latePercentNeeded) {
-                                        if (tokens.ApplyNewLates) {
-                                            const now = moment().unix();
-                                            dbUser = await punishment(dbUser, this.data, false, 1, now);
-                                            await createActionUser(Actions.Cooldown, tokens.ClientID, dbUser.id, "Auto Cooldown for being late", `Cooldown for ${grammaticalTime(dbUser.banUntil - now)}, late ${latePercent}% with average time ${avgLateTime} seconds`)
-                                            await channel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late`)
-                                        } else {
-                                            await logChannel.send(`<@${dbUser.id}> should receive a cooldown for being late, but applying lates is disabled\nLate %: ${latePercent}\nLate Avg: ${avgLateTime}`)
-                                        }
-                                    }
                                 }
                             }
                         }
