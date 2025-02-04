@@ -38,7 +38,7 @@ export const manualSubmit: Command = {
         .addStringOption(reason),
     run: async (interaction, data) => {
         try {
-            await interaction.deferReply({ephemeral: true});
+            await interaction.deferReply({ephemeral: false});
             const matchId = interaction.options.getInteger('match_id', true)
             const gameTemp = await getGameByMatchId(matchId);
             let game = gameTemp!;
