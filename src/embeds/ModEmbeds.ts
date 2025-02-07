@@ -48,6 +48,8 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
             title = "User's cooldown was removed";
         } else if (action.action == Actions.ManualSubmit) {
             title = "Match was manually submitted";
+        } else if (action.action == Actions.Freeze) {
+            title = "Freeze"
         } else {
             title = "If you see this Parl messed up"
         }
