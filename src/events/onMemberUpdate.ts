@@ -10,7 +10,7 @@ export const onMemberUpdate = async (oldMember: GuildMember | PartialGuildMember
     try {
         if (removedRoles.size > 0) {
             // Fetch audit logs to determine who removed the roles
-            const auditLogs = await guild.fetchAuditLogs({ limit: 1, type: 24 }); // 24 = MEMBER_ROLE_UPDATE
+            const auditLogs = await guild.fetchAuditLogs({ limit: 1, type: 25 }); // 25 = MEMBER_ROLE_UPDATE
             const auditEntry = auditLogs.entries.first();
             const executor = auditEntry?.executor; // The user responsible for the action
 
@@ -37,7 +37,7 @@ export const onMemberUpdate = async (oldMember: GuildMember | PartialGuildMember
 
         if (addedRoles.size > 0) {
             // Fetch audit logs to determine who added the roles
-            const auditLogs = await guild.fetchAuditLogs({ limit: 1, type: 24 }); // 24 = MEMBER_ROLE_UPDATE
+            const auditLogs = await guild.fetchAuditLogs({ limit: 1, type: 25 }); // 25 = MEMBER_ROLE_UPDATE
             const auditEntry = auditLogs.entries.first();
             const executor = auditEntry?.executor; // The user responsible for the action
 
