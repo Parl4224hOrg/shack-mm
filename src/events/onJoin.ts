@@ -6,7 +6,7 @@ import {Data} from "../data";
 
 export const onJoin = async (member: GuildMember | PartialGuildMember, data: Data) => {
     const dbUser = await getUserByUser(member, data);
-    if (dbUser.muteUntil > moment().unix() || dbUser.muteUntil < 0) {
+    if (dbUser.muteUntil > moment().unix() || dbUser.muteUntil < 0 || dbUser.frozen) {
         await member.roles.add(tokens.MutedRole);
     }
 }

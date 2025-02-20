@@ -26,7 +26,6 @@ export const freeze: SubCommand = {
                 
                 if (dbUser.frozen) {
                     await createActionUser(Actions.Freeze, interaction.user.id, dbUser.id, "User was frozen", "User was frozen");
-                    dbUser.muteUntil = -1;
                     await updateUser(dbUser, data);
                     await member.roles.add(tokens.MutedRole);
                     data.removeFromQueue(dbUser._id, "ALL");

@@ -73,7 +73,7 @@ export class Data {
         const users = await userModel.find({}) as UserInt[];
         const guild = await this.client.guilds.fetch(tokens.GuildID);
         for (let user of users) {
-            if (user.muteUntil <= now && user.muteUntil > 0) {
+            if (user.muteUntil <= now && user.muteUntil > 0 && !user.frozen) {
                 try {
                     const member = await guild.members.fetch(user.id);
                     await member.roles.remove(tokens.MutedRole);
