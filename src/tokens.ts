@@ -54,6 +54,7 @@ export default {
     MapMakerRole: "1288107816397045801",
     MapTestAnnouncementChannel: "1295856528494170224",
     PlaytestLogChannel: "1328152474640453703",
+    ManualRoleLogChannel: "1342254281524514918",
     // constants
     ApplyLates: true,
     ApplyNewLates: true,

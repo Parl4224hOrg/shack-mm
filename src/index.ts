@@ -7,6 +7,7 @@ import {Data} from "./data";
 import {onJoin} from "./events/onJoin";
 import {onMessage} from "./events/onMessage";
 import {onVoiceUpdate} from "./events/onVoiceUpdate";
+import {onMemberUpdate} from "./events/onMemberUpdate";
 
 const main = async () => {
     const BOT = new Client({
@@ -33,6 +34,10 @@ const main = async () => {
         "voiceStateUpdate",
         async (oldState, newState) => await onVoiceUpdate(oldState, newState, data)
     );
+    BOT.on(
+        "guildMemberUpdate",
+        async (oldMember, newMember) => await onMemberUpdate(oldMember, newMember),
+    )
 
     await BOT.login(tokens.BotToken);
 }
