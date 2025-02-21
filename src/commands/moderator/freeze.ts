@@ -7,6 +7,7 @@ import tokens from "../../tokens";
 import {SlashCommandSubcommandBuilder} from "discord.js";
 import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
+import moment from "moment-timezone";
 
 export const freeze: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -33,7 +34,9 @@ export const freeze: SubCommand = {
                 } else {
                     await createActionUser(Actions.Freeze, interaction.user.id, dbUser.id, "User was un-frozen", "User was un-frozen");
                     await updateUser(dbUser, data);
-                    await member.roles.remove(tokens.MutedRole);
+                    if (dbUser.muteUntil > 0 && dbUser.muteUntil < moment().unix()) {
+                        await member.roles.remove(tokens.MutedRole);
+                    }
                     await interaction.followUp({ephemeral: false, content: `<@${dbUser.id}> has been unfrozen`});
                 }
             }
