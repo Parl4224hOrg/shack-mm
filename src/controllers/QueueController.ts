@@ -15,7 +15,6 @@ import {getUserById} from "../modules/getters/getUser";
 import {shuffleArray} from "../utility/makeTeams";
 import {logWarn} from "../loggers";
 import {Regions} from "../database/models/UserModel";
-import {LeaderboardControllerClass} from "./LeaderboardController";
 
 
 const removeDuplicates = (array: QueueUser[]) => {
@@ -44,6 +43,7 @@ export class QueueController {
     public pingMe = new Collection<string, PingMeUser>()
     activeGames: GameController[] = [];
     generating = false;
+    activeAutoQueue = false;
     public mapData: MapData[] = [];
 
 
@@ -122,6 +122,9 @@ export class QueueController {
         if (user.frozen) {
             return {success: false, message: "You cannot queue as you have a pending ticket please go resolve it in order to queue"}
         }
+        if (this.activeAutoQueue) {
+            return {success: false, message: "There is an auto queue in progress please wait"}
+        }
         this.removeUser(user._id, true);
         const stats = await getStats(user._id, this.queueId);
         this.inQueue.push({
@@ -199,6 +202,7 @@ export class QueueController {
                 shuffleArray(game.requeueArray);
                 const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
                 game.requeueArray = [];
+                this.activeAutoQueue = true;
                 for (let user of arrayClone) {
                     const dbUser = await getUserById(user, this.data);
                     const member = await guild.members.fetch(dbUser.id);
@@ -214,6 +218,7 @@ export class QueueController {
                         }
                     }
                 }
+                this.activeAutoQueue = false;
             }
         }
         const queueChannel = await guild.channels.fetch(tokens.SNDChannel) as TextChannel;
