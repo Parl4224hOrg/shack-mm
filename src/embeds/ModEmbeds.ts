@@ -20,7 +20,7 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
         desc += `<${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\n`;
     }
     // Add ban counter info
-    desc += `Ban Counter Abandon: ${user.banCounterAbandon}\nBan Counter fail to accept: ${user.banCounterFail}\n${frozen}`;
+    desc += `Ban Counter Abandon: ${user.banCounterAbandon}\nBan Counter fail to accept: ${user.banCounterFail}\n${frozen}\n`;
     // Add mute info
     if (user.muteUntil < 0) {
         desc += "User is muted indefinitely\n";
