@@ -11,11 +11,23 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
         embed.setDescription("User has no actions");
         return embed.toJSON();
     }
-    let desc = ""
-    if (moment().unix() > user.banUntil) {
-        desc += `<${actions[0].userId}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter Abandon: ${user.banCounterAbandon}\nBan Counter fail to accept: ${user.banCounterFail}\n${frozen}`;
+    const time = moment().unix();
+    let desc = "";
+    // Add cooldown info
+    if (time > user.banUntil) {
+        desc += `<${actions[0].userId}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\n`;
     } else {
-        desc += `<${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\nBan Counter: ${user.banCounterAbandon}\nBan Counter fail to accept: ${user.banCounterFail}\n${frozen}`;
+        desc += `<${actions[0].userId}>\nCooldown ends <t:${user.banUntil}:R>\n`;
+    }
+    // Add ban counter info
+    desc += `Ban Counter Abandon: ${user.banCounterAbandon}\nBan Counter fail to accept: ${user.banCounterFail}\n${frozen}`;
+    // Add mute info
+    if (user.muteUntil < 0) {
+        desc += "User is muted indefinitely\n";
+    } else if (time > user.muteUntil) {
+        desc += "User is not muted\n";
+    } else {
+        desc += `User is muted until <t:${user.muteUntil}:R>\n`;
     }
 
     let truncatedActions: ActionInt[];

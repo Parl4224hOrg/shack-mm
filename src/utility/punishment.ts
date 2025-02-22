@@ -100,3 +100,33 @@ export const abandon = async (userId: ObjectId, discordId: string, guild: Guild,
 
     return;
 }
+
+export const getCheckBanMessage = async (user: UserInt, data: Data) => {
+    const time = moment().unix();
+    let message = "";
+    if (moment().unix() > user.banUntil) {
+        message = `<@${user.id}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter for Abandon: ${user.banCounterAbandon}\n`;
+        message += `Ban Counter for fail to accept: ${user.banCounterFail}`;
+    } else {
+        message = `<@${user.id}>\nCooldown ends <t:${user.banUntil}:R>\nBan Counter for Abandon: ${user.banCounterAbandon}\n`;
+        message += `Ban Counter for fail to accept: ${user.banCounterFail}`;
+    }
+    message += `\nConsecutive games for Abandons: ${user.gamesPlayedSinceReductionAbandon}, Next reduction by time: <t:${user.lastReductionAbandon + 1209600}:F>`
+    message += `\nConsecutive games for Fail to Accept: ${user.gamesPlayedSinceReductionFail}, Next reduction by time: <t:${user.lastReductionFail + 1209600}:F>`
+    if (user.frozen == null) {
+        user.frozen = false;
+        await updateUser(user, data);
+    }
+    if (user.frozen) {
+        message += "\nYou are frozen from queueing due to a pending ticket";
+    }
+    message += `\nRegistered Name: ${user.oculusName}`
+    if (user.muteUntil < 0) {
+        message += "You are muted indefinitely";
+    } else if (time > user.muteUntil) {
+        message += "You are not muted\n";
+    } else {
+        message += `You are muted until <t:${user.muteUntil}:R>\n`;
+    }
+    return message
+}
