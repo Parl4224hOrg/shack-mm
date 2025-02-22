@@ -14,6 +14,7 @@ import { ratingChangeButton } from "../buttons/queue/ratingChange";
 import {mapTesterToggle} from "../buttons/mapTesterToggle";
 import {mapTestSignup} from "../buttons/mapTestSignup";
 import {mapTestRemoveSignup} from "../buttons/mapTestRemoveSignup";
+import {register} from "../buttons/register";
 
 
 
@@ -34,7 +35,7 @@ export const SNDFILLReadyView3 = () => {
 
 export const signUpView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(signup.data, p2pToggle.data).toJSON();
+        .addComponents(signup.data, p2pToggle.data, register.data).toJSON();
 }
 
 export const regionSelectView = () => {

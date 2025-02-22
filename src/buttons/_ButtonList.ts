@@ -33,13 +33,14 @@ import {ratingChangeButton} from "./queue/ratingChange";
 import {mapTesterToggle} from "./mapTesterToggle";
 import {mapTestSignup} from "./mapTestSignup";
 import {mapTestRemoveSignup} from "./mapTestRemoveSignup";
+import {register} from "./register";
 
 const buttonList: Button[] = [accept, draw, loss, win, confirmScore, score0, score1, score2, score3, score4, score5,
     missing, unready, readyAPAC15, readyAPAC30, readyAPAC60, readyAPAC120, readyEU15, readyEU30, readyEU60, readyEU120,
     readyFILL15, readyFILL30, readyFILL60, readyFILL120, readyNA15, readyNA30, readyNA60, readyNA120, signup, vote1, vote2,
     vote3, vote4, vote5, vote6, vote7, score6, score7, score8, score9, p2pToggle, lfg, stats, games, NAE, NAW, EUE, EUW, APAC,
 pingMeButton, autoReady, resetSND, switchMap, checkBanButton, abandonButton, abandonDeny, abandonConfirm, graphButton, ratingChangeButton,
-    mapTesterToggle, mapTestSignup, mapTestRemoveSignup];
+    mapTesterToggle, mapTestSignup, mapTestRemoveSignup, register];
 let ButtonMap: Collection<string, Button> = new Collection<string, Button>();
 
 for (let command of buttonList) {
