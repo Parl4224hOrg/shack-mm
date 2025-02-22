@@ -78,6 +78,7 @@ export const manualSubmit: Command = {
             embed.setTitle(`Game ${game.matchId} has been manually submitted`);
             embed.setDescription(`<@${interaction.user.id}> has submitted: Team A: ${game.scoreA}, Team B: ${game.scoreB}`);
             await modLog.send({embeds: [embed.toJSON()]});
+            await data.Leaderboard.setLeaderboard();
             await interaction.followUp({ephemeral: false, content: `Match ${game.matchId} has been submitted with:\nTeam A: ${game.scoreA}\nTeam B: ${game.scoreB}`});
         }
         catch (e) {
