@@ -30,7 +30,6 @@ export const register: Modal = {
         try {
             const name = interaction.fields.getTextInputValue('name');
             const dbUser = await getUserByUser(interaction.user, data);
-            let registered = true;
             dbUser.oculusName = name.replace("<@", "").replace(">", "");
             await updateUser(dbUser, data);
             const member = await interaction.guild!.members.fetch(interaction.user);

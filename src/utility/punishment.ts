@@ -103,7 +103,7 @@ export const abandon = async (userId: ObjectId, discordId: string, guild: Guild,
 
 export const getCheckBanMessage = async (user: UserInt, data: Data) => {
     const time = moment().unix();
-    let message = "";
+    let message;
     if (moment().unix() > user.banUntil) {
         message = `<@${user.id}>\nNo current cooldown, Last cooldown was <t:${user.lastBan}:R>\nBan Counter for Abandon: ${user.banCounterAbandon}\n`;
         message += `Ban Counter for fail to accept: ${user.banCounterFail}`;

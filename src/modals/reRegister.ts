@@ -9,8 +9,6 @@ import {
 import {logError} from "../loggers";
 import {getUserByUser} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
-import tokens from "../tokens";
-
 export const reRegister: Modal = {
     data: new ModalBuilder()
         .setTitle("Register")
@@ -30,7 +28,6 @@ export const reRegister: Modal = {
         try {
             const name = interaction.fields.getTextInputValue('name');
             const dbUser = await getUserByUser(interaction.user, data);
-            let registered = true;
             dbUser.oculusName = name.replace("<@", "").replace(">", "");
             await updateUser(dbUser, data);
             await interaction.reply({
