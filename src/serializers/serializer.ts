@@ -102,6 +102,7 @@ class Serializer {
             joinedPlayers: this.joinedPlayersSerializer(toSerialize.joinedPlayers),
             serverId: toSerialize.serverId,
             maps: this.mapsSerializer(toSerialize.maps),
+            votingFinished: toSerialize.votingFinished,
         }, (key, value) => {
             try {
                 if (alreadySerialized.includes(key)) {
@@ -236,6 +237,7 @@ class Serializer {
         game.joinedPlayers = this.joinedPlayersDeserializer(parsed.joinedPlayers);
         game.serverId = parsed.serverId;
         game.maps = this.mapsDeserializer(parsed.maps);
+        game.votingFinished = parsed.votingFinished;
         
         return game;
     }

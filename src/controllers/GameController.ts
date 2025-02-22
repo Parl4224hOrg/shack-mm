@@ -190,6 +190,7 @@ export class GameController {
     serverId: string;
     firstTick = false;
     maps: MapInt[] = [];
+    votingFinished = false;
 
     constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, data: Data, server: GameServer | null) {
         this.id = id;
@@ -294,6 +295,7 @@ export class GameController {
         
         this.serverId = data.serverInUse ?? "";
         this.maps = data.maps;
+        this.votingFinished = data.votingFinished;
     }
 
     async tick() {
@@ -727,7 +729,7 @@ export class GameController {
             }
             await abandon(user.dbId, user.discordId, this.guild, acceptFail, this.data);
             await this.sendAbandonMessage(user.discordId);
-            if (!acceptFail && (this.finalGenTime + 15 * 60 >= moment().unix() || this.finalGenTime == 0)) {
+            if (!acceptFail && (this.finalGenTime + 15 * 60 >= moment().unix() || !this.votingFinished)) {
                 this.autoReadied = true;
                 const temp: GameUser[] = [];
                 for (let userCheck of this.users) {
@@ -1201,6 +1203,7 @@ export class GameController {
             game.map = this.map;
             game.sides = this.sides;
             await updateGame(game);
+            this.votingFinished = true;
         }
     }
 
