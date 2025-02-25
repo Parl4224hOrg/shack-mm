@@ -16,7 +16,7 @@ import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
 import UserModel from "./database/models/UserModel";
 import userModel, {Regions, UserInt} from "./database/models/UserModel";
 import {getStats} from "./modules/getters/getStats";
-import {getRank, roleRemovalCallback} from "./utility/ranking";
+import {getRank} from "./utility/ranking";
 import {updateUser} from "./modules/updaters/updateUser";
 import {GameServer} from "./server/server";
 import {registerMaps} from "./utility/match";
@@ -181,11 +181,17 @@ export class Data {
             const stats = await getStats(user._id,  "SND");
             const member = await guild.members.fetch(user.id);
             if (member) {
+                const rank = getRank(stats.mmr);
+                let hasCorrectRank = false;
+
                 member.roles.cache.forEach((value) => {
-                    roleRemovalCallback(value, member)
+                    if (value.id == rank.roleId) {
+                        hasCorrectRank = true;
+                    } else if (tokens.RankRoles.includes(value.id)) {
+                        member.roles.remove(value.id);
+                    }
                 });
-                if (stats.gamesPlayedSinceReset >= 10) {
-                    const rank = getRank(stats.mmr);
+                if (stats.gamesPlayedSinceReset >= 10 && !hasCorrectRank) {
                     await member.roles.add(rank.roleId);
                 }
             }
