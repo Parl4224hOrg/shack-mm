@@ -617,6 +617,7 @@ export class GameController {
         this.acceptCountdown--;
         if (!this.acceptChannelGen) {
             this.acceptChannelGen = true;
+            this.acceptCountdown = 6000;
             console.time('Make Match Role');
             const matchRole = await this.guild.roles.create({
                 name: `match-${this.matchNumber}`,
@@ -676,6 +677,7 @@ export class GameController {
             await message.pin();
             this.acceptMessageId = message.id;
             console.timeEnd('Send Accept Message');
+            this.acceptCountdown = 180;
         }
         let accepted = true;
         for (let user of this.users) {

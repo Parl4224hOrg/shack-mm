@@ -177,6 +177,7 @@ export class Data {
     async updateRoles() {
         const users = await UserModel.find({});
         const guild = await this.client.guilds!.fetch(tokens.GuildID);
+        let updatedCount = 0;
         for (let user of users) {
             const stats = await getStats(user._id,  "SND");
             const member = await guild.members.fetch(user.id);
@@ -192,9 +193,11 @@ export class Data {
                     }
                 });
                 if (stats.gamesPlayedSinceReset >= 10 && !hasCorrectRank) {
+                    updatedCount++;
                     await member.roles.add(rank.roleId);
                 }
             }
+            console.log("Updated " + updatedCount + " rank roles");
             this.userCache.set(String(user._id), user);
             this.discordToObject.set(user.id, String(user._id));
         }
