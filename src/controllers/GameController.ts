@@ -617,24 +617,19 @@ export class GameController {
         this.acceptCountdown--;
         if (!this.acceptChannelGen) {
             this.acceptChannelGen = true;
-            console.time('Make Match Role');
             const matchRole = await this.guild.roles.create({
                 name: `match-${this.matchNumber}`,
                 reason: 'Create role for match accept',
             });
             this.matchRoleId = matchRole.id;
-            console.timeEnd('Make Match Role');
 
-            console.time('Assign Match Role');
             const rolePromises = this.users.map(async user => {
                 const member = await getGuildMember(user.discordId, this.guild);
                 return member.roles.add(matchRole);
             });
 
             await Promise.all(rolePromises);
-            console.timeEnd('Assign Match Role');
 
-            console.time('Make Match Channel');
             const acceptChannel = await this.guild.channels.create({
                 name: `match-${this.matchNumber}`,
                 type: ChannelType.GuildText,
@@ -645,10 +640,7 @@ export class GameController {
             });
 
             this.acceptChannelId = acceptChannel.id;
-            console.timeEnd('Make Match Channel');
 
-
-            console.time('Send DMs');
             const dmPromises = [];
             for (let user of this.users) {
                 const member = await getGuildMember(user.discordId, this.guild);
@@ -669,13 +661,10 @@ export class GameController {
             }
 
             await Promise.all(dmPromises);
-            console.timeEnd('Send DMs');
 
-            console.time('Send Accept Message');
             const message = await acceptChannel.send({content: `${matchRole.toString()} ${tokens.AcceptMessage}`, components: [acceptView()]});
             await message.pin();
             this.acceptMessageId = message.id;
-            console.timeEnd('Send Accept Message');
         }
         let accepted = true;
         for (let user of this.users) {
