@@ -976,11 +976,7 @@ export class GameController {
 
             const rolePromises = this.users.map(async (user) => {
                 const member = await getGuildMember(user.discordId, this.guild);
-                if (user.team == 0) {
-                    return member.roles.add(teamARole)
-                } else {
-                    return member.roles.add(teamBRole)
-                }
+                return member.roles.add(teamARole); // Requests are initiated simultaneously
             });
             await Promise.all(rolePromises);
 
