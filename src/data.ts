@@ -79,7 +79,6 @@ export class Data {
                     await member.roles.remove(tokens.MutedRole);
                 } catch (e) {
 
-
                 }
             }
             if (user.banUntil <= now) {
