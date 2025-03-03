@@ -76,7 +76,9 @@ export class Data {
             if (user.muteUntil <= now && user.muteUntil > 0 && !user.frozen) {
                 try {
                     const member = await guild.members.fetch(user.id);
-                    await member.roles.remove(tokens.MutedRole);
+                    if (member.roles.cache.has(tokens.MutedRole)) {
+                        await member.roles.remove(tokens.MutedRole);
+                    }
                 } catch (e) {
 
                 }
