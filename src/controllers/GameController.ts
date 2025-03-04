@@ -617,25 +617,17 @@ export class GameController {
         this.acceptCountdown--;
         if (!this.acceptChannelGen) {
             this.acceptChannelGen = true;
-            this.acceptCountdown = 6000;
-            console.time('Make Match Role');
             const matchRole = await this.guild.roles.create({
                 name: `match-${this.matchNumber}`,
                 reason: 'Create role for match accept',
             });
             this.matchRoleId = matchRole.id;
-            console.timeEnd('Make Match Role');
 
-            console.time('Assign Match Role');
-            const rolePromises = this.users.map(async user => {
+            for (let user of this.users) {
                 const member = await getGuildMember(user.discordId, this.guild);
-                return member.roles.add(matchRole);
-            });
+                await member.roles.add(matchRole);
+            }
 
-            await Promise.all(rolePromises);
-            console.timeEnd('Assign Match Role');
-
-            console.time('Make Match Channel');
             const acceptChannel = await this.guild.channels.create({
                 name: `match-${this.matchNumber}`,
                 type: ChannelType.GuildText,
@@ -646,11 +638,7 @@ export class GameController {
             });
 
             this.acceptChannelId = acceptChannel.id;
-            console.timeEnd('Make Match Channel');
 
-
-            console.time('Send DMs');
-            const dmPromises = [];
             for (let user of this.users) {
                 const member = await getGuildMember(user.discordId, this.guild);
                 if (!member.dmChannel) {
@@ -658,26 +646,17 @@ export class GameController {
                 }
                 const dbUser = await getUserById(user.dbId, this.data);
                 if (dbUser.dmMatch) {
-                    const sendUserDm = async () => {
-                        try {
-                            await member.dmChannel!.send(`A game has started please accept the game here ${acceptChannel.url} within 3 minutes`);
-                        } catch (e) {
-                            await logWarn(`Could not dm user -${dbUser.id}`, this.client);
-                        }
+                    try {
+                        await member.dmChannel!.send(`A game has started please accept the game here ${acceptChannel.url} within 3 minutes`);
+                    } catch (e) {
+                        await logWarn(`Could not dm user -${dbUser.id}`, this.client);
                     }
-                    dmPromises.push(sendUserDm);
                 }
             }
 
-            await Promise.all(dmPromises);
-            console.timeEnd('Send DMs');
-
-            console.time('Send Accept Message');
             const message = await acceptChannel.send({content: `${matchRole.toString()} ${tokens.AcceptMessage}`, components: [acceptView()]});
             await message.pin();
             this.acceptMessageId = message.id;
-            console.timeEnd('Send Accept Message');
-            this.acceptCountdown = 180;
         }
         let accepted = true;
         for (let user of this.users) {
@@ -973,51 +952,48 @@ export class GameController {
             this.working = true;
 
             await logInfo(`Starting vote channel gen\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
-
-            const [teamARole, teamBRole] = await Promise.all([
-                this.guild.roles.create({
-                    name: `team-a-${this.matchNumber}`,
-                    reason: 'Create role for team a'
-                }),
-                this.guild.roles.create({
-                    name: `team-b-${this.matchNumber}`,
-                    reason: 'Create role for team b'
-                })
-            ])
+            
+            const teamARole = await this.guild.roles.create({
+                name: `team-a-${this.matchNumber}`,
+                reason: 'Create role for team a'
+            });
             this.teamARoleId = teamARole.id;
+
+            const teamBRole = await this.guild.roles.create({
+                name: `team-b-${this.matchNumber}`,
+                reason: 'Create role for team b'
+            });        
             this.teamBRoleId = teamBRole.id;
 
-            const rolePromises = this.users.map(async (user) => {
+            for (let user of this.users) {
                 const member = await getGuildMember(user.discordId, this.guild);
                 if (user.team == 0) {
-                    return member.roles.add(teamARole)
+                    await member.roles.add(teamARole)
                 } else {
-                    return member.roles.add(teamBRole)
+                    await member.roles.add(teamBRole)
                 }
-            });
-            await Promise.all(rolePromises);
+            }
 
-
-            const [teamAChannel, teamBChannel] = await Promise.all([
-                this.guild.channels.create({
+            const teamAChannel = await this.guild.channels.create({
                     name: `team-a-${this.matchNumber}`,
                     type: ChannelType.GuildText,
                     permissionOverwrites: getMatchPerms(teamARole),
                     position: 0,
                     parent: tokens.MatchCategory,
-                    reason: 'Create channel for team A',
-                }),
-                this.guild.channels.create({
+                    reason: 'Create channel for team a'
+                }
+            );
+            this.teamAChannelId = teamAChannel.id;
+
+            const teamBChannel = await this.guild.channels.create({
                     name: `team-b-${this.matchNumber}`,
                     type: ChannelType.GuildText,
                     permissionOverwrites: getMatchPerms(teamBRole),
                     position: 0,
                     parent: tokens.MatchCategory,
-                    reason: 'Create channel for team B',
-                }),
-            ]);
-
-            this.teamAChannelId = teamAChannel.id;
+                    reason: 'Create channel for team a'
+                }
+            );
             this.teamBChannelId = teamBChannel.id;
 
             let teamAStr = "";

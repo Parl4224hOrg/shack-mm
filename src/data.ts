@@ -16,7 +16,7 @@ import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
 import UserModel from "./database/models/UserModel";
 import userModel, {Regions, UserInt} from "./database/models/UserModel";
 import {getStats} from "./modules/getters/getStats";
-import {getRank} from "./utility/ranking";
+import {getRank, roleRemovalCallback} from "./utility/ranking";
 import {updateUser} from "./modules/updaters/updateUser";
 import {GameServer} from "./server/server";
 import {registerMaps} from "./utility/match";
@@ -76,7 +76,9 @@ export class Data {
             if (user.muteUntil <= now && user.muteUntil > 0 && !user.frozen) {
                 try {
                     const member = await guild.members.fetch(user.id);
-                    await member.roles.remove(tokens.MutedRole);
+                    if (member.roles.cache.has(tokens.MutedRole)) {
+                        await member.roles.remove(tokens.MutedRole);
+                    }
                 } catch (e) {
 
                 }
@@ -177,27 +179,18 @@ export class Data {
     async updateRoles() {
         const users = await UserModel.find({});
         const guild = await this.client.guilds!.fetch(tokens.GuildID);
-        let updatedCount = 0;
         for (let user of users) {
             const stats = await getStats(user._id,  "SND");
             const member = await guild.members.fetch(user.id);
             if (member) {
-                const rank = getRank(stats.mmr);
-                let hasCorrectRank = false;
-
                 member.roles.cache.forEach((value) => {
-                    if (value.id == rank.roleId) {
-                        hasCorrectRank = true;
-                    } else if (tokens.RankRoles.includes(value.id)) {
-                        member.roles.remove(value.id);
-                    }
+                    roleRemovalCallback(value, member)
                 });
-                if (stats.gamesPlayedSinceReset >= 10 && !hasCorrectRank) {
-                    updatedCount++;
+                if (stats.gamesPlayedSinceReset >= 10) {
+                    const rank = getRank(stats.mmr);
                     await member.roles.add(rank.roleId);
                 }
             }
-            console.log("Updated " + updatedCount + " rank roles");
             this.userCache.set(String(user._id), user);
             this.discordToObject.set(user.id, String(user._id));
         }
