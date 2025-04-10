@@ -9,7 +9,7 @@ export const getGameByMatchId = async (gameId: number) => {
     return GameModel.findOne({matchId: gameId});
 }
 
-export const getGames = async () => {
-    return GameModel.find({scoreB: {"$gte": 0}, scoreA: {'$gte': 0}});
+export const getGames = async (rangeStart: number = 0) => {
+    return GameModel.find({scoreB: {"$gte": 0}, scoreA: {'$gte': 0}, matchId: {"$gte": rangeStart}});
 }
 
