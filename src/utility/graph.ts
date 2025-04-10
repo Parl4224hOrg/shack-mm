@@ -190,7 +190,7 @@ export const getScoreDistGraph = async (scores: string[], percents: number[], st
                 },
                 title: {
                     display: true,
-                    text: "Score Distribution",
+                    text: `Score Distribution from game ${startGame}`,
                     color: white,
                     font: {
                         size: 30,
