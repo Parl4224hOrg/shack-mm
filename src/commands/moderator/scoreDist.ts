@@ -41,7 +41,7 @@ export const scoreDist: SubCommand = {
             }
 
 
-            await interaction.followUp({ephemeral: false, files: [await getScoreDistGraph(labels, percents)]});
+            await interaction.followUp({ephemeral: false, files: [await getScoreDistGraph(labels, percents, interaction.options.getInteger("from_game") ?? 0)]});
         } catch (e) {
             await logError(e, interaction);
         }

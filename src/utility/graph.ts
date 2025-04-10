@@ -125,11 +125,11 @@ export const getMMRGraph = async (history: number[], start: number, end: number,
 }
 
 
-export const getScoreDistGraph = async (scores: string[], percents: number[]) => {
+export const getScoreDistGraph = async (scores: string[], percents: number[], startGame: number) => {
     const data = {
         labels: scores,
         datasets: [{
-            label: "Score Distribution",
+            label: `Score Distribution from game ${startGame}`,
             data: percents,
             backgroundColor: [
                 'rgba(255, 36, 58, 0.2)', // Master
