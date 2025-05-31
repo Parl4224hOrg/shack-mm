@@ -38,7 +38,7 @@ export const setRegion: SubCommand = {
             const member = await interaction.guild!.members.fetch(interaction.options.getUser('user', true));
             for (let role of member.roles.cache.keys()) {
                 if (tokens.RegionRoleArray.includes(role)) {
-                    await member.roles.remove(role);
+                    await member.roles.remove(role, "remove region role");
                 }
             }
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);

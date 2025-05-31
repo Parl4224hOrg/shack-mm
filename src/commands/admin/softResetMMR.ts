@@ -19,7 +19,7 @@ export const softResetMMR: Command = {
             for (let user of users.values()) {
                 for (let role of user.roles.cache) {
                     if (tokens.RankRoles.includes(role[0])) {
-                        await user.roles.remove(role);
+                        await user.roles.remove(role, "remove rank role reset MMR");
                     }
                 }
                 count++;

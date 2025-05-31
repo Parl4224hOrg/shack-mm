@@ -20,7 +20,7 @@ export const softResetUser: Command = {
             const member = await interaction.guild!.members.fetch(user.id);
             for (let role of member.roles.cache.keys()) {
                 if (tokens.RankRoles.includes(role)) {
-                    await member.roles.remove(role);
+                    await member.roles.remove(role, "remove rank role single user MMR reset");
                 }
             }
             await interaction.followUp({ephemeral: true, content: `Soft reset <@${user.id}>`});

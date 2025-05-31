@@ -57,7 +57,7 @@ export const mute: SubCommand = {
             } else if (time == 0) {
                 dbUser.muteUntil = moment().unix() + time * multiplier;
                 await updateUser(dbUser, data);
-                await member.roles.remove(tokens.MutedRole);
+                await member.roles.remove(tokens.MutedRole, "remove using /mute");
                 reason = `Un-muted because: ${reason}`;
                 const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                 const embed = new EmbedBuilder();

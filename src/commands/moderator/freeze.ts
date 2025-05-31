@@ -35,7 +35,7 @@ export const freeze: SubCommand = {
                     await createActionUser(Actions.Freeze, interaction.user.id, dbUser.id, "User was un-frozen", "User was un-frozen");
                     await updateUser(dbUser, data);
                     if (dbUser.muteUntil > 0 && dbUser.muteUntil < moment().unix()) {
-                        await member.roles.remove(tokens.MutedRole);
+                        await member.roles.remove(tokens.MutedRole, "remove using /freeze");
                     }
                     await interaction.followUp({ephemeral: false, content: `<@${dbUser.id}> has been unfrozen`});
                 }
