@@ -2,13 +2,14 @@ import {SubCommand} from "../../interfaces/Command";
 import { SlashCommandSubcommandBuilder, SlashCommandStringOption } from "discord.js";
 import {timeOption, timeScales, userOption} from "../../utility/options";
 import tokens from "../../tokens";
-import {logError} from "../../loggers";
+import {logError, logInfo} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import moment from "moment";
 import {updateUser} from "../../modules/updaters/updateUser";
 import {grammaticalTime} from "../../utility/grammatical";
 import warnModel from "../../database/models/WarnModel";
 import {Client, EmbedBuilder, TextChannel} from "discord.js";
+import Tokens from "../../tokens";
 
 export const mute: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -58,6 +59,7 @@ export const mute: SubCommand = {
                 dbUser.muteUntil = moment().unix() + time * multiplier;
                 await updateUser(dbUser, data);
                 await member.roles.remove(tokens.MutedRole, "remove using /mute");
+                await logInfo(`Unmuted ${member.user.tag} (${user.id}) mute.ts ln 61`, interaction.client, [Tokens.Parl]);
                 reason = `Un-muted because: ${reason}`;
                 const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                 const embed = new EmbedBuilder();

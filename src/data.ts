@@ -25,6 +25,7 @@ import MapTestModel from "./database/models/MapTestModel";
 import mapTestModel from "./database/models/MapTestModel";
 import fs from "fs";
 import {join} from "path";
+import Tokens from "./tokens";
 
 const SAVE_ID = "saved";
 
@@ -77,7 +78,8 @@ export class Data {
                 try {
                     const member = await guild.members.fetch(user.id);
                     if (member.roles.cache.has(tokens.MutedRole)) {
-                        await member.roles.remove(tokens.MutedRole);
+                        await member.roles.remove(tokens.MutedRole, "Remove for time expire");
+                        await logInfo(`Unmuted ${member.user.tag} (${user.id}) data.ts ln 80`, this.client, [Tokens.Parl]);
                     }
                 } catch (e) {
 

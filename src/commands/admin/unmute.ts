@@ -2,11 +2,12 @@ import { Command } from "../../interfaces/Command";
 import { SlashCommandBuilder } from "discord.js";
 import { userOption } from "../../utility/options";
 import tokens from "../../tokens";
-import { logError } from "../../loggers";
+import {logError, logInfo} from "../../loggers";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { updateUser } from "../../modules/updaters/updateUser";
 import {Client, EmbedBuilder, TextChannel} from "discord.js";
 import moment from "moment";
+import Tokens from "../../tokens";
 
 export const unmute: Command = {
     data: new SlashCommandBuilder()
@@ -22,6 +23,7 @@ export const unmute: Command = {
             dbUser.muteUntil = moment().unix();
             await updateUser(dbUser, data);
             await member.roles.remove(tokens.MutedRole, "Remove using /unmute");
+            await logInfo(`Unmuted ${member.user.tag} (${user.id}) unmute.ts ln 25`, interaction.client, [Tokens.Parl]);
             await interaction.reply({ephemeral: true, content: `<@${user.id}> has been un-muted`});
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();

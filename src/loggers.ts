@@ -101,7 +101,7 @@ export async function logError(error: any, interaction: Interaction) {
     await channel!.send({embeds: [embed]});
 }
 
-export async function logInfo(message: string, client: Client) {
+export async function logInfo(message: string, client: Client, pings?: string[]) {
     const guild = await client.guilds.fetch(tokens.MasterGuild);
     const channel = await guild.channels.fetch(tokens.LogChannel) as TextChannel;
     let embed = new EmbedBuilder();
@@ -114,7 +114,11 @@ export async function logInfo(message: string, client: Client) {
         value: message,
         inline: false
     }]);
-    await channel.send({embeds: [embed]});
+    let ping = "";
+    if (pings) {
+        ping = pings.join(" ");
+    }
+    await channel.send({content: ping, embeds: [embed]});
 }
 
 export async function logWarn(warning: string, client: Client) {

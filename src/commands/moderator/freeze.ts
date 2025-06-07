@@ -1,6 +1,6 @@
 import {SubCommand} from "../../interfaces/Command";
 import {userOption} from "../../utility/options";
-import {logError} from "../../loggers";
+import {logError, logInfo} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {updateUser} from "../../modules/updaters/updateUser";
 import tokens from "../../tokens";
@@ -8,6 +8,7 @@ import {SlashCommandSubcommandBuilder} from "discord.js";
 import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import moment from "moment-timezone";
+import Tokens from "../../tokens";
 
 export const freeze: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -36,6 +37,7 @@ export const freeze: SubCommand = {
                     await updateUser(dbUser, data);
                     if (dbUser.muteUntil > 0 && dbUser.muteUntil < moment().unix()) {
                         await member.roles.remove(tokens.MutedRole, "remove using /freeze");
+                        await logInfo(`Unmuted ${member.user.id} (${dbUser.id}) freeze.ts ln 39`, interaction.client, [Tokens.Parl]);
                     }
                     await interaction.followUp({ephemeral: false, content: `<@${dbUser.id}> has been unfrozen`});
                 }
