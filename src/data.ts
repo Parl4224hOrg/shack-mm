@@ -79,7 +79,7 @@ export class Data {
                     const member = await guild.members.fetch(user.id);
                     if (member.roles.cache.has(tokens.MutedRole)) {
                         await member.roles.remove(tokens.MutedRole, "Remove for time expire");
-                        await logInfo(`Unmuted ${member.user.tag} (${user.id}) data.ts ln 80`, this.client, [Tokens.Parl]);
+                        await logInfo(`Unmuted ${member.user.tag} (${user.id}) data.ts ln 80\nmuteUntil value is ${user.muteUntil}`, this.client, [Tokens.Parl]);
                     }
                 } catch (e) {
 

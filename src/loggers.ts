@@ -116,6 +116,7 @@ export async function logInfo(message: string, client: Client, pings?: string[])
     }]);
     let ping = "";
     if (pings) {
+        pings = pings.map(ping => `<@${ping}>`);
         ping = pings.join(" ");
     }
     await channel.send({content: ping, embeds: [embed]});
