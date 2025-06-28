@@ -27,7 +27,6 @@ export const abandonRatio: SubCommand = {
             
             let totalGames: number;
             let abandons: number;
-            let forceAbandons: number;
             
             if (days) {
                 // Calculate the timestamp for X days ago
@@ -47,9 +46,6 @@ export const abandonRatio: SubCommand = {
                 abandons = userActions.filter((action: ActionInt) => 
                     action.action === Actions.Abandon && action.time >= cutoffTime
                 ).length;
-                forceAbandons = userActions.filter((action: ActionInt) => 
-                    action.action === Actions.ForceAbandon && action.time >= cutoffTime
-                ).length;
             } else {
                 // Use the original behavior
                 const stats = await getStats(dbUser._id, "SND");
@@ -57,11 +53,9 @@ export const abandonRatio: SubCommand = {
                 
                 totalGames = stats.gamesPlayed;
                 abandons = userActions.filter((action: ActionInt) => action.action === Actions.Abandon).length;
-                forceAbandons = userActions.filter((action: ActionInt) => action.action === Actions.ForceAbandon).length;
             }
             
-            const totalAbandons = abandons + forceAbandons;
-            const ratio = totalGames > 0 ? (totalAbandons / totalGames * 100).toFixed(2) : "0.00";
+            const ratio = totalGames > 0 ? (abandons / totalGames * 100).toFixed(2) : "0.00";
             const timeBold = days ? `**Last ${days} days**` : "All time";
             
             await interaction.reply({
@@ -69,8 +63,6 @@ export const abandonRatio: SubCommand = {
                         `${timeBold}\n` +
                         `Total Games Played: ${totalGames}\n` +
                         `Abandons: ${abandons}\n` +
-                        `Force Abandons: ${forceAbandons}\n` +
-                        `Total Abandons: ${totalAbandons}\n` +
                         `Current Abandon (CD) Counter: ${dbUser.banCounterAbandon}\n` +
                         `Ratio: ${ratio}%`
             });
