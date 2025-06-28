@@ -30,10 +30,11 @@ import {toggleReferee} from "./toggleReferee";
 import {lates} from "./lates";
 import {lateRatio} from "./lateRatio";
 import {nextMapPool} from "./nextMapPool";
+import {changeFailToAcceptCounter} from "./changeFailToAcceptCounter";
 
 const subCommandListTemp: SubCommand[] = [actions, adjustMMR, cooldown, easyTime, findUser, forceAbandon, forceScore, freeze, mapPlay, nullify,
     rankDist, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee, lates,
-    lateRatio, nextMapPool];
+    lateRatio, nextMapPool, changeFailToAcceptCounter];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -69,7 +70,8 @@ export const _mod: Command = {
         .addSubcommand(toggleReferee.data)
         .addSubcommand(lates.data)
         .addSubcommand(lateRatio.data)
-        .addSubcommand(nextMapPool.data),
+        .addSubcommand(nextMapPool.data)
+        .addSubcommand(changeFailToAcceptCounter.data),
     run: async (interaction, data) => {
         try {
             const command = SubCommandList.get(interaction.options.getSubcommand())!
