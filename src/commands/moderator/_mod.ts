@@ -5,6 +5,7 @@ import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import {actions} from "./actions";
 import {adjustMMR} from "./adjustMMR";
+import {changeFailToAcceptCounter} from "./changeFailToAcceptCounter";
 import {cooldown} from "./cooldown";
 import {easyTime} from "./easyTime";
 import {findUser} from "./findUser";
@@ -27,14 +28,9 @@ import {onSubCommand} from "../../events/onSubCommand";
 import {commandPermission} from "../../utility/commandPermission";
 import {mute} from "./mute";
 import {toggleReferee} from "./toggleReferee";
-import {lates} from "./lates";
-import {lateRatio} from "./lateRatio";
-import {nextMapPool} from "./nextMapPool";
-import {changeFailToAcceptCounter} from "./changeFailToAcceptCounter";
 
-const subCommandListTemp: SubCommand[] = [actions, adjustMMR, cooldown, easyTime, findUser, forceAbandon, forceScore, freeze, mapPlay, nullify,
-    rankDist, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee, lates,
-    lateRatio, nextMapPool, changeFailToAcceptCounter];
+const subCommandListTemp: SubCommand[] = [actions, adjustMMR, changeFailToAcceptCounter, cooldown, easyTime, findUser, forceAbandon, forceScore, freeze, mapPlay, nullify,
+    rankDist, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -48,6 +44,7 @@ export const _mod: Command = {
         .setDescription('Mod commands')
         .addSubcommand(actions.data)
         .addSubcommand(adjustMMR.data)
+        .addSubcommand(changeFailToAcceptCounter.data)
         .addSubcommand(cooldown.data)
         .addSubcommand(easyTime.data)
         .addSubcommand(findUser.data)
@@ -67,11 +64,7 @@ export const _mod: Command = {
         .addSubcommand(warnings.data)
         .addSubcommand(warnRemove.data)
         .addSubcommand(mute.data)
-        .addSubcommand(toggleReferee.data)
-        .addSubcommand(lates.data)
-        .addSubcommand(lateRatio.data)
-        .addSubcommand(nextMapPool.data)
-        .addSubcommand(changeFailToAcceptCounter.data),
+        .addSubcommand(toggleReferee.data),
     run: async (interaction, data) => {
         try {
             const command = SubCommandList.get(interaction.options.getSubcommand())!
