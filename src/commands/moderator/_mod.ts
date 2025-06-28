@@ -5,6 +5,7 @@ import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import {actions} from "./actions";
 import {adjustMMR} from "./adjustMMR";
+import {abandonRatio} from "./abandonRatio";
 import {changeFailToAcceptCounter} from "./changeFailToAcceptCounter";
 import {cooldown} from "./cooldown";
 import {easyTime} from "./easyTime";
@@ -30,7 +31,7 @@ import {commandPermission} from "../../utility/commandPermission";
 import {mute} from "./mute";
 import {toggleReferee} from "./toggleReferee";
 
-const subCommandListTemp: SubCommand[] = [actions, adjustMMR, changeFailToAcceptCounter, cooldown, easyTime, failToAcceptRatio, findUser, forceAbandon, forceScore, freeze, mapPlay, nullify,
+const subCommandListTemp: SubCommand[] = [actions, adjustMMR, abandonRatio, changeFailToAcceptCounter, cooldown, easyTime, failToAcceptRatio, findUser, forceAbandon, forceScore, freeze, mapPlay, nullify,
     rankDist, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
@@ -45,6 +46,7 @@ export const _mod: Command = {
         .setDescription('Mod commands')
         .addSubcommand(actions.data)
         .addSubcommand(adjustMMR.data)
+        .addSubcommand(abandonRatio.data)
         .addSubcommand(changeFailToAcceptCounter.data)
         .addSubcommand(cooldown.data)
         .addSubcommand(easyTime.data)
