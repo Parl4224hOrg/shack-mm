@@ -12,12 +12,9 @@ import {easyTime} from "./easyTime";
 import {failToAcceptRatio} from "./failToAcceptRatio";
 import {forceAbandon} from "./forceAbandon";
 import {freeze} from "./freeze";
-import {mapPlay} from "./mapPlay";
 import {nullify} from "./nullify";
-import {rankDist} from "./rankDist";
 import {removeCooldown} from "./removeCooldown";
 import {reverseCooldown} from "./reverseCooldown";
-import {scoreDist} from "./scoreDist";
 import {setMMR} from "../admin/Queue/setMMR";
 import {setRegion} from "./setRegion";
 import {transferUser} from "./transferUser";
@@ -31,12 +28,12 @@ import {toggleReferee} from "./toggleReferee";
 import {refMute} from "./refMute";
 import {changeAbandonCDCounter} from "./changeAbandonCDCounter";
 import {lateRatio} from "./lateRatio";
-import {nextMapPool} from "./nextMapPool";
 
 
 
-const subCommandListTemp: SubCommand[] = [actions, adjustMMR, abandonRatio, changeAbandonCDCounter, changeFailToAcceptCounter, cooldown, easyTime, failToAcceptRatio, forceAbandon, freeze, lateRatio, mapPlay, nextMapPool, nullify,
-    rankDist, refMute, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee];
+const subCommandListTemp: SubCommand[] = [actions, adjustMMR, abandonRatio, changeAbandonCDCounter, changeFailToAcceptCounter, cooldown, easyTime,
+    failToAcceptRatio, forceAbandon, freeze, lateRatio, nullify,
+    refMute, removeCooldown, reverseCooldown, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -51,6 +48,7 @@ export const _mod: Command = {
         .addSubcommand(actions.data)
         .addSubcommand(adjustMMR.data)
         .addSubcommand(abandonRatio.data)
+        .addSubcommand(changeAbandonCDCounter.data)
         .addSubcommand(changeFailToAcceptCounter.data)
         .addSubcommand(cooldown.data)
         .addSubcommand(easyTime.data)
@@ -58,13 +56,9 @@ export const _mod: Command = {
         .addSubcommand(forceAbandon.data)
         .addSubcommand(freeze.data)
         .addSubcommand(lateRatio.data)
-        .addSubcommand(mapPlay.data)
-        .addSubcommand(nextMapPool.data)
         .addSubcommand(nullify.data)
-        .addSubcommand(rankDist.data)
         .addSubcommand(removeCooldown.data)
         .addSubcommand(reverseCooldown.data)
-        .addSubcommand(scoreDist.data)
         .addSubcommand(setMMR.data)
         .addSubcommand(setRegion.data)
         .addSubcommand(transferUser.data)
@@ -73,7 +67,6 @@ export const _mod: Command = {
         .addSubcommand(warnRemove.data)
         .addSubcommand(mute.data)
         .addSubcommand(refMute.data)
-        .addSubcommand(changeAbandonCDCounter.data)
         .addSubcommand(toggleReferee.data),
     run: async (interaction, data) => {
         try {

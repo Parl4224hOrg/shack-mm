@@ -1,0 +1,40 @@
+import {Command, SubCommand} from "../../interfaces/Command";
+import {mapPlay} from "../moderator/mapPlay";
+import {nextMapPool} from "../moderator/nextMapPool";
+import {rankDist} from "../moderator/rankDist";
+import {scoreDist} from "../moderator/scoreDist";
+import {Collection} from "discord.js";
+import {SlashCommandBuilder} from "@discordjs/builders";
+import {onSubCommand} from "../../events/onSubCommand";
+import {commandPermission} from "../../utility/commandPermission";
+import {logError} from "../../loggers";
+import tokens from "../../tokens";
+
+const subCommandListTemp: SubCommand[] = [mapPlay, nextMapPool, rankDist, scoreDist,];
+let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
+for (let subCommand of subCommandListTemp) {
+    SubCommandMap.set(subCommand.name, subCommand);
+}
+
+const SubCommandList = SubCommandMap;
+
+export const _modInfo: Command = {
+    data: new SlashCommandBuilder()
+        .setName('mod_info')
+        .setDescription('Mod info commands')
+        .addSubcommand(mapPlay.data)
+        .addSubcommand(nextMapPool.data)
+        .addSubcommand(rankDist.data)
+        .addSubcommand(scoreDist.data)
+    ,
+    run: async (interaction, data) => {
+        try {
+            const command = SubCommandList.get(interaction.options.getSubcommand())!
+            await onSubCommand(interaction, command, data, await commandPermission(interaction, command));
+        } catch (e) {
+            await logError(e, interaction);
+        }
+    },
+    name: 'mod_info',
+    allowedRoles: tokens.Mods,
+}
