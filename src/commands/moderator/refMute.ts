@@ -30,7 +30,13 @@ export const refMute: SubCommand = {
             
             // Check if user is already muted and hasn't expired
             const currentTime = moment().unix();
-            if (dbUser.muteUntil > currentTime) {
+            if (dbUser.muteUntil === -1) {
+                await interaction.followUp({ 
+                    ephemeral: true, 
+                    content: `<@${user.id}> is permanently muted. No action taken.` 
+                });
+                return;
+            } else if (dbUser.muteUntil > currentTime) {
                 const remainingTime = dbUser.muteUntil - currentTime;
                 await interaction.followUp({ 
                     ephemeral: true, 
