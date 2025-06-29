@@ -21,8 +21,6 @@ export const refMute: SubCommand = {
             .setRequired(true)),
     run: async (interaction, data) => {
         try {
-            await interaction.deferReply();
-            
             const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user, data);
             const member = await interaction.guild!.members.fetch(user.id);
@@ -30,10 +28,16 @@ export const refMute: SubCommand = {
             
             // Check if user is already muted and hasn't expired
             const currentTime = moment().unix();
-            if (dbUser.muteUntil > currentTime) {
-                const remainingTime = dbUser.muteUntil - currentTime;
+            if (dbUser.muteUntil === -1) {
+                await interaction.reply({ ephemeral: true, content: "Ref mute is working" });
                 await interaction.followUp({ 
-                    ephemeral: true, 
+                    content: `<@${user.id}> is permanently muted. No action taken.` 
+                });
+                return;
+            } else if (dbUser.muteUntil > currentTime) {
+                const remainingTime = dbUser.muteUntil - currentTime;
+                await interaction.reply({ ephemeral: true, content: "Ref mute is working" });
+                await interaction.followUp({ 
                     content: `<@${user.id}> is already muted for ${grammaticalTime(remainingTime)}. No action taken.` 
                 });
                 return;
@@ -51,7 +55,8 @@ export const refMute: SubCommand = {
             const muteMessage = `<@${user.id}> has been muted for ${grammaticalTime(muteDuration)}`;
             reason = `Muted for 30 minutes because: ${reason}`;
             
-            await interaction.followUp({ ephemeral: true, content: muteMessage });
+            await interaction.reply({ ephemeral: true, content: "Ref mute is working" });
+            const followUpMessage = await interaction.followUp({ content: muteMessage });
             
             await warnModel.create({
                 userId: dbUser._id,
@@ -65,7 +70,7 @@ export const refMute: SubCommand = {
             const channel = await interaction.client.channels.fetch(tokens.RefereeLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
             embed.setTitle(`User ${user.username} has been muted by referee`);
-            embed.setDescription(`<@${user.id}> muted by <@${interaction.user.id}> for 30 minutes because: ${reason}`);
+            embed.setDescription(`<@${user.id}> muted by <@${interaction.user.id}> for 30 minutes because: ${reason}\n\nChannel: <#${interaction.channelId}>\nMessage: ${followUpMessage.url}`);
             await channel.send({content: `<@&${tokens.ModRole}>`, embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);
