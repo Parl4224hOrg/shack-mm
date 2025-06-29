@@ -20,9 +20,7 @@ export const refMute: SubCommand = {
             .setDescription("Reason for the mute")
             .setRequired(true)),
     run: async (interaction, data) => {
-        try {
-            await interaction.deferReply();
-            
+        try {            
             const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user, data);
             const member = await interaction.guild!.members.fetch(user.id);
