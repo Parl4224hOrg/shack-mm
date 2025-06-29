@@ -30,9 +30,15 @@ import {onSubCommand} from "../../events/onSubCommand";
 import {commandPermission} from "../../utility/commandPermission";
 import {mute} from "./mute";
 import {toggleReferee} from "./toggleReferee";
+import {refMute} from "./refNute";
+import {changeAbandonCDCounter} from "./changeAbandonCDCounter";
+import {lateRatio} from "./lateRatio";
+import {nextMapPool} from "./nextMapPool";
 
-const subCommandListTemp: SubCommand[] = [actions, adjustMMR, abandonRatio, changeFailToAcceptCounter, cooldown, easyTime, failToAcceptRatio, findUser, forceAbandon, forceScore, freeze, mapPlay, nullify,
-    rankDist, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee];
+
+
+const subCommandListTemp: SubCommand[] = [actions, adjustMMR, abandonRatio, changeAbandonCDCounter, changeFailToAcceptCounter, cooldown, easyTime, failToAcceptRatio, findUser, forceAbandon, forceScore, freeze, lateRatio, mapPlay, nextMapPool, nullify,
+    rankDist, refMute, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -55,7 +61,9 @@ export const _mod: Command = {
         .addSubcommand(forceAbandon.data)
         .addSubcommand(forceScore.data)
         .addSubcommand(freeze.data)
+        .addSubcommand(lateRatio.data)
         .addSubcommand(mapPlay.data)
+        .addSubcommand(nextMapPool.data)
         .addSubcommand(nullify.data)
         .addSubcommand(rankDist.data)
         .addSubcommand(removeCooldown.data)
@@ -68,6 +76,10 @@ export const _mod: Command = {
         .addSubcommand(warnings.data)
         .addSubcommand(warnRemove.data)
         .addSubcommand(mute.data)
+        .addSubcommand(refMute.data)
+        .addSubcommand(changeAbandonCDCounter.data)
+        .addSubcommand(changeAbandonCDCounter.data)
+        .addSubcommand(changeAbandonCDCounter.data)
         .addSubcommand(toggleReferee.data),
     run: async (interaction, data) => {
         try {
