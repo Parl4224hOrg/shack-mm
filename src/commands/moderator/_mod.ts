@@ -30,7 +30,7 @@ import {onSubCommand} from "../../events/onSubCommand";
 import {commandPermission} from "../../utility/commandPermission";
 import {mute} from "./mute";
 import {toggleReferee} from "./toggleReferee";
-import {refMute} from "./refNute";
+import {refMute} from "./refMute";
 import {changeAbandonCDCounter} from "./changeAbandonCDCounter";
 import {lateRatio} from "./lateRatio";
 import {nextMapPool} from "./nextMapPool";
