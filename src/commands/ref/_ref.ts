@@ -7,8 +7,9 @@ import {easyTime} from "../moderator/easyTime";
 import {nullify} from "../moderator/nullify";
 import {warn} from "../moderator/warn";
 import {forceAbandon} from "../moderator/forceAbandon";
+import {refMute} from "../moderator/refMute";
 
-export const subCommandListTemp: SubCommand[] = [easyTime, warn, nullify, forceAbandon];
+export const subCommandListTemp: SubCommand[] = [easyTime, warn, nullify, forceAbandon, refMute];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -24,6 +25,7 @@ export const _ref: Command = {
         .addSubcommand(nullify.data)
         .addSubcommand(warn.data)
         .addSubcommand(forceAbandon.data)
+        .addSubcommand(refMute.data)
     ,
     run: async (interaction, data) => {
         try {
