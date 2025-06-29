@@ -20,7 +20,7 @@ export const refMute: SubCommand = {
             .setDescription("Reason for the mute")
             .setRequired(true)),
     run: async (interaction, data) => {
-        try {            
+        try {
             const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user, data);
             const member = await interaction.guild!.members.fetch(user.id);
@@ -70,7 +70,7 @@ export const refMute: SubCommand = {
             const channel = await interaction.client.channels.fetch(tokens.RefereeLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
             embed.setTitle(`User ${user.username} has been muted by referee`);
-            embed.setDescription(`<@${user.id}> muted for 30 minutes because: ${reason}\n\nChannel: <#${interaction.channelId}>\nMessage: ${followUpMessage.url}`);
+            embed.setDescription(`<@${user.id}> muted by <@${interaction.user.id}> for 30 minutes because: ${reason}\n\nChannel: <#${interaction.channelId}>\nMessage: ${followUpMessage.url}`);
             await channel.send({content: `<@&${tokens.ModRole}>`, embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);
