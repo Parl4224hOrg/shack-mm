@@ -76,8 +76,6 @@ export const _mod: Command = {
         .addSubcommand(mute.data)
         .addSubcommand(refMute.data)
         .addSubcommand(changeAbandonCDCounter.data)
-        .addSubcommand(changeAbandonCDCounter.data)
-        .addSubcommand(changeAbandonCDCounter.data)
         .addSubcommand(toggleReferee.data),
     run: async (interaction, data) => {
         try {
