@@ -4,7 +4,7 @@ import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {Regions} from "../../database/models/UserModel";
-import {createAction} from "../../modules/constructors/createAction";
+import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {SlashCommandSubcommandBuilder} from "discord.js";
 import {EmbedBuilder, TextChannel} from "discord.js";
@@ -26,9 +26,9 @@ export const forceAbandon: SubCommand = {
             if (game) {
                 await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false}, false, true);
                 if (isReferee) {
-                    await createAction(Actions.ForceAbandon, 'by Referee', reason, `<@${dbUser.id}> force abandoned from game ${game.id}`);
+                    await createActionUser(Actions.ForceAbandon, 'by Referee', dbUser.id, reason, `<@${dbUser.id}> force abandoned from game ${game.id}`);
                 } else { 
-                    await createAction(Actions.ForceAbandon, interaction.user.id, reason, `<@${dbUser.id}> force abandoned from game ${game.id}`);
+                    await createActionUser(Actions.ForceAbandon, interaction.user.id, dbUser.id, reason, `<@${dbUser.id}> force abandoned from game ${game.id}`);
                 }
                 let channel: TextChannel;
                 if (isReferee) {
