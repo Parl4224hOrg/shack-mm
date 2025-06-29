@@ -12,7 +12,6 @@ import {easyTime} from "./easyTime";
 import {failToAcceptRatio} from "./failToAcceptRatio";
 import {findUser} from "./findUser";
 import {forceAbandon} from "./forceAbandon";
-import {forceScore} from "./forceScore";
 import {freeze} from "./freeze";
 import {mapPlay} from "./mapPlay";
 import {nullify} from "./nullify";
@@ -37,7 +36,7 @@ import {nextMapPool} from "./nextMapPool";
 
 
 
-const subCommandListTemp: SubCommand[] = [actions, adjustMMR, abandonRatio, changeAbandonCDCounter, changeFailToAcceptCounter, cooldown, easyTime, failToAcceptRatio, findUser, forceAbandon, forceScore, freeze, lateRatio, mapPlay, nextMapPool, nullify,
+const subCommandListTemp: SubCommand[] = [actions, adjustMMR, abandonRatio, changeAbandonCDCounter, changeFailToAcceptCounter, cooldown, easyTime, failToAcceptRatio, findUser, forceAbandon, freeze, lateRatio, mapPlay, nextMapPool, nullify,
     rankDist, refMute, removeCooldown, reverseCooldown, scoreDist, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
@@ -59,7 +58,6 @@ export const _mod: Command = {
         .addSubcommand(failToAcceptRatio.data)
         .addSubcommand(findUser.data)
         .addSubcommand(forceAbandon.data)
-        .addSubcommand(forceScore.data)
         .addSubcommand(freeze.data)
         .addSubcommand(lateRatio.data)
         .addSubcommand(mapPlay.data)
