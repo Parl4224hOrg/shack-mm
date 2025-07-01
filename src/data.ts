@@ -74,17 +74,6 @@ export class Data {
         const users = await userModel.find({}) as UserInt[];
         const guild = await this.client.guilds.fetch(tokens.GuildID);
         for (let user of users) {
-            if (user.muteUntil <= now && user.muteUntil > 0 && !user.frozen) {
-                try {
-                    const member = await guild.members.fetch(user.id);
-                    if (member.roles.cache.has(tokens.MutedRole)) {
-                        await member.roles.remove(tokens.MutedRole, "Remove for time expire");
-                        await logInfo(`Unmuted ${member.user.tag} (${user.id}) data.ts ln 80\nmuteUntil value is ${user.muteUntil}`, this.client, [Tokens.Parl]);
-                    }
-                } catch (e) {
-
-                }
-            }
             if (user.banUntil <= now) {
                 // Check for two week reduction
                 if (user.lastReductionAbandon + 60 * 60 * 24 * 14 <= now) {
