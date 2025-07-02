@@ -1374,6 +1374,10 @@ export class GameController {
     }
 
     async submitScore(userId: ObjectId, score: number, discordId: string): Promise<InternalResponse> {
+        // Prevent score submission after confirmation
+        if (this.state >= 7) {
+            return {success: false, message: "Scores have already been confirmed and cannot be changed."};
+        }
         if (this.submitCooldown > 0) {
             return {success: false, message: "Please wait before submitting scores"};
         }
