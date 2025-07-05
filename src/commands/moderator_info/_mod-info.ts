@@ -3,6 +3,9 @@ import {mapPlay} from "../moderator/mapPlay";
 import {nextMapPool} from "../moderator/nextMapPool";
 import {rankDist} from "../moderator/rankDist";
 import {scoreDist} from "../moderator/scoreDist";
+import {abandonRatio} from "../moderator/abandonRatio";
+import {failToAcceptRatio} from "../moderator/failToAcceptRatio";
+import {troubleMakers} from "../moderator/troubleMakers";
 import {Collection} from "discord.js";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {onSubCommand} from "../../events/onSubCommand";
@@ -10,7 +13,7 @@ import {commandPermission} from "../../utility/commandPermission";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 
-const subCommandListTemp: SubCommand[] = [mapPlay, nextMapPool, rankDist, scoreDist,];
+const subCommandListTemp: SubCommand[] = [mapPlay, nextMapPool, rankDist, scoreDist, failToAcceptRatio, lateRatio, troubleMakers];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -26,6 +29,9 @@ export const _modInfo: Command = {
         .addSubcommand(nextMapPool.data)
         .addSubcommand(rankDist.data)
         .addSubcommand(scoreDist.data)
+        .addSubcommand(failToAcceptRatio.data)
+        .addSubcommand(lateRatio.data)
+        .addSubcommand(troubleMakers.data)
     ,
     run: async (interaction, data) => {
         try {
