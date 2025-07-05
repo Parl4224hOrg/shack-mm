@@ -5,6 +5,7 @@ import {rankDist} from "../moderator/rankDist";
 import {scoreDist} from "../moderator/scoreDist";
 import {abandonRatio} from "../moderator/abandonRatio";
 import {failToAcceptRatio} from "../moderator/failToAcceptRatio";
+import {late} from "../moderator/failToAcceptRatio";
 import {troubleMakers} from "../moderator/troubleMakers";
 import {Collection} from "discord.js";
 import {SlashCommandBuilder} from "@discordjs/builders";
@@ -13,7 +14,7 @@ import {commandPermission} from "../../utility/commandPermission";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 
-const subCommandListTemp: SubCommand[] = [mapPlay, nextMapPool, rankDist, scoreDist, failToAcceptRatio, lateRatio, troubleMakers];
+const subCommandListTemp: SubCommand[] = [abandonRatio, mapPlay, nextMapPool, rankDist, scoreDist, failToAcceptRatio, lateRatio, troubleMakers];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -25,6 +26,7 @@ export const _modInfo: Command = {
     data: new SlashCommandBuilder()
         .setName('mod_info')
         .setDescription('Mod info commands')
+        .addSubcommand(abandonRatio.data)
         .addSubcommand(mapPlay.data)
         .addSubcommand(nextMapPool.data)
         .addSubcommand(rankDist.data)
