@@ -26,11 +26,13 @@ import {toggleReferee} from "./toggleReferee";
 import {refMute} from "./refMute";
 import {changeAbandonCDCounter} from "./changeAbandonCDCounter";
 import {lateRatio} from "./lateRatio";
+import {manualSubmitIfAbandoned} from "./manualSubmitIfAbandoned";
+import {manualSubmitIfNotAbandoned} from "./manualSubmitIfNotAbandoned";
 
 
 
 const subCommandListTemp: SubCommand[] = [actions, adjustMMR, abandonRatio, changeAbandonCDCounter, changeFailToAcceptCounter, cooldown, easyTime,
-    forceAbandon, freeze, nullify,
+    forceAbandon, freeze, nullify, manualSubmitIfAbandoned, manualSubmitIfNotAbandoned,
     refMute, removeCooldown, reverseCooldown, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
@@ -63,6 +65,8 @@ export const _mod: Command = {
         .addSubcommand(warnRemove.data)
         .addSubcommand(mute.data)
         .addSubcommand(refMute.data)
+        .addSubcommand(manualSubmitIfAbandoned.data)
+        .addSubcommand(manualSubmitIfNotAbandoned.data)
         .addSubcommand(toggleReferee.data),
     run: async (interaction, data) => {
         try {
