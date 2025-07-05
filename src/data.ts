@@ -296,7 +296,7 @@ export class Data {
         while (users.length < tokens.PlayerCount) {
             users.push(this.FILL_SND.getUser())
         }
-        const teams = await makeTeams(users);
+        const teams = await makeTeams(users, this.client);
         let userIds: ObjectId[] = [];
 
         for (let user of teams.teamA) {
