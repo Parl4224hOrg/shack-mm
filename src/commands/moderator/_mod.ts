@@ -25,13 +25,12 @@ import {mute} from "./mute";
 import {toggleReferee} from "./toggleReferee";
 import {refMute} from "./refMute";
 import {changeAbandonCDCounter} from "./changeAbandonCDCounter";
-import {lateRatio} from "./lateRatio";
 import {manualSubmitIfAbandoned} from "./manualSubmitIfAbandoned";
 import {manualSubmitIfNotAbandoned} from "./manualSubmitIfNotAbandoned";
 
 
 
-const subCommandListTemp: SubCommand[] = [actions, adjustMMR, abandonRatio, changeAbandonCDCounter, changeFailToAcceptCounter, cooldown, easyTime,
+const subCommandListTemp: SubCommand[] = [actions, adjustMMR, changeAbandonCDCounter, changeFailToAcceptCounter, cooldown, easyTime,
     forceAbandon, freeze, nullify, manualSubmitIfAbandoned, manualSubmitIfNotAbandoned,
     refMute, removeCooldown, reverseCooldown, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
@@ -47,7 +46,6 @@ export const _mod: Command = {
         .setDescription('Mod commands')
         .addSubcommand(actions.data)
         .addSubcommand(adjustMMR.data)
-        .addSubcommand(abandonRatio.data)
         .addSubcommand(changeAbandonCDCounter.data)
         .addSubcommand(changeFailToAcceptCounter.data)
         .addSubcommand(cooldown.data)
