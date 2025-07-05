@@ -20,7 +20,7 @@ import {Data} from "../data";
 import {Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
-import {getMapData, getMapsDB, logAccept, logScoreSubmit} from "../utility/match";
+import {getMapData, getMapsDB, logAccept, logScoreSubmit, logScoreAccept} from "../utility/match";
 import {GameServer} from "../server/server";
 import {RCONError} from "rcon-pavlov";
 import {MapInt} from "../database/models/MapModel";
@@ -1365,8 +1365,26 @@ export class GameController {
             const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
             if (team == 0) {
                 await channel.send("Team a has accepted scores");
+                try {
+                    // Find the user's discord ID for logging
+                    const user = this.users.find(u => String(u.dbId) === String(userId));
+                    if (user) {
+                        await logScoreAccept(user.discordId, this.matchNumber, "Team A", this.client);
+                    }
+                } catch (e) {
+                    console.error("Failed to log score acceptance:", e);
+                }
             } else {
                 await channel.send("Team b has accepted scores");
+                try {
+                    // Find the user's discord ID for logging
+                    const user = this.users.find(u => String(u.dbId) === String(userId));
+                    if (user) {
+                        await logScoreAccept(user.discordId, this.matchNumber, "Team B", this.client);
+                    }
+                } catch (e) {
+                    console.error("Failed to log score acceptance:", e);
+                }
             }
             return {success: true, message: 'Accepted scores'};
         }
