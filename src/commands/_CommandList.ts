@@ -9,7 +9,6 @@ import {_ready} from "./queue/ready/_ready";
 import {unready} from "./queue/unready";
 import {abandon} from "./match/abandon";
 import {stats} from "./queue/stats";
-import {manualSubmit} from "./admin/manualSubmit";
 import {graph} from "./queue/graph";
 import {register} from "./register";
 import {ratingChange} from "./queue/ratingChange";
@@ -39,7 +38,7 @@ import {_modInfo} from "./moderator_info/_mod-info";
 
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
-    stats, manualSubmit, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
+    stats, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
     help, checkDms, dmOptions, _mod, _modInfo, serverStatus, late, categoryDelete, unregisterServer, ping, fixCDs, unmute, _ref,
     softResetMMR, softResetUser, newSaveTest, createMapTest, updateMapTest];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
