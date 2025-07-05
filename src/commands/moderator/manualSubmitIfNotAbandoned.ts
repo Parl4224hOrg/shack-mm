@@ -14,7 +14,7 @@ import {Regions} from "../../database/models/UserModel";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {reason} from "../../utility/options";
-import {getMapData} from "../../utility/match";
+import {getMapData} from "../../utility/match"; 
 
 export const manualSubmitIfNotAbandoned: Command = {
     data: new SlashCommandBuilder()
