@@ -1,5 +1,5 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {SubCommand} from "../../interfaces/Command";
+import {SlashCommandSubcommandBuilder} from "@discordjs/builders";
 import tokens from "../../tokens";
 import {getGameByMatchId} from "../../modules/getters/getGame";
 import {logError} from "../../loggers";
@@ -16,8 +16,8 @@ import {Actions} from "../../database/models/ActionModel";
 import {reason} from "../../utility/options";
 import {getMapData} from "../../utility/match";
 
-export const manualSubmitIfAbandoned: Command = {
-    data: new SlashCommandBuilder()
+export const manualSubmitIfAbandoned: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('manual_submit_if_abandoned')
         .setDescription('Send a match embed and processes scores for it')
         .addIntegerOption(opt => opt
