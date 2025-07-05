@@ -5,7 +5,7 @@ import {rankDist} from "../moderator/rankDist";
 import {scoreDist} from "../moderator/scoreDist";
 import {abandonRatio} from "../moderator/abandonRatio";
 import {failToAcceptRatio} from "../moderator/failToAcceptRatio";
-import {late} from "../moderator/failToAcceptRatio";
+import {lateRatio} from "../moderator/lateRatio";
 import {troubleMakers} from "../moderator/troubleMakers";
 import {Collection} from "discord.js";
 import {SlashCommandBuilder} from "@discordjs/builders";
