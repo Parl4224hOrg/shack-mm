@@ -1,11 +1,11 @@
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {SubCommand} from "../../interfaces/Command";
+import {SlashCommandSubcommandBuilder} from "@discordjs/builders";
 import {EmbedBuilder} from "discord.js";
 import userModel from "../../database/models/UserModel";
 import tokens from "../../tokens";
 
-export const troubleMakers: Command = {
-    data: new SlashCommandBuilder()
+export const troubleMakers: SubCommand = {
+    data: new SlashCommandSubcommandBuilder()
         .setName('trouble_makers')
         .setDescription('Display all frozen and permanently muted users'),
     run: async (interaction, data) => {
