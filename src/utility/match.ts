@@ -123,6 +123,18 @@ export const logScoreSubmit = async (userId: string, matchId: number, score: num
     await channel.send({embeds: [embed.toJSON()]});
 }
 
+export const logScoreAccept = async (userId: string, matchId: number, team: string, client: Client) => {
+    try {
+        const channel = await client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+        const embed = new EmbedBuilder();
+        embed.setTitle("User has Accepted Scores");
+        embed.setDescription(`<@${userId}> has accepted scores for ${team} in match ${matchId}`);
+        await channel.send({embeds: [embed.toJSON()]});
+    } catch (e) {
+        console.error("Failed to log score acceptance to channel:", e);
+    }
+}
+
 
 export const matchVotes = async (interaction: ButtonInteraction, data: Data) => {
     const dbUser = await getUserByUser(interaction.user, data);
