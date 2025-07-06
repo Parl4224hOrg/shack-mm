@@ -71,7 +71,6 @@ export class Data {
     private async banReductionTask() {
         const now = moment().unix()
         const users = await userModel.find({}) as UserInt[];
-        const guild = await this.client.guilds.fetch(tokens.GuildID);
         for (let user of users) {
             if (user.banUntil <= now) {
                 // Check for two week reduction

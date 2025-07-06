@@ -27,7 +27,7 @@ export const updateMatchScore: Command = {
             option.setName('reason')
                 .setDescription('Reason for the update')
                 .setRequired(true)),
-    run: async (interaction, data) => {
+    run: async (interaction) => {
         try {
             await interaction.deferReply();
             let reason = interaction.options.getString('reason', true);

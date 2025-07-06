@@ -8,7 +8,7 @@ export const troubleMakers: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName('trouble_makers')
         .setDescription('Display all frozen and permanently muted users'),
-    run: async (interaction, data) => {
+    run: async (interaction) => {
         try {
             // Get frozen users count
             const frozenCount = await userModel.countDocuments({frozen: true});
