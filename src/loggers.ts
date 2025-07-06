@@ -85,10 +85,6 @@ export async function logError(error: any, interaction: Interaction) {
                 value: `\`\`\`${interaction.customId}\`\`\``,
                 inline: true,
             }, {
-                name: "buttonLabel",
-                value: `\`\`\`${interaction.component.label}\`\`\``,
-                inline: true,
-            }, {
                 name: "userId",
                 value: `\`\`\`${interaction.user.id}\`\`\``,
                 inline: true,
