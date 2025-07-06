@@ -1,6 +1,7 @@
 import {Document, model, ObjectId, Schema} from "mongoose";
 
 export interface GameInt extends Document {
+    _id: ObjectId;
     matchId: number;
     queueId: string;
     map: string;

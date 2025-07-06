@@ -26,7 +26,7 @@ export const onMemberUpdate = async (oldMember: GuildMember | PartialGuildMember
                 .setDescription(`Roles removed from ${newMember.user.tag}`)
                 .addFields(
                     { name: "Removed Roles", value: removedRolesList || "None", inline: false },
-                    { name: "Performed By", value: executor ? executor.tag : "Unknown", inline: false }
+                    { name: "Performed By", value: executor ? executor.tag ?? "Unknown" : "Unknown", inline: false }
                 )
                 .setTimestamp();
 
@@ -53,7 +53,7 @@ export const onMemberUpdate = async (oldMember: GuildMember | PartialGuildMember
                 .setDescription(`Roles added to ${newMember.user.tag}`)
                 .addFields(
                     { name: "Added Roles", value: addedRolesList || "None", inline: false },
-                    { name: "Performed By", value: executor ? executor.tag : "Unknown", inline: false }
+                    { name: "Performed By", value: executor ? executor.tag ?? "Unknown" : "Unknown", inline: false }
                 )
                 .setTimestamp();
 
