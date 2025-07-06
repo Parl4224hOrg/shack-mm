@@ -34,13 +34,13 @@ export class Data {
     private discordToObject = new Map<string, string>();
     private tickLoop = cron.schedule('*/1 * * * * *', async () => {
         await this.tick();
-    })
+    }, { runOnInit: false });
     private roleUpdate = cron.schedule("0 * * * *", async () => {
         await this.updateRoles();
-    });
+    }, { runOnInit: false });
     private banCounter = cron.schedule("*/10 * * * *", async () => {
         await this.banReductionTask();
-    });
+    }, { runOnInit: false });
     private FILL_SND: QueueController;
     private locked: Collection<string, boolean> = new Collection<string, boolean>();
     nextPing: number = moment().unix();
