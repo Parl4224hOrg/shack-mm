@@ -1,6 +1,6 @@
 import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommandStringOption} from "discord.js";
+import {MessageFlagsBitField, SlashCommandStringOption} from "discord.js";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 
@@ -15,8 +15,12 @@ export const echo: Command = {
     run: async (interaction) => {
         try {
             const message = interaction.options.getString('message', true);
-            await interaction.reply({ephemeral: true, content: "Sending message"});
-            await interaction.channel!.send(message);
+            if (interaction.channel!.isSendable()) {
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Sending message"});
+                await interaction.channel!.send(message);
+            } else {
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not send message"});
+            }
         } catch (e) {
             await logError(e, interaction);
         }
