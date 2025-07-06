@@ -1,6 +1,6 @@
 import {Modal} from "../interfaces/Modal";
 import {
-    ActionRowBuilder,
+    ActionRowBuilder, MessageFlagsBitField,
     ModalActionRowComponentBuilder,
     ModalBuilder,
     TextInputBuilder,
@@ -44,19 +44,19 @@ export const pingMe: Modal = {
                 time = Number(timeStr);
                 num = Number(numberStr);
             } catch (e) {
-                await interaction.reply({ephemeral: true, content: "Please provide a valid number for both fields"});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Please provide a valid number for both fields"});
                 return;
             }
             if (num < 4 || num > 9) {
-                await interaction.reply({ephemeral: true, content: "Please enter a number of players between 4 and 9 inclusive"})
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Please enter a number of players between 4 and 9 inclusive"})
                 return;
             }
             if (time != null && num != null) {
                 await data.addPingMe("SND", "FILL", interaction.user, num, time);
                 if (time == 0) {
-                    await interaction.reply({ephemeral: true, content: `Removed Ping Me`});
+                    await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: `Removed Ping Me`});
                 } else {
-                    await interaction.reply({ephemeral: true, content: `Added ping me for ${num} in queue`});
+                    await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: `Added ping me for ${num} in queue`});
                 }
             }
         } catch (e) {

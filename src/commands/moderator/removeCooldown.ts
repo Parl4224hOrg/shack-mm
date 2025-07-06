@@ -26,11 +26,11 @@ export const removeCooldown: SubCommand = {
             if (interaction.channel?.type === ChannelType.PublicThread ||
                 interaction.channel?.type === ChannelType.PrivateThread ||
                 interaction.channel?.type === ChannelType.AnnouncementThread) {
-                await interaction.reply({ephemeral: false, content: `<${dbUser.id}> cooldown removed`});
+                await interaction.reply({content: `<${dbUser.id}> cooldown removed`});
             } else {
-                await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown removed`});
+                await interaction.reply({content: `<@${dbUser.id}> cooldown removed`});
             }
-            await interaction.reply({ephemeral: false, content: `<@${dbUser.id}> cooldown removed`});
+            await interaction.reply({content: `<@${dbUser.id}> cooldown removed`});
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
             embed.setTitle(`User ${dbUser.id} has been cooldown removed`);

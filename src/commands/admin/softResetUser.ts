@@ -5,6 +5,7 @@ import {logError} from "../../loggers";
 import StatsModel from "../../database/models/StatsModel";
 import {userOption} from "../../utility/options";
 import {getUserByUser} from "../../modules/getters/getUser";
+import {MessageFlagsBitField} from "discord.js";
 
 export const softResetUser: Command = {
     data: new SlashCommandBuilder()
@@ -13,7 +14,7 @@ export const softResetUser: Command = {
         .addUserOption(userOption("User to soft reset")),
     run: async (interaction, data) => {
         try {
-            await interaction.deferReply({ephemeral: true});
+            await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral});
             const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user, data);
             await StatsModel.findOneAndUpdate({userId: dbUser._id}, {gamesPlayedSinceReset: 0});
@@ -23,7 +24,7 @@ export const softResetUser: Command = {
                     await member.roles.remove(role, "remove rank role single user MMR reset");
                 }
             }
-            await interaction.followUp({ephemeral: true, content: `Soft reset <@${user.id}>`});
+            await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: `Soft reset <@${user.id}>`});
         } catch (e) {
             await logError(e, interaction);
         }

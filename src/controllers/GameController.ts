@@ -1,5 +1,5 @@
 import mongoose, {ObjectId} from "mongoose";
-import {ChannelType, Client, Collection, EmbedBuilder, Guild, TextChannel} from "discord.js";
+import {ChannelType, Client, Collection, EmbedBuilder, Guild, MessageFlagsBitField, TextChannel} from "discord.js";
 import {getGameById} from "../modules/getters/getGame";
 import moment from "moment/moment";
 import {processMMR} from "../utility/processMMR";
@@ -1448,7 +1448,7 @@ export class GameController {
         this.state = 7;
         this.scoresAccept = [true, true];
         return {success: true, message: `Scores force submitted
-        \`team_a: ${scoreA}\nteam_b: ${scoreB}\``}
+        \`team_a: ${scoreA}\nteam_b: ${scoreB}\``, flags: new MessageFlagsBitField().add(MessageFlagsBitField.Flags.Ephemeral).toJSON()}
     }
 
     async userAccept(id: ObjectId) {

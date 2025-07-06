@@ -1,8 +1,5 @@
 import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {logError} from "../../loggers";
-import Serializer from "../../serializers/serializer";
-import SaveV2Model from "../../database/models/SaveV2Model";
 import tokens from "../../tokens";
 
 export const newSaveTest: Command = {
@@ -11,7 +8,7 @@ export const newSaveTest: Command = {
         .setDescription("Tests the new save system"),
     run: async (interaction, data) => {
         // try {
-        //     await interaction.deferReply({ephemeral: true});
+        //     await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral});
         //     const game = data.getQueue().activeGames[0];
         //     if (game) {
         //         const serializedData = Serializer.serializeGame(game);
@@ -27,9 +24,9 @@ export const newSaveTest: Command = {
         //             const temp = e as any
         //             replyMessage += `Unsuccessfully loaded data with error: ${temp.message}`;
         //         }
-        //         await interaction.followUp({ephemeral: true, content: replyMessage});
+        //         await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: replyMessage});
         //     } else {
-        //         await interaction.followUp({ephemeral: true, content: "No active game to test serialization with"})
+        //         await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: "No active game to test serialization with"})
         //     }
         // } catch (e) {
         //     await logError(e, interaction);

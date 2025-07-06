@@ -1,6 +1,6 @@
 import {Command} from "../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommandBooleanOption} from "discord.js";
+import {MessageFlagsBitField, SlashCommandBooleanOption} from "discord.js";
 import {logError} from "../loggers";
 import {getUserByUser} from "../modules/getters/getUser";
 
@@ -41,9 +41,9 @@ export const dmOptions: Command = {
             }
 
             if (response == "") {
-                await interaction.reply({ephemeral: true, content: "You have updated no preferences"});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "You have updated no preferences"});
             } else {
-                await interaction.reply({ephemeral: true, content: response});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: response});
             }
         } catch (e) {
             await logError(e, interaction);

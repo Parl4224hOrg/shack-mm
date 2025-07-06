@@ -13,14 +13,14 @@ export const lock: SubCommand = {
             const queue = interaction.options.getString('queue', true);
             if (queue == 'ALL') {
                 data.lockAllQueues();
-                await interaction.reply({ephemeral: false, content: "Locked all queues"});
+                await interaction.reply({content: "Locked all queues"});
             } else {
                 if (data.isLocked(queue)) {
                     data.unlockQueue(queue);
-                    await interaction.reply({ephemeral: false, content: `Unlocked queue ${queue}`});
+                    await interaction.reply({content: `Unlocked queue ${queue}`});
                 } else {
                     data.lockQueue(queue);
-                    await interaction.reply({ephemeral: false, content: `Locked queue ${queue}`});
+                    await interaction.reply({content: `Locked queue ${queue}`});
                 }
             }
         } catch (e) {

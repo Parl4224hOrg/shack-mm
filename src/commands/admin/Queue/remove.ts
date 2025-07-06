@@ -1,5 +1,5 @@
 import {SubCommand} from "../../../interfaces/Command";
-import {SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../../loggers";
 import {getUserByUser} from "../../../modules/getters/getUser";
 import {queues, userOption} from "../../../utility/options";
@@ -16,7 +16,7 @@ export const remove: SubCommand = {
             const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user, data);
             data.removeFromAllQueues(dbUser._id);
-            await interaction.reply({ephemeral: true, content: `<@${user.id}> Has been removed from queue`});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${user.id}> Has been removed from queue`});
         } catch (e) {
             await logError(e, interaction)
         }

@@ -5,7 +5,7 @@ import tokens from "../../tokens";
 import {getUserByUser} from "../../modules/getters/getUser";
 import WarnModel from "../../database/models/WarnModel";
 import {warningEmbeds} from "../../embeds/statsEmbed";
-import {SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
 
 export const lates: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -20,7 +20,7 @@ export const lates: SubCommand = {
         try {
             const user = interaction.options.getUser("user", true);
             const dbUser = await getUserByUser(user, data);
-            const visible = interaction.options.getBoolean('hidden') ?? false;
+            const visible = interaction.options.getBoolean('hidden') ? MessageFlagsBitField.Flags.Ephemeral : undefined;
 
             // Fetch the latest 20 warnings that contain the word "late"
             const warnings = await WarnModel.find({
@@ -28,7 +28,7 @@ export const lates: SubCommand = {
                 reason: { $regex: /late/i }
             }).sort({ timeStamp: -1 }).limit(20);
             
-            await interaction.reply({ephemeral: visible, content: `Showing warnings for ${user.username}`, embeds: [warningEmbeds(user, warnings)]});
+            await interaction.reply({flags: visible, content: `Showing warnings for ${user.username}`, embeds: [warningEmbeds(user, warnings)]});
         } catch (e) {
             await logError(e, interaction);
         }

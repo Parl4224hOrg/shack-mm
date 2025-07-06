@@ -2,6 +2,7 @@ import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
+import {MessageFlagsBitField} from "discord.js";
 
 export const serverStatus: Command = {
     data: new SlashCommandBuilder()
@@ -14,7 +15,7 @@ export const serverStatus: Command = {
                 status += `${game.matchNumber}: ${game.serverId}\n`;
             }
             status += "```";
-            await interaction.reply({ephemeral: true, content: status});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: status});
         } catch (e) {
             await logError(e, interaction);
         }

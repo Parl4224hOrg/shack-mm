@@ -1,5 +1,5 @@
 import {SubCommand} from "../../../interfaces/Command";
-import {SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../../loggers";
 import {queues} from "../../../utility/options";
 import tokens from "../../../tokens";
@@ -12,7 +12,7 @@ export const clear: SubCommand = {
     run: async (interaction, data) => {
         try {
             data.clearQueue(interaction.options.getString('queue', true));
-            await interaction.reply({ephemeral: true, content: 'Queue cleared'});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'Queue cleared'});
         } catch (e) {
             await logError(e, interaction)
         }

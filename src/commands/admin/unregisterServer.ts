@@ -1,6 +1,6 @@
 import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommandStringOption} from "discord.js";
+import {MessageFlagsBitField, SlashCommandStringOption} from "discord.js";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 
@@ -29,9 +29,9 @@ export const unregisterServer: Command = {
                 }
             }
             if (found) {
-                await interaction.reply({ephemeral: true, content: "Successfully unregistered server"});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Successfully unregistered server"});
             } else {
-                 await interaction.reply({ephemeral: true, content: "Could not find server"});
+                 await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find server"});
             }
         } catch (e) {
             await logError(e, interaction);

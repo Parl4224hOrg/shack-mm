@@ -1,5 +1,5 @@
 import {Command, SubCommand} from "../../interfaces/Command";
-import {Collection} from "discord.js";
+import {Collection, MessageFlagsBitField} from "discord.js";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {logError} from "../../loggers";
@@ -34,7 +34,7 @@ export const _ref: Command = {
             if (dbUser.referee) {
                 await command.run(interaction, data);
             } else {
-                await interaction.reply({ephemeral: true, content: "You do not have permission to use this command"})
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "You do not have permission to use this command"})
             }
         } catch (e) {
             await logError(e, interaction);

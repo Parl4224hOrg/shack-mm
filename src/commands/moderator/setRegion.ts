@@ -1,6 +1,6 @@
 import {SubCommand} from "../../interfaces/Command";
 import {userOption} from "../../utility/options";
-import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import {getUserByUser} from "../../modules/getters/getUser";
@@ -50,7 +50,7 @@ export const setRegion: SubCommand = {
                 case "APAC": dbUser.region = Regions.APAC; await member.roles.add(tokens.RegionRoles.APAC); break;
             }
             await updateUser(dbUser, data);
-            await interaction.reply({ephemeral: true, content: "updated user's region"});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "updated user's region"});
         } catch (e) {
             await logError(e, interaction);
         }

@@ -1,6 +1,6 @@
 import {Button} from "../../interfaces/Button";
 import {ButtonBuilder} from "@discordjs/builders";
-import {ButtonStyle} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField} from "discord.js";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 
@@ -14,13 +14,13 @@ export const autoReady: Button = {
             const dbUser = await getUserByUser(interaction.user, data);
             const game = data.findGame(dbUser._id);
             if (!game) {
-                await interaction.reply({ephemeral: true, content: "Could not find game"});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game"});
             } else {
                 const result = game.requeue(dbUser);
                 if (result) {
-                    await interaction.reply({ephemeral: true, content: "You have been set to be re readied at the end of the game"});
+                    await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "You have been set to be re readied at the end of the game"});
                 } else {
-                    await interaction.reply({ephemeral: true, content: "You will no longer be re readied at the end of the game"});
+                    await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "You will no longer be re readied at the end of the game"});
                 }
             }
         } catch (e) {

@@ -25,7 +25,6 @@ import MapTestModel from "./database/models/MapTestModel";
 import mapTestModel from "./database/models/MapTestModel";
 import fs from "fs";
 import {join} from "path";
-import Tokens from "./tokens";
 
 const SAVE_ID = "saved";
 

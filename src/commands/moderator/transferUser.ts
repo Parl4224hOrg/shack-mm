@@ -1,5 +1,5 @@
 import {SubCommand} from "../../interfaces/Command";
-import {SlashCommandSubcommandBuilder, SlashCommandUserOption} from "discord.js";
+import {MessageFlagsBitField, SlashCommandSubcommandBuilder, SlashCommandUserOption} from "discord.js";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
@@ -62,7 +62,7 @@ export const transferUser: SubCommand = {
 
             await interaction.guild!.members.kick(oldUser.id, "Remove transferred user from server")
 
-            await interaction.followUp({ephemeral: true, content: `<@${oldUser.id}> has been transferred to <@${newUser.id}>`})
+            await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${oldUser.id}> has been transferred to <@${newUser.id}>`})
         } catch (e) {
             await logError(e, interaction);
         }

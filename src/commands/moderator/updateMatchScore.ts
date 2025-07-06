@@ -1,17 +1,10 @@
-import { CommandInteraction } from "discord.js";
+import {MessageFlagsBitField} from "discord.js";
 import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {logError} from "../../loggers";
-import {queues} from "../../utility/options";
 import GameModel from "../../database/models/GameModel";
-import {getUserById} from "../../modules/getters/getUser";
-import {processMMR} from "../../utility/processMMR";
-import {GameUser} from "../../interfaces/Game";
-import {updateGame} from "../../modules/updaters/updateGame";
 import tokens from "../../tokens";
-import StatsModel from "../../database/models/StatsModel";
-import {Regions} from "../../database/models/UserModel";
-import {Client, EmbedBuilder, TextChannel} from "discord.js";
+import {EmbedBuilder, TextChannel} from "discord.js";
 
 
 export const updateMatchScore: Command = {
@@ -45,7 +38,7 @@ export const updateMatchScore: Command = {
             // Find the game
             const updateGame = await GameModel.findOne({ matchId: updateGameId });
             if (!updateGame) {
-                await interaction.followUp({ ephemeral: true, content: 'Game not found.' });
+                await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: 'Game not found.' });
             } else {
                 const oldScoreA = updateGame.scoreA;
                 const oldScoreB = updateGame.scoreB;
@@ -53,9 +46,9 @@ export const updateMatchScore: Command = {
                 let endDateChanged = false;
                 
                 if (teamAScore !== 10 && teamBScore !== 10) {
-                    await interaction.followUp({ ephemeral: true, content: 'One team must have scored 10.' });
+                    await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: 'One team must have scored 10.' });
                 } else if (teamAScore === 10 && teamBScore === 10) {
-                    await interaction.followUp({ ephemeral: true, content: 'Both teams can\'t get 10.' });
+                    await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: 'Both teams can\'t get 10.' });
                 } else {
                     // Update the game with new scores
                     updateGame.scoreA = teamAScore;
@@ -78,7 +71,7 @@ export const updateMatchScore: Command = {
                         followUpMessage += `\n- End date set to 40 minutes from creation date`;
                     }
                     await interaction.followUp({
-                        ephemeral: true,
+                        flags: MessageFlagsBitField.Flags.Ephemeral,
                         content: followUpMessage
                     });              
                 }

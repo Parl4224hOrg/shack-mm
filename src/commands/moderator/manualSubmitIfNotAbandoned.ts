@@ -38,12 +38,12 @@ export const manualSubmitIfNotAbandoned: SubCommand = {
         .addStringOption(reason),
     run: async (interaction, data) => {
         try {
-            await interaction.deferReply({ephemeral: false});
+            await interaction.deferReply();
             const matchId = interaction.options.getInteger('match_id', true)
             const gameTemp = await getGameByMatchId(matchId);
             
             if (!gameTemp) {
-                await interaction.followUp({content: `Match ${matchId} not found.`, ephemeral: false});
+                await interaction.followUp({content: `Match ${matchId} not found.`});
                 return;
             }
             
@@ -51,13 +51,13 @@ export const manualSubmitIfNotAbandoned: SubCommand = {
             
             // Check if match was abandoned
             if (game.abandoned) {
-                await interaction.followUp({content: `Match ${matchId} was abandoned and cannot be manually submitted. Open a ticket! Mods can submit in extenuating circumstances only.`, ephemeral: false});
+                await interaction.followUp({content: `Match ${matchId} was abandoned and cannot be manually submitted. Open a ticket! Mods can submit in extenuating circumstances only.`});
                 return;
             }
             
             // Check if match already has scores recorded
             if (game.scoreA >= 0 || game.scoreB >= 0) {
-                await interaction.followUp({content: `Match ${matchId} already has scores recorded (${game.scoreA}-${game.scoreB}) and cannot be manually submitted.`, ephemeral: false});
+                await interaction.followUp({content: `Match ${matchId} already has scores recorded (${game.scoreA}-${game.scoreB}) and cannot be manually submitted.`});
                 return;
             }
             
@@ -98,7 +98,7 @@ export const manualSubmitIfNotAbandoned: SubCommand = {
             embed.setDescription(`<@${interaction.user.id}> has submitted: Team A: ${game.scoreA}, Team B: ${game.scoreB}`);
             await modLog.send({embeds: [embed.toJSON()]});
             await data.Leaderboard.setLeaderboard();
-            await interaction.followUp({ephemeral: false, content: `Match ${game.matchId} has been submitted with:\nTeam A: ${game.scoreA}\nTeam B: ${game.scoreB}`});
+            await interaction.followUp({content: `Match ${game.matchId} has been submitted with:\nTeam A: ${game.scoreA}\nTeam B: ${game.scoreB}`});
         }
         catch (e) {
             await logError(e, interaction);

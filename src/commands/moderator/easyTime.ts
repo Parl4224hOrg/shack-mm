@@ -1,5 +1,5 @@
 import { SubCommand } from "../../interfaces/Command";
-import { SlashCommandSubcommandBuilder } from "discord.js";
+import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
 import { userOption } from "../../utility/options";
 import { logError } from "../../loggers";
 import tokens from "../../tokens";
@@ -14,12 +14,11 @@ export const easyTime: SubCommand = {
             const game = data.getGameByChannel(interaction.channelId);
             const user = interaction.options.getUser('user', true);
             if (!game) {
-                await interaction.reply({ ephemeral: true, content: "use in a match channel" });
+                await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "use in a match channel" });
             } else {
                 const timestamp = game.finalGenTime + 10 * 60;
-                await interaction.reply({ ephemeral: true, content: "easy_time is working" });
+                await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "easy_time is working" });
                 await interaction.followUp({
-                    ephemeral: false,
                     content: `<@${user.id}> <t:${timestamp}:R> you will be abandoned if you do not join the game`
                 });
             }

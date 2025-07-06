@@ -4,7 +4,7 @@ import {logError, logInfo} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {updateUser} from "../../modules/updaters/updateUser";
 import tokens from "../../tokens";
-import {SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
 import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import moment from "moment-timezone";
@@ -18,7 +18,7 @@ export const freeze: SubCommand = {
     run: async (interaction, data) => {
         try {
             if (interaction.channel!.isThread()) {
-                await interaction.reply({ephemeral: true, content: "This command cannot be used in a thread please use it in the ticket itself"})
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "This command cannot be used in a thread please use it in the ticket itself"})
             } else {
                 await interaction.deferReply();
                 const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
@@ -31,7 +31,7 @@ export const freeze: SubCommand = {
                     await updateUser(dbUser, data);
                     await member.roles.add(tokens.MutedRole);
                     data.removeFromQueue(dbUser._id, "ALL");
-                    await interaction.followUp({ephemeral: false, content: `<@${dbUser.id}> has been frozen`});
+                    await interaction.followUp({content: `<@${dbUser.id}> has been frozen`});
                 } else {
                     await createActionUser(Actions.Freeze, interaction.user.id, dbUser.id, "User was un-frozen", "User was un-frozen");
                     await updateUser(dbUser, data);
@@ -39,7 +39,7 @@ export const freeze: SubCommand = {
                         await member.roles.remove(tokens.MutedRole, "remove using /freeze");
                         await logInfo(`Unmuted ${member.user.id} (${dbUser.id}) freeze.ts ln 39`, interaction.client, [Tokens.Parl]);
                     }
-                    await interaction.followUp({ephemeral: false, content: `<@${dbUser.id}> has been unfrozen`});
+                    await interaction.followUp({content: `<@${dbUser.id}> has been unfrozen`});
                 }
             }
         } catch (e) {

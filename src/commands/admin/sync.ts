@@ -5,6 +5,7 @@ import { REST } from "@discordjs/rest";
 import tokens from "../../tokens";
 import {CommandList} from "../_CommandList";
 import { Routes } from "discord-api-types/v9";
+import {MessageFlagsBitField} from "discord.js";
 
 export const sync: Command = {
     data: new SlashCommandBuilder()
@@ -12,7 +13,7 @@ export const sync: Command = {
         .setDescription("Syncs commands with the server"),
     run: async (interaction) => {
         try {
-            await interaction.deferReply({ephemeral: true});
+            await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral});
             const rest = new REST({ version: "9" }).setToken(
                 tokens.BotToken as string
             );

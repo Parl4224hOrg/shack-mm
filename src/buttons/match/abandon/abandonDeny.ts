@@ -1,6 +1,6 @@
 import {Button} from "../../../interfaces/Button";
 import {ButtonBuilder} from "@discordjs/builders";
-import {ButtonStyle} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField} from "discord.js";
 import {logError} from "../../../loggers";
 
 export const abandonDeny: Button = {
@@ -12,7 +12,7 @@ export const abandonDeny: Button = {
         try {
             const parent = interaction.message;
             await parent.edit({content: "Abandon Cancelled", components: []});
-            await interaction.reply({ephemeral: true, content: "You have cancelled your abandon"})
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "You have cancelled your abandon"})
         } catch (e) {
             await logError(e, interaction);
         }

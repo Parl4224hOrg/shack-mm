@@ -42,7 +42,7 @@ export const rankDist: SubCommand = {
                 data.push((total[1] / totalNumber * 100).toFixed(1));
             }
 
-            await interaction.followUp({ephemeral: false, files: [await getRankDistGraph(labels, data)]});
+            await interaction.followUp({files: [await getRankDistGraph(labels, data)]});
         } catch (e) {
             await logError(e, interaction);
         }

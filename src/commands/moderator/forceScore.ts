@@ -4,7 +4,7 @@ import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
-import {SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
 
 export const forceScore: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -17,10 +17,10 @@ export const forceScore: SubCommand = {
         try {
             const game = data.getGameByChannel(interaction.channelId);
             if (!game) {
-                await interaction.reply({ephemeral: true, content: 'Could not find game'});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'Could not find game'});
             } else {
                 const response = game.forceScore(interaction.options.getInteger('team_a', true), interaction.options.getInteger('team_b', true));
-                await interaction.reply({ephemeral: response.success, content: response.message});
+                await interaction.reply({flags: response.flags, content: response.message});
                 if (response.success) {
                     await createAction(Actions.ForceScore, interaction.user.id, interaction.options.getString('reason', true), response.message);
                 }

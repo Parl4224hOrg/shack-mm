@@ -1,6 +1,6 @@
 import {Button} from "../../interfaces/Button";
 import {ButtonBuilder} from "@discordjs/builders";
-import {ButtonStyle} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField} from "discord.js";
 import {logError} from "../../loggers";
 
 export const lfg: Button = {
@@ -10,7 +10,7 @@ export const lfg: Button = {
         .setCustomId('lfg-queue'),
     run: async (interaction, data) => {
         try {
-            await interaction.reply({ephemeral: true, content: data.inQueueSND()});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: data.inQueueSND()});
         } catch (e) {
             await logError(e, interaction);
         }

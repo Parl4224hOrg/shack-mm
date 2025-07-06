@@ -1,5 +1,5 @@
 import {SubCommand} from "../../../interfaces/Command";
-import {SlashCommandSubcommandBuilder, TextChannel} from "discord.js";
+import {MessageFlagsBitField, SlashCommandSubcommandBuilder, TextChannel} from "discord.js";
 import {logError} from "../../../loggers";
 import {queues} from "../../../utility/options";
 import GameModel from "../../../database/models/GameModel";
@@ -42,7 +42,7 @@ export const reCalc: SubCommand = {
         .addStringOption(queues),
     run: async (interaction, data) => {
         try {
-            await interaction.deferReply({ephemeral: true});
+            await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral});
             const games = await GameModel.find({scoreB: {"$gte": 0}, scoreA: {'$gte': 0}}).sort({matchId: 1});
             await StatsModel.deleteMany({queueId: "SND"});
 
@@ -98,7 +98,7 @@ export const reCalc: SubCommand = {
                     await logChannel.send(`${count}/${statsMap.size} stats updated`);
                 }
             }
-            await interaction.followUp({ephemeral: true, content: 'done'});
+            await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'done'});
         } catch (e) {
             await logError(e, interaction)
         }

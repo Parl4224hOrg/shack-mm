@@ -1,6 +1,6 @@
 import {Command} from "../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommandStringOption, TextChannel} from "discord.js";
+import {MessageFlagsBitField, SlashCommandStringOption, TextChannel} from "discord.js";
 import {logError} from "../loggers";
 import tokens from "../tokens";
 import moment from "moment-timezone";
@@ -35,7 +35,7 @@ export const createMapTest: Command = {
             .setRequired(true)),
     run: async (interaction) => {
         try {
-            await interaction.deferReply({ephemeral: true});
+            await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral});
             const map = interaction.options.getString("map", true);
             const date = interaction.options.getString("date", true);
             const time = interaction.options.getString("time", true);
@@ -62,9 +62,9 @@ export const createMapTest: Command = {
                     messageId: message.id,
                     pinged: false,
                 });
-                await interaction.followUp({ephemeral: true, content: "Created Map Signup"})
+                await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Created Map Signup"})
             } catch (e) {
-                await interaction.followUp({ephemeral: true, content: "Invalid date and or time provided"})
+                await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Invalid date and or time provided"})
             }
         } catch (e) {
             await logError(e, interaction);

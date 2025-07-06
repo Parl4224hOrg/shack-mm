@@ -1,6 +1,6 @@
 import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {CategoryChannel, SlashCommandChannelOption} from "discord.js";
+import {CategoryChannel, MessageFlagsBitField, SlashCommandChannelOption} from "discord.js";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 
@@ -14,12 +14,12 @@ export const categoryDelete: Command = {
             .setRequired(true)),
     run: async (interaction) => {
         try {
-            await interaction.deferReply({ephemeral: true});
+            await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral});
             const category = interaction.options.getChannel('category', true) as CategoryChannel;
             for (let channel of category.children.cache) {
                 await channel[1].delete();
             }
-            await interaction.followUp({ephemeral: true, content: "channels deleted"});
+            await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: "channels deleted"});
         } catch (e) {
             await logError(e, interaction);
         }

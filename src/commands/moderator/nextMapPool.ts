@@ -1,5 +1,5 @@
 import {SubCommand} from "../../interfaces/Command";
-import {SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../loggers";
 import {getMapsDB} from "../../utility/match";
 import tokens from "../../tokens";
@@ -21,7 +21,7 @@ export const nextMapPool: SubCommand = {
                 }
             }
             mapMessage += "```";
-            await interaction.reply({ephemeral: true, content: mapMessage});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: mapMessage});
         } catch (e) {
             await logError(e, interaction);
         }

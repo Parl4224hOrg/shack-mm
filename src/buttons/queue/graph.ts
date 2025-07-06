@@ -1,6 +1,6 @@
 import {Button} from "../../interfaces/Button";
 import {ButtonBuilder} from "@discordjs/builders";
-import {ButtonStyle} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField} from "discord.js";
 import {logError} from "../../loggers";
 
 //button specific imports
@@ -25,19 +25,19 @@ export const graphButton: Button = {
             const start = stats.gamesPlayedSinceReset - gameNumber + 1;
             if (stats.gamesPlayedSinceReset < 20) {
                 await interaction.reply({
-                    ephemeral: true,
+                    flags: MessageFlagsBitField.Flags.Ephemeral,
                     content: "A user must play 20 games before they can be graphed"
                 })
             } else if (start < 10) {
                 await interaction.reply({
-                    ephemeral: true,
+                    flags: MessageFlagsBitField.Flags.Ephemeral,
                     content: `You are trying to graph more games than the user has played the largest number you can enter is ${stats.gamesPlayedSinceReset - 10}`
                 });
             } else {
                 await interaction.reply({
                     content: "Displaying Graph",
                     files: [await getMMRGraph(stats.mmrHistory, start, stats.gamesPlayedSinceReset, user.username)],
-                    ephemeral: true,
+                    flags: MessageFlagsBitField.Flags.Ephemeral,
                 });
             }
         } catch (e) {

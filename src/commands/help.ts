@@ -1,7 +1,7 @@
 import {Command} from "../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {logError} from "../loggers";
-import {EmbedBuilder} from "discord.js";
+import {EmbedBuilder, MessageFlagsBitField} from "discord.js";
 
 export const help: Command = {
     data: new SlashCommandBuilder()
@@ -67,7 +67,7 @@ export const help: Command = {
                     inline: false,
                 },
             ]);
-            await interaction.reply({ephemeral: true, embeds: [embed.toJSON()]});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);
         }

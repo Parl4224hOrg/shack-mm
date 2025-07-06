@@ -3,7 +3,7 @@ import {userOption} from "../../utility/options";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import {getUserByUser} from "../../modules/getters/getUser";
-import {SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
 import LateModel from "../../database/models/LateModel";
 
 export const lateRatio: SubCommand = {
@@ -28,8 +28,8 @@ export const lateRatio: SubCommand = {
             const avgLateTime = totalTime / lates.length;
             const latePercent = (lates.length / (dbUser.gamesPlayedSinceLates + 1)) * 100;
             const latePercentNeeded = 53.868 * Math.exp(-0.00402 * avgLateTime);
-            const ephemeral = interaction.options.getBoolean("hidden") ?? false;
-            await interaction.reply({ephemeral: ephemeral,
+            const ephemeral = interaction.options.getBoolean("hidden") ? MessageFlagsBitField.Flags.Ephemeral : undefined;
+            await interaction.reply({flags: ephemeral,
                 content: `${user.username} is late ${latePercent.toFixed(2)}% by an average of ${avgLateTime.toFixed(2)} seconds. They need to be late ${latePercentNeeded.toFixed(2)}% to receive a cooldown.`
             })
         } catch (e) {

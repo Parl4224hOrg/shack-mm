@@ -6,6 +6,7 @@ import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {getStats} from "../../modules/getters/getStats";
 import {getMMRGraph} from "../../utility/graph";
+import {MessageFlagsBitField} from "discord.js";
 
 export const graph: Command = {
     data: new SlashCommandBuilder()
@@ -28,12 +29,12 @@ export const graph: Command = {
             const start = stats.gamesPlayedSinceReset - gameNumber + 1;
             if (stats.gamesPlayedSinceReset < 20) {
                 await interaction.reply({
-                    ephemeral: true,
+                    flags: MessageFlagsBitField.Flags.Ephemeral,
                     content: "A user must play 20 games before they can be graphed"
                 })
             } else if (start < 10) {
                 await interaction.reply({
-                    ephemeral: true,
+                    flags: MessageFlagsBitField.Flags.Ephemeral,
                     content: `You are trying to graph more games than the user has played the largest number you can enter is ${stats.gamesPlayedSinceReset - 10}`
                 });
             } else {

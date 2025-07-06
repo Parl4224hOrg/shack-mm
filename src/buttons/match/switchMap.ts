@@ -2,7 +2,7 @@ import {ButtonBuilder} from "@discordjs/builders";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {Button} from "../../interfaces/Button";
-import {ButtonStyle} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField} from "discord.js";
 
 export const switchMap: Button = {
     data: new ButtonBuilder()
@@ -18,7 +18,7 @@ export const switchMap: Button = {
                 await game.switchMap();
                 await interaction.followUp({content: `Map switched by <@${interaction.user.id}>`});
             } else {
-                await interaction.reply({ephemeral: true, content: "Could not find game"});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game"});
             }
         } catch (e) {
             await logError(e, interaction);

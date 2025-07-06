@@ -3,7 +3,7 @@ import {SlashCommandBuilder} from "@discordjs/builders";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import StatsModel from "../../database/models/StatsModel";
-import {TextChannel} from "discord.js";
+import {MessageFlagsBitField, TextChannel} from "discord.js";
 
 export const softResetMMR: Command = {
     data: new SlashCommandBuilder()
@@ -11,7 +11,7 @@ export const softResetMMR: Command = {
         .setDescription("Will soft reset MMR"),
     run: async (interaction) => {
         try {
-            await interaction.deferReply({ephemeral: true});
+            await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral});
             await StatsModel.updateMany({}, {gamesPlayedSinceReset: 0});
             const users = await interaction.guild!.members.fetch();
             let count = 0;
@@ -28,7 +28,7 @@ export const softResetMMR: Command = {
                 }
             }
             await channel.send(`Processed ${users.size}/${users.size} Users`);
-            await interaction.followUp({ephemeral: true, content: "Reset ranks and removed all rank roles"});
+            await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Reset ranks and removed all rank roles"});
         } catch (e) {
             await logError(e, interaction);
         }

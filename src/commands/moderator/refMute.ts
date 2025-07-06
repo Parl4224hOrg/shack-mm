@@ -1,5 +1,5 @@
 import {SubCommand} from "../../interfaces/Command";
-import { SlashCommandSubcommandBuilder, SlashCommandStringOption } from "discord.js";
+import {SlashCommandSubcommandBuilder, SlashCommandStringOption, MessageFlagsBitField} from "discord.js";
 import {userOption} from "../../utility/options";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
@@ -8,7 +8,7 @@ import moment from "moment";
 import {updateUser} from "../../modules/updaters/updateUser";
 import {grammaticalTime} from "../../utility/grammatical";
 import warnModel from "../../database/models/WarnModel";
-import {Client, EmbedBuilder, TextChannel} from "discord.js";
+import {EmbedBuilder, TextChannel} from "discord.js";
 
 export const refMute: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -29,14 +29,14 @@ export const refMute: SubCommand = {
             // Check if user is already muted and hasn't expired
             const currentTime = moment().unix();
             if (dbUser.muteUntil === -1) {
-                await interaction.reply({ ephemeral: true, content: "Ref mute is working" });
+                await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Ref mute is working" });
                 await interaction.followUp({ 
                     content: `<@${user.id}> is permanently muted. No action taken.` 
                 });
                 return;
             } else if (dbUser.muteUntil > currentTime) {
                 const remainingTime = dbUser.muteUntil - currentTime;
-                await interaction.reply({ ephemeral: true, content: "Ref mute is working" });
+                await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Ref mute is working" });
                 await interaction.followUp({ 
                     content: `<@${user.id}> is already muted for ${grammaticalTime(remainingTime)}. No action taken.` 
                 });
@@ -55,7 +55,7 @@ export const refMute: SubCommand = {
             const muteMessage = `<@${user.id}> has been muted for ${grammaticalTime(muteDuration)}`;
             reason = `Muted for 30 minutes because: ${reason}`;
             
-            await interaction.reply({ ephemeral: true, content: "Ref mute is working" });
+            await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Ref mute is working" });
             const followUpMessage = await interaction.followUp({ content: muteMessage });
             
             await warnModel.create({

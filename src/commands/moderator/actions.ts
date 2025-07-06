@@ -7,7 +7,7 @@ import ActionModel from "../../database/models/ActionModel";
 import {ActionEmbed} from "../../embeds/ModEmbeds";
 import WarnModel from "../../database/models/WarnModel";
 import {warningEmbeds} from "../../embeds/statsEmbed";
-import {SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
 
 export const actions: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -22,7 +22,7 @@ export const actions: SubCommand = {
         try {
             const user = interaction.options.getUser("user", true);
             const dbUser = await getUserByUser(user, data);
-            const visible = interaction.options.getBoolean('hidden') ?? false;
+            const visible = interaction.options.getBoolean('hidden') ? MessageFlagsBitField.Flags.Ephemeral : undefined;
 
             // Fetch the latest 10 actions
             const actions = await ActionModel.find({
@@ -35,7 +35,7 @@ export const actions: SubCommand = {
                 reason: { $not: /late/i }
             }).sort({ timeStamp: -1 }).limit(10);
                         
-            await interaction.reply({ephemeral: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
+            await interaction.reply({flags: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
         } catch (e) {
             await logError(e, interaction);
         }

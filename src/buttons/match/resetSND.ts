@@ -1,6 +1,6 @@
 import {Button} from "../../interfaces/Button";
 import {ButtonBuilder} from "@discordjs/builders";
-import {ButtonStyle} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField} from "discord.js";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import axios from "axios";
@@ -16,7 +16,7 @@ export const resetSND: Button = {
             const dbUser = await getUserByUser(interaction.user, data);
             const game = data.findGame(dbUser._id);
             if (!game) {
-                await interaction.reply({ephemeral: true, content: "Could not find game"});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game"});
             } else {
                 await game.resetSND();
                 const name = game.server!.name
@@ -36,7 +36,7 @@ export const resetSND: Button = {
                         })
                 }
 
-                await interaction.reply({ephemeral: false, content: `Game started by <@${dbUser.id}>`});
+                await interaction.reply({content: `Game started by <@${dbUser.id}>`});
             }
         } catch (e) {
             await logError(e, interaction);

@@ -4,6 +4,7 @@ import {userOption} from "../../utility/options";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import * as discordTranscripts from "discord-html-transcripts";
+import {MessageFlagsBitField} from "discord.js";
 
 export const checkDms: Command = {
     data: new SlashCommandBuilder()
@@ -14,12 +15,12 @@ export const checkDms: Command = {
         try {
             const dmChannel = interaction.options.getUser('user', true).dmChannel;
             if (!dmChannel) {
-                await interaction.reply({ephemeral: true, content: "user has no dms with the bot"});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "user has no dms with the bot"});
             } else {
-                await interaction.deferReply({ephemeral: true})
+                await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral})
                 const messages = await dmChannel.messages.fetch();
                 const attachment = await discordTranscripts.generateFromMessages(messages, dmChannel);
-                await interaction.followUp({ephemeral: true, content: "Transcript as html", files: [attachment]});
+                await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Transcript as html", files: [attachment]});
             }
         } catch (e) {
             await logError(e, interaction);

@@ -1,6 +1,6 @@
 import {Button} from "../../../interfaces/Button";
 import {ButtonBuilder} from "@discordjs/builders";
-import {ButtonStyle} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField} from "discord.js";
 import {logError} from "../../../loggers";
 import {getUserByUser} from "../../../modules/getters/getUser";
 import {Regions} from "../../../database/models/UserModel";
@@ -28,13 +28,13 @@ export const abandonConfirm: Button = {
                         hasBeenGivenLate: false,
                     }, false);
                 if (abandon) {
-                    await interaction.reply({ephemeral: false, content: "You have successfully abandoned"})
+                    await interaction.reply({content: "You have successfully abandoned"})
                 } else {
-                    await interaction.reply({ephemeral: true, content: "Something went wrong with abandoning"});
+                    await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Something went wrong with abandoning"});
                 }
 
             } else {
-                await interaction.reply({ephemeral: true, content: "Could not find controller please contact a mod"})
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find controller please contact a mod"})
             }
         } catch (e) {
             await logError(e, interaction);

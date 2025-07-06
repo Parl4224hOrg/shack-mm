@@ -9,7 +9,7 @@ export const lfg: Command = {
         .setDescription('See who is in queue'),
     run: async (interaction, data) => {
         try {
-            await interaction.reply({ephemeral: false, content: data.inQueueSND()});
+            await interaction.reply({content: data.inQueueSND()});
         } catch (e) {
             await logError(e, interaction);
         }

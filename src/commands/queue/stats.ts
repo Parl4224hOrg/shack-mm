@@ -6,6 +6,7 @@ import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {getStats} from "../../modules/getters/getStats";
 import {statsEmbed} from "../../embeds/statsEmbed";
+import {MessageFlagsBitField} from "discord.js";
 
 export const stats: Command = {
     data: new SlashCommandBuilder()
@@ -25,9 +26,9 @@ export const stats: Command = {
             if (queueId != "ALL") {
                 const stats = await getStats(dbUser._id, queueId);
                 const embed = statsEmbed(stats, dbUser, user.username, user.avatarURL()!)
-                await interaction.reply({ephemeral: false, embeds: [embed]});
+                await interaction.reply({embeds: [embed]});
             } else {
-                await interaction.reply({ephemeral: true, content: 'getting stats for all is not currently supported'});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'getting stats for all is not currently supported'});
             }
         } catch (e) {
             await logError(e, interaction);

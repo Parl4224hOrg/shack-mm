@@ -3,6 +3,7 @@ import {SlashCommandBuilder} from "@discordjs/builders";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {Regions} from "../../database/models/UserModel";
+import {MessageFlagsBitField} from "discord.js";
 
 export const abandon: Command = {
     data: new SlashCommandBuilder()
@@ -21,7 +22,7 @@ export const abandon: Command = {
                     await interaction.followUp("You cannot abandon the game as a team has won at least 6 rounds");
                 }
             } else {
-                await interaction.reply({ephemeral: true, content: "Could not find game"});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game"});
             }
         } catch (e) {
             await logError(e, interaction);

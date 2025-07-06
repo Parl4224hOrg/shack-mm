@@ -1,5 +1,12 @@
 import {getUserByUser} from "../modules/getters/getUser";
-import {ButtonInteraction, ChatInputCommandInteraction, Client, EmbedBuilder, TextChannel} from "discord.js";
+import {
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    Client,
+    EmbedBuilder,
+    MessageFlagsBitField,
+    TextChannel
+} from "discord.js";
 import {Data} from "../data";
 import tokens from "../tokens";
 import {logInfo} from "../loggers";
@@ -143,24 +150,24 @@ export const matchVotes = async (interaction: ButtonInteraction, data: Data) => 
         const game = controller.findGame(dbUser._id);
         if (game) {
             const response = await game.vote(dbUser._id, interaction.customId as any);
-            await interaction.reply({ephemeral: true, content: response.message});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: response.message});
         } else {
-            await interaction.reply({ephemeral: true, content: "Could not find game please contact a mod"});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game please contact a mod"});
         }
     } else {
-        await interaction.reply({ephemeral: true, content: "Could not find controller please contact a mod"});
+        await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find controller please contact a mod"});
     }
 }
 
 export const matchReady = async (interaction: ButtonInteraction | ChatInputCommandInteraction, data: Data, queueId: string, queue: string, time: number)=> {
     const response = await data.ready(queueId, queue, interaction.user, time);
-    await interaction.reply({ephemeral: true, content: response.message});
+    await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: response.message});
 }
 
 export const matchUnready = async (interaction: ButtonInteraction | ChatInputCommandInteraction, data: Data, queueId: string) => {
     const dbUser = await getUserByUser(interaction.user, data);
     data.removeFromQueue(dbUser._id, queueId);
-    await interaction.reply({ephemeral: true, content: `You have unreadied from ${queueId} queues`})
+    await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: `You have unreadied from ${queueId} queues`})
 }
 
 export const matchScore = async (interaction: ButtonInteraction, data: Data, score: number)=> {
@@ -170,11 +177,11 @@ export const matchScore = async (interaction: ButtonInteraction, data: Data, sco
         const game = controller.findGame(dbUser._id);
         if (game) {
             const response = await game.submitScore(dbUser._id, score, interaction.user.id);
-            await interaction.reply({ephemeral: false, content: response.message});
+            await interaction.reply({content: response.message});
         } else {
-            await interaction.reply({ephemeral: true, content: "Could not find game please contact a mod"});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game please contact a mod"});
         }
     } else {
-        await interaction.reply({ephemeral: true, content: "Could not find controller please contact a mod"});
+        await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find controller please contact a mod"});
     }
 }

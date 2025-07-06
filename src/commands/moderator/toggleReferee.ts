@@ -1,5 +1,5 @@
 import {SubCommand} from "../../interfaces/Command";
-import {SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {userOption} from "../../utility/options";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
@@ -21,7 +21,7 @@ export const toggleReferee: SubCommand = {
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             dbUser.referee = interaction.options.getBoolean('is_ref', true);
             await updateUser(dbUser, data);
-            await interaction.reply({ephemeral: true, content: `<@${dbUser.id}> ${dbUser.referee ? "is now" : "is no longer"} a referee.`});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${dbUser.id}> ${dbUser.referee ? "is now" : "is no longer"} a referee.`});
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
             embed.setTitle(`User ${dbUser.id} referee toggle`);

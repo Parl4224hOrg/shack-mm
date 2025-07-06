@@ -1,5 +1,5 @@
 import {SubCommand} from "../../../interfaces/Command";
-import {SlashCommandNumberOption, SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandNumberOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {userOption} from "../../../utility/options";
 import {logError} from "../../../loggers";
 import {getUserByUser} from "../../../modules/getters/getUser";
@@ -29,7 +29,7 @@ export const setMMR: SubCommand = {
             stats.mmr = interaction.options.getNumber('mmr', true);
             stats.mmrHistory = newHist;
             await updateStats(stats);
-            await interaction.reply({ephemeral: true, content: "user's mmr has been updated"});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "user's mmr has been updated"});
         } catch (e) {
             await logError(e, interaction);
         }

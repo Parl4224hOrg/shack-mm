@@ -1,6 +1,6 @@
 import {Command} from "../../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommandIntegerOption} from "discord.js";
+import {MessageFlagsBitField, SlashCommandIntegerOption} from "discord.js";
 import {logError} from "../../loggers";
 
 export const pingMe: Command = {
@@ -22,7 +22,7 @@ export const pingMe: Command = {
             const time = interaction.options.getInteger('expire_time', true);
             await data.addPingMe("SND", "FILL", interaction.user, interaction.options.getInteger('in_queue', true), time);
             if (time == 0) {
-                await interaction.reply({ephemeral: true, content: `Removed Ping Me`});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: `Removed Ping Me`});
             } else {
                 await interaction.reply({content: `Added ping me for ${interaction.options.getInteger('in_queue', true)} in queue`})
             }

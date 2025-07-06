@@ -1,4 +1,4 @@
-import { ChannelType } from "discord.js";
+import {ChannelType, MessageFlagsBitField} from "discord.js";
 import { SubCommand } from "../../interfaces/Command";
 import { userOption, reason } from "../../utility/options";
 import tokens from "../../tokens";
@@ -26,7 +26,7 @@ export const changeAbandonCDCounter: SubCommand = {
             const amount = interaction.options.getInteger('delta', true);
             const reason = interaction.options.getString('reason', true);
             if (amount === 0) {
-                await interaction.reply({ ephemeral: true, content: 'No change made - amount is 0.' });
+                await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: 'No change made - amount is 0.' });
                 return;
             }
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
@@ -47,9 +47,9 @@ export const changeAbandonCDCounter: SubCommand = {
                 interaction.channel?.type === ChannelType.PrivateThread ||
                 interaction.channel?.type === ChannelType.AnnouncementThread
             ) {
-                await interaction.reply({ ephemeral: false, content: `<${dbUser.id}> abandon (CD) counter changed by ${amount}. New counter: ${dbUser.banCounterAbandon}` });
+                await interaction.reply({ content: `<${dbUser.id}> abandon (CD) counter changed by ${amount}. New counter: ${dbUser.banCounterAbandon}` });
             } else {
-                await interaction.reply({ ephemeral: false, content: `<@${dbUser.id}> abandon (CD) counter changed by ${amount}. New counter: ${dbUser.banCounterAbandon}` });
+                await interaction.reply({ content: `<@${dbUser.id}> abandon (CD) counter changed by ${amount}. New counter: ${dbUser.banCounterAbandon}` });
             }
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();

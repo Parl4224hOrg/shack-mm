@@ -15,6 +15,7 @@ export interface MapData {
 export interface InternalResponse {
     success: boolean;
     message: string;
+    flags?: number;
     next?: boolean;
     data?: any;
 }

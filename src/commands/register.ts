@@ -1,6 +1,6 @@
 import {Command} from "../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommandStringOption} from "discord.js";
+import {MessageFlagsBitField, SlashCommandStringOption} from "discord.js";
 import {logError} from "../loggers";
 import {getUserByUser} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
@@ -27,11 +27,11 @@ export const register: Command = {
                 const member = await interaction.guild!.members.fetch(interaction.user);
                 await member.roles.add(tokens.Player);
                 await interaction.reply({
-                    ephemeral: true,
+                    flags: MessageFlagsBitField.Flags.Ephemeral,
                     content: `You have registered please go to <#${tokens.RegionSelect}> to select your region`
                 });
             } else {
-                await interaction.reply({ephemeral: true, content: "You have updated your registered name"})
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "You have updated your registered name"})
             }
         } catch (e) {
             await logError(e, interaction);

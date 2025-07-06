@@ -1,6 +1,6 @@
 import {Modal} from "../interfaces/Modal";
 import {
-    ActionRowBuilder,
+    ActionRowBuilder, MessageFlagsBitField,
     ModalActionRowComponentBuilder,
     ModalBuilder,
     TextInputBuilder,
@@ -31,7 +31,7 @@ export const reRegister: Modal = {
             dbUser.oculusName = name.replace("<@", "").replace(">", "");
             await updateUser(dbUser, data);
             await interaction.reply({
-                ephemeral: true,
+                flags: MessageFlagsBitField.Flags.Ephemeral,
                 content: "You have updated your registered name",
             });
         } catch (e) {

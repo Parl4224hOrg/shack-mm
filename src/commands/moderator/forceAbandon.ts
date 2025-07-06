@@ -6,7 +6,7 @@ import {getUserByUser} from "../../modules/getters/getUser";
 import {Regions} from "../../database/models/UserModel";
 import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
-import {SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
 import {EmbedBuilder, TextChannel} from "discord.js";
 
 
@@ -40,10 +40,10 @@ export const forceAbandon: SubCommand = {
                 embed.setTitle(`User ${dbUser.id} has been force abandoned`);
                 embed.setDescription(`<@${dbUser.id}> force abandoned by <@${interaction.user.id}> because: ${reason}`);
                 await channel.send({embeds: [embed.toJSON()]});
-                await interaction.reply({ ephemeral: true, content: "Force abandon is working" });
-                await interaction.followUp({ephemeral: false, content: `<@${dbUser.id}> has been abandoned`});
+                await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Force abandon is working" });
+                await interaction.followUp({content: `<@${dbUser.id}> has been abandoned`});
             } else {
-                await interaction.reply({ephemeral: true, content: 'User not in a game'});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'User not in a game'});
             }
         } catch (e) {
             await logError(e, interaction);

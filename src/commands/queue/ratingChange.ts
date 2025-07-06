@@ -4,6 +4,7 @@ import {userOptional} from "../../utility/options";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {getStats} from "../../modules/getters/getStats";
+import {MessageFlagsBitField} from "discord.js";
 
 export const ratingChange: Command = {
     data: new SlashCommandBuilder()
@@ -22,7 +23,7 @@ export const ratingChange: Command = {
             const dbUser = await getUserByUser(user, data);
             const stats = await getStats(dbUser._id, "SND");
             if (stats.gamesPlayedSinceReset < 11) {
-                await interaction.reply({ephemeral: true, content: "This user has not played enough games to use this feature yet"});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "This user has not played enough games to use this feature yet"});
             } else {
                 if (self) {
                     await interaction.reply({content: `Your rating changed by ${stats.ratingChange.toFixed(1)} last game`});

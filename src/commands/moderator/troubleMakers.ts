@@ -1,6 +1,6 @@
 import {SubCommand} from "../../interfaces/Command";
 import {SlashCommandSubcommandBuilder} from "@discordjs/builders";
-import {EmbedBuilder} from "discord.js";
+import {EmbedBuilder, MessageFlagsBitField} from "discord.js";
 import userModel from "../../database/models/UserModel";
 import tokens from "../../tokens";
 
@@ -29,7 +29,7 @@ export const troubleMakers: SubCommand = {
             console.error("Error in troubleMakers command:", e);
             await interaction.followUp({
                 content: "An error occurred while fetching trouble makers data.",
-                ephemeral: true
+                flags: MessageFlagsBitField.Flags.Ephemeral
             });
         }
     },

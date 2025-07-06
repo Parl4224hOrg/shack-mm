@@ -4,8 +4,8 @@ import tokens from "../../tokens";
 import {logError} from "../../loggers";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
-import {SlashCommandSubcommandBuilder} from "discord.js";
-import {Client, EmbedBuilder, TextChannel} from "discord.js";
+import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
+import {EmbedBuilder, TextChannel} from "discord.js";
 
 export const nullify: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -19,9 +19,9 @@ export const nullify: SubCommand = {
             let reason = interaction.options.getString('reason', true);
             const game = data.getGameByChannel(interaction.channelId);
             if (!game) {
-                await interaction.reply({ephemeral: true, content: 'Could not find game'});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'Could not find game'});
             } else {
-                await interaction.reply({ ephemeral: true, content: "nullify is working" });
+                await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "nullify is working" });
                 await interaction.followUp("game nullified");
                 await game.abandonCleanup(true);
                 await createAction(Actions.Nullify, interaction.user.id, reason, `Game ${game.id} nullified`);

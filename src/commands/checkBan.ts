@@ -3,6 +3,7 @@ import {SlashCommandBuilder} from "@discordjs/builders";
 import {logError} from "../loggers";
 import {getUserByUser} from "../modules/getters/getUser";
 import {getCheckBanMessage} from "../utility/punishment";
+import {MessageFlagsBitField} from "discord.js";
 
 export const checkBan: Command = {
     data: new SlashCommandBuilder()
@@ -11,7 +12,7 @@ export const checkBan: Command = {
     run: async (interaction, data) => {
         try {
             const dbUser = await getUserByUser(interaction.user, data);
-            await interaction.reply({ephemeral: true, content: await getCheckBanMessage(dbUser, data)});
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: await getCheckBanMessage(dbUser, data)});
         } catch (e) {
             await logError(e, interaction);
         }

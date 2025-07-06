@@ -1,6 +1,6 @@
 import {Button} from "../../interfaces/Button";
 import {ButtonBuilder} from "@discordjs/builders";
-import {ButtonStyle} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField} from "discord.js";
 import {logError} from "../../loggers";
 //button specific imports
 import {getUserByUser} from "../../modules/getters/getUser";
@@ -23,12 +23,12 @@ export const ratingChangeButton: Button = {
             const dbUser = await getUserByUser(user, data);
             const stats = await getStats(dbUser._id, "SND");
             if (stats.gamesPlayedSinceReset < 11) {
-                await interaction.reply({ephemeral: true, content: "This user has not played enough games to use this feature yet"});
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "This user has not played enough games to use this feature yet"});
             } else {
                 if (self) {
-                    await interaction.reply({content: `Your rating changed by ${stats.ratingChange.toFixed(1)} last game`, ephemeral: true});
+                    await interaction.reply({content: `Your rating changed by ${stats.ratingChange.toFixed(1)} last game`, flags: MessageFlagsBitField.Flags.Ephemeral});
                 } else {
-                    await interaction.reply({content: `${user.username}'s rating changed by ${stats.ratingChange.toFixed(1)} last game`, ephemeral: true});
+                    await interaction.reply({content: `${user.username}'s rating changed by ${stats.ratingChange.toFixed(1)} last game`, flags: MessageFlagsBitField.Flags.Ephemeral});
                 }
             }
         } catch (e) {

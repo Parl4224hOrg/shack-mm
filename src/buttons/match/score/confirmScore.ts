@@ -1,6 +1,6 @@
 import {Button} from "../../../interfaces/Button";
 import {ButtonBuilder} from "@discordjs/builders";
-import {ButtonStyle} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField} from "discord.js";
 import {logError} from "../../../loggers";
 import {getUserByUser} from "../../../modules/getters/getUser";
 
@@ -17,12 +17,12 @@ export const confirmScore: Button = {
                 const game = controller.findGame(dbUser._id);
                 if (game) {
                     const response = await game.acceptScore(dbUser._id);
-                    await interaction.reply({ephemeral: true, content: response.message});
+                    await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: response.message});
                 } else {
-                    await interaction.reply({ephemeral: true, content: "Could not find game please contact a mod"});
+                    await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game please contact a mod"});
                 }
             } else {
-                await interaction.reply({ephemeral: true, content: "Could not find controller please contact a mod"})
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find controller please contact a mod"})
             }
         } catch (e) {
             await logError(e, interaction);

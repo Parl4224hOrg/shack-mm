@@ -1,6 +1,6 @@
 import {Modal} from "../interfaces/Modal";
 import {
-    ActionRowBuilder,
+    ActionRowBuilder, MessageFlagsBitField,
     ModalActionRowComponentBuilder,
     ModalBuilder,
     TextInputBuilder,
@@ -35,7 +35,7 @@ export const register: Modal = {
             const member = await interaction.guild!.members.fetch(interaction.user);
             await member.roles.add(tokens.Player);
             await interaction.reply({
-                ephemeral: true,
+                flags: MessageFlagsBitField.Flags.Ephemeral,
                 content: `Go to <#${tokens.RegionSelect}> to select a region (required)\nGo to <#${tokens.SNDReadyChannel}> to ready up or use \`/ready 5v5\`\nTo change your registered name use \`/register\` or the button above`,
             });
         } catch (e) {

@@ -1,6 +1,6 @@
 import {Command} from "../interfaces/Command";
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {SlashCommandBooleanOption, SlashCommandStringOption, TextChannel} from "discord.js";
+import {MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandStringOption, TextChannel} from "discord.js";
 import {logError, logWarn} from "../loggers";
 import tokens from "../tokens";
 import moment from "moment-timezone";
@@ -43,7 +43,7 @@ export const updateMapTest: Command = {
             .setRequired(false)),
     run: async (interaction) => {
         try {
-            await interaction.deferReply({ephemeral: true});
+            await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral});
 
             const messageId = interaction.options.getString("message_id", true);
             const deleteTest = interaction.options.getBoolean("delete", true);
@@ -51,14 +51,14 @@ export const updateMapTest: Command = {
             const testDoc = await MapTestModel.findOne({messageId: messageId});
 
             if (!testDoc) {
-                await interaction.followUp({ephemeral: true, content: "Could not find test matching message id"});
+                await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find test matching message id"});
                 return;
             }
 
             const member = await interaction.guild!.members.fetch(interaction.user.id);
             const roles = member.roles.cache.map((value) => {return value.id} );
             if (!(testDoc.owner == interaction.user.id) && !roles.includes(tokens.ModRole)) {
-                await interaction.followUp({ephemeral: true, content: "You cannot update a match test that you did not create"})
+                await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: "You cannot update a match test that you did not create"})
             }
 
             let dmMessage = "";
@@ -89,7 +89,7 @@ export const updateMapTest: Command = {
                         testDoc.time = moment(`${date} ${time}`, "MM/DD/YYYY hh:mm").unix();
                         dmMessage += `\nThe test play of ${testDoc.map} is now at <t:${testDoc.time}:F> <t:${testDoc.time}:R> instead of <t:${oldTime}:F>`;
                     } catch (e) {
-                        await interaction.followUp({ephemeral: true, content: "Invalid date and or time provided"})
+                        await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Invalid date and or time provided"})
                     }
                 }
                 if (description) {
@@ -113,7 +113,7 @@ export const updateMapTest: Command = {
                 }
             }
             await mapTestModel.findByIdAndUpdate(testDoc._id, testDoc);
-            await interaction.followUp({ephemeral:true, content: "Your changes have been made and players currently signed up have been notified"});
+            await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Your changes have been made and players currently signed up have been notified"});
         } catch (e) {
             await logError(e, interaction);
         }

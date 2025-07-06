@@ -1,5 +1,5 @@
 import {SubCommand} from "../../interfaces/Command";
-import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
+import {MessageFlagsBitField, SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import WarnModel, {WarnInt} from "../../database/models/WarnModel";
@@ -24,7 +24,7 @@ export const warnRemove: SubCommand = {
                 await WarnModel.findByIdAndUpdate(warn._id, warn);
                 await interaction.reply({content: "Warning has been removed"});
             } else {
-                await interaction.reply({ephemeral: true, content: "Could not find warning to remove"})
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find warning to remove"})
             }
         } catch (e) {
             await logError(e, interaction);

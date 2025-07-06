@@ -1,4 +1,4 @@
-import { ChannelType } from "discord.js";
+import {ChannelType, MessageFlagsBitField} from "discord.js";
 import {SubCommand} from "../../interfaces/Command";
 import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {userOption} from "../../utility/options";
@@ -43,10 +43,10 @@ export const warn: SubCommand = {
             if (interaction.channel?.type === ChannelType.PublicThread ||
                 interaction.channel?.type === ChannelType.PrivateThread ||
                 interaction.channel?.type === ChannelType.AnnouncementThread) {
-                await interaction.reply({ ephemeral: true, content: "Warn is working" });
+                await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Warn is working" });
                 await interaction.followUp({content: `<${interaction.options.getUser('user', true).username}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``});
             } else {
-                await interaction.reply({ ephemeral: true, content: "Warn is working" });
+                await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Warn is working" });
                 await interaction.followUp({content: `<@${interaction.options.getUser('user', true).id}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``});
             }
             let channel: TextChannel;
