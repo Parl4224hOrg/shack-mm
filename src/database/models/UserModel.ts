@@ -10,7 +10,8 @@ export enum Regions {
 }
 
 export interface UserInt extends Document {
-    id: string
+    _id: ObjectId;
+    id: string;
     name: string;
     stats: ObjectId[];
     banUntil: number;
