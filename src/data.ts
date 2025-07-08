@@ -284,6 +284,9 @@ export class Data {
     }
 
     async tick() {
+        if (!this.loaded) {
+            return;
+        }
         try {
             await this.save();
             this.tickCount++;
@@ -315,7 +318,7 @@ export class Data {
 
     async save() {
         if (!this.loaded) {
-            await logInfo('[save] Attempted save while not loaded!', this.client);
+            return;
         }
         let queue = serializer.serializeQueueSND(this.FILL_SND);
         let games = [];
