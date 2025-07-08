@@ -96,7 +96,7 @@ export const makeTeams = async (users: QueueUser[], client?: Client): Promise<{t
         const channel = await client?.channels.fetch(tokens.GameLogChannel) as TextChannel;
         const embed = new EmbedBuilder();
         embed.setTitle("Team Generation Comparison");
-        embed.setDescription(`makeTeams got a MMRDiff of ${bestDiff}, splitting the top 2 players got a MMRDiff of ${topTwoSplitDiff}, with a difference of ${Math.abs(bestDiff - topTwoSplitDiff)}`);
+        embed.setDescription(`makeTeams got a MMRDiff of ${bestDiff}, splitting the top 2 and bottom 2 players got a MMRDiff of ${topTwoSplitDiff}, with a difference of ${Math.abs(bestDiff - topTwoSplitDiff)}`);
         embed.setColor(bestDiff < topTwoSplitDiff ? 0x00FF00 : 0xFF0000); // Green if original is better, red if top2 split is better
         
         await channel.send({embeds: [embed.toJSON()]});
@@ -111,22 +111,26 @@ export const makeTeamsSplittingTopTwoPlayers = async (users: QueueUser[], client
     // Sort users by MMR (ELO) in descending order
     const sortedUsers = [...users].sort((a, b) => b.mmr - a.mmr);
     
-    // Get the top 2 players
+    // Get the top 2 players and bottom 2 players
     const topPlayer1 = sortedUsers[0];
     const topPlayer2 = sortedUsers[1];
+    const bottomPlayer1 = sortedUsers[sortedUsers.length - 1]; // Lowest player
+    const bottomPlayer2 = sortedUsers[sortedUsers.length - 2]; // Second lowest player
     
-    // Get the remaining 8 players
-    const remainingPlayers = sortedUsers.slice(2);
+    // Get the remaining 6 players (excluding top 2 and bottom 2)
+    const remainingPlayers = sortedUsers.slice(2, sortedUsers.length - 2);
     
-    // Initialize teams with top players
-    let teamA: QueueUser[] = [topPlayer1];
-    let teamB: QueueUser[] = [topPlayer2];
+    // Initialize teams with top and bottom players split
+    // Team A: Top player 1 + Bottom player 1
+    // Team B: Top player 2 + Bottom player 2
+    let teamA: QueueUser[] = [topPlayer1, bottomPlayer1];
+    let teamB: QueueUser[] = [topPlayer2, bottomPlayer2];
     
     // Calculate initial MMR sums
-    let teamAMmr = topPlayer1.mmr;
-    let teamBMmr = topPlayer2.mmr;
+    let teamAMmr = topPlayer1.mmr + bottomPlayer1.mmr;
+    let teamBMmr = topPlayer2.mmr + bottomPlayer2.mmr;
     
-    // Generate all permutations of the remaining 8 players
+    // Generate all permutations of the remaining 6 players
     let length = remainingPlayers.length;
     let permutations = [remainingPlayers.slice()];
     let c = new Array(length).fill(0);
@@ -153,12 +157,12 @@ export const makeTeamsSplittingTopTwoPlayers = async (users: QueueUser[], client
     
     // Try all permutations to find the best balance for remaining players
     for (let permutation of permutations) {
-        let remainingTeamA = permutation.slice(0, 4); // 4 players for team A
-        let remainingTeamB = permutation.slice(4, 8); // 4 players for team B
+        let remainingTeamA = permutation.slice(0, 3); // 3 players for team A
+        let remainingTeamB = permutation.slice(3, 6); // 3 players for team B
         
-        // Calculate total MMR for each team including the top players
-        let aSum = topPlayer1.mmr; // Team A starts with top player 1
-        let bSum = topPlayer2.mmr; // Team B starts with top player 2
+        // Calculate total MMR for each team including the top and bottom players
+        let aSum = teamAMmr; // Team A starts with top player 1 + bottom player 1
+        let bSum = teamBMmr; // Team B starts with top player 2 + bottom player 2
         
         remainingTeamA.forEach(c => aSum += c.mmr);
         remainingTeamB.forEach(c => bSum += c.mmr);
@@ -172,9 +176,9 @@ export const makeTeamsSplittingTopTwoPlayers = async (users: QueueUser[], client
         }
     }
     
-    // Combine top players with best remaining players
-    teamA = [topPlayer1, ...bestRemainingA];
-    teamB = [topPlayer2, ...bestRemainingB];
+    // Combine top/bottom players with best remaining players
+    teamA = [topPlayer1, bottomPlayer1, ...bestRemainingA];
+    teamB = [topPlayer2, bottomPlayer2, ...bestRemainingB];
     
     // Convert to ids format
     let teamAIds: ids[] = [];
@@ -187,8 +191,8 @@ export const makeTeamsSplittingTopTwoPlayers = async (users: QueueUser[], client
     try {
         const channel = await client?.channels.fetch(tokens.GameLogChannel) as TextChannel;
         const embed = new EmbedBuilder();
-        embed.setTitle("Testing Top 2 Split Generation)");
-        embed.setDescription(`MMR Difference: ${bestDiff}\nTop 2 players split across teams for balance`);
+        embed.setTitle("Testing Top 2 + Bottom 2 Split Generation");
+        embed.setDescription(`MMR Difference: ${bestDiff}\nTop 2 and bottom 2 players split across teams for balance`);
         
         let teamAStr = "";
         let teamBStr = "";
