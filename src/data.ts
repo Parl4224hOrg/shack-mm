@@ -188,7 +188,10 @@ export class Data {
     async load() {
         const mountedFolder = join(process.cwd(), "../../mounted");
         const save = JSON.parse(fs.readFileSync(join(mountedFolder, "save.json")).toString());
+        console.log("Found Save Data:")
+        console.log(save);
         if (save) {
+            console.log("Attempting to load save data")
             try {
                 this.FILL_SND = await serializer.deserializeQueueSND(save.queueSND, this.client, this);
             } catch (e) {

@@ -182,7 +182,9 @@ class Serializer {
     }
 
     public async deserializeGame(data: string, client: Client, dataClass: Data): Promise<GameController> {
+        console.log("Loading Game")
         const parsed = JSON.parse(data);
+        console.log(parsed);
         
         const id = new mongoose.Types.ObjectId(parsed.id) as any as ObjectId;
         const guild = await client.guilds.fetch(tokens.GuildID);
@@ -238,12 +240,14 @@ class Serializer {
         game.serverId = parsed.serverId;
         game.maps = this.mapsDeserializer(parsed.maps);
         game.votingFinished = parsed.votingFinished;
-        
+        console.log("Successfully loaded game")
         return game;
     }
 
     public async deserializeQueueSND(data: string, client: Client, dataClass: Data): Promise<QueueController> {
+        console.log("Loading Queue")
         const parsed = JSON.parse(data);
+        console.log(parsed)
         const queue = new QueueController(dataClass, client, parsed.queueName);
 
         for (let user of parsed.inQueue) {
@@ -260,7 +264,7 @@ class Serializer {
         queue.pingMe = this.pingMeDeserializer(parsed.pingMe);
         queue.generating = parsed.generating;
         queue.mapData = parsed.mapData;
-
+        console.log("Successfully loaded queue")
 
         return queue;
     }
