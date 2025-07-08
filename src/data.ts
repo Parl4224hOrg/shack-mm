@@ -186,30 +186,72 @@ export class Data {
     }
 
     async load() {
-        const mountedFolder = join(process.cwd(), "../../mounted");
-        const save = JSON.parse(fs.readFileSync(join(mountedFolder, "save.json")).toString());
-        console.log("Found Save Data:")
-        console.log(save);
-        if (save) {
-            console.log("Attempting to load save data")
-            try {
-                this.FILL_SND = await serializer.deserializeQueueSND(save.queueSND, this.client, this);
-            } catch (e) {
-                console.error(e)
+        await logInfo('[load] START - loaded: ' + this.loaded, this.client);
+        try {
+            const mountedFolder = join(process.cwd(), "../../mounted");
+            await logInfo('[load] mountedFolder set: ' + mountedFolder + ' loaded: ' + this.loaded, this.client);
+            const savePath = join(mountedFolder, "save.json");
+            await logInfo('[load] savePath set: ' + savePath + ' loaded: ' + this.loaded, this.client);
+            // Check if save file exists
+            if (!fs.existsSync(savePath)) {
+                await logInfo('[load] No save file found, starting fresh. loaded: ' + this.loaded, this.client);
+                registerMaps(this, tokens.MapPool);
+                await logInfo('[load] registerMaps called for fresh start. loaded: ' + this.loaded, this.client);
+                this.tickLoop.start();
+                await logInfo('[load] tickLoop started for fresh start. loaded: ' + this.loaded, this.client);
+                this.roleUpdate.start();
+                await logInfo('[load] roleUpdate started for fresh start. loaded: ' + this.loaded, this.client);
+                this.banCounter.start();
+                await logInfo('[load] banCounter started for fresh start. loaded: ' + this.loaded, this.client);
+                await logInfo('[load] logInfo called for fresh start. loaded: ' + this.loaded, this.client);
+                return;
             }
-            for (let game of save.gamesSND) {
+            await logInfo('[load] Save file exists. loaded: ' + this.loaded, this.client);
+            const saveData = fs.readFileSync(savePath).toString();
+            await logInfo('[load] saveData read from file. Length: ' + saveData.length + ' loaded: ' + this.loaded, this.client);
+            const save = JSON.parse(saveData);
+            await logInfo('[load] saveData parsed. Keys: ' + Object.keys(save) + ' loaded: ' + this.loaded, this.client);
+            if (save && save.queueSND) {
                 try {
-                    this.FILL_SND.activeGames.push(await serializer.deserializeGame(game, this.client, this));
+                    await logInfo('[load] Attempting to deserialize queue. loaded: ' + this.loaded, this.client);
+                    this.FILL_SND = await serializer.deserializeQueueSND(save.queueSND, this.client, this);
+                    await logInfo('[load] Queue deserialized successfully. loaded: ' + this.loaded, this.client);
                 } catch (e) {
-                    console.error(e)
+                    await logInfo('[load] Failed to deserialize queue: ' + e + ' loaded: ' + this.loaded, this.client);
                 }
+            } else {
+                await logInfo('[load] No queue data found in save file. loaded: ' + this.loaded, this.client);
             }
+            if (save && save.gamesSND && Array.isArray(save.gamesSND)) {
+                await logInfo(`[load] Found ${save.gamesSND.length} games to deserialize. loaded: ` + this.loaded, this.client);
+                for (let i = 0; i < save.gamesSND.length; i++) {
+                    try {
+                        await logInfo(`[load] Deserializing game ${i + 1}/${save.gamesSND.length}. loaded: ` + this.loaded, this.client);
+                        const game = await serializer.deserializeGame(save.gamesSND[i], this.client, this);
+                        this.FILL_SND.activeGames.push(game);
+                        await logInfo(`[load] Game ${i + 1} deserialized successfully. loaded: ` + this.loaded, this.client);
+                    } catch (e) {
+                        await logInfo(`[load] Failed to deserialize game ${i + 1}: ` + e + ' loaded: ' + this.loaded, this.client);
+                    }
+                }
+            } else {
+                await logInfo('[load] No games found in save file. loaded: ' + this.loaded, this.client);
+            }
+            await logInfo(`[load] Recovery complete: ${this.FILL_SND.activeGames.length} games recovered. loaded: ` + this.loaded, this.client);
+        } catch (e) {
+            await logInfo('[load] Critical error during load: ' + e + ' loaded: ' + this.loaded, this.client);
         }
         registerMaps(this, tokens.MapPool);
+        await logInfo('[load] registerMaps called after load. loaded: ' + this.loaded, this.client);
         this.tickLoop.start();
+        await logInfo('[load] tickLoop started after load. loaded: ' + this.loaded, this.client);
         this.roleUpdate.start();
+        await logInfo('[load] roleUpdate started after load. loaded: ' + this.loaded, this.client);
         this.banCounter.start();
-        await logInfo("Data Loaded!", this.client);
+        await logInfo('[load] banCounter started after load. loaded: ' + this.loaded, this.client);
+        await logInfo('[load] logInfo called after load. loaded: ' + this.loaded, this.client);
+        this.setLoaded(true);
+        await logInfo('[load] setLoaded(true) called. loaded: ' + this.loaded, this.client);
     }
 
     getServer(name: string) {
@@ -272,6 +314,9 @@ export class Data {
     }
 
     async save() {
+        if (!this.loaded) {
+            await logInfo('[save] Attempted save while not loaded!', this.client);
+        }
         let queue = serializer.serializeQueueSND(this.FILL_SND);
         let games = [];
         for (let game of this.FILL_SND.activeGames) {
