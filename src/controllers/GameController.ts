@@ -415,8 +415,12 @@ export class GameController {
                                       if (tokens.ApplyNewLates) {
                                           const now = moment().unix();
                                           dbUser = await punishment(dbUser, this.data, false, 1, now);
-                                          await createActionUser(Actions.Cooldown, tokens.ClientID, dbUser.id, "Auto Cooldown for being late", `Cooldown for ${grammaticalTime(dbUser.banUntil - now)}, late ${latePercent}% with average time ${avgLateTime} seconds`)
+                                          await createActionUser(Actions.Cooldown, tokens.ClientID, dbUser.id, "Auto Cooldown for being late to match " + this.matchNumber, `Cooldown for ${grammaticalTime(dbUser.banUntil - now)}, late ${latePercent}% with average time ${avgLateTime} seconds`)
                                           await channel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late`)
+                                          
+                                          // Send message to general channel for cooldown
+                                          const generalChannel = await this.client.channels.fetch(tokens.GeneralChannel) as TextChannel;
+                                          await generalChannel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late to match ${this.matchNumber}. Late ${latePercent}% with average time ${avgLateTime} seconds`);
                                       } else {
                                           await logChannel.send(`<@${dbUser.id}> should receive a cooldown for being late, but applying lates is disabled\nLate %: ${latePercent}\nLate Avg: ${avgLateTime}`)
                                           await channel.send(`<@${user.discordId}> has been given a late`);
