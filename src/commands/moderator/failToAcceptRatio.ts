@@ -84,8 +84,9 @@ export const failToAcceptRatio: SubCommand = {
             
             const ratio = totalGames > 0 ? (failedAccepts / totalGames * 100).toFixed(2) : "0.00";
             
+            let userDisplay = interaction.options.getUser('user', true).username;
             await interaction.reply({
-                content: `**Fail to Accept Ratio for <@${dbUser.id}>**\n` +
+                content: `**Fail to Accept Ratio for ${userDisplay}**\n` +
                         `${timeBold}\n` +
                         `Total Games Played: ${totalGames}\n` +
                         `Total Failed Accepts: ${failedAccepts}\n` +
