@@ -93,7 +93,7 @@ export const abandonRatio: SubCommand = {
             const totalAbandons = abandons + forceAbandons;
             const ratio = totalGames > 0 ? (totalAbandons / totalGames * 100).toFixed(2) : "0.00";
             
-            let userDisplay = dbUser.displayName || dbUser.id;
+            let userDisplay = interaction.options.getUser('user', true).username;
             await interaction.reply({
                 content: `**Abandon Ratio for ${userDisplay}**\n` +
                         `${timeBold}\n` +
