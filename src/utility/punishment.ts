@@ -8,6 +8,8 @@ import {grammaticalTime} from "./grammatical";
 import ActionModel, {Actions} from "../database/models/ActionModel";
 import {Data} from "../data";
 import {UserInt} from "../database/models/UserModel";
+import {wasUserInPreviousGeneratedGame} from "../modules/getters/getGame";
+import {logInfo} from "../loggers";
 
 export const autoLate = async (id: ObjectId, data: Data) => {
     const user = await getUserById(id, data);
@@ -78,9 +80,21 @@ export const punishment = async (user: UserInt, data: Data, acceptFail: boolean,
     return updateUser(user, data);
 }
 
-export const abandon = async (userId: ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data) => {
+export const abandon = async (userId: ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data, currentMatchId?: number) => {
     let user = await getUserById(userId, data);
     const now = moment().unix();
+    
+    // Check if user was in the previous generated game and if that game was abandoned
+    if (acceptFail) {
+        const { wasInGame, game } = await wasUserInPreviousGeneratedGame(userId, guild.client);
+        if (wasInGame && game && game.abandoned) {
+            await logInfo(`abandon() - User ${user.id} failed to accept match but was in abandoned game. Failed match: ${currentMatchId || 'unknown'}, Abandoned match: ${game.matchId}`, guild.client);
+            //const channel = await guild.channels.fetch(tokens.GeneralChannel) as TextChannel;
+            //await channel.send(`<@${user.id}> was in the last abandoned game, skipping fail-to-accept punishment.`);
+            //return;
+        }
+    }
+    
     user = await punishment(user, data, acceptFail, 1, now);
     await ActionModel.create({
         action: acceptFail ? Actions.AcceptFail : Actions.Abandon,
