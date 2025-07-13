@@ -24,9 +24,7 @@ export const forceAbandon: SubCommand = {
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             const game = data.findGame(dbUser._id);
             if (game) {
-                // If game is in accept phase (state 0), treat as fail-to-accept instead of abandon
-                const isAcceptPhase = game.state === 0;
-                await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false}, isAcceptPhase, true);
+                await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false}, false, true);
                 if (isReferee) {
                     await createActionUser(Actions.ForceAbandon, 'by Referee', dbUser.id, reason, `<@${dbUser.id}> force abandoned from game ${game.id}`);
                 } else { 
