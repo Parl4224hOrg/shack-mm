@@ -29,10 +29,10 @@ export const actions: SubCommand = {
                 userId: user.id
             }).sort({ time: -1 }).limit(10);
 
-            // Fetch the latest 10 warnings that do not contain the word "late"
+            // Fetch the latest 10 warnings that do not contain the words "bot late"
             const warnings = await WarnModel.find({
                 userId: dbUser._id,
-                reason: { $not: /late/i }
+                reason: { $not: /bot late/i }
             }).sort({ timeStamp: -1 }).limit(10);
                         
             await interaction.reply({flags: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
