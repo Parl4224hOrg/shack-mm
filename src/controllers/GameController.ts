@@ -731,7 +731,11 @@ export class GameController {
             if (this.state < 10) {
                 this.state += 10;
             }
-            await abandon(user.dbId, user.discordId, this.guild, acceptFail, this.data, this.matchNumber);
+            // For punishment purposes, treat accept phase abandons as fail-to-accept
+            const isAcceptPhaseAbandon = this.state === 0;
+            const punishmentAcceptFail = acceptFail || isAcceptPhaseAbandon;
+            
+            await abandon(user.dbId, user.discordId, this.guild, punishmentAcceptFail, this.data, this.matchNumber);
             await this.sendAbandonMessage(user.discordId);
             if (!acceptFail && (this.finalGenTime + 15 * 60 >= moment().unix() || !this.votingFinished)) {
                 this.autoReadied = true;
