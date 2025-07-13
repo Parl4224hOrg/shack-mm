@@ -16,6 +16,8 @@ export const abandonConfirm: Button = {
             const controller = data.findController();
             if (controller) {
                 const game = controller.getGame(dbUser._id);
+                // If game is in accept phase (state 0), treat as fail-to-accept instead of abandon
+                const isAcceptPhase = game!.state === 0;
                 const abandon = await game!.abandon(
                     {
                         dbId: dbUser._id,
@@ -26,7 +28,7 @@ export const abandonConfirm: Button = {
                         joined: false,
                         isLate: false,
                         hasBeenGivenLate: false,
-                    }, false);
+                    }, isAcceptPhase);
                 if (abandon) {
                     await interaction.reply({content: "You have successfully abandoned"})
                 } else {
