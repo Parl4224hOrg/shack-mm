@@ -734,6 +734,8 @@ export class GameController {
             // For punishment purposes, treat accept phase abandons as fail-to-accept
             const isAcceptPhaseAbandon = this.state === 0;
             const punishmentAcceptFail = acceptFail || isAcceptPhaseAbandon;
+
+            await logInfo(`abandon() - User ${user.discordId} abandoning. State: ${this.state}, acceptFail: ${acceptFail}, isAcceptPhaseAbandon: ${isAcceptPhaseAbandon}, punishmentAcceptFail: ${punishmentAcceptFail}`, this.client);
             
             await abandon(user.dbId, user.discordId, this.guild, punishmentAcceptFail, this.data, this.matchNumber);
             await this.sendAbandonMessage(user.discordId);
