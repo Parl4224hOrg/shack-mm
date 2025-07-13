@@ -731,7 +731,7 @@ export class GameController {
             if (this.state < 10) {
                 this.state += 10;
             }
-            await abandon(user.dbId, user.discordId, this.guild, acceptFail, this.data);
+            await abandon(user.dbId, user.discordId, this.guild, acceptFail, this.data, this.matchNumber);
             await this.sendAbandonMessage(user.discordId);
             if (!acceptFail && (this.finalGenTime + 15 * 60 >= moment().unix() || !this.votingFinished)) {
                 this.autoReadied = true;
