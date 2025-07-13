@@ -29,10 +29,13 @@ export const actions: SubCommand = {
                 userId: user.id
             }).sort({ time: -1 }).limit(10);
 
-            // Fetch the latest 10 warnings that do not contain the phrase "bot late" (case-insensitive) and are not exactly "late"
+            // Fetch the latest 10 warnings that do not contain the phrase "bot late" (case-insensitive) and are not exactly "late" (case-insensitive)
             const warnings = await WarnModel.find({
                 userId: dbUser._id,
-                reason: { $not: /bot late/i, $ne: "late" }
+                $and: [
+                    { reason: { $not: /bot late/i } },
+                    { reason: { $not: /^late$/i } }
+                ]
             }).sort({ timeStamp: -1 }).limit(10);
                         
             await interaction.reply({flags: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
