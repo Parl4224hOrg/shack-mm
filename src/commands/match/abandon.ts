@@ -15,7 +15,9 @@ export const abandon: Command = {
             const game = data.findGame(dbUser._id);
             if (game) {
                 await interaction.deferReply();
-                const res = await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false}, false);
+                // If game is in accept phase (state 0), treat as fail-to-accept instead of abandon
+                const isAcceptPhase = game.state === 0;
+                const res = await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false}, isAcceptPhase);
                 if (res) {
                     await interaction.followUp("You have abandoned the game");
                 } else {
