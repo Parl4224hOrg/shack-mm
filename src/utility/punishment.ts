@@ -89,9 +89,9 @@ export const abandon = async (userId: ObjectId, discordId: string, guild: Guild,
         const { wasInGame, game } = await wasUserInPreviousGeneratedGame(userId, guild.client);
         if (wasInGame && game && game.abandoned) {
             await logInfo(`abandon() - User ${user.id} failed to accept match but was in abandoned game. Failed match: ${currentMatchId || 'unknown'}, Abandoned match: ${game.matchId}`, guild.client);
-            //const channel = await guild.channels.fetch(tokens.GeneralChannel) as TextChannel;
-            //await channel.send(`<@${user.id}> was in the last abandoned game, skipping fail-to-accept punishment.`);
-            //return;
+            const channel = await guild.channels.fetch(tokens.GeneralChannel) as TextChannel;
+            await channel.send(`<@${user.id}> was a victim of autorequeue from an abandoned game, skipping fail-to-accept punishment.`);
+            return;
         }
     }
     
