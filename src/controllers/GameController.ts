@@ -354,7 +354,7 @@ export class GameController {
                         const lateUserMentions: string[] = [];
                         for (let user of this.users) {
                             const dbUser = await getUserById(user.dbId, this.data);
-                            if (dbUser && !this.joinedPlayers.has(dbUser.oculusName)) {
+                            if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
                                 const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
                                 await logChannel.send(`User ${dbUser.oculusName} is late.`);
                                 lateUserMentions.push(`<@${user.discordId}>`);
@@ -370,7 +370,7 @@ export class GameController {
                         const lateUserMentions: string[] = [];
                         for (let user of this.users) {
                             const dbUser = await getUserById(user.dbId, this.data);
-                            if (dbUser && !this.joinedPlayers.has(dbUser.oculusName)) {
+                            if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
                                 const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
                                 await logChannel.send(`User ${dbUser.oculusName} is late.`);
                                 lateUserMentions.push(`<@${user.discordId}>`);
@@ -387,7 +387,7 @@ export class GameController {
                         if (this.serverSetup) {
                             for (let user of this.users) {
                                 const dbUser = await getUserById(user.dbId, this.data);
-                                if (dbUser && !this.joinedPlayers.has(dbUser.oculusName)) {
+                                if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
                                     const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
                                     await logChannel.send(`User ${dbUser.oculusName} is late.`);
                                     lateUsers.push(user);
@@ -460,7 +460,7 @@ export class GameController {
                         for (let user of RefreshList.PlayerList) {
                             for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
                                 let dbUser = await getUserById(gameUser.dbId, this.data);
-                                if (user.UniqueId == dbUser.oculusName) {
+                                if (user.UniqueId && dbUser.oculusName && user.UniqueId.toLowerCase() === dbUser.oculusName.toLowerCase()) {
                                     gameUser.hasBeenGivenLate = true;
                                 }
                             }
@@ -481,7 +481,7 @@ export class GameController {
                                 for (let user of RefreshList.PlayerList) {
                                     let found = false;
                                     for (let dbUser of dbUsers) {
-                                        if (dbUser.oculusName == user.UniqueId) {
+                                        if (dbUser.oculusName && user.UniqueId && dbUser.oculusName.toLowerCase() === user.UniqueId.toLowerCase()) {
                                             found = true;
                                             const playerInfo = await this.server.inspectPlayer(user.UniqueId);
                                             for (let gameUser of this.users) {
@@ -558,7 +558,7 @@ export class GameController {
         const playerList = await this.server?.refreshList();
         if (playerList && playerList.PlayerList) {
             for (let player of playerList.PlayerList) {
-                this.joinedPlayers.add(player.UniqueId);
+                this.joinedPlayers.add(player.UniqueId.toLowerCase());
             }
         }
         const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
@@ -728,18 +728,26 @@ export class GameController {
         if (validAbandon || forced) {
             this.abandoned = true;
             this.abandonCountdown = tokens.AbandonTime;
-            if (this.state < 10) {
-                this.state += 10;
-            }
             // For punishment purposes, treat accept phase abandons as fail-to-accept
             const isAcceptPhaseAbandon = this.state === 0;
             const punishmentAcceptFail = acceptFail || isAcceptPhaseAbandon;
 
             await logInfo(`abandon() - User ${user.discordId} abandoning. State: ${this.state}, acceptFail: ${acceptFail}, isAcceptPhaseAbandon: ${isAcceptPhaseAbandon}, punishmentAcceptFail: ${punishmentAcceptFail}`, this.client);
             
+            if (this.state < 10) {
+                this.state += 10;
+            }
+            
             await abandon(user.dbId, user.discordId, this.guild, punishmentAcceptFail, this.data, this.matchNumber);
             await this.sendAbandonMessage(user.discordId);
-            if (!acceptFail && (this.finalGenTime + 15 * 60 >= moment().unix() || !this.votingFinished)) {
+            
+            const shouldAutoReady = !acceptFail && (this.finalGenTime + 15 * 60 >= moment().unix() || !this.votingFinished);
+            await logInfo(
+                `abandon() - AutoReady check: acceptFail=${acceptFail}, finalGenTime=${this.finalGenTime}, timeCheck=${this.finalGenTime + 15 * 60 >= moment().unix()}, votingFinished=${this.votingFinished}, shouldAutoReady=${shouldAutoReady}`,
+                this.client
+            );
+            
+            if (shouldAutoReady) {
                 this.autoReadied = true;
                 const temp: GameUser[] = [];
                 for (let userCheck of this.users) {
