@@ -750,11 +750,13 @@ export class GameController {
             if (shouldAutoReady) {
                 this.autoReadied = true;
                 const temp: GameUser[] = [];
+                await logInfo(`abandon() - Avoiding user with discordId: ${user.discordId}`, this.client);
                 for (let userCheck of this.users) {
                     if (!(user.discordId == userCheck.discordId)) {
                         temp.push(userCheck);
                     }
                 }
+                await logInfo(`autorequeue - temp array after filtering: [${temp.map(u => u.discordId).join(', ')}]`, this.client);
                 await this.data.addAbandoned(temp);
             }
             return true;
