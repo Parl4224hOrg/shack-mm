@@ -174,7 +174,6 @@ export class QueueController {
                 shuffleArray(game.requeueArray);
                 const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
                 await logInfo(`[QueueController.tick] After clone: arrayClone = ${JSON.stringify(arrayClone)}`, this.client);
-                
                 game.requeueArray = [];
                 if (!game.abandoned) {
                     await game.cleanup();
