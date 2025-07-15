@@ -163,7 +163,7 @@ export const matchVotes = async (interaction: ButtonInteraction, data: Data) => 
                 isMuted = false;
             }
             if (isMuted) {
-                await interaction.reply({content: `${displayName} (voted): ${response.message}`});
+                await interaction.reply({content: `${displayName} (muted): ${response.message}`});
             } else {
                 await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: response.message});
             }
