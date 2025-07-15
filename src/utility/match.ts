@@ -150,7 +150,23 @@ export const matchVotes = async (interaction: ButtonInteraction, data: Data) => 
         const game = controller.findGame(dbUser._id);
         if (game) {
             const response = await game.vote(dbUser._id, interaction.customId as any);
-            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: response.message});
+            let isMuted = false;
+            let displayName = interaction.user.username;
+            try {
+                const member = await interaction.guild?.members.fetch(interaction.user.id);
+                if (member && member.roles.cache.has(tokens.MutedRole)) {
+                    isMuted = true;
+                    displayName = member.displayName || member.user.username;
+                }
+            } catch (e) {
+                // If we can't fetch the member, default to ephemeral
+                isMuted = false;
+            }
+            if (isMuted) {
+                await interaction.reply({content: `${displayName} (voted): ${response.message}`});
+            } else {
+                await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: response.message});
+            }
         } else {
             await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game please contact a mod"});
         }
