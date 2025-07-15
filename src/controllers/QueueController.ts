@@ -15,6 +15,7 @@ import {getUserById} from "../modules/getters/getUser";
 import {shuffleArray} from "../utility/makeTeams";
 import {logWarn} from "../loggers";
 import {Regions} from "../database/models/UserModel";
+import {logInfo} from "../loggers";
 
 
 const removeDuplicates = (array: QueueUser[]) => {
@@ -169,8 +170,10 @@ export class QueueController {
         for (let game of this.activeGames) {
             await game.tick();
             if (game.isProcessed()) {
+                await logInfo(`[QueueController.tick] Before clone: game.requeueArray = ${JSON.stringify(game.requeueArray)}`, this.client);
                 shuffleArray(game.requeueArray);
                 const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
+                await logInfo(`[QueueController.tick] After clone: arrayClone = ${JSON.stringify(arrayClone)}`, this.client);
                 game.requeueArray = [];
                 if (!game.abandoned) {
                     await game.cleanup();
@@ -200,7 +203,9 @@ export class QueueController {
             }
             if (game.abandoned && !game.autoReadied) {
                 shuffleArray(game.requeueArray);
+
                 const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
+                
                 game.requeueArray = [];
                 this.activeAutoQueue = true;
                 for (let user of arrayClone) {
