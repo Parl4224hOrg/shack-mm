@@ -75,7 +75,7 @@ export class QueueController {
             const newGame = new GameController(new mongoose.Types.ObjectId(game.id) as any as ObjectId,
                 this.client, await this.client.guilds.fetch(tokens.GuildID), game.matchNumber, [], [], "SND",
                 game.scoreLimit, this.data, server);
-            newGame.load(game);
+            await newGame.load(game);
             // Log the contents and types of requeueArray after loading
             await logInfo(`[QueueController.load] game.requeueArray contents: ${JSON.stringify(newGame.requeueArray)}`, this.client);
             await logInfo(`[QueueController.load] game.requeueArray types: ${newGame.requeueArray.map(e => typeof e).join(", ")}`, this.client);
