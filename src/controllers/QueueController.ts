@@ -183,11 +183,12 @@ export class QueueController {
                 if (!game.abandoned) {
                     await game.cleanup();
                 }
-                this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
                 // Add map to last played
                 if (game.map != "" && game.scoresAccept[0] && game.scoresAccept[1]) {
                     await addLastPlayedMap(this.data, game.map, game.matchNumber);
                 }
+                this.activeAutoQueue = true;
+                this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
                 for (let user of arrayClone) {
                     await logInfo(`[QueueController.tick] Attempting to requeue user: ${user} (type: ${typeof user})`, this.client);
                     const dbUser = await getUserById(user, this.data);
@@ -209,6 +210,7 @@ export class QueueController {
                         }
                     }
                 }
+                this.activeAutoQueue = false;
                 game.requeueArray = [];
                 await this.data.Leaderboard.setLeaderboard();
             }
