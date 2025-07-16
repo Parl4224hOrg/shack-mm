@@ -285,9 +285,15 @@ export class GameController {
         this.working = data.working;
         this.finalGenTime = data.finalGenTime;
 
+        console.log('[GameController.load] called with data.requeueArray:', data.requeueArray, 'types:', data.requeueArray && data.requeueArray.map(x => typeof x));
+        this.requeueArray = [];
         for (let requeue of data.requeueArray) {
-            this.requeueArray.push(new mongoose.Types.ObjectId(requeue) as any as ObjectId)
+            const objId = new mongoose.Types.ObjectId(requeue) as any as ObjectId;
+            console.log('[GameController.load] pushing ObjectId:', objId, 'from', requeue, 'type:', typeof requeue);
+            this.requeueArray.push(objId);
         }
+        console.log('[GameController.load] final this.requeueArray:', this.requeueArray, 'types:', this.requeueArray.map(x => typeof x));
+
 
         this.acceptMessageId = data.acceptMessageId;
 
