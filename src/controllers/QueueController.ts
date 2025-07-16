@@ -178,6 +178,7 @@ export class QueueController {
                 shuffleArray(game.requeueArray);
                 const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
                 await logInfo(`[QueueController.tick] After clone: arrayClone = ${JSON.stringify(arrayClone)}`, this.client);
+                await logInfo(`[QueueController.tick] arrayClone types: ${arrayClone.map(e => typeof e).join(", ")}` , this.client);
 
                 game.requeueArray = [];
                 if (!game.abandoned) {
