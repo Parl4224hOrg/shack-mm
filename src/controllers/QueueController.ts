@@ -176,14 +176,8 @@ export class QueueController {
                 // Log the type of each element in requeueArray
                 await logInfo(`[QueueController.tick] Types in requeueArray: ${game.requeueArray.map(e => typeof e).join(", ")}`, this.client);
                 shuffleArray(game.requeueArray);
-                const arrayClone: ObjectId[] = [];
-                for (const e of game.requeueArray) {
-                    if (typeof e === 'string') {
-                        arrayClone.push(e);
-                    } else {
-                        arrayClone.push(JSON.parse(JSON.stringify(e)));
-                    }
-                }
+                const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
+
                 for (const [i, e] of arrayClone.entries()) {
                     await logInfo(`[QueueController.tick] arrayClone[${i}]: value = ${e}, type = ${typeof e}` , this.client);
                 }
@@ -195,7 +189,6 @@ export class QueueController {
                 if (game.map != "" && game.scoresAccept[0] && game.scoresAccept[1]) {
                     await addLastPlayedMap(this.data, game.map, game.matchNumber);
                 }
-                this.activeAutoQueue = true;
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
                 for (let user of arrayClone) {
                     await logInfo(`[QueueController.tick] Attempting to requeue user: ${user} (type: ${typeof user})`, this.client);
@@ -218,7 +211,6 @@ export class QueueController {
                         }
                     }
                 }
-                this.activeAutoQueue = false;
                 game.requeueArray = [];
                 await this.data.Leaderboard.setLeaderboard();
             }
