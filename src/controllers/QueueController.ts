@@ -176,10 +176,17 @@ export class QueueController {
                 // Log the type of each element in requeueArray
                 await logInfo(`[QueueController.tick] Types in requeueArray: ${game.requeueArray.map(e => typeof e).join(", ")}`, this.client);
                 shuffleArray(game.requeueArray);
-                const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
-                await logInfo(`[QueueController.tick] After clone: arrayClone = ${JSON.stringify(arrayClone)}`, this.client);
-                await logInfo(`[QueueController.tick] arrayClone types: ${arrayClone.map(e => typeof e).join(", ")}` , this.client);
-
+                const arrayClone: ObjectId[] = [];
+                for (const e of game.requeueArray) {
+                    if (typeof e === 'string') {
+                        arrayClone.push(e);
+                    } else {
+                        arrayClone.push(JSON.parse(JSON.stringify(e)));
+                    }
+                }
+                for (const [i, e] of arrayClone.entries()) {
+                    await logInfo(`[QueueController.tick] arrayClone[${i}]: value = ${e}, type = ${typeof e}` , this.client);
+                }
                 game.requeueArray = [];
                 if (!game.abandoned) {
                     await game.cleanup();
