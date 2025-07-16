@@ -45,12 +45,21 @@ export class QueueController {
     generating = false;
     activeAutoQueue = false;
     public mapData: MapData[] = [];
+    public locked = false;
 
 
     constructor(data: Data, client: Client, queueName: string) {
         this.data = data;
         this.client = client;
         this.queueName = queueName;
+    }
+
+    lock() {
+        this.locked = true;
+    }
+
+    unlock() {
+        this.locked = false;
     }
 
     setInQueue(users: QueueUser[]) {

@@ -123,6 +123,7 @@ class Serializer {
             pingMe: this.pingMeSerializer(toSerialize.pingMe),
             generating: toSerialize.generating,
             mapData: toSerialize.mapData,
+            locked: toSerialize.locked,
         });
     }
 
@@ -264,6 +265,7 @@ class Serializer {
         queue.pingMe = this.pingMeDeserializer(parsed.pingMe);
         queue.generating = parsed.generating;
         queue.mapData = parsed.mapData;
+        queue.locked = parsed.locked;
         console.log("Successfully loaded queue")
 
         return queue;

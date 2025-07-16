@@ -42,7 +42,6 @@ export class Data {
         await this.banReductionTask();
     }, { runOnInit: false });
     private FILL_SND: QueueController;
-    private locked: Collection<string, boolean> = new Collection<string, boolean>();
     nextPing: number = moment().unix();
     readonly Leaderboard = new LeaderboardControllerClass(this);
     private botStatus = "";
@@ -423,9 +422,9 @@ export class Data {
         if (!dbUser.region) {
             return {success: false, message: `You must set a region in <#${tokens.RegionSelect}> before you can play`}
         }
-        if (!this.locked.get(queueId)) {
-            const controller = this.getQueue();
-            return await controller.addUser(dbUser, time);
+        const queueController = this.getQueue();
+        if (!queueController.locked) {
+            return await queueController.addUser(dbUser, time);
         }
         return {success: false, message: "This queue is currently locked"}
     }
@@ -435,22 +434,16 @@ export class Data {
         await controller.addPingMe(user.id, inQueue, expire_time);
     }
 
-    lockQueue(queueId: string) {
-        this.locked.set(queueId, true);
+    lockQueue() {
+        this.getQueue().lock();
     }
 
-    unlockQueue(queueId: string) {
-        this.locked.set(queueId, false);
+    unlockQueue() {
+        this.getQueue().unlock();
     }
 
-    isLocked(queueId: string) {
-        return this.locked.get(queueId);
-    }
-
-    lockAllQueues() {
-        for (let key of this.locked.keys()) {
-            this.locked.set(key, true);
-        }
+    isLocked() {
+        return this.getQueue().locked;
     }
 
     removeFromAllQueues(userId: ObjectId) {
