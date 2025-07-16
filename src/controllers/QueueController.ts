@@ -17,7 +17,6 @@ import {logWarn} from "../loggers";
 import {Regions} from "../database/models/UserModel";
 import {logInfo} from "../loggers";
 
-
 const removeDuplicates = (array: QueueUser[]) => {
     const newArr: QueueUser[] = [];
     for (let value of array) {
