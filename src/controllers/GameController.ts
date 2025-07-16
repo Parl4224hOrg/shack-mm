@@ -285,15 +285,14 @@ export class GameController {
         this.working = data.working;
         this.finalGenTime = data.finalGenTime;
 
-        console.log('[GameController.load] called with data.requeueArray:', data.requeueArray, 'types:', data.requeueArray && data.requeueArray.map((x: any) => typeof x));
+        await logInfo('[GameController.load] called with data.requeueArray: ' + JSON.stringify(data.requeueArray) + ', types: ' + JSON.stringify(data.requeueArray && data.requeueArray.map((x: any) => typeof x)), this.client);
         this.requeueArray = [];
         for (let requeue of data.requeueArray) {
             const objId = new mongoose.Types.ObjectId(requeue) as any as ObjectId;
-            console.log('[GameController.load] pushing ObjectId:', objId, 'from', requeue, 'type:', typeof requeue);
+            await logInfo('[GameController.load] pushing ObjectId: ' + objId + ', from: ' + requeue + ', type: ' + typeof requeue, this.client);
             this.requeueArray.push(objId);
         }
-        console.log('[GameController.load] final this.requeueArray:', this.requeueArray, 'types:', this.requeueArray.map((x: any) => typeof x));
-
+        await logInfo('[GameController.load] final this.requeueArray: ' + JSON.stringify(this.requeueArray) + ', types: ' + JSON.stringify(this.requeueArray.map((x: any) => typeof x)), this.client);
 
         this.acceptMessageId = data.acceptMessageId;
 
