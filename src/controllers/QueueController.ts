@@ -181,15 +181,11 @@ export class QueueController {
         for (let game of this.activeGames) {
             await game.tick();
             if (game.isProcessed()) {
-                await logInfo(`[QueueController.tick] Before clone: game.requeueArray = ${JSON.stringify(game.requeueArray)}`, this.client);
                 // Log the type of each element in requeueArray
-                await logInfo(`[QueueController.tick] Types in requeueArray: ${game.requeueArray.map(e => typeof e).join(", ")}`, this.client);
+                const start = Date.now();
                 shuffleArray(game.requeueArray);
                 const arrayClone: Types.ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
 
-                for (const [i, e] of arrayClone.entries()) {
-                    await logInfo(`[QueueController.tick] arrayClone[${i}]: value = ${e}, type = ${typeof e}` , this.client);
-                }
                 game.requeueArray = [];
                 if (!game.abandoned) {
                     await game.cleanup();
@@ -200,27 +196,23 @@ export class QueueController {
                 }
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
                 for (let user of arrayClone) {
-                    await logInfo(`[QueueController.tick] Attempting to requeue user: ${user} (type: ${typeof user})`, this.client);
                     const dbUser = await getUserById(user, this.data);
-                    await logInfo(`[QueueController.tick] getUserById(${user}) result: ${dbUser ? dbUser.id : 'NOT FOUND'}`, this.client);
                     const member = await guild.members.fetch(dbUser.id);
-                    await logInfo(`[QueueController.tick] guild.members.fetch(${dbUser.id}) result: ${member ? 'FOUND' : 'NOT FOUND'}`, this.client);
                     const response = await this.addUser(dbUser, 15, false);
-                    await logInfo(`[QueueController.tick] addUser response: ${JSON.stringify(response)}`, this.client);
                     if (!member.dmChannel) {
-                        await logInfo(`[QueueController.tick] Creating DM channel for user: ${dbUser.id}`, this.client);
                         await member.createDM(true);
                     }
                     if (dbUser.dmAuto) {
                         try {
                             await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
-                            await logInfo(`[QueueController.tick] Sent DM to user: ${dbUser.id}`, this.client);
+                            console.log(`[QueueController.tick] Sent DM to user: ${dbUser.id}`);
                         } catch (e) {
                             await logWarn(`Could not dm user -${dbUser.id}`, this.client);
                         }
                     }
                 }
                 game.requeueArray = [];
+                await logInfo(`[QueueController.tick] Requeue Time: ${Date.now() - start}ms`, this.client);
                 await this.data.Leaderboard.setLeaderboard();
             }
             if (game.abandoned && !game.autoReadied) {
