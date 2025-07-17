@@ -1,11 +1,11 @@
 import GameModel from "../../database/models/GameModel";
-import {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import moment from "moment";
 import {ids} from "../../interfaces/Game";
 
-export const createGame = async (id: number, queueId: string, users: ObjectId[], teamA: ids[], teamB: ids[], mmrDiff: number, regionId: string) => {
-    const teamAIds: ObjectId[] = [];
-    const teamBIds: ObjectId[] = [];
+export const createGame = async (id: number, queueId: string, users: Types.ObjectId[], teamA: ids[], teamB: ids[], mmrDiff: number, regionId: string) => {
+    const teamAIds: Types.ObjectId[] = [];
+    const teamBIds: Types.ObjectId[] = [];
 
     teamA.forEach(c => teamAIds.push(c.db));
     teamB.forEach(c => teamBIds.push(c.db));

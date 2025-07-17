@@ -1,4 +1,4 @@
-import {Document, model, ObjectId, Schema} from "mongoose";
+import {Document, model, Schema, Types} from "mongoose";
 
 
 export enum Regions {
@@ -10,10 +10,10 @@ export enum Regions {
 }
 
 export interface UserInt extends Document {
-    _id: ObjectId;
+    _id: Types.ObjectId;
     id: string;
     name: string;
-    stats: ObjectId[];
+    stats: Types.ObjectId[];
     banUntil: number;
     lastBan: number;
     banCounterAbandon: number;
@@ -31,7 +31,7 @@ export interface UserInt extends Document {
     requeue: boolean;
     frozen: boolean;
     region: Regions;
-    games: ObjectId[];
+    games: Types.ObjectId[];
     muteUntil: number;
     lates: number;
     lateTimes: number[];

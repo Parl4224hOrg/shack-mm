@@ -10,12 +10,12 @@ import {updateGame} from "../../../modules/updaters/updateGame";
 import tokens from "../../../tokens";
 import StatsModel, {StatsInt} from "../../../database/models/StatsModel";
 import {UserInt} from "../../../database/models/UserModel";
-import {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import {Data} from "../../../data";
 import {getStats} from "../../../modules/getters/getStats";
 import {updateStats} from "../../../modules/updaters/updateStats";
 
-const getUser = async (id: ObjectId, cache: Map<string, UserInt>, data: Data) => {
+const getUser = async (id: Types.ObjectId, cache: Map<string, UserInt>, data: Data) => {
     const check = cache.get(String(id));
     if (check) {
         return check
@@ -25,7 +25,7 @@ const getUser = async (id: ObjectId, cache: Map<string, UserInt>, data: Data) =>
     return found;
 }
 
-const getCachedStats = async (id: ObjectId, cache: Map<string, StatsInt>) => {
+const getCachedStats = async (id: Types.ObjectId, cache: Map<string, StatsInt>) => {
     const check = cache.get(String(id));
     if (check) {
         return check

@@ -1,8 +1,8 @@
-import {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import StatsModel, {StatsInt} from "../../database/models/StatsModel";
 import {createStats} from "../constructors/createStats";
 
-export const getStats = async (userId: ObjectId, queueId: string): Promise<StatsInt> => {
+export const getStats = async (userId: Types.ObjectId, queueId: string): Promise<StatsInt> => {
     return (
         await StatsModel.findOne({userId: userId, queueId: queueId})
             ||

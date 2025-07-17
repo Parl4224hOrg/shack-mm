@@ -1,7 +1,7 @@
-import {Document, model, ObjectId, Schema} from "mongoose";
+import {Document, model, Schema, Types} from "mongoose";
 
 export interface StatsInt extends Document {
-    userId: ObjectId;
+    userId: Types.ObjectId;
     queueId: string;
     mmr: number;
     mmrHistory: number[];

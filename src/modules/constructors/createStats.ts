@@ -1,8 +1,8 @@
 import StatsModel from "../../database/models/StatsModel";
-import {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import tokens from "../../tokens";
 
-export const createStats = async (userId: ObjectId, queueId: string) => {
+export const createStats = async (userId: Types.ObjectId, queueId: string) => {
     return (await StatsModel.create({
         userId: userId,
         queueId: queueId,

@@ -1,4 +1,4 @@
-import {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import {getUserById} from "../modules/getters/getUser";
 import moment from "moment/moment";
 import {Guild, TextChannel} from "discord.js";
@@ -11,7 +11,7 @@ import {UserInt} from "../database/models/UserModel";
 import {wasUserInPreviousGeneratedGame} from "../modules/getters/getGame";
 import {logInfo} from "../loggers";
 
-export const autoLate = async (id: ObjectId, data: Data) => {
+export const autoLate = async (id: Types.ObjectId, data: Data) => {
     const user = await getUserById(id, data);
     user.lates++;
     user.lateTimes.push(moment().unix());
@@ -80,7 +80,7 @@ export const punishment = async (user: UserInt, data: Data, acceptFail: boolean,
     return updateUser(user, data);
 }
 
-export const abandon = async (userId: ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data, currentMatchId?: number) => {
+export const abandon = async (userId: Types.ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data, currentMatchId?: number) => {
     let user = await getUserById(userId, data);
     const now = moment().unix();
     

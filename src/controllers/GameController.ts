@@ -1,4 +1,4 @@
-import mongoose, {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import {ChannelType, Client, Collection, EmbedBuilder, Guild, MessageFlagsBitField, TextChannel} from "discord.js";
 import {getGameById} from "../modules/getters/getGame";
 import moment from "moment/moment";
@@ -104,7 +104,7 @@ const getPreviousVotes = (userVotes: string[], maps: any) => {
 }
 
 export class GameController {
-    readonly id: ObjectId;
+    readonly id: Types.ObjectId;
     readonly matchNumber: number;
     readonly client: Client;
     readonly guild: Guild;
@@ -173,7 +173,7 @@ export class GameController {
 
     finalGenTime = 0;
 
-    requeueArray: ObjectId[] = [];
+    requeueArray: Types.ObjectId[] = [];
 
     server: GameServer | null;
 
@@ -192,7 +192,7 @@ export class GameController {
     maps: MapInt[] = [];
     votingFinished = false;
 
-    constructor(id: ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, data: Data, server: GameServer | null) {
+    constructor(id: Types.ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, data: Data, server: GameServer | null) {
         this.id = id;
         this.client = client;
         this.guild = guild;
@@ -288,7 +288,7 @@ export class GameController {
         logInfo('[GameController.load] called with data.requeueArray: ' + JSON.stringify(data.requeueArray) + ', types: ' + JSON.stringify(data.requeueArray && data.requeueArray.map((x: any) => typeof x)), this.client);
         this.requeueArray = [];
         for (let requeue of data.requeueArray) {
-            const objId = new mongoose.Types.ObjectId(requeue) as any as ObjectId;
+            const objId = Types.ObjectId.createFromHexString(requeue);
             logInfo('[GameController.load] pushing ObjectId: ' + objId + ', from: ' + requeue + ', type: ' + typeof requeue, this.client);
             this.requeueArray.push(objId);
         }
@@ -1233,7 +1233,7 @@ export class GameController {
         }
     }
 
-    async vote(userId: ObjectId, vote: '1' | '2' | '3' | '4' | '5' | '6' | '7'): Promise<InternalResponse> {
+    async vote(userId: Types.ObjectId, vote: '1' | '2' | '3' | '4' | '5' | '6' | '7'): Promise<InternalResponse> {
         const id = String(userId);
         const userVotes = this.votes.get(id);
         let message;
@@ -1375,7 +1375,7 @@ export class GameController {
         }
     }
 
-    getTeam(userId: ObjectId) {
+    getTeam(userId: Types.ObjectId) {
         for (let user of this.users) {
             if (String(user.dbId) == String(userId)) {
                 return user.team;
@@ -1384,7 +1384,7 @@ export class GameController {
         return -1;
     }
 
-    async acceptScore(userId: ObjectId): Promise<InternalResponse> {
+    async acceptScore(userId: Types.ObjectId): Promise<InternalResponse> {
         const team = this.getTeam(userId);
         if (team >= 0) {
             this.scoresAccept[team] = true;
@@ -1417,7 +1417,7 @@ export class GameController {
         return {success: false, message: 'Could not find team'};
     }
 
-    async submitScore(userId: ObjectId, score: number, discordId: string): Promise<InternalResponse> {
+    async submitScore(userId: Types.ObjectId, score: number, discordId: string): Promise<InternalResponse> {
         // Prevent score submission after confirmation
         if (this.state >= 7) {
             return {success: false, message: "Scores have already been confirmed and cannot be changed."};
@@ -1477,7 +1477,7 @@ export class GameController {
         \`team_a: ${scoreA}\nteam_b: ${scoreB}\``, flags: new MessageFlagsBitField().add(MessageFlagsBitField.Flags.Ephemeral).toJSON()}
     }
 
-    async userAccept(id: ObjectId) {
+    async userAccept(id: Types.ObjectId) {
         for (let user of this.users) {
             if (String(user.dbId) == String(id)) {
                 user.accepted = true;

@@ -1,16 +1,16 @@
-import {Document, model, ObjectId, Schema} from "mongoose";
+import {Document, model, Schema, Types} from "mongoose";
 
 export interface GameInt extends Document {
-    _id: ObjectId;
+    _id: Types.ObjectId;
     matchId: number;
     queueId: string;
     map: string;
     sides: string[];
     scoreA: number;
     scoreB: number;
-    users: ObjectId[];
-    teamA: ObjectId[];
-    teamB: ObjectId[];
+    users: Types.ObjectId[];
+    teamA: Types.ObjectId[];
+    teamB: Types.ObjectId[];
     creationDate: number;
     endDate: number;
     winner: number;

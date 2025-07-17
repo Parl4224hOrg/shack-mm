@@ -1,7 +1,7 @@
-import {ObjectId} from "mongoose";
 import ActionModel from "../../database/models/ActionModel";
+import {Types} from "mongoose";
 
-export const getAction = async (actionId: ObjectId) => {
+export const getAction = async (actionId: Types.ObjectId) => {
     return ActionModel.findOne({_id: actionId});
 }
 

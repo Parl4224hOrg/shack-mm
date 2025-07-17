@@ -6,7 +6,7 @@ import {GameUser, QueueUser} from "./interfaces/Game";
 import {makeTeams} from "./utility/makeTeams"
 import {getCounter} from "./modules/getters/getCounter";
 import {createGame} from "./modules/constructors/createGame";
-import {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import tokens from "./tokens";
 import {InternalResponse} from "./interfaces/Internal";
 import moment from "moment-timezone";
@@ -346,7 +346,7 @@ export class Data {
             users.push(this.FILL_SND.getUser())
         }
         const teams = await makeTeams(users, this.client);
-        let userIds: ObjectId[] = [];
+        let userIds: Types.ObjectId[] = [];
 
         for (let user of teams.teamA) {
             userIds.push(user.db);
@@ -446,11 +446,11 @@ export class Data {
         return this.getQueue().locked;
     }
 
-    removeFromAllQueues(userId: ObjectId) {
+    removeFromAllQueues(userId: Types.ObjectId) {
         this.FILL_SND.removeUser(userId, false);
     }
 
-    removeFromQueue(userId: ObjectId, queueId: string) {
+    removeFromQueue(userId: Types.ObjectId, queueId: string) {
         if (queueId == "SND") {
             this.FILL_SND.removeUser(userId, false);
         } else if (queueId == "ALL") {
@@ -458,11 +458,11 @@ export class Data {
         }
     }
 
-    inGame(userId: ObjectId): boolean {
+    inGame(userId: Types.ObjectId): boolean {
         return this.FILL_SND.inGame(userId);
     }
 
-    findGame(userId: ObjectId) {
+    findGame(userId: Types.ObjectId) {
         return this.FILL_SND.getGame(userId);
     }
 

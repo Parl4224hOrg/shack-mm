@@ -1,6 +1,6 @@
 import {GameController} from "../controllers/GameController";
 import {Collection, Client} from "discord.js";
-import mongoose, {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import tokens from "../tokens";
 import {GameUser} from "../interfaces/Game";
 import {Data} from "../data";
@@ -131,7 +131,7 @@ class Serializer {
         const users: GameUser[] = [];
         for (let user of data) {
             users.push({
-                dbId: new mongoose.Types.ObjectId(user.dbId) as any as ObjectId,
+                dbId: Types.ObjectId.createFromHexString(user.dbId),
                 discordId: user.discordId,
                 team: user.team,
                 accepted: user.accepted,
@@ -187,7 +187,7 @@ class Serializer {
         const parsed = JSON.parse(data);
         console.log(parsed);
         
-        const id = new mongoose.Types.ObjectId(parsed.id) as any as ObjectId;
+        const id = Types.ObjectId.createFromHexString(parsed.id);
         const guild = await client.guilds.fetch(tokens.GuildID);
         
         const game = new GameController(id, client, guild, parsed.matchNumber, [], [], parsed.queueId, parsed.scoreLimit, dataClass, null);
@@ -253,7 +253,7 @@ class Serializer {
 
         for (let user of parsed.inQueue) {
             queue.inQueue.push({
-                dbId: new mongoose.Types.ObjectId(user.dbId) as any as ObjectId,
+                dbId: Types.ObjectId.createFromHexString(user.dbId),
                 discordId: user.discordId,
                 queueExpire: user.queueExpire,
                 mmr: user.mmr,

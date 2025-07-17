@@ -1,15 +1,15 @@
-import {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import {Regions} from "../database/models/UserModel";
 import {StatsInt} from "../database/models/StatsModel";
 
 export interface ids {
-    db: ObjectId;
+    db: Types.ObjectId;
     discord: string;
     region: Regions
 }
 
 export interface QueueUser {
-    dbId: ObjectId;
+    dbId: Types.ObjectId;
     discordId: string;
     queueExpire: number;
     mmr: number;
@@ -18,7 +18,7 @@ export interface QueueUser {
 }
 
 export interface GameUser {
-    dbId: ObjectId;
+    dbId: Types.ObjectId;
     discordId: string;
     team: number;
     accepted: boolean;
@@ -29,7 +29,7 @@ export interface GameUser {
 }
 
 export interface RecalcUser {
-    dbId: ObjectId;
+    dbId: Types.ObjectId;
     discordId: string;
     team: number;
     stats: StatsInt

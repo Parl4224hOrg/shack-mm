@@ -5,7 +5,7 @@ import {Data} from "../data";
 import moment from "moment";
 import {getStats} from "../modules/getters/getStats";
 import {grammaticalList, grammaticalTime} from "../utility/grammatical";
-import mongoose, {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import {GameController} from "./GameController";
 import {UserInt} from "../database/models/UserModel";
 import tokens from "../tokens";
@@ -81,7 +81,7 @@ export class QueueController {
             if (game.server) {
                 server = this.data.getServer(game.server.name ?? "none");
             }
-            const newGame = new GameController(new mongoose.Types.ObjectId(game.id) as any as ObjectId,
+            const newGame = new GameController(Types.ObjectId.createFromHexString(game.id),
                 this.client, await this.client.guilds.fetch(tokens.GuildID), game.matchNumber, [], [], "SND",
                 game.scoreLimit, this.data, server);
             await newGame.load(game);
@@ -185,7 +185,7 @@ export class QueueController {
                 // Log the type of each element in requeueArray
                 await logInfo(`[QueueController.tick] Types in requeueArray: ${game.requeueArray.map(e => typeof e).join(", ")}`, this.client);
                 shuffleArray(game.requeueArray);
-                const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
+                const arrayClone: Types.ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
 
                 for (const [i, e] of arrayClone.entries()) {
                     await logInfo(`[QueueController.tick] arrayClone[${i}]: value = ${e}, type = ${typeof e}` , this.client);
@@ -226,7 +226,7 @@ export class QueueController {
             if (game.abandoned && !game.autoReadied) {
                 shuffleArray(game.requeueArray);
 
-                const arrayClone: ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
+                const arrayClone: Types.ObjectId[] = game.requeueArray.map(id => Types.ObjectId.createFromHexString(id.toString()));
                 
                 game.requeueArray = [];
                 this.activeAutoQueue = true;
@@ -304,7 +304,7 @@ export class QueueController {
         return queueStr;
     }
 
-    removeUser(userId: ObjectId, noMessage: boolean) {
+    removeUser(userId: Types.ObjectId, noMessage: boolean) {
         this.inQueue.forEach( async (user, index) => {
             if (String(user.dbId) == String(userId)) {
                 this.inQueue.splice(index, 1);
@@ -317,7 +317,7 @@ export class QueueController {
         });
     }
 
-    inGame(userId: ObjectId): boolean {
+    inGame(userId: Types.ObjectId): boolean {
         for (let game of this.activeGames) {
             if (!game.abandoned) {
                 for (let user of game.getUsers()) {
@@ -330,7 +330,7 @@ export class QueueController {
         return false
     }
 
-    getGame(userId: ObjectId) {
+    getGame(userId: Types.ObjectId) {
         for (let game of this.activeGames) {
             for (let user of game.getUsers()) {
                 if (String(user.dbId) == String(userId)) {
@@ -341,7 +341,7 @@ export class QueueController {
         return null
     }
 
-    findGame(id: ObjectId) {
+    findGame(id: Types.ObjectId) {
         for (let game of this.activeGames) {
             if (!game.abandoned) {
                 for (let user of game.getUsers()) {
@@ -353,7 +353,7 @@ export class QueueController {
         }
     }
 
-    async acceptGame(id: ObjectId): Promise<InternalResponse> {
+    async acceptGame(id: Types.ObjectId): Promise<InternalResponse> {
         const game = this.findGame(id);
         if (game) {
             await game.userAccept(id);
@@ -393,7 +393,7 @@ export class QueueController {
         }
     }
 
-    getMissing(userId: ObjectId) {
+    getMissing(userId: Types.ObjectId) {
         const game = this.findGame(userId)!;
         return game.getMissing();
     }

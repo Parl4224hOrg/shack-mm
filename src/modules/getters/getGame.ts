@@ -1,9 +1,9 @@
 import GameModel from "../../database/models/GameModel";
-import {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import {Client} from "discord.js";
 import {logInfo} from "../../loggers";
 
-export const getGameById = async (gameId: ObjectId) => {
+export const getGameById = async (gameId: Types.ObjectId) => {
     return GameModel.findOne({_id: gameId});
 }
 
@@ -23,7 +23,7 @@ export const getPreviousGeneratedGame = async (client?: Client) => {
     return previousGame;
 }
 
-export const wasUserInPreviousGeneratedGame = async (userId: ObjectId, client?: Client) => {
+export const wasUserInPreviousGeneratedGame = async (userId: Types.ObjectId, client?: Client) => {
     const previousGame = await getPreviousGeneratedGame(client);
     if (!previousGame) {
         if (client) {
@@ -32,7 +32,7 @@ export const wasUserInPreviousGeneratedGame = async (userId: ObjectId, client?: 
         return { wasInGame: false, game: null };
     }
     
-    const wasInGame = previousGame.users.some((user: ObjectId) => user.toString() === userId.toString());
+    const wasInGame = previousGame.users.some((user: Types.ObjectId) => user.toString() === userId.toString());
     if (client) {
         await logInfo(`wasUserInPreviousGeneratedGame - User ${userId}: Match ID ${previousGame.matchId}, Abandoned: ${previousGame.abandoned}, Was in game: ${wasInGame}`, client);
     }

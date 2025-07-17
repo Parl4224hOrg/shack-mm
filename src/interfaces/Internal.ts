@@ -1,4 +1,4 @@
-import {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 
 export interface PingMeUser {
     id: string;
@@ -27,7 +27,7 @@ export interface QueueData {
 }
 
 export interface GameData {
-    id: ObjectId;
+    id: Types.ObjectId;
     matchNumber: number;
     tickCount: number;
     state: number;

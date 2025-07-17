@@ -1,7 +1,7 @@
 import {GuildMember, PartialGuildMember, User} from "discord.js";
 import UserModel from "../../database/models/UserModel";
 import {createUser, createBlankUser} from "../constructors/createUser";
-import {ObjectId} from "mongoose";
+import {Types} from "mongoose";
 import {Data} from "../../data";
 
 export const getUserByUser = async (user: User | GuildMember | PartialGuildMember, data: Data) => {
@@ -17,7 +17,7 @@ export const getUserByUser = async (user: User | GuildMember | PartialGuildMembe
     return createUser(user);
 }
 
-export const getUserById = async (userId: ObjectId, data: Data) => {
+export const getUserById = async (userId: Types.ObjectId, data: Data) => {
     const doc = data.checkCache(String(userId));
     if (doc) {
         return doc;
