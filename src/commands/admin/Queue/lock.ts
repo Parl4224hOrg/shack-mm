@@ -1,7 +1,6 @@
 import {SubCommand} from "../../../interfaces/Command";
 import {SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../../loggers";
-import {queues} from "../../../utility/options";
 
 export const lock: SubCommand = {
     data: new SlashCommandSubcommandBuilder()

@@ -1,4 +1,4 @@
-import {ActivityType, Client, Collection, TextChannel, User, VoiceChannel} from "discord.js";
+import {ActivityType, Client, TextChannel, User, VoiceChannel} from "discord.js";
 import cron from 'node-cron';
 import {logInfo, logWarn} from "./loggers";
 import {QueueController} from "./controllers/QueueController";
