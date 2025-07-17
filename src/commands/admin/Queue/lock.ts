@@ -10,10 +10,10 @@ export const lock: SubCommand = {
         try {
             if (data.isLocked()) {
                 data.unlockQueue();
-                await interaction.reply({content: `Unlocked queue ${queue}`});
+                await interaction.reply({content: `Unlocked queue`});
             } else {
                 data.lockQueue();
-                await interaction.reply({content: `Locked queue ${queue}`});
+                await interaction.reply({content: `Locked queue`});
             }
         } catch (e) {
             await logError(e, interaction)
