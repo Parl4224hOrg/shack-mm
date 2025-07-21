@@ -13,7 +13,7 @@ import moment from "moment";
 
 export const freeAtNine: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
-        .setName('freeatnine')
+        .setName('free_at_nine')
         .setDescription('If queue is at 9, puts user in and removes cooldown')
         .addUserOption(userOption('User to free at 9')),
     run: async (interaction, data) => {
