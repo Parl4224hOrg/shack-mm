@@ -1,5 +1,5 @@
 import {Command, SubCommand} from "../../interfaces/Command";
-import {mapPlay} from "../moderator/actions";
+import {actions} from "../moderator/actions";
 import {mapPlay} from "../moderator/mapPlay";
 import {nextMapPool} from "../moderator/nextMapPool";
 import {rankDist} from "../moderator/rankDist";
