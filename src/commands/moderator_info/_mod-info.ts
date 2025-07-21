@@ -1,5 +1,6 @@
 import {Command, SubCommand} from "../../interfaces/Command";
 import {actions} from "../moderator/actions";
+import {moderatorActions} from "../moderator/moderatorActions";
 import {mapPlay} from "../moderator/mapPlay";
 import {nextMapPool} from "../moderator/nextMapPool";
 import {rankDist} from "../moderator/rankDist";
@@ -28,6 +29,7 @@ export const _modInfo: Command = {
         .setName('mod_info')
         .setDescription('Mod info commands')
         .addSubcommand(actions.data)
+        .addSubcommand(moderatorActions.data)
         .addSubcommand(abandonRatio.data)
         .addSubcommand(mapPlay.data)
         .addSubcommand(nextMapPool.data)
