@@ -16,7 +16,7 @@ import {commandPermission} from "../../utility/commandPermission";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 
-const subCommandListTemp: SubCommand[] = [actions, abandonRatio, mapPlay, nextMapPool, rankDist, scoreDist, failToAcceptRatio, lateRatio, troubleMakers];
+const subCommandListTemp: SubCommand[] = [actions, moderatorActions, abandonRatio, mapPlay, nextMapPool, rankDist, scoreDist, failToAcceptRatio, lateRatio, troubleMakers];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
