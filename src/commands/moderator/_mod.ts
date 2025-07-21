@@ -3,7 +3,6 @@ import {SlashCommandBuilder} from "@discordjs/builders";
 import {Collection} from "discord.js";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
-import {actions} from "./actions";
 import {adjustMMR} from "./adjustMMR";
 import {changeFailToAcceptCounter} from "./changeFailToAcceptCounter";
 import {cooldown} from "./cooldown";
@@ -30,7 +29,7 @@ import {manualSubmitIfNotAbandoned} from "./manualSubmitIfNotAbandoned";
 import {moderatorActions} from "./moderatorActions";
 
 
-const subCommandListTemp: SubCommand[] = [actions, adjustMMR, changeAbandonCDCounter, changeFailToAcceptCounter, cooldown, easyTime,
+const subCommandListTemp: SubCommand[] = [adjustMMR, changeAbandonCDCounter, changeFailToAcceptCounter, cooldown, easyTime,
     forceAbandon, freeze, nullify, manualSubmitIfAbandoned, manualSubmitIfNotAbandoned,
     refMute, removeCooldown, reverseCooldown, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee, moderatorActions];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
@@ -44,7 +43,6 @@ export const _mod: Command = {
     data: new SlashCommandBuilder()
         .setName('mod')
         .setDescription('Mod commands')
-        .addSubcommand(actions.data)
         .addSubcommand(adjustMMR.data)
         .addSubcommand(changeAbandonCDCounter.data)
         .addSubcommand(changeFailToAcceptCounter.data)
