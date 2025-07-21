@@ -51,7 +51,7 @@ export const freeAtNine: SubCommand = {
             }
             // 3. If not on cooldown (banUntil in the past or 0)
             await logInfo('freeAtNine: Checking if user is on cooldown', interaction.client);
-            if (dbUser.banUntil <= moment().unix()) {
+            if (!dbUser.banUntil || dbUser.banUntil < Date.now() / 1000) {
                 await interaction.reply({content: `<@${dbUser.id}> is not on cooldown.`, ephemeral: true});
                 await logInfo('freeAtNine: User not on cooldown, exiting', interaction.client);
                 return;
