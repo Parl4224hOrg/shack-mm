@@ -1,4 +1,5 @@
 import {Command, SubCommand} from "../../interfaces/Command";
+import {mapPlay} from "../moderator/actions";
 import {mapPlay} from "../moderator/mapPlay";
 import {nextMapPool} from "../moderator/nextMapPool";
 import {rankDist} from "../moderator/rankDist";
@@ -14,7 +15,7 @@ import {commandPermission} from "../../utility/commandPermission";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
 
-const subCommandListTemp: SubCommand[] = [abandonRatio, mapPlay, nextMapPool, rankDist, scoreDist, failToAcceptRatio, lateRatio, troubleMakers];
+const subCommandListTemp: SubCommand[] = [actions, abandonRatio, mapPlay, nextMapPool, rankDist, scoreDist, failToAcceptRatio, lateRatio, troubleMakers];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -26,6 +27,7 @@ export const _modInfo: Command = {
     data: new SlashCommandBuilder()
         .setName('mod_info')
         .setDescription('Mod info commands')
+        .addSubcommand(actions.data)
         .addSubcommand(abandonRatio.data)
         .addSubcommand(mapPlay.data)
         .addSubcommand(nextMapPool.data)
