@@ -17,10 +17,11 @@ export const freeAtNine: SubCommand = {
         .setDescription('If queue is at 9, puts user in and removes cooldown')
         .addUserOption(userOption('User to free at 9')),
     run: async (interaction, data) => {
+        await interaction.deferReply({ ephemeral: true });
         // Defensive check and logging for debugging
         if (!data) {
             await logInfo('freeAtNine: data object is undefined!', interaction.client);
-            await interaction.reply({content: 'Internal error: data object missing.', ephemeral: true});
+            await interaction.editReply({content: 'Internal error: data object missing.', ephemeral: true});
             return;
         }
         if (!('limiter' in data)) {
@@ -32,20 +33,20 @@ export const freeAtNine: SubCommand = {
             // 1. User Registration and Profile Checks
             await logInfo('freeAtNine: Checking oculusName', interaction.client);
             if (!dbUser.oculusName) {
-                await interaction.reply({content: `<@${dbUser.id}> needs to set a name using /register before queueing.`, ephemeral: true});
+                await interaction.editReply({content: `<@${dbUser.id}> needs to set a name using /register before queueing.`, ephemeral: true});
                 await logInfo('freeAtNine: User missing oculusName, exiting', interaction.client);
                 return;
             }
             await logInfo('freeAtNine: Checking region', interaction.client);
             if (!dbUser.region) {
-                await interaction.reply({content: `<@${dbUser.id}> must set a region before they can play.`, ephemeral: true});
+                await interaction.editReply({content: `<@${dbUser.id}> must set a region before they can play.`, ephemeral: true});
                 await logInfo('freeAtNine: User missing region, exiting', interaction.client);
                 return;
             }
             // 2. If frozen
             await logInfo('freeAtNine: Checking if user is frozen', interaction.client);
             if (dbUser.frozen) {
-                await interaction.reply({content: `<@${dbUser.id}> is frozen.`, ephemeral: true});
+                await interaction.editReply({content: `<@${dbUser.id}> is frozen.`, ephemeral: true});
                 await logInfo('freeAtNine: User is frozen, exiting', interaction.client);
                 return;
             }
@@ -53,7 +54,7 @@ export const freeAtNine: SubCommand = {
             await logInfo('freeAtNine: Checking if user is on cooldown', interaction.client);
             await logInfo(`freeAtNine: banUntil=${dbUser.banUntil}, typeof=${typeof dbUser.banUntil}`, interaction.client);
             if (!dbUser.banUntil || dbUser.banUntil < Date.now() / 1000) {
-                await interaction.reply({content: `<@${dbUser.id}> is not on cooldown.`, ephemeral: true});
+                await interaction.editReply({content: `<@${dbUser.id}> is not on cooldown.`, ephemeral: true});
                 await logInfo('freeAtNine: User not on cooldown, exiting', interaction.client);
                 return;
             }
@@ -62,21 +63,21 @@ export const freeAtNine: SubCommand = {
             // 4. Queue Generation State
             await logInfo('freeAtNine: Checking if queue is generating', interaction.client);
             if (queueController.generating) {
-                await interaction.reply({content: `Queue is currently generating a match. Please try again in a couple seconds.`, ephemeral: true});
+                await interaction.editReply({content: `Queue is currently generating a match. Please try again in a couple seconds.`, ephemeral: true});
                 await logInfo('freeAtNine: Queue is generating, exiting', interaction.client);
                 return;
             }
             // 5. Auto Queue State
             await logInfo('freeAtNine: Checking if auto queue is active', interaction.client);
             if (queueController.activeAutoQueue) {
-                await interaction.reply({content: `There is an auto queue in progress. Please wait for it to finish.`, ephemeral: true});
+                await interaction.editReply({content: `There is an auto queue in progress. Please wait for it to finish.`, ephemeral: true});
                 await logInfo('freeAtNine: Auto queue active, exiting', interaction.client);
                 return;
             }
             // 6. If queue is not at 9
             await logInfo('freeAtNine: Checking queue size', interaction.client);
             if (queueController.inQueueNumber() !== 9) {
-                await interaction.reply({content: `Queue is not at 9 (currently ${queueController.inQueueNumber()}).`, ephemeral: true});
+                await interaction.editReply({content: `Queue is not at 9 (currently ${queueController.inQueueNumber()}).`, ephemeral: true});
                 await logInfo('freeAtNine: Queue not at 9, exiting', interaction.client);
                 return;
             }
@@ -110,11 +111,12 @@ export const freeAtNine: SubCommand = {
             embed.setTitle(`User ${dbUser.id} freed at 9`);
             embed.setDescription(`<@${dbUser.id}> was freed at 9 by <@${interaction.user.id}>`);
             await channel.send({embeds: [embed.toJSON()]});
-            await interaction.reply({content: `<@${dbUser.id}> has been freed at 9 and added to queue.`, ephemeral: true});
+            await interaction.editReply({content: `<@${dbUser.id}> has been freed at 9 and added to queue.`, ephemeral: true});
             await logInfo('freeAtNine: Command completed successfully', interaction.client);
         } catch (e) {
             await logInfo('freeAtNine: Caught error', interaction.client);
             await logError(e, interaction);
+            await interaction.editReply({content: 'An error occurred while processing the command.', ephemeral: true});
         }
     },
     name: 'free_at_nine',
