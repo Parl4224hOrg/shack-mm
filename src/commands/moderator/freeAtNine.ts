@@ -115,6 +115,6 @@ export const freeAtNine: SubCommand = {
             await logError(e, interaction);
         }
     },
-    name: 'freeAtNine',
+    name: 'free_at_nine',
     allowedRoles: tokens.Mods,
 } 
