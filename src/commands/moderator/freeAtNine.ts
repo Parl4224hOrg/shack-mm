@@ -1,15 +1,14 @@
 import {SubCommand} from "../../interfaces/Command";
 import {userOption} from "../../utility/options";
 import tokens from "../../tokens";
-import {logError, logInfo} from "../../loggers";
-import {getUserByUser} from "../../modules/getters/getUser";
-import {updateUser} from "../../modules/updaters/updateUser";
 import {SlashCommandSubcommandBuilder} from "@discordjs/builders";
 import {EmbedBuilder, TextChannel, MessageFlagsBitField} from "discord.js";
 import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {getStats} from "../../modules/getters/getStats";
 import moment from "moment";
+import {getUserByUser} from "../../modules/getters/getUser";
+import {updateUser} from "../../modules/updaters/updateUser";
 
 export const freeAtNine: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -18,74 +17,46 @@ export const freeAtNine: SubCommand = {
         .addUserOption(userOption('User to free at 9')),
     run: async (interaction, data) => {
         await interaction.deferReply();
-        // Defensive check and logging for debugging
-        if (!data) {
-            await logInfo('freeAtNine: data object is undefined!', interaction.client);
-            await interaction.followUp({content: 'Internal error: data object missing.', flags: MessageFlagsBitField.Flags.Ephemeral});
-            return;
-        }
-        if (!('limiter' in data)) {
-            await logInfo('freeAtNine: data.limiter is missing!', interaction.client);
-        }
         try {
-            await logInfo('freeAtNine: Fetching user from DB', interaction.client);
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             // 1. User Registration and Profile Checks
-            await logInfo('freeAtNine: Checking oculusName', interaction.client);
             if (!dbUser.oculusName) {
                 await interaction.followUp({content: `<@${dbUser.id}> needs to set a name using /register before queueing.`, flags: MessageFlagsBitField.Flags.Ephemeral});
-                await logInfo('freeAtNine: User missing oculusName, exiting', interaction.client);
                 return;
             }
-            await logInfo('freeAtNine: Checking region', interaction.client);
             if (!dbUser.region) {
                 await interaction.followUp({content: `<@${dbUser.id}> must set a region before they can play.`, flags: MessageFlagsBitField.Flags.Ephemeral});
-                await logInfo('freeAtNine: User missing region, exiting', interaction.client);
                 return;
             }
             // 2. If frozen
-            await logInfo('freeAtNine: Checking if user is frozen', interaction.client);
             if (dbUser.frozen) {
                 await interaction.followUp({content: `<@${dbUser.id}> is frozen.`, flags: MessageFlagsBitField.Flags.Ephemeral});
-                await logInfo('freeAtNine: User is frozen, exiting', interaction.client);
                 return;
             }
             // 3. If not on cooldown (banUntil in the past or 0)
-            await logInfo('freeAtNine: Checking if user is on cooldown', interaction.client);
-            await logInfo(`freeAtNine: banUntil=${dbUser.banUntil}, typeof=${typeof dbUser.banUntil}`, interaction.client);
             if (!dbUser.banUntil || dbUser.banUntil < Date.now() / 1000) {
                 await interaction.followUp({content: `<@${dbUser.id}> is not on cooldown.`, flags: MessageFlagsBitField.Flags.Ephemeral});
-                await logInfo('freeAtNine: User not on cooldown, exiting', interaction.client);
                 return;
             }
-            await logInfo('freeAtNine: about to getQueue()', interaction.client);
             const queueController = data.getQueue();
             // 4. Queue Generation State
-            await logInfo('freeAtNine: Checking if queue is generating', interaction.client);
             if (queueController.generating) {
                 await interaction.followUp({content: `Queue is currently generating a match. Please try again in a couple seconds.`, flags: MessageFlagsBitField.Flags.Ephemeral});
-                await logInfo('freeAtNine: Queue is generating, exiting', interaction.client);
                 return;
             }
             // 5. Auto Queue State
-            await logInfo('freeAtNine: Checking if auto queue is active', interaction.client);
             if (queueController.activeAutoQueue) {
                 await interaction.followUp({content: `There is an auto queue in progress. Please wait for it to finish.`, flags: MessageFlagsBitField.Flags.Ephemeral});
-                await logInfo('freeAtNine: Auto queue active, exiting', interaction.client);
                 return;
             }
             // 6. If queue is not at 9
-            await logInfo('freeAtNine: Checking queue size', interaction.client);
             if (queueController.inQueueNumber() !== 9) {
                 await interaction.followUp({content: `Queue is not at 9 (currently ${queueController.inQueueNumber()}).`, flags: MessageFlagsBitField.Flags.Ephemeral});
-                await logInfo('freeAtNine: Queue not at 9, exiting', interaction.client);
                 return;
             }
             // 7. If user is not in queue, add them directly
-            await logInfo('freeAtNine: Checking if user is already in queue', interaction.client);
             const alreadyInQueue = queueController.inQueue.some(u => u.discordId === dbUser.id);
             if (!alreadyInQueue) {
-                await logInfo('freeAtNine: User not in queue, adding', interaction.client);
                 const stats = await getStats(dbUser._id, queueController.queueId);
                 queueController.inQueue.push({
                     dbId: dbUser._id,
@@ -95,15 +66,11 @@ export const freeAtNine: SubCommand = {
                     name: dbUser.name,
                     region: dbUser.region,
                 });
-            } else {
-                await logInfo('freeAtNine: User already in queue', interaction.client);
             }
             // 8. Remove cooldown (do not decrement ban counters)
-            await logInfo('freeAtNine: Removing cooldown', interaction.client);
             dbUser.banUntil = 0;
             await updateUser(dbUser, data);
             // 9. Log and reply
-            await logInfo('freeAtNine: Logging action and sending notifications', interaction.client);
             const reason = `Freed at 9 by <@${interaction.user.id}>`;
             await createActionUser(Actions.RemoveCooldown, interaction.user.id, dbUser.id, reason, 'cooldown removed');
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
@@ -112,10 +79,7 @@ export const freeAtNine: SubCommand = {
             embed.setDescription(`<@${dbUser.id}> was freed at 9 by <@${interaction.user.id}>`);
             await channel.send({embeds: [embed.toJSON()]});
             await interaction.followUp({content: `<@${dbUser.id}> has been freed at 9 and added to queue.`, flags: MessageFlagsBitField.Flags.Ephemeral});
-            await logInfo('freeAtNine: Command completed successfully', interaction.client);
         } catch (e) {
-            await logInfo('freeAtNine: Caught error', interaction.client);
-            await logError(e, interaction);
             await interaction.followUp({content: 'An error occurred while processing the command.', flags: MessageFlagsBitField.Flags.Ephemeral});
         }
     },
