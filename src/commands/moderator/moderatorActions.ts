@@ -10,7 +10,7 @@ import {getUserByUser} from "../../modules/getters/getUser";
 export const moderatorActions: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName("moderator_actions")
-        .setDescription("Displays the last 20 moderator infractions (not warnings) for a user, excluding those by @Shack MM Bot.")
+        .setDescription("Shows last 20 moderator infractions (not warnings) for a user, excluding those by Shack MM Bot.")
         .addUserOption(userOption("User to view infractions for"))
         .addBooleanOption(new SlashCommandBooleanOption()
             .setName('hidden')
