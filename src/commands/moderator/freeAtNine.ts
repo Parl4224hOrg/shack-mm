@@ -51,11 +51,13 @@ export const freeAtNine: SubCommand = {
             }
             // 3. If not on cooldown (banUntil in the past or 0)
             await logInfo('freeAtNine: Checking if user is on cooldown', interaction.client);
+            await logInfo(`freeAtNine: banUntil=${dbUser.banUntil}, typeof=${typeof dbUser.banUntil}`, interaction.client);
             if (!dbUser.banUntil || dbUser.banUntil < Date.now() / 1000) {
                 await interaction.reply({content: `<@${dbUser.id}> is not on cooldown.`, ephemeral: true});
                 await logInfo('freeAtNine: User not on cooldown, exiting', interaction.client);
                 return;
             }
+            await logInfo('freeAtNine: about to getQueue()', interaction.client);
             const queueController = data.getQueue();
             // 4. Queue Generation State
             await logInfo('freeAtNine: Checking if queue is generating', interaction.client);
