@@ -1596,14 +1596,22 @@ export class GameController {
             const channel = await this.guild.channels.fetch(this.acceptChannelId) as TextChannel;
             await channel.send(`<@&${this.matchRoleId}> <@${userId}> has failed to accept the match. You have been placed in queue for 15 minutes`);
             return;
-        } else if (this.state == 11) {
-            const channelA = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;
-            await channelA.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
-            const channelB = await this.guild.channels.fetch(this.teamBChannelId) as TextChannel;
-            await channelB.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
+        } else if (this.state > 10 && this.state < 15) {
+            try {
+                const channelA = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;
+                await channelA.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
+                const channelB = await this.guild.channels.fetch(this.teamBChannelId) as TextChannel;
+                await channelB.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
+            } catch (e) {
+                await logWarn("Failed to send abandon message during voting phase", this.client);
+            }
         } else {
-            const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
-            await channel.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
+            try {
+                const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
+                await channel.send(`<@&${this.matchRoleId}> <@${userId}> has abandoned the match and this channel will be deleted in 30 seconds you can ready up again now`);
+            } catch (e) {
+                await logWarn("Failed to send abandon message during final phase", this.client);
+            }
         }
         for (let user of this.users) {
             const member = await guild.members.fetch(user.discordId);
