@@ -29,17 +29,23 @@ export const freeze: SubCommand = {
                 if (dbUser.frozen) {
                     await createActionUser(Actions.Freeze, interaction.user.id, dbUser.id, "User was frozen", "User was frozen");
                     await updateUser(dbUser, data);
-                    await member.roles.add(tokens.MutedRole);
                     data.removeFromQueue(dbUser._id, "ALL");
-                    await interaction.followUp({content: `<@${dbUser.id}> has been frozen`});
+                    if (member) {
+                        await member.roles.add(tokens.MutedRole);
+                        await interaction.followUp({content: `<@${dbUser.id}> has been frozen`});
+                    } else {
+                        await interaction.followUp({content: `<@${dbUser.id}> : ${dbUser.name} has been frozen, unable to find in server to apply mute role.`});
+                    }
                 } else {
                     await createActionUser(Actions.Freeze, interaction.user.id, dbUser.id, "User was un-frozen", "User was un-frozen");
                     await updateUser(dbUser, data);
                     if (dbUser.muteUntil > 0 && dbUser.muteUntil < moment().unix()) {
-                        await member.roles.remove(tokens.MutedRole, "remove using /freeze");
-                        await logInfo(`Unmuted ${member.user.id} (${dbUser.id}) freeze.ts ln 39`, interaction.client, [Tokens.Parl]);
+                        if (member) {
+                            await member.roles.remove(tokens.MutedRole, "remove using /freeze");
+                            await logInfo(`Unmuted ${member.user.id} (${dbUser.id}) freeze.ts ln 39`, interaction.client, [Tokens.Parl]);
+                        }
                     }
-                    await interaction.followUp({content: `<@${dbUser.id}> has been unfrozen`});
+                    await interaction.followUp({content: `<@${dbUser.id}> has been unfrozen, and unmuted if in server.`});
                 }
             }
         } catch (e) {
