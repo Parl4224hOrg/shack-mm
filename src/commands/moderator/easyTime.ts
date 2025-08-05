@@ -18,9 +18,14 @@ export const easyTime: SubCommand = {
             } else {
                 const timestamp = game.finalGenTime + 10 * 60;
                 await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "easy_time is working" });
-                await interaction.followUp({
-                    content: `<@${user.id}> <t:${timestamp}:R> you will be abandoned if you do not join the game`
-                });
+                if (interaction.channel && interaction.channel.isSendable()) {
+                    await interaction.channel.send({
+                        content: `<@${user.id}> <t:${timestamp}:R> you will be abandoned if you do not join the game`,
+                        allowedMentions: {users: [user.id]}
+                    })
+                } else {
+                    await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "cannot send message, command executed" });
+                }
             }
         } catch (e) {
             await logError(e, interaction);
