@@ -22,7 +22,13 @@ export const nullify: SubCommand = {
                 await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'Could not find game'});
             } else {
                 await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "nullify is working" });
-                await interaction.followUp("game nullified");
+                if (interaction.channel && interaction.channel.isSendable()) {
+                    await interaction.channel.send({
+                        content: "game nullified",
+                    })
+                } else {
+                    await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "cannot send message, command executed" });
+                }
                 await game.abandonCleanup(true);
                 await createAction(Actions.Nullify, interaction.user.id, reason, `Game ${game.id} nullified`);
                 let channel: TextChannel;

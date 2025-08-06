@@ -44,10 +44,24 @@ export const warn: SubCommand = {
                 interaction.channel?.type === ChannelType.PrivateThread ||
                 interaction.channel?.type === ChannelType.AnnouncementThread) {
                 await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Warn is working" });
-                await interaction.followUp({content: `<${interaction.options.getUser('user', true).username}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``});
+                if (interaction.channel && interaction.channel.isSendable()) {
+                    await interaction.channel.send({
+                        content: `<${interaction.options.getUser('user', true).username}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``,
+                    })
+                } else {
+                    await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "cannot send message, command executed" });
+                }
             } else {
+
                 await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Warn is working" });
-                await interaction.followUp({content: `<@${interaction.options.getUser('user', true).id}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``});
+                if (interaction.channel && interaction.channel.isSendable()) {
+                    await interaction.channel.send({
+                        content: `<@${interaction.options.getUser('user', true).id}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\``,
+                        allowedMentions: {users: [interaction.options.getUser('user', true).id]}
+                    })
+                } else {
+                    await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "cannot send message, command executed" });
+                }
             }
             let channel: TextChannel;
             if (isReferee) {

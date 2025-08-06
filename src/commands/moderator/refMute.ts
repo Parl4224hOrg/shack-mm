@@ -55,8 +55,17 @@ export const refMute: SubCommand = {
             const muteMessage = `<@${user.id}> has been muted for ${grammaticalTime(muteDuration)}`;
             reason = `Muted for 30 minutes because: ${reason}`;
             
+            let followUpMessage = null;
+            
             await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Ref mute is working" });
-            const followUpMessage = await interaction.followUp({ content: muteMessage });
+            if (interaction.channel && interaction.channel.isSendable()) {
+                followUpMessage = await interaction.channel.send({
+                    content: muteMessage,
+                    allowedMentions: {users: [user.id]}
+                })
+            } else {
+                await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "cannot send message, command executed" });
+            }
             
             await warnModel.create({
                 userId: dbUser._id,
@@ -70,7 +79,7 @@ export const refMute: SubCommand = {
             const channel = await interaction.client.channels.fetch(tokens.RefereeLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
             embed.setTitle(`User ${user.username} has been muted by referee`);
-            embed.setDescription(`<@${user.id}> muted by <@${interaction.user.id}> for 30 minutes because: ${reason}\n\nChannel: <#${interaction.channelId}>\nMessage: ${followUpMessage.url}`);
+            embed.setDescription(`<@${user.id}> muted by <@${interaction.user.id}> for 30 minutes because: ${reason}\n\nChannel: <#${interaction.channelId}>\nMessage: ${followUpMessage?.url}`);
             await channel.send({content: `<@&${tokens.ModRole}>`, embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);

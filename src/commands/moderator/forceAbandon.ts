@@ -41,7 +41,14 @@ export const forceAbandon: SubCommand = {
                 embed.setDescription(`<@${dbUser.id}> force abandoned by <@${interaction.user.id}> because: ${reason}`);
                 await channel.send({embeds: [embed.toJSON()]});
                 await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Force abandon is working" });
-                await interaction.followUp({content: `<@${dbUser.id}> has been abandoned`});
+                if (interaction.channel && interaction.channel.isSendable()) {
+                    await interaction.channel.send({
+                        content: `<@${dbUser.id}> has been abandoned`,
+                        allowedMentions: {users: [dbUser.id]}
+                    })
+                } else {
+                    await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "cannot send message, command executed" });
+                }
             } else {
                 await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'User not in a game'});
             }
