@@ -1188,12 +1188,12 @@ export class GameController {
                 this.serverSetup = false;
                 // There are APAC players, but not only APAC players
                 if (totalEUE > 0) {
-                    serverMessage = "There are APAC and EUE players in this game. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
+                    serverMessage = "There are APAC and EUE players in this game, play on NAW Server.";
                 } else {
                     if ((totalEUE + totalEUW) > 0) {
-                        serverMessage = "Play on NAC because there are APAC players and EUW players in this game.";
+                        serverMessage = "Play on NAW Server because there are APAC players and EUW players in this game.";
                     } else {
-                        serverMessage = "Play on NAW because there are APAC players and no EU players in this game. NAC may also be played.";
+                        serverMessage = "Play on NAW because there are APAC players and no EU players in this game.";
                     }
                 }
             } else {
