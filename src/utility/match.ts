@@ -12,7 +12,7 @@ import tokens from "../tokens";
 import {logInfo} from "../loggers";
 import {MapData} from "../interfaces/Internal";
 import mapModel from "../database/models/MapModel";
-import {GameUser, QueueUser} from "../interfaces/Game";
+import {QueueUser} from "../interfaces/Game";
 import {Regions} from "../database/models/UserModel";
 
 export const registerMaps = (data: Data, maps: string[]) => {
@@ -204,7 +204,7 @@ export const matchScore = async (interaction: ButtonInteraction, data: Data, sco
     }
 }
 
-export const getServerRegion = (users: GameUser[] | QueueUser[]): Regions => {
+export const getServerRegion = (users: QueueUser[]): Regions => {
     let APAC = 0;
     let NAE = 0;
     let NAW = 0;
@@ -220,11 +220,7 @@ export const getServerRegion = (users: GameUser[] | QueueUser[]): Regions => {
         }
     }
 
-    if (APAC == 10) {
-        return Regions.APAC;
-    } else if (EU == 10) {
-        return Regions.EUE;
-    } else if (APAC > 0) {
+    if (APAC > 0) {
         return Regions.NAW;
     } else if (EU > 0) {
         return Regions.NAE;
