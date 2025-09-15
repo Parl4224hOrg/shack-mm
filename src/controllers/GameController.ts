@@ -20,7 +20,7 @@ import {Data} from "../data";
 import {Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
-import {getMapData, getMapsDB, logAccept, logScoreSubmit, logScoreAccept} from "../utility/match";
+import {getMapData, getMapsDB, logAccept, logScoreSubmit, logScoreAccept, getServerRegion} from "../utility/match";
 import {GameServer} from "../server/server";
 import {RCONError} from "rcon-pavlov";
 import {MapInt} from "../database/models/MapModel";
@@ -1158,48 +1158,21 @@ export class GameController {
                 }
             }
             let serverMessage;
-            if (totalAPAC === 0 && totalEUE === 0 && totalEUW === 0) {
-                if (totalNAE > 0 && totalNAW === 0) {
-                    //serverMessage = "Play on NAE because all players are NA and there are no west coast players.";
-                } else if (totalNAW > 0 && totalNAE === 0) {
-                    //serverMessage = "Play in order of priority: NAW, NAC, NAE because all players are NA and there are no east coast players.";
-                } else if (totalNAE > 0 && totalNAW > 0) {
-                    //serverMessage = "Play in order of priority: NAC, NAE, NAW because all players are NA.";  
-                }
-                serverMessage = "Play on NA server because all players are NA.";
-            } else if (totalAPAC === 0 && totalNAE === 0 && totalNAW === 0) {
-                serverMessage = "Play on EU because all players are EU.";  
-                this.serverSetup = false;
-            } else if (totalEUE === 0 && totalEUW === 0 && totalNAE === 0 && totalNAW === 0) {
-                serverMessage = "Play on APAC because all players are APAC.";  
-                this.serverSetup = false;
-            } else if (totalAPAC === 0) {
-                // No APAC, only NA + EU
-                if (totalNAW > 0) {
-                    serverMessage = "Play on NAE because there are NAW players and EU players.";
-                } else if (totalNAW === 0 && totalEUE > 0) {
-                    serverMessage = "Play on EU because there are EUE players and no NAW players. If all EUE players agree, NAE may be used.";
-                } else if ( (totalNAE + totalNAW) > (totalEUE + totalEUW) ) { 
-                    serverMessage = "Play on NAE because majority NA over EU. If all NA players agree, EU may be used.";
-                } else {
-                    serverMessage = "Play on EU because majority EU over NA. If all EU players agree, NAE may be used.";
-                }
-            } else if (totalAPAC > 0) {
-                this.serverSetup = false;
-                // There are APAC players, but not only APAC players
-                if (totalEUE > 0) {
-                    serverMessage = "There are APAC and EUE players in this game. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
-                } else {
-                    if ((totalEUE + totalEUW) > 0) {
-                        serverMessage = "Play on NAC because there are APAC players and EUW players in this game.";
-                    } else {
-                        serverMessage = "Play on NAW because there are APAC players and no EU players in this game. NAC may also be played.";
-                    }
-                }
-            } else {
-                serverMessage = "The bot failed to pick a region. Please let the moderators know.";
+            const gameRegion = getServerRegion(this.users);
+            switch (gameRegion) {
+                case Regions.APAC:
+                    this.serverSetup = false;
+                    serverMessage = `Play on APAC because all players are APAC.`; break;
+                case Regions.EUE:
+                case Regions.EUW:
+                    this.serverSetup = false;
+                    serverMessage = `Play on EU because all players are EU.`; break;
+                case Regions.NAW:
+                    serverMessage = `There are APAC players in this game play on NAW server.`; break;
+                case Regions.NAE:
+                    serverMessage = `There are only NA or NA and EU players play on NAE`; break;
             }
-          
+
             let message;
             if (this.server && this.serverSetup) {
                 try {
