@@ -14,12 +14,12 @@ import {GameController} from "./controllers/GameController";
 import {getUserById, getUserByUser} from "./modules/getters/getUser";
 import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
 import UserModel from "./database/models/UserModel";
-import userModel, {Regions, UserInt} from "./database/models/UserModel";
+import userModel, {UserInt} from "./database/models/UserModel";
 import {getStats} from "./modules/getters/getStats";
 import {getRank, roleRemovalCallback} from "./utility/ranking";
 import {updateUser} from "./modules/updaters/updateUser";
 import {GameServer} from "./server/server";
-import {registerMaps} from "./utility/match";
+import {getServerRegion, registerMaps} from "./utility/match";
 import serializer from "./serializers/serializer";
 import MapTestModel from "./database/models/MapTestModel";
 import mapTestModel from "./database/models/MapTestModel";
@@ -55,7 +55,7 @@ export class Data {
         this.client = client
         this.FILL_SND = new QueueController(this, client, "FILL");
         for (let server of tokens.Servers) {
-            this.servers.push(new GameServer(server.ip, server.port, server.password, server.name, Regions.NAE, server.id));
+            this.servers.push(new GameServer(server.ip, server.port, server.password, server.name, server.region, server.id));
         }
     }
 
@@ -367,7 +367,7 @@ export class Data {
                 inUseServers.push(game.serverId)
             }
             for (let server of this.servers) {
-                if (!inUseServers.includes(server.id)) {
+                if (!inUseServers.includes(server.id) && server.region == getServerRegion(users)) {
                     serv = server;
                 }
             }

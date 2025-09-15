@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import messages from "./messages.json";
+import {Regions} from "./database/models/UserModel";
 dotenv.config();
 
 
@@ -113,14 +114,24 @@ export default {
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
             name: "NAE-ONE shackmm.com",
-            id: "NAE-ONE"
+            id: "NAE-ONE",
+            region: Regions.NAE,
         },
         {
             ip: "15.204.218.215",
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
             name: "NAE-TWO shackmm.com",
-            id: "NAE-TWO"
+            id: "NAE-TWO",
+            region: Regions.NAE,
+        },
+        {
+            ip: "51.81.186.111",
+            port: 9100,
+            password: process.env.RCON_PASS ?? "NO PASSWORD",
+            name: "NAW-ONE shackmm.com",
+            id: "NAW-ONE",
+            region: Regions.NAW,
         }
     ],
     MapIds: {
