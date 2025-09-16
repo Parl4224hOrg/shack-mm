@@ -90,7 +90,7 @@ export class QueueController {
             await logInfo(`[QueueController.load] game.requeueArray types: ${newGame.requeueArray.map(e => typeof e).join(", ")}`, this.client);
             this.activeGames.push(newGame);
         }
-        this.generating = false;
+        this.generating = parsed.generating;
         for (let data of parsed.mapData) {
             this.mapData.push(data);
         }
