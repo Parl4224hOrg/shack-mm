@@ -471,8 +471,10 @@ export class GameController {
                                 }
                             }
                         }
-                        for (const user of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
-                            await channel.send(`<@${user.discordId}> has not yet joined`);
+                        if (RefreshList.PlayerList.length > 0) {
+                            for (const user of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
+                                await channel.send(`<@${user.discordId}> has not yet joined`);
+                            }
                         }
                     }
                     this.submitCooldown--;
