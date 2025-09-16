@@ -84,6 +84,19 @@ export const adjustMatchScores: SubCommand = {
             stats.gamesPlayed--;
             stats.gamesPlayedSinceReset--;
             stats.gameHistory.pop();
+            if (match.winner == 0) {
+                if (user.team == 0) {
+                    stats.wins--;
+                } else {
+                    stats.losses--;
+                }
+            } else {
+                if (user.team == 1) {
+                    stats.wins--;
+                } else {
+                    stats.losses--;
+                }
+            }
         }
 
         // Recalc the mmr
@@ -93,7 +106,7 @@ export const adjustMatchScores: SubCommand = {
             users,
             [scoreA, scoreB],
             "SND",
-            10
+            10,
         );
 
         // Make required db updates
