@@ -2,7 +2,7 @@ import {SubCommand} from "../../interfaces/Command";
 import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
 import tokens from "../../tokens";
 import {getGameByMatchId} from "../../modules/getters/getGame";
-import GameModel from "../../database/models/GameModel";
+import GameModel, {GameInt} from "../../database/models/GameModel";
 import {Types} from "mongoose";
 import {getUserById} from "../../modules/getters/getUser";
 import {getStats} from "../../modules/getters/getStats";
@@ -47,7 +47,7 @@ export const adjustMatchScores: SubCommand = {
         await interaction.deferReply();
 
         // Check if this match is the most recent complete game played by all users
-        const futureMatches = await GameModel.find({
+        let futureMatches: GameInt[] = await GameModel.find({
             matchId: {$gt: match.matchId},
             scoreA: {$gte: 0},
             scoreB: {$gte: 0},
@@ -105,6 +105,23 @@ export const adjustMatchScores: SubCommand = {
         match.scoreA = scoreA;
         match.scoreB = scoreA;
         await updateGame(match);
+
+        // Update matches that have been generated since to have accurate mmr diffs
+        futureMatches = await GameModel.find({
+            matchId: {$gt: match.matchId}
+        });
+        for (const futureMatch of futureMatches) {
+            let teamASum = 0;
+            let teamBSum = 0;
+            for (const user of futureMatch.teamA) {
+                teamASum += (await getStats(user, "SND")).mmr;
+            }
+            for (const user of futureMatch.teamB) {
+                teamBSum += (await getStats(user, "SND")).mmr;
+            }
+            futureMatch.mmrDiff = Math.abs(teamASum - teamBSum);
+            await updateGame(futureMatch);
+        }
 
         await interaction.followUp({content: `Successfully updated the scores of match ${match.matchId}`})
     },
