@@ -12,6 +12,8 @@ import tokens from "../tokens";
 import {logInfo} from "../loggers";
 import {MapData} from "../interfaces/Internal";
 import mapModel from "../database/models/MapModel";
+import {QueueUser} from "../interfaces/Game";
+import {Regions} from "../database/models/UserModel";
 
 export const registerMaps = (data: Data, maps: string[]) => {
     const mapData = data.getQueue().getMapData();
@@ -200,4 +202,30 @@ export const matchScore = async (interaction: ButtonInteraction, data: Data, sco
     } else {
         await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find controller please contact a mod"});
     }
+}
+
+export const getServerRegion = (users: QueueUser[]): Regions => {
+    let APAC = 0;
+    let NAE = 0;
+    let NAW = 0;
+    let EU = 0;
+    for (let user of users) {
+        switch (user.region) {
+            case Regions.NAE: NAE++; break;
+            case Regions.NAW: NAW++; break;
+            case Regions.EUW:
+            case Regions.EUE:
+                EU++; break;
+            case Regions.APAC: APAC++; break;
+        }
+    }
+
+    if (APAC > 0) {
+        return Regions.NAW;
+    } else if (EU > 0) {
+        return Regions.NAE;
+    } else if (NAW > NAE) {
+        return Regions.NAW;
+    }
+    return Regions.NAE;
 }

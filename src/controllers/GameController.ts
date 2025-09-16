@@ -1185,15 +1185,14 @@ export class GameController {
                     serverMessage = "Play on EU because majority EU over NA. If all EU players agree, NAE may be used.";
                 }
             } else if (totalAPAC > 0) {
-                this.serverSetup = false;
                 // There are APAC players, but not only APAC players
                 if (totalEUE > 0) {
-                    serverMessage = "There are APAC and EUE players in this game. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
+                    serverMessage = "There are APAC and EUE players in this game. The NAW server is recommended for you to use. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
                 } else {
                     if ((totalEUE + totalEUW) > 0) {
-                        serverMessage = "Play on NAC because there are APAC players and EUW players in this game.";
+                        serverMessage = "The NAW server is recommended for you to use. It may be played on NAC because there are APAC players and EUW players in this game.";
                     } else {
-                        serverMessage = "Play on NAW because there are APAC players and no EU players in this game. NAC may also be played.";
+                        serverMessage = "Play on NAW because there are APAC players and no EU players in this game.";
                     }
                 }
             } else {
