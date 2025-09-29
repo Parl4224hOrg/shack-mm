@@ -1168,7 +1168,12 @@ export class GameController {
                 } else if (totalNAE > 0 && totalNAW > 0) {
                     //serverMessage = "Play in order of priority: NAC, NAE, NAW because all players are NA.";  
                 }
-                serverMessage = "Play on NAC server because all players are NA.";
+                if (this.server && this.server.region == Regions.NAE) {
+                    serverMessage = "Play on NAE server because all players are NA.";
+                } else {
+                    serverMessage = "Play on NAC server because all players are NA.";
+                }
+
             } else if (totalAPAC === 0 && totalNAE === 0 && totalNAW === 0) {
                 serverMessage = "Play on EU because all players are EU.";  
                 this.serverSetup = false;

@@ -14,7 +14,7 @@ import {GameController} from "./controllers/GameController";
 import {getUserById, getUserByUser} from "./modules/getters/getUser";
 import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
 import UserModel from "./database/models/UserModel";
-import userModel, {UserInt} from "./database/models/UserModel";
+import userModel, {Regions, UserInt} from "./database/models/UserModel";
 import {getStats} from "./modules/getters/getStats";
 import {getRank, roleRemovalCallback} from "./utility/ranking";
 import {updateUser} from "./modules/updaters/updateUser";
@@ -369,6 +369,13 @@ export class Data {
             for (let server of this.servers) {
                 if (!inUseServers.includes(server.id) && server.region == getServerRegion(users)) {
                     serv = server;
+                }
+            }
+            if (!serv && getServerRegion(users) == Regions.NAC) {
+                for (let server of this.servers) {
+                    if (!inUseServers.includes(server.id) && server.region == Regions.NAE) {
+                        serv = server;
+                    }
                 }
             }
             let game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this, serv);
