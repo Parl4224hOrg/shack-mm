@@ -132,6 +132,13 @@ export default {
             name: "NAW-ONE shackmm.com",
             id: "NAW-ONE",
             region: Regions.NAW,
+        },{
+            ip: "40.160.225.32",
+            port: 9100,
+            password: process.env.RCON_PASS ?? "NO PASSWORD",
+            name: "NAC-ONE shackmm.com",
+            id: "NAC-ONE",
+            region: Regions.NAC,
         }
     ],
     MapIds: {
