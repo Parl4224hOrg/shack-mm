@@ -32,8 +32,19 @@ export class Data {
     readonly client: Client;
     private userCache = new Map<string, UserInt>();
     private discordToObject = new Map<string, string>();
+    private tickRunning = false;
     private tickLoop = cron.schedule('*/1 * * * * *', async () => {
-        await this.tick();
+        if (this.tickRunning) {
+            return;
+        }
+        this.tickRunning = true;
+        try {
+            await this.tick();
+        } catch (err) {
+            console.error('Error in tick():', err);
+        } finally {
+            this.tickRunning = false;
+        }
     }, { runOnInit: false });
     private roleUpdate = cron.schedule("0 * * * *", async () => {
         await this.updateRoles();
