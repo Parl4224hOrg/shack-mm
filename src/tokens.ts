@@ -130,14 +130,14 @@ export default {
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
             name: "NAW-ONE shackmm.com",
-            id: "NAW-ONE",
+            id: "SMM-NAW-ONE",
             region: Regions.NAW,
         },{
             ip: "40.160.225.32",
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
             name: "NAC-ONE shackmm.com",
-            id: "NAC-ONE",
+            id: "SMM-NAC-ONE",
             region: Regions.NAC,
         }
     ],

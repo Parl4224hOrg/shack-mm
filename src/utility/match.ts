@@ -206,13 +206,15 @@ export const matchScore = async (interaction: ButtonInteraction, data: Data, sco
 
 export const getServerRegion = (users: QueueUser[]): Regions => {
     let APAC = 0;
-    let NA = 0;
+    let NAW = 0;
+    let NAE = 0;
     let EU = 0;
     for (let user of users) {
         switch (user.region) {
             case Regions.NAE:
+                NAW++; break;
             case Regions.NAW:
-                NA++; break;
+                NAE++; break;
             case Regions.EUW:
             case Regions.EUE:
                 EU++; break;
@@ -220,10 +222,8 @@ export const getServerRegion = (users: QueueUser[]): Regions => {
         }
     }
 
-    if (APAC > 0 && EU > 0) {
+    if (APAC > 0) {
         return Regions.NAC;
-    } else if (APAC > 0) {
-        return Regions.NAW;
     } else if (EU > 0) {
         return Regions.NAE;
     }
