@@ -4,7 +4,6 @@ import {ButtonStyle, MessageFlagsBitField} from "discord.js";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import axios from "axios";
-import tokens from "../../tokens";
 
 export const resetSND: Button = {
     data: new ButtonBuilder()
@@ -19,23 +18,7 @@ export const resetSND: Button = {
                 await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game"});
             } else {
                 await game.resetSND();
-                const name = game.server!.name
-                if (name == "NAE-ONE shackmm.com") {
-                    await axios.post(`https://shackmm.com/kill-feed/NAE-ONE/start?game=${game.matchNumber}`, {},
-                        {
-                        headers: {
-                            key: tokens.ServerKey,
-                        }
-                    })
-                } else {
-                    await axios.post(`https://shackmm.com/kill-feed/NAE-TWO/start?game=${game.matchNumber}`, {},
-                        {
-                            headers: {
-                                key: tokens.ServerKey,
-                            }
-                        })
-                }
-
+                await axios.post(`https://shackmm.com/kill-feed/${game.server!.id}/start?game=${game.matchNumber}`, {},)
                 await interaction.reply({content: `Game started by <@${dbUser.id}>`});
             }
         } catch (e) {

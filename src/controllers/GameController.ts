@@ -1168,7 +1168,12 @@ export class GameController {
                 } else if (totalNAE > 0 && totalNAW > 0) {
                     //serverMessage = "Play in order of priority: NAC, NAE, NAW because all players are NA.";  
                 }
-                serverMessage = "Play on NA server because all players are NA.";
+                if (this.server && this.server.region == Regions.NAE) {
+                    serverMessage = "Play on NAE server because all players are NA.";
+                } else {
+                    serverMessage = "Play on NAC server because all players are NA.";
+                }
+
             } else if (totalAPAC === 0 && totalNAE === 0 && totalNAW === 0) {
                 serverMessage = "Play on EU because all players are EU.";  
                 this.serverSetup = false;
@@ -1188,14 +1193,10 @@ export class GameController {
                 }
             } else if (totalAPAC > 0) {
                 // There are APAC players, but not only APAC players
-                if (totalEUE > 0) {
-                    serverMessage = "There are APAC and EUE players in this game. The NAW server is recommended for you to use. It may be played on NAC if both APAC players and EUE players agree. If not, ping moderators to nullify the match!";
+                if ((totalEUE + totalEUW) > 0) {
+                    serverMessage = "Play on NAC because there are APAC and EU players in this game";
                 } else {
-                    if ((totalEUE + totalEUW) > 0) {
-                        serverMessage = "The NAW server is recommended for you to use. It may be played on NAC because there are APAC players and EUW players in this game.";
-                    } else {
-                        serverMessage = "Play on NAW because there are APAC players and no EU players in this game.";
-                    }
+                    serverMessage = "Play on NAW because there are APAC players and no EU players in this game.";
                 }
             } else {
                 serverMessage = "The bot failed to pick a region. Please let the moderators know.";

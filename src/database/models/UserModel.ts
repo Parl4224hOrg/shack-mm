@@ -7,6 +7,7 @@ export enum Regions {
     EUE = "EUE",
     EUW = "EUW",
     APAC = "APAC",
+    NAC = "NAC",
 }
 
 export interface UserInt extends Document {
