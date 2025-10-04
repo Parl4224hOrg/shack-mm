@@ -17,7 +17,7 @@ export const lateReview: SubCommand = {
             .setDescription('Number of recent games to check (default: 10)')
             .setRequired(false)
             .setMinValue(1)
-            .setMaxValue30)),
+            .setMaxValue(30)),
     run: async (interaction, data) => {
         try {
             const user = interaction.options.getUser('user', true);
