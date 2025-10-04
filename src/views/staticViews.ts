@@ -26,12 +26,12 @@ export const sndFILLReadyView = () => {
 
 export const SNDFILLReadyView2 = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(pingMeButton.data, lfg.data, games.data, checkBanButton.data, lateRatioButton.data).toJSON();
+        .addComponents(pingMeButton.data, lfg.data, games.data, checkBanButton.data).toJSON();
 }
 
 export const SNDFILLReadyView3 = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(stats.data, ratingChangeButton.data, graphButton.data).toJSON();
+        .addComponents(stats.data, ratingChangeButton.data, graphButton.data, lateRatioButton.data).toJSON();
 }
 
 export const signUpView = () => {
