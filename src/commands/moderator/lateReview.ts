@@ -17,7 +17,7 @@ export const lateReview: SubCommand = {
             .setDescription('Number of recent games to check (default: 10)')
             .setRequired(false)
             .setMinValue(1)
-            .setMaxValue(15)),
+            .setMaxValue30)),
     run: async (interaction, data) => {
         try {
             const user = interaction.options.getUser('user', true);
@@ -33,7 +33,6 @@ export const lateReview: SubCommand = {
             
             if (games.length === 0) {
                 await interaction.reply({
-                    flags: MessageFlagsBitField.Flags.Ephemeral,
                     content: `${user.username} has no completed games to review.`
                 });
                 return;
@@ -60,7 +59,7 @@ export const lateReview: SubCommand = {
                 if (lateRecord) {
                     const lateBySeconds = (lateRecord.joinTime - lateRecord.channelGenTime) - 5 * 60;
                     if (lateBySeconds > 0) {
-                        response += `Late by ${lateBySeconds.toFixed(2)} seconds\n`;
+                        response += `Late by ${lateBySeconds.toFixed(0)} seconds\n`;
                     } else {
                         response += `On time\n`;
                     }
@@ -74,7 +73,6 @@ export const lateReview: SubCommand = {
             response += `\n**Summary:** ${actualLates.length}/${games.length} games with late arrivals`;
             
             await interaction.reply({
-                flags: MessageFlagsBitField.Flags.Ephemeral,
                 content: response
             });
         } catch (e) {
