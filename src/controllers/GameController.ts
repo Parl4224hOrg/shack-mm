@@ -1505,19 +1505,19 @@ export class GameController {
             const channel = await this.guild.channels.fetch(this.acceptChannelId);
             await channel?.delete();
         } catch {
-            await logWarn("Could not delete accept channel", this.client);
+            logWarn("Could not delete accept channel", this.client).then().catch(console.error);
         }
         try {
             const channel = await this.guild.channels.fetch(this.teamAChannelId);
             await channel?.delete();
         } catch {
-            await logWarn("Could not delete team a channel", this.client);
+            logWarn("Could not delete team a channel", this.client).then().catch(console.error);
         }
         try {
             const channel = await this.guild.channels.fetch(this.teamBChannelId);
             await channel?.delete();
         } catch {
-            await logWarn("Could not delete team b channel", this.client);
+            logWarn("Could not delete team b channel", this.client).then().catch(console.error);
         }
         this.processed = true;
         await this.cleanup();
@@ -1529,25 +1529,25 @@ export class GameController {
             const role = await this.guild.roles.fetch(this.matchRoleId);
             await role?.delete();
         } catch {
-            await logWarn("Could not delete match role", this.client);
+            await logWarn("Could not delete match role", this.client).then().catch(console.error);
         }
         try {
             const role = await this.guild.roles.fetch(this.teamARoleId);
             await role?.delete();
         } catch {
-            await logWarn("Could not delete team a role", this.client);
+            await logWarn("Could not delete team a role", this.client).then().catch(console.error);
         }
         try {
             const role = await this.guild.roles.fetch(this.teamBRoleId);
             await role?.delete();
         } catch {
-            await logWarn("Could not delete team b role", this.client);
+            await logWarn("Could not delete team b role", this.client).then().catch(console.error);
         }
         try {
             const channel = await this.guild.channels.fetch(this.finalChannelId);
             await channel?.delete();
         } catch {
-            await logWarn("Could not delete final channel", this.client);
+            await logWarn("Could not delete final channel", this.client).then().catch(console.error);
         }
         if (!this.cleanedUp && !this.abandoned) {
             await this.sendScoreEmbed();
