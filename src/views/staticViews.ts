@@ -15,6 +15,7 @@ import {mapTesterToggle} from "../buttons/mapTesterToggle";
 import {mapTestSignup} from "../buttons/mapTestSignup";
 import {mapTestRemoveSignup} from "../buttons/mapTestRemoveSignup";
 import {register} from "../buttons/register";
+import {lateRatioButton} from "../buttons/queue/lateRatio";
 
 
 
@@ -25,7 +26,7 @@ export const sndFILLReadyView = () => {
 
 export const SNDFILLReadyView2 = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(pingMeButton.data, lfg.data, games.data, checkBanButton.data).toJSON();
+        .addComponents(pingMeButton.data, lfg.data, games.data, checkBanButton.data, lateRatioButton.data).toJSON();
 }
 
 export const SNDFILLReadyView3 = () => {
