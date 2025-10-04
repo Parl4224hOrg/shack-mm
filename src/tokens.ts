@@ -22,6 +22,7 @@ export default {
     OwnerRole: '1204928541045825636',
     GeneralChannel: '1152652410184024247',
     SNDChannel: '1171851238594318387',
+    ActionsChannel: '1192236229173985443',
     PingToPlayRole: '1171851420639703150',
     SNDScoreChannel: '1171851522469023836',
     SNDReadyChannel: '1171851194667368459',

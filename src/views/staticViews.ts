@@ -15,6 +15,7 @@ import {mapTesterToggle} from "../buttons/mapTesterToggle";
 import {mapTestSignup} from "../buttons/mapTestSignup";
 import {mapTestRemoveSignup} from "../buttons/mapTestRemoveSignup";
 import {register} from "../buttons/register";
+import {lateRatioButton} from "../buttons/queue/lateRatio";
 
 
 
@@ -30,7 +31,7 @@ export const SNDFILLReadyView2 = () => {
 
 export const SNDFILLReadyView3 = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(stats.data, ratingChangeButton.data, graphButton.data).toJSON();
+        .addComponents(stats.data, ratingChangeButton.data, graphButton.data, lateRatioButton.data).toJSON();
 }
 
 export const signUpView = () => {
