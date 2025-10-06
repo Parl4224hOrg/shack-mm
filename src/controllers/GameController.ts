@@ -28,6 +28,7 @@ import LateModel from "../database/models/LateModel";
 import {grammaticalTime} from "../utility/grammatical";
 import {createActionUser} from "../modules/constructors/createAction";
 import {Actions} from "../database/models/ActionModel";
+import {RateLimitedQueue} from "../utility/rate-limited-queue";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -552,7 +553,7 @@ export class GameController {
                     break;
                 default:
                     if (this.abandoned && this.abandonCountdown <= 0 && !this.cleanedUp) {
-                        await this.abandonCleanup(false);
+                        await this.abandonCleanup(false, this.data.getQueue().getDeleteQueue());
                     } else if (this.abandoned) {
                         this.abandonCountdown--;
                     }
@@ -1492,7 +1493,7 @@ export class GameController {
         return this.users;
     }
 
-    async abandonCleanup(nullify: boolean) {
+    async abandonCleanup(nullify: boolean, queue: RateLimitedQueue) {
         const game = await getGameById(this.id);
         if (nullify) {
             game!.nullified = true;
@@ -1501,54 +1502,40 @@ export class GameController {
         }
         await updateGame(game!);
         this.cleanedUp = true;
-        try {
+        queue.queue(async () => {
             const channel = await this.guild.channels.fetch(this.acceptChannelId);
             await channel?.delete();
-        } catch {
-            logWarn("Could not delete accept channel", this.client).then().catch(console.error);
-        }
-        try {
+        });
+        queue.queue(async () => {
             const channel = await this.guild.channels.fetch(this.teamAChannelId);
             await channel?.delete();
-        } catch {
-            logWarn("Could not delete team a channel", this.client).then().catch(console.error);
-        }
-        try {
+        });
+        queue.queue(async () => {
             const channel = await this.guild.channels.fetch(this.teamBChannelId);
             await channel?.delete();
-        } catch {
-            logWarn("Could not delete team b channel", this.client).then().catch(console.error);
-        }
+        });
         this.processed = true;
-        await this.cleanup();
+        await this.cleanup(queue);
     }
 
-    async cleanup() {
+    async cleanup(queue: RateLimitedQueue) {
         await this.server?.unregisterServer()
-        try {
+        queue.queue(async () => {
             const role = await this.guild.roles.fetch(this.matchRoleId);
             await role?.delete();
-        } catch {
-            await logWarn("Could not delete match role", this.client).then().catch(console.error);
-        }
-        try {
+        });
+        queue.queue(async () => {
             const role = await this.guild.roles.fetch(this.teamARoleId);
             await role?.delete();
-        } catch {
-            await logWarn("Could not delete team a role", this.client).then().catch(console.error);
-        }
-        try {
+        });
+        queue.queue(async () => {
             const role = await this.guild.roles.fetch(this.teamBRoleId);
             await role?.delete();
-        } catch {
-            await logWarn("Could not delete team b role", this.client).then().catch(console.error);
-        }
-        try {
+        });
+        queue.queue(async () => {
             const channel = await this.guild.channels.fetch(this.finalChannelId);
             await channel?.delete();
-        } catch {
-            await logWarn("Could not delete final channel", this.client).then().catch(console.error);
-        }
+        });
         if (!this.cleanedUp && !this.abandoned) {
             await this.sendScoreEmbed();
         }

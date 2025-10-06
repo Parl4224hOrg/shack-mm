@@ -34,11 +34,11 @@ export class Data {
     private discordToObject = new Map<string, string>();
     private tickRunning = false;
     private tickLoop = cron.schedule('*/1 * * * * *', async () => {
-        if (this.tickRunning) {
+        if (this.tickRunning || !this.loaded) {
             return;
         }
-        this.tickRunning = true;
         try {
+            this.tickRunning = true;
             await this.tick();
         } catch (err) {
             console.error('Error in tick():', err);
@@ -295,9 +295,6 @@ export class Data {
     }
 
     async tick() {
-        if (!this.loaded) {
-            return;
-        }
         try {
             await this.save();
             this.tickCount++;
@@ -312,19 +309,51 @@ export class Data {
             const check = `${this.FILL_SND.inQueueNumber()} in q`;
             if (check != this.botStatus && this.loaded) {
                 this.botStatus = check;
-                this.client.user!.setActivity({
-                    name: check,
-                    type: ActivityType.Watching,
-                });
+                this.schedulePresenceUpdate({ name: check, type: ActivityType.Watching });
             }
             const active = `Active Games: ${this.FILL_SND.activeGames.length}`;
             if (active != this.statusChannel!.name) {
-                await this.statusChannel!.setName(active);
+                this.scheduleStatusRename(active);
             }
         } catch (e) {
-            console.error(e)
             await logWarn("Error in main tick loop", this.client);
         }
+    }
+
+    // Move potentially blocking operation away from the main tick loop
+    private pendingName: string | null = null;
+    private renameTimer: NodeJS.Timeout | null = null;
+    private scheduleStatusRename(name: string, delayMs = 2000) {
+        this.pendingName = name;
+        if (this.renameTimer) return;
+        this.renameTimer = setTimeout(() => {
+            const next = this.pendingName;
+            this.pendingName = null;
+            this.renameTimer = null;
+            if (next && this.statusChannel?.name !== next) {
+                this.statusChannel!.setName(next)
+                    .catch(err => console.warn('setName failed:', err));
+            }
+        }, delayMs);
+    }
+
+    // Move potentially blocking operation away from the main tick loop
+    private pendingPresence: { name: string; type: ActivityType } | null = null;
+    private presenceTimer: NodeJS.Timeout | null = null;
+    private schedulePresenceUpdate(
+        presence: { name: string; type: ActivityType },
+        delayMs = 2000
+    ) {
+        this.pendingPresence = presence;
+        if (this.presenceTimer) return;
+        this.presenceTimer = setTimeout(() => {
+            const next = this.pendingPresence;
+            this.pendingPresence = null;
+            this.presenceTimer = null;
+            if (next) {
+                this.client.user!.setActivity(next);
+            }
+        }, delayMs);
     }
 
     async save() {
