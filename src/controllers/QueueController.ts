@@ -50,6 +50,7 @@ export class QueueController {
     // Queues For awaited actions
     private dmQueue = new RateLimitedQueue(1, 500);
     private pingMeQueue = new RateLimitedQueue(1, 250);
+    private deleteQueue = new RateLimitedQueue(1, 500);
 
     constructor(data: Data, client: Client, queueName: string) {
         this.data = data;
@@ -63,6 +64,10 @@ export class QueueController {
 
     unlock() {
         this.locked = false;
+    }
+
+    getDeleteQueue() {
+        return this.deleteQueue;
     }
 
     setInQueue(users: QueueUser[]) {
@@ -190,7 +195,7 @@ export class QueueController {
 
                 game.requeueArray = [];
                 if (!game.abandoned) {
-                    await game.cleanup();
+                    await game.cleanup(this.deleteQueue);
                 }
                 // Add map to last played
                 if (game.map != "" && game.scoresAccept[0] && game.scoresAccept[1]) {

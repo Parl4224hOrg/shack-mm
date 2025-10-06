@@ -29,7 +29,7 @@ export const nullify: SubCommand = {
                 } else {
                     await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "cannot send message, command executed" });
                 }
-                await game.abandonCleanup(true);
+                await game.abandonCleanup(true, data.getQueue().getDeleteQueue());
                 await createAction(Actions.Nullify, interaction.user.id, reason, `Game ${game.id} nullified`);
                 let channel: TextChannel;
                 if (isReferee) {
