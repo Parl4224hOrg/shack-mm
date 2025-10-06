@@ -1,4 +1,4 @@
-class RateLimitedQueue {
+export class RateLimitedQueue {
     private running = 0;
     private q: Array<() => Promise<void>> = [];
     private lastRun = 0;
