@@ -316,7 +316,6 @@ export class Data {
                 this.scheduleStatusRename(active);
             }
         } catch (e) {
-            console.error(e);
             await logWarn("Error in main tick loop", this.client);
         }
     }
