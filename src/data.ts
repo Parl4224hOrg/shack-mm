@@ -37,8 +37,8 @@ export class Data {
         if (this.tickRunning || !this.loaded) {
             return;
         }
-        this.tickRunning = true;
         try {
+            this.tickRunning = true;
             await this.tick();
         } catch (err) {
             console.error('Error in tick():', err);
