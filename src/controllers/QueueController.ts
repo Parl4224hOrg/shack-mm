@@ -13,7 +13,6 @@ import {updateUser} from "../modules/updaters/updateUser";
 import {addLastPlayedMap, logReady, logUnready} from "../utility/match";
 import {getUserById} from "../modules/getters/getUser";
 import {shuffleArray} from "../utility/makeTeams";
-import {logWarn} from "../loggers";
 import {Regions} from "../database/models/UserModel";
 import {logInfo} from "../loggers";
 
@@ -47,6 +46,9 @@ export class QueueController {
     public mapData: MapData[] = [];
     public locked = false;
 
+    // Queues For awaited actions
+    private dmQueue = new RateLimitedQueue(1, 500);
+    private pingMeQueue = new RateLimitedQueue(1, 250);
 
     constructor(data: Data, client: Client, queueName: string) {
         this.data = data;
@@ -164,17 +166,16 @@ export class QueueController {
             if (user.queueExpire < time) {
                 this.removeUser(user.dbId, true);
             } else if (user.queueExpire == (time + 180)) {
-                const member = await guild.members.fetch(user.discordId);
-                if (!member.dmChannel) {
-                    await member.createDM(true);
-                }
                 const dbUser = await getUserById(user.dbId, this.data);
                 if (dbUser.dmQueue) {
-                    try {
-                        await member.dmChannel!.send("Your queue time expires in 3 minutes. If you wish to re ready please do so");
-                    } catch (e) {
-                        await logWarn(`Could not dm user -${dbUser.id}`, this.client);
-                    }
+                    this.dmQueue.queue(async () => {
+                        const guild = this.client.guilds.cache.get(tokens.GuildID)!;
+                        const member = await guild.members.fetch(dbUser.id);
+                        if (!member.dmChannel) {
+                            await member.createDM(true);
+                        }
+                        await member.dmChannel!.send("Your queue time expires in 3 minutes. If you wish to re-ready please do so");
+                    });
                 }
             }
         }
@@ -197,18 +198,15 @@ export class QueueController {
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
                 for (let user of arrayClone) {
                     const dbUser = await getUserById(user, this.data);
-                    const member = await guild.members.fetch(dbUser.id);
                     const response = await this.addUser(dbUser, 15, false);
-                    if (!member.dmChannel) {
-                        await member.createDM(true);
-                    }
                     if (dbUser.dmAuto) {
-                        try {
+                        this.dmQueue.queue(async () => {
+                            const member = await guild.members.fetch(dbUser.id);
+                            if (!member.dmChannel) {
+                                await member.createDM(true);
+                            }
                             await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
-                            console.log(`[QueueController.tick] Sent DM to user: ${dbUser.id}`);
-                        } catch (e) {
-                            await logWarn(`Could not dm user -${dbUser.id}`, this.client);
-                        }
+                        });
                     }
                 }
                 game.requeueArray = [];
@@ -219,22 +217,20 @@ export class QueueController {
                 shuffleArray(game.requeueArray);
 
                 const arrayClone: Types.ObjectId[] = game.requeueArray.map(id => Types.ObjectId.createFromHexString(id.toString()));
-                
+
                 game.requeueArray = [];
                 this.activeAutoQueue = true;
                 for (let user of arrayClone) {
                     const dbUser = await getUserById(user, this.data);
-                    const member = await guild.members.fetch(dbUser.id);
                     const response = await this.addUser(dbUser, 15, false);
-                    if (!member.dmChannel) {
-                        await member.createDM(true);
-                    }
                     if (dbUser.dmAuto) {
-                        try {
+                        this.dmQueue.queue(async () => {
+                            const member = await guild.members.fetch(dbUser.id);
+                            if (!member.dmChannel) {
+                                await member.createDM(true);
+                            }
                             await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
-                        } catch (e) {
-                            await logWarn(`Could not dm user -${dbUser.id}`, this.client);
-                        }
+                        });
                     }
                 }
                 this.activeAutoQueue = false;
@@ -243,7 +239,9 @@ export class QueueController {
         const queueChannel = await guild.channels.fetch(tokens.SNDChannel) as TextChannel;
         for (let user of this.pingMe.values()) {
             if (this.inQueueNumber() >= user.inQueue && !user.pinged) {
-                await queueChannel.send(`<@${user.id}> there are in ${user.inQueue} queue`);
+                this.pingMeQueue.queue(async () => {
+                    await queueChannel.send(`<@${user.id}> there are in ${user.inQueue} queue`);
+                });
                 user.pinged = true;
             }
             if (time > user.expires && user.expires >= 0) {
@@ -266,7 +264,7 @@ export class QueueController {
         let naUsers = [];
         let euUsers = [];
         let apacUsers = [];
-    
+
         for (let user of this.inQueue) {
             switch (user.region) {
                 case Regions.NAE:
@@ -282,7 +280,7 @@ export class QueueController {
                     break;
             }
         }
-    
+
         if (naUsers.length > 0) {
             queueStr += `\n**NA Users:**\n${grammaticalList(naUsers)}\n`;
         }
@@ -292,7 +290,7 @@ export class QueueController {
         if (apacUsers.length > 0) {
             queueStr += `\n**APAC Users:**\n${grammaticalList(apacUsers)}\n`;
         }
-    
+
         return queueStr;
     }
 
