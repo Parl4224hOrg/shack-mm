@@ -510,7 +510,7 @@ export class Data {
     }
 
     findGame(userId: Types.ObjectId) {
-        return this.FILL_SND.getGame(userId);
+        return this.FILL_SND.findGame(userId);
     }
 
     getGameByChannel(id: string) {

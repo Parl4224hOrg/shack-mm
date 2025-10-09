@@ -326,17 +326,6 @@ export class QueueController {
         return false
     }
 
-    getGame(userId: Types.ObjectId) {
-        for (let game of this.activeGames) {
-            for (let user of game.getUsers()) {
-                if (String(user.dbId) == String(userId)) {
-                    return game;
-                }
-            }
-        }
-        return null
-    }
-
     findGame(id: Types.ObjectId) {
         for (let game of this.activeGames) {
             if (!game.abandoned) {

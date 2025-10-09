@@ -15,7 +15,7 @@ export const abandonConfirm: Button = {
             const dbUser = await getUserByUser(interaction.user, data);
             const controller = data.findController();
             if (controller) {
-                const game = controller.getGame(dbUser._id);
+                const game = controller.findGame(dbUser._id);
                 const abandon = await game!.abandon(
                     {
                         dbId: dbUser._id,
