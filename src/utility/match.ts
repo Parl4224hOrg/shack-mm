@@ -223,13 +223,13 @@ export const getServerRegion = (users: QueueUser[]): Regions => {
     }
 
     if (APAC > 0 && EU > 0) {
-        return Regions.NAC;
+        return Regions.NAW;
     } else if (APAC > 0) {
         return Regions.NAW;
     } else if (EU > 0) {
         return Regions.NAE;
     } else if (NAW > NAE) {
-        return Regions.NAW;
+        return Regions.NAE;
     }
     return Regions.NAE;
 }
