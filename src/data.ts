@@ -366,6 +366,18 @@ export class Data {
             for (let game of this.getQueue().activeGames) {
                 inUseServers.push(game.serverId)
             }
+            // New way to check id a server is in use
+            for (let server of this.servers) {
+                if (server.isInUse()) {
+                    const match = this.FILL_SND.activeGames.find(game => game.serverId == server.id);
+                    if (match) {
+                        await logInfo(`Server ${server.id} is already in use by game ${match.matchNumber} server-use`, this.client);
+                        await logInfo(`Game State at check ${match.scoresAccept[0]} ${match.scoresAccept[1]} server-use.`, this.client);
+                    } else {
+                        await logInfo(`Server ${server.id} not in use but not freed server-use`, this.client);
+                    }
+                }
+            }
             for (let server of this.servers) {
                 if (!inUseServers.includes(server.id) && server.region == getServerRegion(users)) {
                     serv = server;
