@@ -389,7 +389,7 @@ export class GameController {
         this.halfMinutesPassed = halfMinutesPassed;
 
         //Every 30 seconds check server for players
-        if (minutesPassed >= 5) {
+        if (minutesPassed <= 5) {
             await this.updateJoinedPlayers();
         }
 
