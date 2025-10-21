@@ -165,7 +165,8 @@ export class GameController {
     abandonCountdown = 30;
     cleanedUp = false;
 
-    submitCooldown = 600;
+    // Now in minutes not seconds
+    submitCooldown = 10;
     pleaseStop = false;
 
     processing = false;
