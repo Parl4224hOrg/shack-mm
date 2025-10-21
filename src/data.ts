@@ -418,6 +418,8 @@ export class Data {
                     } else {
                         await logInfo(`Server ${server.id} not in use but not freed server-use`, this.client);
                     }
+                } else {
+                    await logInfo(`Server ${server.id} not in use server-use`, this.client);
                 }
             }
             for (let server of this.servers) {
