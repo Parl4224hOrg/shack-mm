@@ -187,11 +187,14 @@ export class GameController {
     serverSetup = true;
 
     joinedPlayers: Set<string> = new Set();
-    
+
     serverId: string;
     firstTick = false;
     maps: MapInt[] = [];
     votingFinished = false;
+
+    minutesPassed = 0;
+    halfMinutesPassed = 0;
 
     constructor(id: Types.ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, data: Data, server: GameServer | null) {
         this.id = id;
@@ -228,7 +231,7 @@ export class GameController {
         this.startTime = moment().unix();
 
         this.server = server;
-        
+
         if (this.server) {
             this.initServer = true;
             this.serverId = server!.id;
@@ -295,11 +298,11 @@ export class GameController {
         }
         logInfo('[GameController.load] final this.requeueArray: ' + JSON.stringify(this.requeueArray) + ', types: ' + JSON.stringify(this.requeueArray.map((x: any) => typeof x)), this.client);
 
-      
+
         this.acceptMessageId = data.acceptMessageId;
 
         this.autoReadied = data.autoReadied ?? false
-        
+
         this.serverId = data.serverInUse ?? "";
         this.maps = data.maps;
         this.votingFinished = data.votingFinished;
@@ -338,213 +341,9 @@ export class GameController {
                 case 4:
                     await this.voteB2();
                     break;
-                case 5: {
-                    const time = moment().unix();
-
-                    const minutesPassed = Math.floor((time - this.finalGenTime) / 60);
-                    const minutesLeft = 5 - minutesPassed;
-
-                    //Every minute countdown
-                    if (minutesLeft > 0 && minutesLeft <= 4 && (time - this.finalGenTime) % 60 === 0) {
-                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
-                        await channel.send(`**__${minutesLeft} minutes left to join!__**`);
-                    }
-
-                    //Every 30 seconds check server for players
-                    if ((time - this.finalGenTime) % 30 === 0 && (time - this.finalGenTime) <= 5 * 60) {
-                        await this.updateJoinedPlayers();
-                    }
-
-                    // 2 minutes left
-                    if (time - this.finalGenTime == 3 * 60 && this.serverSetup) {
-                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
-                        const lateUserMentions: string[] = [];
-                        for (let user of this.users) {
-                            const dbUser = await getUserById(user.dbId, this.data);
-                            if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
-                                const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                                await logChannel.send(`User ${dbUser.oculusName} is late.`);
-                                lateUserMentions.push(`<@${user.discordId}>`);
-                            }
-                        }
-                        await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 2 minutes left to join or you will receive a cooldown.`);
-                    }
-
-
-                    // 1 minute left
-                    if (time - this.finalGenTime == 4 * 60 && this.serverSetup) {
-                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
-                        const lateUserMentions: string[] = [];
-                        for (let user of this.users) {
-                            const dbUser = await getUserById(user.dbId, this.data);
-                            if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
-                                const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                                await logChannel.send(`User ${dbUser.oculusName} is late.`);
-                                lateUserMentions.push(`<@${user.discordId}>`);
-                            }
-                        }
-                        await channel.send(`Warning: ${lateUserMentions.join(', ')} you have 1 minute left to join or you will receive a cooldown.`);
-                    }
-
-                    // 5 minute mark
-                    if (time - this.finalGenTime == 5 * 60) {
-                        await this.updateJoinedPlayers();
-                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
-                        const lateUsers: GameUser[] = [];
-                        if (this.serverSetup) {
-                            for (let user of this.users) {
-                                const dbUser = await getUserById(user.dbId, this.data);
-                                if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
-                                    const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                                    await logChannel.send(`User ${dbUser.oculusName} is late.`);
-                                    lateUsers.push(user);
-                                    user.isLate = true;
-                                }
-                            }
-                        }
-                        await channel.send("5 minutes have passed");
-                        const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                        await logChannel.send(`Game controller line 346, serverSetup value: ${this.serverSetup}`);
-                        if (tokens.ApplyLates && this.serverSetup) {
-                            if (lateUsers.length > 0 && lateUsers.length < 7) { 
-                              for (let user of lateUsers) {
-                                  let dbUser = await getUserById(user.dbId, this.data);
-                                  const lates = await LateModel.find({user: dbUser.id});
-                                  let totalTime = 0;
-                                  for (const late of lates) {
-                                      // Subtract 60 seconds times 5 minutes to account for allowed join time
-                                      totalTime += (late.joinTime - late.channelGenTime) - 5 * 60;
-                                  }
-                                  const avgLateTime = totalTime / lates.length;
-                                  const latePercent = (lates.length / (dbUser.gamesPlayedSinceLates + 1)) * 100;
-                                  const latePercentNeeded = 53.868 * Math.exp(-0.00402 * avgLateTime);
-                                  if (latePercent >= latePercentNeeded) {
-                                      if (tokens.ApplyNewLates) {
-                                          const now = moment().unix();
-                                          dbUser = await punishment(dbUser, this.data, false, 1, now);
-                                          await createActionUser(Actions.Cooldown, tokens.ClientID, dbUser.id, "Auto Cooldown for being late to match " + this.matchNumber, `Cooldown for ${grammaticalTime(dbUser.banUntil - now)}, late ${latePercent}% with average time ${avgLateTime} seconds`)
-                                          await channel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late`)
-                                          
-                                          // Send message to general channel for cooldown
-                                          const generalChannel = await this.client.channels.fetch(tokens.GeneralChannel) as TextChannel;
-                                          await generalChannel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late to match ${this.matchNumber}. Late ${latePercent}% with average time ${avgLateTime} seconds`);
-                                      } else {
-                                          await logChannel.send(`<@${dbUser.id}> should receive a cooldown for being late, but applying lates is disabled\nLate %: ${latePercent}\nLate Avg: ${avgLateTime}`)
-                                          await channel.send(`<@${user.discordId}> has been given a late`);
-                                      }
-                                  } else {
-                                      await channel.send(`<@${user.discordId}> has been given a late`);
-                                  }
-                              }
-                            }
-                        } else {
-                            await channel.send("Assuming lobby is being used no lates are being applied");
-                        }
-                    }
-                    if (time - this.finalGenTime == 10 * 60) {
-                        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
-                        await channel.send("10 minutes have passed");
-                    }
-                    if ((time - this.finalGenTime) % 30 == 0 && this.server && time - this.finalGenTime > 5 * 60) {
-                        for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
-                            const dbUser = await getUserById(gameUser.dbId, this.data);
-                            const found = await LateModel.findOne({user: dbUser.id, matchId: this.matchNumber});
-                            if (!found) {
-                                await LateModel.create({
-                                    user: gameUser.discordId,
-                                    oculusName: dbUser.oculusName,
-                                    joinTime: moment().unix(),
-                                    channelGenTime: this.finalGenTime,
-                                    matchId: this.matchNumber,
-                                });
-                            } else {
-                                found.joinTime = moment().unix();
-                                await found.save();
-                            }
-                        }
-                        const RefreshList = await this.server.refreshList();
-                        const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
-                        for (let user of RefreshList.PlayerList) {
-                            for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
-                                let dbUser = await getUserById(gameUser.dbId, this.data);
-                                if (user.UniqueId && dbUser.oculusName && user.UniqueId.toLowerCase() === dbUser.oculusName.toLowerCase()) {
-                                    gameUser.hasBeenGivenLate = true;
-                                }
-                            }
-                        }
-                        if (RefreshList.PlayerList.length > 0) {
-                            for (const user of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
-                                await channel.send(`<@${user.discordId}> has not yet joined`);
-                            }
-                        }
-                    }
-                    this.submitCooldown--;
-                    if (this.tickCount % 60 == 0 && this.server) {
-                        const dbUsers: UserInt[] = [];
-                        for (let user of this.users) {
-                            dbUsers.push(await getUserById(user.dbId, this.data));
-                        }
-                        try {
-                            const RefreshList = await this.server.refreshList()
-                            if (RefreshList.PlayerList) {
-                                for (let user of RefreshList.PlayerList) {
-                                    let found = false;
-                                    for (let dbUser of dbUsers) {
-                                        if (dbUser.oculusName && user.UniqueId && dbUser.oculusName.toLowerCase() === user.UniqueId.toLowerCase()) {
-                                            found = true;
-                                            const playerInfo = await this.server.inspectPlayer(user.UniqueId);
-                                            for (let gameUser of this.users) {
-                                                try {
-                                                    if (gameUser.discordId == dbUser.id) {
-                                                        gameUser.joined = true;
-                                                        if (playerInfo.PlayerInfo.TeamId == '0') {
-                                                            // Player is on CT
-                                                            if (gameUser.team == 0 && this.sides[0] == "T") {
-                                                                await this.server.switchTeam(user.UniqueId, "1");
-                                                            }
-                                                            if (gameUser.team == 1 && this.sides[1] == "T") {
-                                                                await this.server.switchTeam(user.UniqueId, "1");
-                                                            }
-                                                        } else {
-                                                            // Player is on T
-                                                            if (gameUser.team == 0 && this.sides[0] == "CT") {
-                                                                await this.server.switchTeam(user.UniqueId, "0");
-                                                            }
-                                                            if (gameUser.team == 1 && this.sides[1] == "CT") {
-                                                                await this.server.switchTeam(user.UniqueId, "0");
-                                                            }
-                                                        }
-                                                    }
-                                                } catch (e) {
-                                                    if (e instanceof RCONError) {
-                                                        await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    try {
-                                        if (!found) {
-                                            await this.server.kick(user.UniqueId);
-                                        }
-                                    } catch (e) {
-                                        if (e instanceof RCONError) {
-                                            await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
-                                        }
-                                    }
-                                    // 1 is T 0 is CT
-
-                                }
-                            } else {
-                                await logWarn("Player list is empty", this.client);
-                            }
-                        } catch (e) {
-                            if (e instanceof RCONError) {
-                                await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
-                            }
-                        }
-                    }
-                } break;
+                case 5:
+                    await this.matchTick();
+                    break;
                 case 6:
                     await this.confirmScoreSubmit();
                     break;
@@ -560,6 +359,229 @@ export class GameController {
             }
         } catch (e) {
             console.error(e);
+        }
+    }
+
+    async SendMinutesLeft(minutesLeft: number) {
+        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+        await channel.send(`**__${minutesLeft} minutes left to join!__**`);
+    }
+
+    async sendNotJoinedMessage(minutesLeft: number) {
+        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+        const lateUserMentions: string[] = [];
+        for (let user of this.users) {
+            const dbUser = await getUserById(user.dbId, this.data);
+            if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
+                const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                await logChannel.send(`User ${dbUser.oculusName} is late.`);
+                lateUserMentions.push(`<@${user.discordId}>`);
+            }
+        }
+        await channel.send(`Warning: ${lateUserMentions.join(', ')} you have ${minutesLeft} minute/s left to join or you will receive a cooldown.`);
+    }
+
+    async doHalfMinuteTick(time: number, minutesPassed: number) {
+        const halfMinutesPassed = Math.floor((time - this.finalGenTime) / 30); // Every 30 seconds
+        if (halfMinutesPassed <= this.halfMinutesPassed) {
+            return;
+        }
+        this.halfMinutesPassed = halfMinutesPassed;
+
+        //Every 30 seconds check server for players
+        if (minutesPassed >= 5) {
+            await this.updateJoinedPlayers();
+        }
+
+        // Every 30 seconds after 5 minutes
+        if (this.server && minutesPassed >= 5) {
+            for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
+                const dbUser = await getUserById(gameUser.dbId, this.data);
+                const found = await LateModel.findOne({user: dbUser.id, matchId: this.matchNumber});
+                if (!found) {
+                    await LateModel.create({
+                        user: gameUser.discordId,
+                        oculusName: dbUser.oculusName,
+                        joinTime: moment().unix(),
+                        channelGenTime: this.finalGenTime,
+                        matchId: this.matchNumber,
+                    });
+                } else {
+                    found.joinTime = moment().unix();
+                    await found.save();
+                }
+            }
+            const RefreshList = await this.server.refreshList();
+            const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
+            for (let user of RefreshList.PlayerList) {
+                for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
+                    let dbUser = await getUserById(gameUser.dbId, this.data);
+                    if (user.UniqueId && dbUser.oculusName && user.UniqueId.toLowerCase() === dbUser.oculusName.toLowerCase()) {
+                        gameUser.hasBeenGivenLate = true;
+                    }
+                }
+            }
+            if (RefreshList.PlayerList.length > 0) {
+                for (const user of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
+                    await channel.send(`<@${user.discordId}> has not yet joined`);
+                }
+            }
+        }
+    }
+
+    async matchTick() {
+        const time = moment().unix();
+        const minutesPassed = Math.floor((time - this.finalGenTime) / 60);
+
+        await this.doHalfMinuteTick(time, minutesPassed);
+
+        if (minutesPassed <= this.minutesPassed) {
+            return;
+        }
+        this.minutesPassed = minutesPassed;
+        this.submitCooldown--;
+
+        if (minutesPassed < 5) {
+            await this.SendMinutesLeft(5 - minutesPassed);
+        }
+
+        // 2 Minutes left
+        if (minutesPassed == 3) {
+            await this.sendNotJoinedMessage(2);
+        }
+
+        // 1 minute left
+        if (minutesPassed == 4) {
+            await this.sendNotJoinedMessage(1);
+        }
+
+        // 5 minutes passed
+        if (minutesPassed == 5) {
+            await this.updateJoinedPlayers();
+            const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+            const lateUsers: GameUser[] = [];
+            if (this.serverSetup) {
+                for (let user of this.users) {
+                    const dbUser = await getUserById(user.dbId, this.data);
+                    if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
+                        const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+                        await logChannel.send(`User ${dbUser.oculusName} is late.`);
+                        lateUsers.push(user);
+                        user.isLate = true;
+                    }
+                }
+            }
+            await channel.send("5 minutes have passed");
+            const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+            await logChannel.send(`Game controller line 346, serverSetup value: ${this.serverSetup}`);
+            if (tokens.ApplyLates && this.serverSetup) {
+                if (lateUsers.length > 0 && lateUsers.length < 7) {
+                    for (let user of lateUsers) {
+                        let dbUser = await getUserById(user.dbId, this.data);
+                        const lates = await LateModel.find({user: dbUser.id});
+                        let totalTime = 0;
+                        for (const late of lates) {
+                            // Subtract 60 seconds times 5 minutes to account for allowed join time
+                            totalTime += (late.joinTime - late.channelGenTime) - 5 * 60;
+                        }
+                        const avgLateTime = totalTime / lates.length;
+                        const latePercent = (lates.length / (dbUser.gamesPlayedSinceLates + 1)) * 100;
+                        const latePercentNeeded = 53.868 * Math.exp(-0.00402 * avgLateTime);
+                        if (latePercent >= latePercentNeeded) {
+                            if (tokens.ApplyNewLates) {
+                                const now = moment().unix();
+                                dbUser = await punishment(dbUser, this.data, false, 1, now);
+                                await createActionUser(Actions.Cooldown, tokens.ClientID, dbUser.id, "Auto Cooldown for being late to match " + this.matchNumber, `Cooldown for ${grammaticalTime(dbUser.banUntil - now)}, late ${latePercent}% with average time ${avgLateTime} seconds`)
+                                await channel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late`)
+
+                                // Send message to general channel for cooldown
+                                const generalChannel = await this.client.channels.fetch(tokens.GeneralChannel) as TextChannel;
+                                await generalChannel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late to match ${this.matchNumber}. Late ${latePercent}% with average time ${avgLateTime} seconds`);
+                            } else {
+                                await logChannel.send(`<@${dbUser.id}> should receive a cooldown for being late, but applying lates is disabled\nLate %: ${latePercent}\nLate Avg: ${avgLateTime}`)
+                                await channel.send(`<@${user.discordId}> has been given a late`);
+                            }
+                        } else {
+                            await channel.send(`<@${user.discordId}> has been given a late`);
+                        }
+                    }
+                }
+            } else {
+                await channel.send("Assuming lobby is being used no lates are being applied");
+            }
+        }
+
+        // 10 minutes passed
+        if (minutesPassed == 10) {
+            const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+            await channel.send("10 minutes have passed");
+        }
+
+        // Every Minute check for players and swap teams
+        if (this.server) {
+            const dbUsers: UserInt[] = [];
+            for (let user of this.users) {
+                dbUsers.push(await getUserById(user.dbId, this.data));
+            }
+            try {
+                const RefreshList = await this.server.refreshList()
+                if (RefreshList.PlayerList) {
+                    for (let user of RefreshList.PlayerList) {
+                        let found = false;
+                        for (let dbUser of dbUsers) {
+                            if (dbUser.oculusName && user.UniqueId && dbUser.oculusName.toLowerCase() === user.UniqueId.toLowerCase()) {
+                                found = true;
+                                const playerInfo = await this.server.inspectPlayer(user.UniqueId);
+                                for (let gameUser of this.users) {
+                                    try {
+                                        if (gameUser.discordId == dbUser.id) {
+                                            gameUser.joined = true;
+                                            if (playerInfo.PlayerInfo.TeamId == '0') {
+                                                // Player is on CT
+                                                if (gameUser.team == 0 && this.sides[0] == "T") {
+                                                    await this.server.switchTeam(user.UniqueId, "1");
+                                                }
+                                                if (gameUser.team == 1 && this.sides[1] == "T") {
+                                                    await this.server.switchTeam(user.UniqueId, "1");
+                                                }
+                                            } else {
+                                                // Player is on T
+                                                if (gameUser.team == 0 && this.sides[0] == "CT") {
+                                                    await this.server.switchTeam(user.UniqueId, "0");
+                                                }
+                                                if (gameUser.team == 1 && this.sides[1] == "CT") {
+                                                    await this.server.switchTeam(user.UniqueId, "0");
+                                                }
+                                            }
+                                        }
+                                    } catch (e) {
+                                        if (e instanceof RCONError) {
+                                            await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        try {
+                            if (!found) {
+                                await this.server.kick(user.UniqueId);
+                            }
+                        } catch (e) {
+                            if (e instanceof RCONError) {
+                                await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
+                            }
+                        }
+                        // 1 is T 0 is CT
+
+                    }
+                } else {
+                    await logWarn("Player list is empty", this.client);
+                }
+            } catch (e) {
+                if (e instanceof RCONError) {
+                    await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
+                }
+            }
         }
     }
 
