@@ -29,6 +29,7 @@ import {grammaticalTime} from "../utility/grammatical";
 import {createActionUser} from "../modules/constructors/createAction";
 import {Actions} from "../database/models/ActionModel";
 import {RateLimitedQueue} from "../utility/rate-limited-queue";
+import {autoReady} from "../buttons/match/autoReady";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -782,7 +783,7 @@ export class GameController {
                 this.client
             );
             
-            if (shouldAutoReady) {
+            if (shouldAutoReady && !this.autoReadied) {
                 this.autoReadied = true;
                 const temp: GameUser[] = [];
                 await logInfo(`abandon() - Avoiding user with discordId: ${user.discordId}`, this.client);
