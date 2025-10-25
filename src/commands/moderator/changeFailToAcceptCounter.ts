@@ -1,4 +1,4 @@
-import {ChannelType, MessageFlagsBitField} from "discord.js";
+import {ChannelType, DMChannel, MessageFlagsBitField} from "discord.js";
 import { SubCommand } from "../../interfaces/Command";
 import { userOption, reason } from "../../utility/options";
 import tokens from "../../tokens";
@@ -29,7 +29,8 @@ export const changeFailToAcceptCounter: SubCommand = {
                 await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: 'No change made - amount is 0.' });
                 return;
             }
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
+            const user = interaction.options.getUser('user', true);
+            const dbUser = await getUserByUser(user, data);
             dbUser.banCounterFail += amount;
             if (dbUser.banCounterFail < 0) {
                 dbUser.banCounterFail = 0;
@@ -56,6 +57,19 @@ export const changeFailToAcceptCounter: SubCommand = {
             embed.setTitle(`User ${dbUser.id} fail to accept counter changed`);
             embed.setDescription(`<@${dbUser.id}> fail to accept counter changed by <@${interaction.user.id}> by ${amount}. Reason: ${reason}`);
             await channel.send({ embeds: [embed.toJSON()] });
+
+            try {
+                let dmChannel: DMChannel;
+                if (!user.dmChannel) {
+                    dmChannel = await user.createDM(true);
+                } else {
+                    dmChannel = user.dmChannel;
+                }
+
+                await dmChannel.send({content: `You have received the following counter change (Fail to Accept) by: \`${amount}\``});
+            } catch (e) {
+                await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Failed to send dm" });
+            }
         } catch (e) {
             await logError(e, interaction);
         }

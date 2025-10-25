@@ -737,7 +737,7 @@ export class GameController {
         return this.acceptChannelId == id || this.finalChannelId == id || this.teamAChannelId == id || this.teamBChannelId == id;
     }
 
-    async abandon(user: GameUser, acceptFail: boolean, forced: boolean = false) {
+    async abandon(user: GameUser, acceptFail: boolean, forced: boolean = false, sendForcedMessage: boolean = false) {
         let validAbandon = true;
         if (this.server) {
             try {
@@ -773,7 +773,7 @@ export class GameController {
                 this.state += 10;
             }
             
-            await abandon(user.dbId, user.discordId, this.guild, punishmentAcceptFail, this.data, this.matchNumber);
+            await abandon(user.dbId, user.discordId, this.guild, punishmentAcceptFail, this.data, this.matchNumber, sendForcedMessage);
             await this.sendAbandonMessage(user.discordId);
             
             const shouldAutoReady = !acceptFail && (this.finalGenTime + 15 * 60 >= moment().unix() || !this.votingFinished);
@@ -782,7 +782,7 @@ export class GameController {
                 this.client
             );
             
-            if (shouldAutoReady) {
+            if (shouldAutoReady && !this.autoReadied) {
                 this.autoReadied = true;
                 const temp: GameUser[] = [];
                 await logInfo(`abandon() - Avoiding user with discordId: ${user.discordId}`, this.client);
