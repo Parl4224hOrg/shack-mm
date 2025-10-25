@@ -80,7 +80,7 @@ export const punishment = async (user: UserInt, data: Data, acceptFail: boolean,
     return updateUser(user, data);
 }
 
-export const abandon = async (userId: Types.ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data, currentMatchId?: number) => {
+export const abandon = async (userId: Types.ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data, currentMatchId?: number, forced: boolean = false) => {
     let user = await getUserById(userId, data);
     const now = moment().unix();
     
@@ -109,7 +109,7 @@ export const abandon = async (userId: Types.ObjectId, discordId: string, guild: 
     if (acceptFail) {
         await channel.send(`<@${user.id}> has failed to accept a match and been given a cooldown of ${grammaticalTime(user.banUntil - now)}`);
     } else {
-        await channel.send(`<@${user.id}> has abandoned a match and been given a cooldown of ${grammaticalTime(user.banUntil - now)}`);
+        await channel.send(`<@${user.id}> has${forced ? " been force" : ""} abandoned ${forced ? "from " : ""} a match and been given a cooldown of ${grammaticalTime(user.banUntil - now)}`);
     }
 
     return;
