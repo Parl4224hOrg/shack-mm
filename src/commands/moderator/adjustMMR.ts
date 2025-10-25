@@ -5,7 +5,7 @@ import {getUserByUser} from "../../modules/getters/getUser";
 import {getStats} from "../../modules/getters/getStats";
 import {updateStats} from "../../modules/updaters/updateStats";
 import tokens from "../../tokens";
-import {SlashCommandSubcommandBuilder} from "discord.js";
+import {DMChannel, MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
 import {EmbedBuilder, TextChannel} from "discord.js";
 
 export const adjustMMR: SubCommand = {
@@ -16,7 +16,8 @@ export const adjustMMR: SubCommand = {
         .addNumberOption(option => option.setName('mmr_delta').setDescription('Amount to change MMR by').setRequired(true)),
     run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
+            const user = interaction.options.getUser('user', true);
+            const dbUser = await getUserByUser(user, data);
             const stats = await getStats(dbUser._id, "SND");
             const mmrDelta = interaction.options.getNumber('mmr_delta', true);
             for (let mmr of stats.mmrHistory) {
@@ -31,6 +32,19 @@ export const adjustMMR: SubCommand = {
                 embed.setTitle(`User ${dbUser.id} has been MMR adjusted`);
                 embed.setDescription(`<@${dbUser.id}> MMR has been adjusted by ${mmrDelta}. New MMR is ${stats.mmr}. Done by <@${interaction.user.id}>`);
                 await channel.send({embeds: [embed.toJSON()]});
+
+                try {
+                    let dmChannel: DMChannel;
+                    if (!user.dmChannel) {
+                        dmChannel = await user.createDM(true);
+                    } else {
+                        dmChannel = user.dmChannel;
+                    }
+
+                    await dmChannel.send({content: `You have received the following mmr adjustment: \`${mmrDelta}\``});
+                } catch (e) {
+                    await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Failed to send dm" });
+                }
             }
         } catch (e) {
             await logError(e, interaction);
