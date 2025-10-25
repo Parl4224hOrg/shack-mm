@@ -29,7 +29,6 @@ import {grammaticalTime} from "../utility/grammatical";
 import {createActionUser} from "../modules/constructors/createAction";
 import {Actions} from "../database/models/ActionModel";
 import {RateLimitedQueue} from "../utility/rate-limited-queue";
-import {autoReady} from "../buttons/match/autoReady";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
