@@ -22,7 +22,7 @@ import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
 import {getMapData, getMapsDB, logAccept, logScoreSubmit, logScoreAccept} from "../utility/match";
 import {GameServer} from "../server/server";
-import {RCONError} from "rcon-pavlov";
+import {GameModes, RCONError} from "rcon-pavlov";
 import {MapInt} from "../database/models/MapModel";
 import LateModel from "../database/models/LateModel";
 import {grammaticalTime} from "../utility/grammatical";
@@ -599,7 +599,7 @@ export class GameController {
     }
 
     async switchMap() {
-        await this.server!.switchMap(this.mapData!.ugc, "SND");
+        await this.server!.switchMap(this.mapData!.ugc, GameModes.SearchAndDestroy);
         await this.server!.updateServerName(`SMM Match-${this.matchNumber}`);
     }
 
