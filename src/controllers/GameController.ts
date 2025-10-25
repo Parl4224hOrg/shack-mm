@@ -431,13 +431,11 @@ export class GameController {
     }
 
     async matchTick() {
-        console.log("tick 4.4.1.1");
         const time = moment().unix();
         const minutesPassed = Math.floor((time - this.finalGenTime) / 60);
 
         await this.doHalfMinuteTick(time, minutesPassed);
 
-        console.log("tick 4.4.1.2");
         if (minutesPassed <= this.minutesPassed) {
             return;
         }
@@ -447,21 +445,16 @@ export class GameController {
         if (minutesPassed < 5) {
             await this.SendMinutesLeft(5 - minutesPassed);
         }
-        console.log("tick 4.4.1.3");
 
         // 2 Minutes left
         if (minutesPassed == 3) {
             await this.sendNotJoinedMessage(2);
         }
 
-        console.log("tick 4.4.1.4");
-
         // 1 minute left
         if (minutesPassed == 4) {
             await this.sendNotJoinedMessage(1);
         }
-
-        console.log("tick 4.4.1.5");
 
         // 5 minutes passed
         if (minutesPassed == 5) {
@@ -518,7 +511,6 @@ export class GameController {
                 await channel.send("Assuming lobby is being used no lates are being applied");
             }
         }
-        console.log("tick 4.4.1.6");
 
         // 10 minutes passed
         if (minutesPassed == 10) {
@@ -526,24 +518,31 @@ export class GameController {
             await channel.send("10 minutes have passed");
         }
 
-        console.log("tick 4.4.1.7");
-
         // Every Minute check for players and swap teams
         if (this.server) {
+            console.log("players 1");
             const dbUsers: UserInt[] = [];
             for (let user of this.users) {
                 dbUsers.push(await getUserById(user.dbId, this.data));
             }
+            console.log("players 2");
             try {
                 const RefreshList = await this.server.refreshList()
+                console.log("players 3");
                 if (RefreshList.PlayerList) {
+                    console.log("players 3.1");
                     for (let user of RefreshList.PlayerList) {
+                        console.log("players 3.1.1");
                         let found = false;
                         for (let dbUser of dbUsers) {
+                            console.log("players 3.1.1.1");
                             if (dbUser.oculusName && user.UniqueId && dbUser.oculusName.toLowerCase() === user.UniqueId.toLowerCase()) {
                                 found = true;
+                                console.log("players 3.1.1.2");
                                 const playerInfo = await this.server.inspectPlayer(user.UniqueId);
+                                console.log("players 3.1.1.3");
                                 for (let gameUser of this.users) {
+                                    console.log("players 3.1.1.3.1");
                                     try {
                                         if (gameUser.discordId == dbUser.id) {
                                             gameUser.joined = true;
@@ -565,6 +564,7 @@ export class GameController {
                                                 }
                                             }
                                         }
+                                        console.log("players 3.1.1.3.2");
                                     } catch (e) {
                                         if (e instanceof RCONError) {
                                             await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
@@ -577,6 +577,7 @@ export class GameController {
                             if (!found) {
                                 await this.server.kick(user.UniqueId);
                             }
+                            console.log("players 3.2");
                         } catch (e) {
                             if (e instanceof RCONError) {
                                 await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
@@ -594,7 +595,6 @@ export class GameController {
                 }
             }
         }
-        console.log("tick 4.4.1.8");
     }
 
     async updateJoinedPlayers() {

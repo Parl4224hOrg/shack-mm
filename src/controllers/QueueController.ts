@@ -165,12 +165,9 @@ export class QueueController {
     }
 
     async tick() {
-        console.log("tick 4.1");
         this.inQueue = removeDuplicates(this.inQueue);
-        console.log("tick 4.2");
         const time = moment().unix()
         const guild = this.client.guilds.cache.get(tokens.GuildID)!
-        console.log("tick 4.3");
         for (let user of this.inQueue) {
             if (user.queueExpire < time) {
                 this.removeUser(user.dbId, true);
@@ -188,11 +185,8 @@ export class QueueController {
                 }
             }
         }
-        console.log("tick 4.4");
         for (let game of this.activeGames) {
-            console.log("tick 4.4.1");
             await game.tick();
-            console.log("tick 4.4.2");
             if (game.isProcessed()) {
                 // Log the type of each element in requeueArray
                 const start = Date.now();
@@ -225,7 +219,6 @@ export class QueueController {
                 await logInfo(`[QueueController.tick] Requeue Time: ${Date.now() - start}ms`, this.client);
                 await this.data.Leaderboard.setLeaderboard();
             }
-            console.log("tick 4.4.3");
             if (game.abandoned && !game.autoReadied) {
                 shuffleArray(game.requeueArray);
 
@@ -248,10 +241,8 @@ export class QueueController {
                 }
                 this.activeAutoQueue = false;
             }
-            console.log("tick 4.4.4");
         }
         const queueChannel = await guild.channels.fetch(tokens.SNDChannel) as TextChannel;
-        console.log("tick 4.5");
         for (let user of this.pingMe.values()) {
             if (this.inQueueNumber() >= user.inQueue && !user.pinged) {
                 this.pingMeQueue.queue(async () => {
@@ -266,7 +257,6 @@ export class QueueController {
                 user.pinged = false;
             }
         }
-        console.log("tick 4.6");
     }
 
     addGame(game: GameController) {
