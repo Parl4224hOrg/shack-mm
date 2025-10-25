@@ -431,11 +431,13 @@ export class GameController {
     }
 
     async matchTick() {
+        console.log("tick 4.4.1.1");
         const time = moment().unix();
         const minutesPassed = Math.floor((time - this.finalGenTime) / 60);
 
         await this.doHalfMinuteTick(time, minutesPassed);
 
+        console.log("tick 4.4.1.2");
         if (minutesPassed <= this.minutesPassed) {
             return;
         }
@@ -445,16 +447,21 @@ export class GameController {
         if (minutesPassed < 5) {
             await this.SendMinutesLeft(5 - minutesPassed);
         }
+        console.log("tick 4.4.1.3");
 
         // 2 Minutes left
         if (minutesPassed == 3) {
             await this.sendNotJoinedMessage(2);
         }
 
+        console.log("tick 4.4.1.4");
+
         // 1 minute left
         if (minutesPassed == 4) {
             await this.sendNotJoinedMessage(1);
         }
+
+        console.log("tick 4.4.1.5");
 
         // 5 minutes passed
         if (minutesPassed == 5) {
@@ -511,12 +518,15 @@ export class GameController {
                 await channel.send("Assuming lobby is being used no lates are being applied");
             }
         }
+        console.log("tick 4.4.1.6");
 
         // 10 minutes passed
         if (minutesPassed == 10) {
             const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
             await channel.send("10 minutes have passed");
         }
+
+        console.log("tick 4.4.1.7");
 
         // Every Minute check for players and swap teams
         if (this.server) {
@@ -584,6 +594,7 @@ export class GameController {
                 }
             }
         }
+        console.log("tick 4.4.1.8");
     }
 
     async updateJoinedPlayers() {

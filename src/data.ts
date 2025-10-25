@@ -296,25 +296,32 @@ export class Data {
 
     async tick() {
         try {
+            console.log("tick 1");
             await this.save();
+            console.log("tick 2");
             this.tickCount++;
             if (!this.statusChannel || this.tickCount % 60 == 0) {
                 const guild = await this.client.guilds.fetch(tokens.GuildID);
                 this.statusChannel = await guild.channels.fetch(tokens.ActiveGamesChannel) as VoiceChannel;
             }
+            console.log("tick 3");
             if (this.FILL_SND.inQueueNumber() >= tokens.PlayerCount) {
                 await this.createMatch("NA", this.FILL_SND, 'SND', tokens.ScoreLimitSND);
             }
+            console.log("tick 4");
             await this.FILL_SND.tick();
+            console.log("tick 5");
             const check = `${this.FILL_SND.inQueueNumber()} in q`;
             if (check != this.botStatus && this.loaded) {
                 this.botStatus = check;
                 this.schedulePresenceUpdate({ name: check, type: ActivityType.Watching });
             }
+            console.log("tick 6");
             const active = `Active Games: ${this.FILL_SND.activeGames.length}`;
             if (active != this.statusChannel!.name) {
                 this.scheduleStatusRename(active);
             }
+            console.log("tick 7");
         } catch (e) {
             await logWarn("Error in main tick loop", this.client);
         }
