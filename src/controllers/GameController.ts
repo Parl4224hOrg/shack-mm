@@ -520,74 +520,39 @@ export class GameController {
 
         // Every Minute check for players and swap teams
         if (this.server) {
-            console.log("players 1");
             const dbUsers: UserInt[] = [];
             for (let user of this.users) {
                 dbUsers.push(await getUserById(user.dbId, this.data));
             }
-            console.log("players 2");
             try {
-                const RefreshList = await this.server.refreshList()
-                console.log("players 3");
-                if (RefreshList.PlayerList) {
-                    console.log("players 3.1");
-                    for (let user of RefreshList.PlayerList) {
-                        console.log("players 3.1.1");
-                        let found = false;
-                        for (let dbUser of dbUsers) {
-                            console.log("players 3.1.1.1");
-                            if (dbUser.oculusName && user.UniqueId && dbUser.oculusName.toLowerCase() === user.UniqueId.toLowerCase()) {
-                                found = true;
-                                console.log("players 3.1.1.2");
-                                const playerInfo = await this.server.inspectPlayer(user.UniqueId);
-                                console.log("players 3.1.1.3");
-                                for (let gameUser of this.users) {
-                                    console.log("players 3.1.1.3.1");
-                                    try {
-                                        if (gameUser.discordId == dbUser.id) {
-                                            gameUser.joined = true;
-                                            if (playerInfo.PlayerInfo.TeamId == '0') {
-                                                // Player is on CT
-                                                if (gameUser.team == 0 && this.sides[0] == "T") {
-                                                    await this.server.switchTeam(user.UniqueId, "1");
-                                                }
-                                                if (gameUser.team == 1 && this.sides[1] == "T") {
-                                                    await this.server.switchTeam(user.UniqueId, "1");
-                                                }
-                                            } else {
-                                                // Player is on T
-                                                if (gameUser.team == 0 && this.sides[0] == "CT") {
-                                                    await this.server.switchTeam(user.UniqueId, "0");
-                                                }
-                                                if (gameUser.team == 1 && this.sides[1] == "CT") {
-                                                    await this.server.switchTeam(user.UniqueId, "0");
-                                                }
-                                            }
-                                        }
-                                        console.log("players 3.1.1.3.2");
-                                    } catch (e) {
-                                        if (e instanceof RCONError) {
-                                            await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
-                                        }
-                                    }
+                const AllPlayers = await this.server.inspectAll();
+                for (const player of AllPlayers.InspectList) {
+                    let found = false;
+                    for (const user of dbUsers) {
+                        if (user.oculusName == player.UniqueId) {
+                            found = true;
+                            const currentTeam = player.TeamId;
+                            let assignedTeam = "none";
+                            for (const gameUser of this.users) {
+                                if (gameUser.dbId.equals(user.id)) {
+                                    assignedTeam = this.sides[gameUser.team].toLowerCase() == "ct" ? "0" : "1";
                                 }
                             }
-                        }
-                        try {
-                            if (!found) {
-                                await this.server.kick(user.UniqueId);
+                            try {
+                                if (assignedTeam != "none" && currentTeam != assignedTeam) {
+                                    await this.server.switchTeam(player.UniqueId, assignedTeam);
+                                }
+                            } catch (e) {
+                                if (e instanceof RCONError) {
+                                    await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
+                                }
+                                console.error(e);
                             }
-                            console.log("players 3.2");
-                        } catch (e) {
-                            if (e instanceof RCONError) {
-                                await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
-                            }
                         }
-                        // 1 is T 0 is CT
-
                     }
-                } else {
-                    await logWarn("Player list is empty", this.client);
+                    if (!found) {
+                        await this.server.kick(player.UniqueId);
+                    }
                 }
             } catch (e) {
                 if (e instanceof RCONError) {
