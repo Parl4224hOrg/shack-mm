@@ -232,35 +232,49 @@ export const processMMR = async (users: GameUser[], scores: number[], queueId: s
 
     }
 
-    const stats = await StatsModel.find({}).sort({mmr: -1});
-
-    for (let i = 0; i < teamAChanges.length; i++) {
-        const userA = teamA[i];
-        const userB = teamB[i];
-
-        let foundA = false;
-        let foundB = false;
-
-        let j = 0;
-        while (!foundA && !foundB) {
-            if (String(userA.userId) == String(stats[j])) {
-                userA.rank = j + 1;
-                await updateStats(userA);
-                foundA = true;
+    // Replace "players" with your collection name
+    await StatsModel.aggregate([
+        // Branch A: only players with >= 10 games get ranked
+        { $match: { gamesPlayedSinceReset: { $gte: 10 } } },
+        {
+            $setWindowFields: {
+                sortBy: { mmr: -1 },            // single-field sort for $documentNumber
+                output: {
+                    rank: { $documentNumber: {} }  // 1,2,3... only over eligible docs
+                }
             }
-            if (String(userB.userId) == String(stats[j])) {
-                userA.rank = j + 1;
-                await updateStats(userB);
-                foundB = true;
+        },
+        { $project: { _id: 1, rank: 1 } },
+
+        // Branch B: everyone else gets rank = -1, then union both sets
+        {
+            $unionWith: {
+                coll: "stats",
+                pipeline: [
+                    {
+                        $match: {
+                            $or: [
+                                { gamesPlayedSinceReset: { $lt: 10 } },
+                                { gamesPlayedSinceReset: { $exists: false } },
+                                { gamesPlayedSinceReset: null }
+                            ]
+                        }
+                    },
+                    { $project: { _id: 1, rank: { $literal: -1 } } }
+                ]
             }
-            j++;
-            if (j >= stats.length) {
-                break;
+        },
+
+        // Persist only the rank field, merging on _id
+        {
+            $merge: {
+                into: "stats",
+                on: "_id",
+                whenMatched: "merge",
+                whenNotMatched: "discard"
             }
         }
-    }
-
-
+    ]);
 
     return [teamAChanges, teamBChanges];
 }
