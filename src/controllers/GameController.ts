@@ -551,7 +551,8 @@ export class GameController {
                         }
                     }
                     if (!found) {
-                        await this.server.kick(player.UniqueId);
+                        await logInfo(`Player ${player.UniqueId} not found in database should be kicked, skipping due to bug`, this.client);
+                        // await this.server.kick(player.UniqueId);
                     }
                 }
             } catch (e) {
