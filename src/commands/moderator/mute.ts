@@ -45,7 +45,7 @@ export const mute: SubCommand = {
                 dbUser.muteUntil = -1;
                 await updateUser(dbUser, data);
                 await member.roles.add(tokens.MutedRole);
-                reason = `Muted indefinitely because: ${reason}`;
+                
                 await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${user.id}> has been muted indefinitely`});
                 await user.send(`You have been muted indefinitely because: ${reason}`); // Send DM
                 await warnModel.create({
@@ -59,12 +59,14 @@ export const mute: SubCommand = {
                 dbUser.muteUntil = moment().unix() + time * multiplier;
                 await updateUser(dbUser, data);
                 await member.roles.remove(tokens.MutedRole, "remove using /mute");
+
                 await logInfo(`Unmuted ${member.user.tag} (${user.id}) mute.ts ln 61`, interaction.client, [Tokens.Parl]);
                 const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                 const embed = new EmbedBuilder();
                 embed.setTitle(`User ${user.username} has been unmuted`);
                 embed.setDescription(`<@${user.id}> un-muted by <@${interaction.user.id}> because: ${reason}`);
                 await channel.send({embeds: [embed.toJSON()]});
+
                 await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${user.id}> has been un-muted`});
                 await user.send(`You have been un-muted because: ${reason}`); // Send DM
             } else {
