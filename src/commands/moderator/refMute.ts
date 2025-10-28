@@ -52,7 +52,7 @@ export const refMute: SubCommand = {
             await updateUser(dbUser, data);
             await member.roles.add(tokens.MutedRole);
             
-            const muteMessage = `<@${user.id}> has been muted for ${grammaticalTime(muteDuration)}`;
+            const muteMessage = `<@${user.id}> has been muted, appeal in ${grammaticalTime(muteDuration)}`;
             reason = `Muted for 30 minutes because: ${reason}`;
             
             let followUpMessage = null;
@@ -79,7 +79,7 @@ export const refMute: SubCommand = {
             const channel = await interaction.client.channels.fetch(tokens.RefereeLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
             embed.setTitle(`User ${user.username} has been muted by referee`);
-            embed.setDescription(`<@${user.id}> muted by <@${interaction.user.id}> for 30 minutes because: ${reason}\n\nChannel: <#${interaction.channelId}>\nMessage: ${followUpMessage?.url}`);
+            embed.setDescription(`<@${user.id}> muted by <@${interaction.user.id}> because: ${reason}\n\nChannel: <#${interaction.channelId}>\nMessage: ${followUpMessage?.url}`);
             await channel.send({content: `<@&${tokens.ModRole}>`, embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);
