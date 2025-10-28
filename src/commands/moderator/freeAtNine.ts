@@ -19,11 +19,6 @@ export const freeAtNine: SubCommand = {
         await interaction.deferReply();
         try {
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
-            // 0. Check if user cannot be freed
-            if (!dbUser.canBeFreed) {
-                await interaction.followUp({content: `<@${dbUser.id}> cannot be freed.`, flags: MessageFlagsBitField.Flags.Ephemeral});
-                return;
-            }
             // 1. User Registration and Profile Checks
             if (!dbUser.oculusName) {
                 await interaction.followUp({content: `<@${dbUser.id}> needs to set a name using /register before queueing.`, flags: MessageFlagsBitField.Flags.Ephemeral});
@@ -57,6 +52,11 @@ export const freeAtNine: SubCommand = {
             // 6. If queue is not at 9
             if (queueController.inQueueNumber() !== 9) {
                 await interaction.followUp({content: `Queue is not at 9 (currently ${queueController.inQueueNumber()}).`, flags: MessageFlagsBitField.Flags.Ephemeral});
+                return;
+            }
+            // 6.5. Check if the user can be freed
+            if (!dbUser.canBeFreed) {
+                await interaction.followUp({content: `<@${dbUser.id}> must serve out their cooldown time.`, flags: MessageFlagsBitField.Flags.Ephemeral});
                 return;
             }
             // 7. If user is not in queue, add them directly
