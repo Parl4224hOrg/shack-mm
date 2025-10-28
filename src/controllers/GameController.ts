@@ -197,6 +197,8 @@ export class GameController {
     minutesPassed = 0;
     halfMinutesPassed = 0;
 
+    sentUnregisteredDm = false;
+
     constructor(id: Types.ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, data: Data, server: GameServer | null) {
         this.id = id;
         this.client = client;
@@ -520,17 +522,24 @@ export class GameController {
 
         // Every Minute check for players and swap teams
         if (this.server) {
+            const foundUniqueIds: string[] = [];
+            let notFoundUniqueId: string = "";
+            let numFound = 0;
+            let numTotal = 0;
             const dbUsers: UserInt[] = [];
             for (let user of this.users) {
                 dbUsers.push(await getUserById(user.dbId, this.data));
             }
             try {
                 const AllPlayers = await this.server.inspectAll();
+                numTotal = AllPlayers.InspectList.length;
                 for (const player of AllPlayers.InspectList) {
                     let found = false;
                     for (const user of dbUsers) {
                         if (user.oculusName == player.UniqueId) {
                             found = true;
+                            numFound++;
+                            foundUniqueIds.push(player.UniqueId);
                             const currentTeam = player.TeamId;
                             let assignedTeam = "none";
                             for (const gameUser of this.users) {
@@ -551,6 +560,7 @@ export class GameController {
                         }
                     }
                     if (!found) {
+                        notFoundUniqueId = player.UniqueId;
                         await logInfo(`Player ${player.UniqueId} not found in database should be kicked, skipping due to bug`, this.client);
                         // await this.server.kick(player.UniqueId);
                     }
@@ -558,6 +568,24 @@ export class GameController {
             } catch (e) {
                 if (e instanceof RCONError) {
                     await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
+                }
+            }
+            if (numFound == 9 && numTotal == 10 && !this.sentUnregisteredDm) {
+                this.sentUnregisteredDm = true;
+                const entry = this.users.find(user => !foundUniqueIds.includes(user.dbId.toString()));
+                if (entry) {
+                    const user = await this.client.users.fetch(entry.discordId);
+                    try {
+                        const channel = await user.createDM();
+                        await channel.send("You may have an incorrect registered name the bot thinks this should be your name:`" + notFoundUniqueId + "`\nPlease register your name with using the button in #sign-up or by using /register");
+                        const logChannel = await this.client.channels.fetch(tokens.ModeratorLogChannel);
+                        if (logChannel && logChannel.isSendable() ) {
+                            await logChannel.send(`User ${entry.discordId} was dmed with a guess of their name: \`${notFoundUniqueId}\``);
+                        }
+
+                    } catch (e) {
+                        await logWarn(`Could not dm user -${entry.discordId}`, this.client);
+                    }
                 }
             }
         }
