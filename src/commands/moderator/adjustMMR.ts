@@ -5,7 +5,7 @@ import {getUserByUser} from "../../modules/getters/getUser";
 import {getStats} from "../../modules/getters/getStats";
 import {updateStats} from "../../modules/updaters/updateStats";
 import tokens from "../../tokens";
-import {DMChannel, MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
+import {SlashCommandSubcommandBuilder} from "discord.js";
 import {EmbedBuilder, TextChannel} from "discord.js";
 
 export const adjustMMR: SubCommand = {
