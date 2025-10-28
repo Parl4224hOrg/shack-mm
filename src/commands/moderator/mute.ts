@@ -14,7 +14,7 @@ import Tokens from "../../tokens";
 export const mute: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName('mute')
-        .setDescription("Mutes a player for a set amount of time or infinite if less than 0")
+        .setDescription("Mutes a player and sets timer for appeal or infinite if less than 0, 0 to unmute")
         .addUserOption(userOption("User to mute"))
         .addStringOption(timeScales)
         .addNumberOption(timeOption)
@@ -72,10 +72,10 @@ export const mute: SubCommand = {
                 dbUser.muteUntil = moment().unix() + time * multiplier;
                 await updateUser(dbUser, data);
                 await member.roles.add(tokens.MutedRole);
-                muteMessage = `<@${user.id}> has been muted for ${grammaticalTime(muteDuration)}`;
+                muteMessage = `<@${user.id}> has been muted, make a ticket in ${grammaticalTime(muteDuration)} to appeal`;
                 reason = `Muted for ${time} ${durationText} because: ${reason}`;
                 await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: muteMessage });
-                await user.send(`You have been muted for ${time} ${durationText} because: ${reason}`); // Send DM
+                await user.send(`You have been muted, make a ticket to appeal in ${time} ${durationText}\nReason: ${reason}`); // Send DM
                 await warnModel.create({
                     userId: dbUser._id,
                     reason: reason,
