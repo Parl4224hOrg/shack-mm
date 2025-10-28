@@ -8,7 +8,6 @@ import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
 import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import moment from "moment-timezone";
-import Tokens from "../../tokens";
 
 export const freeze: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -42,7 +41,7 @@ export const freeze: SubCommand = {
                     if (dbUser.muteUntil > 0 && dbUser.muteUntil < moment().unix()) {
                         if (member) {
                             await member.roles.remove(tokens.MutedRole, "remove using /freeze");
-                            await logInfo(`Unmuted ${member.user.id} (${dbUser.id}) freeze.ts ln 39`, interaction.client, [Tokens.Parl]);
+                            await logInfo(`Unmuted ${member.user.id} (${dbUser.id}) freeze.ts ln 39`, interaction.client);
                         }
                     }
                     await interaction.followUp({content: `<@${dbUser.id}> has been unfrozen, and unmuted if in server.`});
