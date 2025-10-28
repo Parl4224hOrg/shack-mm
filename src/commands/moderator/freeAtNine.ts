@@ -19,6 +19,11 @@ export const freeAtNine: SubCommand = {
         await interaction.deferReply();
         try {
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
+            // 0. Check if user cannot be freed
+            if (!dbUser.canBeFreed) {
+                await interaction.followUp({content: `<@${dbUser.id}> cannot be freed.`, flags: MessageFlagsBitField.Flags.Ephemeral});
+                return;
+            }
             // 1. User Registration and Profile Checks
             if (!dbUser.oculusName) {
                 await interaction.followUp({content: `<@${dbUser.id}> needs to set a name using /register before queueing.`, flags: MessageFlagsBitField.Flags.Ephemeral});
