@@ -60,7 +60,6 @@ export const mute: SubCommand = {
                 await updateUser(dbUser, data);
                 await member.roles.remove(tokens.MutedRole, "remove using /mute");
                 await logInfo(`Unmuted ${member.user.tag} (${user.id}) mute.ts ln 61`, interaction.client, [Tokens.Parl]);
-                reason = `Un-muted because: ${reason}`;
                 const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                 const embed = new EmbedBuilder();
                 embed.setTitle(`User ${user.username} has been unmuted`);
@@ -72,8 +71,14 @@ export const mute: SubCommand = {
                 dbUser.muteUntil = moment().unix() + time * multiplier;
                 await updateUser(dbUser, data);
                 await member.roles.add(tokens.MutedRole);
+
+                const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+                const embed = new EmbedBuilder();
+                embed.setTitle(`User ${user.username} has been muted`);
+                embed.setDescription(`<@${user.id}> muted by <@${interaction.user.id}> because: ${reason}`);
+                await channel.send({embeds: [embed.toJSON()]});
+
                 muteMessage = `<@${user.id}> has been muted, make a ticket in ${grammaticalTime(muteDuration)} to appeal`;
-                reason = `Muted for ${time} ${durationText} because: ${reason}`;
                 await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: muteMessage });
                 await user.send(`You have been muted, make a ticket to appeal in ${time} ${durationText}\nReason: ${reason}`); // Send DM
                 await warnModel.create({
