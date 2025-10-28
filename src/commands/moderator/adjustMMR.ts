@@ -32,19 +32,6 @@ export const adjustMMR: SubCommand = {
                 embed.setTitle(`User ${dbUser.id} has been MMR adjusted`);
                 embed.setDescription(`<@${dbUser.id}> MMR has been adjusted by ${mmrDelta}. New MMR is ${stats.mmr}. Done by <@${interaction.user.id}>`);
                 await channel.send({embeds: [embed.toJSON()]});
-
-                try {
-                    let dmChannel: DMChannel;
-                    if (!user.dmChannel) {
-                        dmChannel = await user.createDM(true);
-                    } else {
-                        dmChannel = user.dmChannel;
-                    }
-
-                    await dmChannel.send({content: `You have received the following mmr adjustment: \`${mmrDelta}\``});
-                } catch (e) {
-                    await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Failed to send dm" });
-                }
             }
         } catch (e) {
             await logError(e, interaction);
