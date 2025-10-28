@@ -17,6 +17,7 @@ export const createUser = async (user: User | GuildMember | PartialGuildMember)=
         games: [],
         gamesPlayedSinceLates: 0,
         muteUntil: 1,
+        canBeFreed: true,
     }));
 }
 
@@ -35,5 +36,6 @@ export const createBlankUser = async () => {
         games: [],
         gamesPlayedSinceLates: 0,
         muteUntil: 1,
+        canBeFreed: true,
     }));
 }
