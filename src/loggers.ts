@@ -135,8 +135,7 @@ export async function logWarn(warning: string, client: Client) {
 }
 
 export async function logModInfo(logMessage: string, client: Client, action?: string, pings?: string[]) {
-    const guild = await client.guilds.fetch(tokens.GuildID);
-    const channel = await guild.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+    const channel = await client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
     let embed = new EmbedBuilder();
     if (action) {
         embed.setTitle(`MOD ACTION: ${action}`);
