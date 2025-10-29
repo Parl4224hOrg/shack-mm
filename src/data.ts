@@ -118,7 +118,7 @@ export class Data {
                     }
                 }
                 if (user.muteUntil <= now) {
-                    await logInfo(`${user.id} should be unmuted, unix time for muteUntil: ${user.muteUntil}`, this.client);
+                    // await logInfo(`${user.id} should be unmuted, unix time for muteUntil: ${user.muteUntil}`, this.client);
                 }
             }
         }

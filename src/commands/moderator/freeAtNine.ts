@@ -54,6 +54,11 @@ export const freeAtNine: SubCommand = {
                 await interaction.followUp({content: `Queue is not at 9 (currently ${queueController.inQueueNumber()}).`, flags: MessageFlagsBitField.Flags.Ephemeral});
                 return;
             }
+            // 6.5. Check if the user can be freed
+            if (!dbUser.canBeFreed) {
+                await interaction.followUp({content: `<@${dbUser.id}> must serve out their cooldown time.`, flags: MessageFlagsBitField.Flags.Ephemeral});
+                return;
+            }
             // 7. If user is not in queue, add them directly
             const alreadyInQueue = queueController.inQueue.some(u => u.discordId === dbUser.id);
             if (!alreadyInQueue) {
