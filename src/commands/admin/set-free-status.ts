@@ -19,7 +19,12 @@ export const setFreeStatus: Command = {
         }
         userDoc.canBeFreed = free;
         await userDoc.save();
-        await interaction.reply(`Set ${user.username}'s free status to ${free}`);
+        if (free) {
+            await interaction.reply(`Set ${user.username} to be freeable when the q is at 9.`);
+        } else { 
+            await interaction.reply(`Set ${user.username} to be unfreeable when the q is at 9.`);
+        }
+        
     },
     name: "set_free_status",
     allowedRoles: [tokens.LeadModRole, tokens.OwnerRole]
