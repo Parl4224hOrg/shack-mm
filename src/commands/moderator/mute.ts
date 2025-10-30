@@ -36,7 +36,7 @@ export const mute: SubCommand = {
             const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user, data);
             const member = await interaction.guild!.members.fetch(user.id);
-            const reason = interaction.options.getString('reason', true);
+            let reason = interaction.options.getString('reason', true);
             let muteDuration = time * multiplier;
             let muteMessage = '';
             
