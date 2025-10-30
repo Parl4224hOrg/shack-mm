@@ -1,15 +1,16 @@
-import {SubCommand} from "../../interfaces/Command";
-import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
+import { SubCommand } from "../../interfaces/Command";
+import { MessageFlagsBitField, SlashCommandSubcommandBuilder } from "discord.js";
 import tokens from "../../tokens";
-import {getGameByMatchId} from "../../modules/getters/getGame";
-import GameModel, {GameInt} from "../../database/models/GameModel";
-import {Types} from "mongoose";
-import {getUserById} from "../../modules/getters/getUser";
-import {getStats} from "../../modules/getters/getStats";
-import {RecalcUser} from "../../interfaces/Game";
-import {recalcMMR} from "../../utility/processMMR";
-import {updateStats} from "../../modules/updaters/updateStats";
-import {updateGame} from "../../modules/updaters/updateGame";
+import { getGameByMatchId } from "../../modules/getters/getGame";
+import GameModel, { GameInt } from "../../database/models/GameModel";
+import { Types } from "mongoose";
+import { getUserById } from "../../modules/getters/getUser";
+import { getStats } from "../../modules/getters/getStats";
+import { RecalcUser } from "../../interfaces/Game";
+import { recalcMMR } from "../../utility/processMMR";
+import { updateStats } from "../../modules/updaters/updateStats";
+import { updateGame } from "../../modules/updaters/updateGame";
+import { logModInfo } from "../../loggers";
 
 const IncludesObjectId = (arr: Types.ObjectId[], includes: Types.ObjectId): boolean => {
     return arr.some((value) => value.equals(includes));
@@ -41,22 +42,22 @@ export const adjustMatchScores: SubCommand = {
     run: async (interaction, data) => {
         const match = await getGameByMatchId(interaction.options.getInteger('match_id', true));
         if (!match) {
-            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Match could not be found"});
+            await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Match could not be found" });
             return;
         }
         await interaction.deferReply();
 
         // Check if this match is the most recent complete game played by all users
         let futureMatches: GameInt[] = await GameModel.find({
-            matchId: {$gt: match.matchId},
-            scoreA: {$gte: 0},
-            scoreB: {$gte: 0},
+            matchId: { $gt: match.matchId },
+            scoreA: { $gte: 0 },
+            scoreB: { $gte: 0 },
         });
         if (futureMatches.length > 0) {
             for (const futureMatch of futureMatches) {
                 for (const user of futureMatch.users) {
                     if (IncludesObjectId(match.users, user._id)) {
-                        await interaction.followUp({content: "This match can no longer have its scores adjusted as at least one user has participated in another game that has completed."})
+                        await interaction.followUp({ content: "This match can no longer have its scores adjusted as at least one user has participated in another game that has completed." })
                         return;
                     }
                 }
@@ -121,7 +122,7 @@ export const adjustMatchScores: SubCommand = {
 
         // Update matches that have been generated since to have accurate mmr diffs
         futureMatches = await GameModel.find({
-            matchId: {$gt: match.matchId}
+            matchId: { $gt: match.matchId }
         });
         for (const futureMatch of futureMatches) {
             let teamASum = 0;
@@ -136,7 +137,12 @@ export const adjustMatchScores: SubCommand = {
             await updateGame(futureMatch);
         }
 
-        await interaction.followUp({content: `Successfully updated the scores of match ${match.matchId}`})
+        await interaction.followUp({ content: `Successfully updated the scores of match ${match.matchId}` })
+
+        // Log the cmd
+        let logMessage = `<@${interaction.user.id}> adjusted scores for match ${match.matchId} to TeamA:${scoreA} TeamB:${scoreB}`;
+        let modAction = `<@${interaction.user.id}> used adjust_match_scores`;
+        await logModInfo(logMessage, interaction.client, modAction);
     },
     name: "adjust_match_scores",
     allowedRoles: tokens.Mods

@@ -1,9 +1,9 @@
-import {SubCommand} from "../../interfaces/Command";
-import {logError} from "../../loggers";
-import {getGames} from "../../modules/getters/getGame";
-import {getScoreDistGraph} from "../../utility/graph";
+import { SubCommand } from "../../interfaces/Command";
+import { logError, logModInfo } from "../../loggers";
+import { getGames } from "../../modules/getters/getGame";
+import { getScoreDistGraph } from "../../utility/graph";
 import tokens from "../../tokens";
-import {SlashCommandIntegerOption, SlashCommandSubcommandBuilder} from "discord.js";
+import { SlashCommandIntegerOption, SlashCommandSubcommandBuilder } from "discord.js";
 
 export const scoreDist: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -39,9 +39,12 @@ export const scoreDist: SubCommand = {
                 labels.push(`10-${value[0]}`);
                 percents.push((value[1] / total) * 100);
             }
+            await interaction.followUp({ files: [await getScoreDistGraph(labels, percents, interaction.options.getInteger("from_game") ?? 0)] });
 
-
-            await interaction.followUp({files: [await getScoreDistGraph(labels, percents, interaction.options.getInteger("from_game") ?? 0)]});
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> used score_distribution with from_game: ${interaction.options.getInteger("from_game") || "all time"}.`;
+            let modAction = `<@${interaction.user.id}> used score_distribution`;
+            await logModInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

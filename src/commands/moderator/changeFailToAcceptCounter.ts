@@ -1,8 +1,8 @@
-import {ChannelType, DMChannel, MessageFlagsBitField} from "discord.js";
+import { ChannelType, DMChannel, MessageFlagsBitField } from "discord.js";
 import { SubCommand } from "../../interfaces/Command";
 import { userOption, reason } from "../../utility/options";
 import tokens from "../../tokens";
-import { logError } from "../../loggers";
+import { logError, logModInfo } from "../../loggers";
 import { createActionUser } from "../../modules/constructors/createAction";
 import { Actions } from "../../database/models/ActionModel";
 import { getUserByUser } from "../../modules/getters/getUser";
@@ -66,10 +66,14 @@ export const changeFailToAcceptCounter: SubCommand = {
                     dmChannel = user.dmChannel;
                 }
 
-                await dmChannel.send({content: `You have received the following counter change (Fail to Accept) by: \`${amount}\``});
+                await dmChannel.send({ content: `You have received the following counter change (Fail to Accept) by: \`${amount}\`` });
             } catch (e) {
                 await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Failed to send dm" });
             }
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> adjusted fail to accept cd counter for <@${user.id}> by ${amount}. New counter is ${dbUser.banCounterFail}, Reason:${reason}.`;
+            let modAction = `<@${interaction.user.id}> used change_fail_to_accept_counter`;
+            await logModInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

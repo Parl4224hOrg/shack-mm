@@ -66,16 +66,10 @@ export const cooldown: SubCommand = {
                 console.error(`Failed to send DM to user ${user.id}:`, dmError);
             }
             
-            let logMessage = `${discordUser.tag} (${user.id}) has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`;
-            let modAction = `User ${user.id} has been cooldowned`;
-            logModInfo(logMessage, interaction.client, modAction);
-
-            await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
-            const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
-            const embed = new EmbedBuilder();
-            embed.setTitle(`User ${user.id} has been cooldowned`);
-            embed.setDescription(`<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action by <@${interaction.user.id}> because: ${reason}`);
-            await channel.send({embeds: [embed.toJSON()]});
+            //log the cmd
+            let logMessage = `<@${discordUser.tag}> (<@${user.id}>) has been cd for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`;
+            let modAction = `User <@${user.id}> has been cd`;
+            await logModInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

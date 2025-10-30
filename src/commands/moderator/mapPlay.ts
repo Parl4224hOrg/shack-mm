@@ -1,14 +1,14 @@
-import {SubCommand} from "../../interfaces/Command";
-import {logError} from "../../loggers";
+import { SubCommand } from "../../interfaces/Command";
+import { logError, logModInfo } from "../../loggers";
 import tokens from "../../tokens";
 import GameModel from "../../database/models/GameModel";
-import {Collection, SlashCommandSubcommandBuilder} from "discord.js";
+import { Collection, SlashCommandSubcommandBuilder } from "discord.js";
 
 export const mapPlay: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName("play_rates")
         .setDescription("Show how much each map has been played")
-        .addIntegerOption(option => 
+        .addIntegerOption(option =>
             option.setName("days")
                 .setDescription("Number of days to look back")
                 .setRequired(false)),
@@ -16,15 +16,15 @@ export const mapPlay: SubCommand = {
         try {
             await interaction.deferReply();
             const days = interaction.options.getInteger("days");
-            let query: any = {scoreB: {"$gte": 0}, scoreA: {'$gte': 0}};
+            let query: any = { scoreB: { "$gte": 0 }, scoreA: { '$gte': 0 } };
             let dateRange = "";
             if (days) {
                 const date = new Date();
                 date.setDate(date.getDate() - days);
-                query = {...query, creationDate: {"$gte": Math.floor(date.getTime() / 1000)}}; // Convert to seconds
+                query = { ...query, creationDate: { "$gte": Math.floor(date.getTime() / 1000) } }; // Convert to seconds
                 dateRange = ` (Last ${days} days)`;
             }
-            const games = await GameModel.find(query).sort({matchId: 1});
+            const games = await GameModel.find(query).sort({ matchId: 1 });
             const totals = new Collection<string, number>();
             for (let game of games) {
                 const check = totals.get(game.map);
@@ -39,7 +39,12 @@ export const mapPlay: SubCommand = {
                 display += `${total[0]}: ${total[1]}\n`;
             }
             display += "```";
-            await interaction.followUp({content: display});
+            await interaction.followUp({ content: display });
+
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> used play_rates with days: ${days || "all time"}.`;
+            let modAction = `<@${interaction.user.id}> used play_rates`;
+            await logModInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

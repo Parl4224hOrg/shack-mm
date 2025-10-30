@@ -1,7 +1,7 @@
 import { SubCommand } from "../../interfaces/Command";
 import { userOption } from "../../utility/options";
 import tokens from "../../tokens";
-import { logError } from "../../loggers";
+import { logError, logModInfo } from "../../loggers";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { getStats } from "../../modules/getters/getStats";
 import { getUserActions } from "../../modules/getters/getAction";
@@ -28,14 +28,15 @@ export const failToAcceptRatio: SubCommand = {
         ),
     run: async (interaction, data) => {
         try {
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
+            const user = interaction.options.getUser('user', true);
+            const dbUser = await getUserByUser(user, data);
             const gamesCount = interaction.options.getInteger('games', false);
             const days = interaction.options.getInteger('days', false);
-            
+
             let totalGames: number;
             let failedAccepts: number;
             let timeBold: string;
-            
+
             if (gamesCount) {
                 // Get the latest X games where the user participated
                 const games = await GameModel.find({
@@ -52,7 +53,7 @@ export const failToAcceptRatio: SubCommand = {
                 // Get actions for this user
                 const userActions = await getUserActions(dbUser.id);
                 // Count failed accepts since cutoffTime
-                failedAccepts = userActions.filter((action: ActionInt) => 
+                failedAccepts = userActions.filter((action: ActionInt) =>
                     action.action === Actions.AcceptFail && action.time >= cutoffTime
                 ).length;
                 timeBold = `**Last ${gamesCount} games**`;
@@ -69,7 +70,7 @@ export const failToAcceptRatio: SubCommand = {
                 totalGames = games.length;
                 // Query actions within the time period
                 const userActions = await getUserActions(dbUser.id);
-                failedAccepts = userActions.filter((action: ActionInt) => 
+                failedAccepts = userActions.filter((action: ActionInt) =>
                     action.action === Actions.AcceptFail && action.time >= cutoffTime
                 ).length;
                 timeBold = `**Last ${days} days**`;
@@ -81,18 +82,23 @@ export const failToAcceptRatio: SubCommand = {
                 failedAccepts = userActions.filter((action: ActionInt) => action.action === Actions.AcceptFail).length;
                 timeBold = "All time";
             }
-            
+
             const ratio = totalGames > 0 ? (failedAccepts / totalGames * 100).toFixed(2) : "0.00";
-            
+
             let userDisplay = interaction.options.getUser('user', true).username;
             await interaction.reply({
                 content: `**Fail to Accept Ratio for ${userDisplay}**\n` +
-                        `${timeBold}\n` +
-                        `Total Games Played: ${totalGames}\n` +
-                        `Total Failed Accepts: ${failedAccepts}\n` +
-                        `Current Counter: ${dbUser.banCounterFail}\n` +
-                        `Ratio: ${ratio}%`
+                    `${timeBold}\n` +
+                    `Total Games Played: ${totalGames}\n` +
+                    `Total Failed Accepts: ${failedAccepts}\n` +
+                    `Current Counter: ${dbUser.banCounterFail}\n` +
+                    `Ratio: ${ratio}%`
             });
+
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> used fail_to_accept_ratio for <@${user.id}>.`;
+            let modAction = `<@${interaction.user.id}> used fail_to_accept_ratio`;
+            await logModInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

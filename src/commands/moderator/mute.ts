@@ -1,14 +1,14 @@
-import {SubCommand} from "../../interfaces/Command";
-import {SlashCommandSubcommandBuilder, SlashCommandStringOption, MessageFlagsBitField} from "discord.js";
-import {timeOption, timeScales, userOption} from "../../utility/options";
+import { SubCommand } from "../../interfaces/Command";
+import { SlashCommandSubcommandBuilder, SlashCommandStringOption, MessageFlagsBitField } from "discord.js";
+import { timeOption, timeScales, userOption } from "../../utility/options";
 import tokens from "../../tokens";
-import {logError, logInfo} from "../../loggers";
-import {getUserByUser} from "../../modules/getters/getUser";
+import { logError, logInfo, logModInfo } from "../../loggers";
+import { getUserByUser } from "../../modules/getters/getUser";
 import moment from "moment";
-import {updateUser} from "../../modules/updaters/updateUser";
-import {grammaticalTime} from "../../utility/grammatical";
+import { updateUser } from "../../modules/updaters/updateUser";
+import { grammaticalTime } from "../../utility/grammatical";
 import warnModel from "../../database/models/WarnModel";
-import {EmbedBuilder, TextChannel} from "discord.js";
+import { EmbedBuilder, TextChannel } from "discord.js";
 
 export const mute: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -39,13 +39,13 @@ export const mute: SubCommand = {
             let reason = interaction.options.getString('reason', true);
             let muteDuration = time * multiplier;
             let muteMessage = '';
-            
+
             if (time < 0) {
                 dbUser.muteUntil = -1;
                 await updateUser(dbUser, data);
                 await member.roles.add(tokens.MutedRole);
-                
-                await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${user.id}> has been muted indefinitely`});
+
+                await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${user.id}> has been muted indefinitely` });
                 await user.send(`You have been muted indefinitely because: ${reason}`); // Send DM
                 await warnModel.create({
                     userId: dbUser._id,
@@ -64,9 +64,9 @@ export const mute: SubCommand = {
                 const embed = new EmbedBuilder();
                 embed.setTitle(`User ${user.username} has been unmuted`);
                 embed.setDescription(`<@${user.id}> un-muted by <@${interaction.user.id}> because: ${reason}`);
-                await channel.send({embeds: [embed.toJSON()]});
+                await channel.send({ embeds: [embed.toJSON()] });
 
-                await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${user.id}> has been un-muted`});
+                await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${user.id}> has been un-muted` });
                 await user.send(`You have been un-muted because: ${reason}`); // Send DM
             } else {
                 dbUser.muteUntil = moment().unix() + time * multiplier;
@@ -77,7 +77,7 @@ export const mute: SubCommand = {
                 const embed = new EmbedBuilder();
                 embed.setTitle(`User ${user.username} has been muted`);
                 embed.setDescription(`<@${user.id}> muted by <@${interaction.user.id}> because: ${reason}`);
-                await channel.send({embeds: [embed.toJSON()]});
+                await channel.send({ embeds: [embed.toJSON()] });
 
                 muteMessage = `<@${user.id}> has been muted, make a ticket in ${grammaticalTime(muteDuration)} to appeal`;
                 await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: muteMessage });
@@ -90,6 +90,11 @@ export const mute: SubCommand = {
                     removed: false,
                 });
             }
+
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> muted <@${user.id}> for ${time} ${durationText}. Reason: ${reason}.`;
+            let modAction = `<@${interaction.user.id}> used mute`;
+            await logModInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

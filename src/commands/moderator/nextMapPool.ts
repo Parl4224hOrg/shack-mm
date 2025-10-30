@@ -1,7 +1,7 @@
-import {SubCommand} from "../../interfaces/Command";
-import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
-import {logError} from "../../loggers";
-import {getMapsDB} from "../../utility/match";
+import { SubCommand } from "../../interfaces/Command";
+import { MessageFlagsBitField, SlashCommandSubcommandBuilder } from "discord.js";
+import { logError, logModInfo } from "../../loggers";
+import { getMapsDB } from "../../utility/match";
 import tokens from "../../tokens";
 
 export const nextMapPool: SubCommand = {
@@ -21,7 +21,12 @@ export const nextMapPool: SubCommand = {
                 }
             }
             mapMessage += "```";
-            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: mapMessage});
+            await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: mapMessage });
+
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> checked next map pool.`;
+            let modAction = `<@${interaction.user.id}> used next_map_pool`;
+            await logModInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

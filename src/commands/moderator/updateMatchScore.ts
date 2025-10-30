@@ -1,10 +1,10 @@
-import {MessageFlagsBitField} from "discord.js";
-import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
-import {logError} from "../../loggers";
+import { MessageFlagsBitField } from "discord.js";
+import { Command } from "../../interfaces/Command";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { logError, logModInfo } from "../../loggers";
 import GameModel from "../../database/models/GameModel";
 import tokens from "../../tokens";
-import {EmbedBuilder, TextChannel} from "discord.js";
+import { EmbedBuilder, TextChannel } from "discord.js";
 
 
 export const updateMatchScore: Command = {
@@ -23,7 +23,7 @@ export const updateMatchScore: Command = {
             option.setName('team_b_score')
                 .setDescription('Score of team B')
                 .setRequired(true))
-        .addStringOption(option =>  
+        .addStringOption(option =>
             option.setName('reason')
                 .setDescription('Reason for the update')
                 .setRequired(true)),
@@ -44,7 +44,7 @@ export const updateMatchScore: Command = {
                 const oldScoreB = updateGame.scoreB;
                 const oldAbandoned = updateGame.abandoned;
                 let endDateChanged = false;
-                
+
                 if (teamAScore !== 10 && teamBScore !== 10) {
                     await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: 'One team must have scored 10.' });
                 } else if (teamAScore === 10 && teamBScore === 10) {
@@ -54,7 +54,7 @@ export const updateMatchScore: Command = {
                     updateGame.scoreA = teamAScore;
                     updateGame.scoreB = teamBScore;
                     updateGame.winner = teamAScore === 10 ? 0 : 1;
-                    if(updateGame.endDate < 0) {
+                    if (updateGame.endDate < 0) {
                         // Set endDate to be 40 minutes from creationDate
                         updateGame.endDate = updateGame.creationDate + 40 * 60;
                         endDateChanged = true;
@@ -65,7 +65,7 @@ export const updateMatchScore: Command = {
                     const embed = new EmbedBuilder();
                     embed.setTitle(`Game ${updateGameId} has been updated`);
                     embed.setDescription(`Team A score now: ${teamAScore} and Team B score now: ${teamBScore} updated by <@${interaction.user.id}> because: ${reason}\nOld team A score: ${oldScoreA} and old team B score: ${oldScoreB}\nMatch was previously abandoned: ${oldAbandoned}`);
-                    await channel.send({embeds: [embed.toJSON()]});
+                    await channel.send({ embeds: [embed.toJSON()] });
                     let followUpMessage = `Game ${updateGameId} has been updated:\n- Team A score: ${teamAScore}\n- Team B score: ${teamBScore}\n- Winner: ${updateGame.winner === 0 ? 'Team A' : 'Team B'}\n- Reason: ${reason}`;
                     if (endDateChanged) {
                         followUpMessage += `\n- End date set to 40 minutes from creation date`;
@@ -73,9 +73,14 @@ export const updateMatchScore: Command = {
                     await interaction.followUp({
                         flags: MessageFlagsBitField.Flags.Ephemeral,
                         content: followUpMessage
-                    });              
+                    });
                 }
             }
+            
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> updated game ${updateGameId} to TeamA: ${teamAScore} TeamB: ${teamBScore}. Reason: ${reason}.`;
+            let modAction = `<@${interaction.user.id}> used update_match_score`;
+            await logModInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

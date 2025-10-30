@@ -1,9 +1,9 @@
-import {SubCommand} from "../../interfaces/Command";
-import {userOption} from "../../utility/options";
-import {logError} from "../../loggers";
+import { SubCommand } from "../../interfaces/Command";
+import { userOption } from "../../utility/options";
+import { logError, logModInfo } from "../../loggers";
 import tokens from "../../tokens";
-import {getUserByUser} from "../../modules/getters/getUser";
-import {MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
+import { getUserByUser } from "../../modules/getters/getUser";
+import { MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder } from "discord.js";
 import LateModel from "../../database/models/LateModel";
 
 export const lateRatio: SubCommand = {
@@ -19,7 +19,7 @@ export const lateRatio: SubCommand = {
         try {
             const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user, data);
-            const lates = await LateModel.find({user: dbUser.id});
+            const lates = await LateModel.find({ user: dbUser.id });
             let totalTime = 0;
             for (const late of lates) {
                 // Subtract 60 seconds times 5 minutes to account for allowed join time
@@ -29,9 +29,15 @@ export const lateRatio: SubCommand = {
             const latePercent = (lates.length / (dbUser.gamesPlayedSinceLates + 1)) * 100;
             const latePercentNeeded = 53.868 * Math.exp(-0.00402 * avgLateTime);
             const ephemeral = interaction.options.getBoolean("hidden") ? MessageFlagsBitField.Flags.Ephemeral : undefined;
-            await interaction.reply({flags: ephemeral,
+            await interaction.reply({
+                flags: ephemeral,
                 content: `${user.username} is late ${latePercent.toFixed(2)}% by an average of ${avgLateTime.toFixed(2)} seconds. They need to be late ${latePercentNeeded.toFixed(2)}% to receive a cooldown.`
             })
+            
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> checked late ratio for <@${user.id}>.`;
+            let modAction = `<@${interaction.user.id}> used late_ratio`;
+            await logModInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }
