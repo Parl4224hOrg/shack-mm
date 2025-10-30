@@ -2,7 +2,7 @@ import { SubCommand } from "../../interfaces/Command";
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders";
 import tokens from "../../tokens";
 import { getGameByMatchId } from "../../modules/getters/getGame";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import moment from "moment";
 import { processMMR } from "../../utility/processMMR";
 import { updateGame } from "../../modules/updaters/updateGame";
@@ -90,20 +90,14 @@ export const manualSubmitIfNotAbandoned: SubCommand = {
             const mapData = await getMapData(game.map);
 
             const channel = await interaction.guild!.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
-            await channel.send({ content: `Match ${game.matchId}`, embeds: [matchFinalEmbed(game!, users, mapData!)] });
-
-            const modLog = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
-            const embed = new EmbedBuilder();
-            embed.setTitle(`Game ${game.matchId} has been manually submitted`);
-            embed.setDescription(`<@${interaction.user.id}> has submitted: Team A: ${game.scoreA}, Team B: ${game.scoreB}`);
-            await modLog.send({ embeds: [embed.toJSON()] });
+            await channel.send({ content: `Match ${game.matchId}`, embeds: [matchFinalEmbed(game!, users, mapData!)] }); 
             await data.Leaderboard.setLeaderboard();
             await interaction.followUp({ content: `Match ${game.matchId} has been submitted with:\nTeam A: ${game.scoreA}\nTeam B: ${game.scoreB}` });
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> used for manual_submit_if_not_abandoned match ${matchId} with scores teamA: ${game.scoreA}, teamB: ${game.scoreB}.`;
             let modAction = `<@${interaction.user.id}> used manual_submit_if_not_abandoned`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         }
         catch (e) {
             await logError(e, interaction);

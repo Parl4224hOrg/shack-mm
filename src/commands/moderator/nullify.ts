@@ -1,11 +1,10 @@
 import { SubCommand } from "../../interfaces/Command";
 import { reason } from "../../utility/options";
 import tokens from "../../tokens";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import { createAction } from "../../modules/constructors/createAction";
 import { Actions } from "../../database/models/ActionModel";
 import { MessageFlagsBitField, SlashCommandSubcommandBuilder } from "discord.js";
-import { EmbedBuilder, TextChannel } from "discord.js";
 
 export const nullify: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -31,22 +30,13 @@ export const nullify: SubCommand = {
                 }
                 await game.abandonCleanup(true, data.getQueue().getDeleteQueue());
                 await createAction(Actions.Nullify, interaction.user.id, reason, `Game ${game.id} nullified`);
-                let channel: TextChannel;
-                if (isReferee) {
-                    channel = await interaction.client.channels.fetch(tokens.RefereeLogChannel) as TextChannel;
-                } else {
-                    channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
-                }
-                const embed = new EmbedBuilder();
-                embed.setTitle(`Game ${game.id} nullified`);
-                embed.setDescription(`Game ${game.id} nullified by <@${interaction.user.id}> because: ${reason}`);
-                await channel.send({ embeds: [embed.toJSON()] });
+                
             }
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> nullified game ${game ? game.id : 'N/A'}. Reason: ${reason}.`;
             let modAction = `<@${interaction.user.id}> used nullify`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction, isReferee);
         } catch (e) {
             await logError(e, interaction);
         }

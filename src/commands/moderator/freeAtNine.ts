@@ -2,14 +2,14 @@ import { SubCommand } from "../../interfaces/Command";
 import { userOption } from "../../utility/options";
 import tokens from "../../tokens";
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders";
-import { EmbedBuilder, TextChannel, MessageFlagsBitField } from "discord.js";
+import { MessageFlagsBitField } from "discord.js";
 import { createActionUser } from "../../modules/constructors/createAction";
 import { Actions } from "../../database/models/ActionModel";
 import { getStats } from "../../modules/getters/getStats";
 import moment from "moment";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { updateUser } from "../../modules/updaters/updateUser";
-import { logModInfo } from "../../loggers";
+import { logSMMInfo } from "../../loggers";
 
 export const freeAtNine: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -77,20 +77,15 @@ export const freeAtNine: SubCommand = {
             // 8. Remove cooldown (do not decrement ban counters)
             dbUser.banUntil = 0;
             await updateUser(dbUser, data);
-            // 9. Log and reply
+            // 9. Reply
             const reason = `Freed at 9 by <@${interaction.user.id}>`;
             await createActionUser(Actions.RemoveCooldown, interaction.user.id, dbUser.id, reason, 'cooldown removed');
-            const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
-            const embed = new EmbedBuilder();
-            embed.setTitle(`User ${dbUser.id} freed at 9`);
-            embed.setDescription(`<@${dbUser.id}> was freed at 9 by <@${interaction.user.id}>`);
-            await channel.send({ embeds: [embed.toJSON()] });
             await interaction.followUp({ content: `<@${dbUser.id}> has been freed at 9 and added to queue.`, flags: MessageFlagsBitField.Flags.Ephemeral });
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> used free_at_nine for <@${user.id}>.`;
             let modAction = `<@${interaction.user.id}> used force_abandon`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await interaction.followUp({ content: 'An error occurred while processing the command.', flags: MessageFlagsBitField.Flags.Ephemeral });
         }

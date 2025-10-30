@@ -2,12 +2,11 @@ import { ChannelType, DMChannel, MessageFlagsBitField } from "discord.js";
 import { SubCommand } from "../../interfaces/Command";
 import { SlashCommandStringOption, SlashCommandSubcommandBuilder } from "discord.js";
 import { userOption } from "../../utility/options";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import { getUserByUser } from "../../modules/getters/getUser";
 import warnModel from "../../database/models/WarnModel";
 import moment from "moment";
 import tokens from "../../tokens";
-import { EmbedBuilder, TextChannel } from "discord.js";
 
 export const warn: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -64,17 +63,6 @@ export const warn: SubCommand = {
                     await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "cannot send message, command executed" });
                 }
             }
-            let channel: TextChannel;
-            if (isReferee) {
-                channel = await interaction.client.channels.fetch(tokens.RefereeLogChannel) as TextChannel;
-            } else {
-                channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
-            }
-            const embed = new EmbedBuilder();
-            embed.setTitle(`User ${dbUser.id} has been warned`);
-            embed.setDescription(`<@${interaction.options.getUser('user', true).id}> has been warned:\n\`\`\`${interaction.options.getString('reason', true)}\`\`\` by <@${interaction.user.id}>`);
-            await channel.send({ embeds: [embed.toJSON()] });
-
             try {
                 let dmChannel: DMChannel;
                 if (!user.dmChannel) {
@@ -91,7 +79,7 @@ export const warn: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> warned <@${user.id}>. Reason: ${interaction.options.getString('reason', true)}.`;
             let modAction = `<@${interaction.user.id}> used warn`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction, isReferee);
         } catch (e) {
             await logError(e, interaction);
         }

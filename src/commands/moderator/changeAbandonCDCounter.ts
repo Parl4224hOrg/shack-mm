@@ -2,7 +2,7 @@ import { ChannelType, DMChannel, MessageFlagsBitField } from "discord.js";
 import { SubCommand } from "../../interfaces/Command";
 import { userOption, reason } from "../../utility/options";
 import tokens from "../../tokens";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import { createActionUser } from "../../modules/constructors/createAction";
 import { Actions } from "../../database/models/ActionModel";
 import { getUserByUser } from "../../modules/getters/getUser";
@@ -52,11 +52,6 @@ export const changeAbandonCDCounter: SubCommand = {
             } else {
                 await interaction.reply({ content: `<@${dbUser.id}> abandon (CD) counter changed by ${amount}. New counter: ${dbUser.banCounterAbandon}` });
             }
-            const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
-            const embed = new EmbedBuilder();
-            embed.setTitle(`User ${dbUser.id} abandon (CD) counter changed`);
-            embed.setDescription(`<@${dbUser.id}> abandon (CD) counter changed by <@${interaction.user.id}> by ${amount}. Reason: ${reason}`);
-            await channel.send({ embeds: [embed.toJSON()] });
 
             try {
                 let dmChannel: DMChannel;
@@ -74,7 +69,7 @@ export const changeAbandonCDCounter: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> adjusted abandon cd counter for <@${user.id}> by ${amount}. New counter is ${dbUser.banCounterAbandon}, Reason:${reason}.`;
             let modAction = `<@${interaction.user.id}> used change_abandon_cd_counter`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

@@ -1,7 +1,7 @@
 import { SubCommand } from "../../interfaces/Command";
 import { MessageFlagsBitField, SlashCommandSubcommandBuilder, SlashCommandUserOption } from "discord.js";
 import tokens from "../../tokens";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { getStats } from "../../modules/getters/getStats";
 import { updateStats } from "../../modules/updaters/updateStats";
@@ -67,7 +67,7 @@ export const transferUser: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> transferred <@${oldUser.id}> to <@${newUser.id}>`;
             let modAction = `<@${interaction.user.id}> used transfer_user`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

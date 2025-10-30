@@ -1,5 +1,5 @@
 import { SubCommand } from "../../interfaces/Command";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import tokens from "../../tokens";
 import StatsModel from "../../database/models/StatsModel";
 import { Collection, SlashCommandSubcommandBuilder } from "discord.js";
@@ -46,7 +46,7 @@ export const rankDist: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> checked rank distribution.`;
             let modAction = `<@${interaction.user.id}> used rank_distribution`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

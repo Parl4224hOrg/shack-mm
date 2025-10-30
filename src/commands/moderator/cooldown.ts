@@ -1,7 +1,7 @@
 import { ChannelType } from "discord.js";
 import {SubCommand} from "../../interfaces/Command";
 import {reason, userOption} from "../../utility/options";
-import {logError, logModInfo} from "../../loggers";
+import {logError, logSMMInfo} from "../../loggers";
 import tokens from "../../tokens";
 import moment from "moment";
 import {getUserByUser} from "../../modules/getters/getUser";
@@ -10,7 +10,6 @@ import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {punishment} from "../../utility/punishment";
-import {EmbedBuilder, TextChannel} from "discord.js";
 
 export const cooldown: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -69,7 +68,7 @@ export const cooldown: SubCommand = {
             //log the cmd
             let logMessage = `<@${discordUser.tag}> (<@${user.id}>) has been cd for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`;
             let modAction = `User <@${user.id}> has been cd`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

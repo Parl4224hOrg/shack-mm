@@ -1,7 +1,7 @@
 import { SubCommand } from "../../interfaces/Command";
 import { userOption } from "../../utility/options";
 import tokens from "../../tokens";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { getStats } from "../../modules/getters/getStats";
 import { getUserActions } from "../../modules/getters/getAction";
@@ -98,7 +98,7 @@ export const failToAcceptRatio: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> used fail_to_accept_ratio for <@${user.id}>.`;
             let modAction = `<@${interaction.user.id}> used fail_to_accept_ratio`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

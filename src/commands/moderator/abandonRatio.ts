@@ -1,7 +1,7 @@
 import { SubCommand } from "../../interfaces/Command";
 import { userOption } from "../../utility/options";
 import tokens from "../../tokens";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { getStats } from "../../modules/getters/getStats";
 import { getUserActions } from "../../modules/getters/getAction";
@@ -109,7 +109,7 @@ export const abandonRatio: SubCommand = {
             // Log the cmd
             let logMessage = `<@${interaction.user.id}> checked abandon ratio for <@${user.id}>: ${ratio}% over ${totalGames} games.`;
             let modAction = `<@${interaction.user.id}> used abandon_ratio`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

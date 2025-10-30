@@ -1,6 +1,6 @@
 import { SubCommand } from "../../interfaces/Command";
 import { userOption } from "../../utility/options";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import tokens from "../../tokens";
 import { getUserByUser } from "../../modules/getters/getUser";
 import ActionModel from "../../database/models/ActionModel";
@@ -43,7 +43,7 @@ export const actions: SubCommand = {
             // Log the cmd
             let logMessage = `<@${interaction.user.id}> checked action for ${user.id}`;
             let modAction = `<@${interaction.user.id}> used actions`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

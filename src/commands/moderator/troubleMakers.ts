@@ -3,7 +3,7 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders";
 import { EmbedBuilder, MessageFlagsBitField } from "discord.js";
 import userModel from "../../database/models/UserModel";
 import tokens from "../../tokens";
-import { logModInfo } from "../../loggers";
+import { logSMMInfo } from "../../loggers";
 
 export const troubleMakers: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -29,7 +29,7 @@ export const troubleMakers: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> used trouble_makers command.`;
             let modAction = `<@${interaction.user.id}> used trouble_makers`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             console.error("Error in troubleMakers command:", e);
             await interaction.followUp({

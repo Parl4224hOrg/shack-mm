@@ -1,6 +1,6 @@
 import { SubCommand } from "../../interfaces/Command";
 import { userOption } from "../../utility/options";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import { getUserByUser } from "../../modules/getters/getUser";
 import WarnModel from "../../database/models/WarnModel";
 import { warningEmbeds } from "../../embeds/statsEmbed";
@@ -22,7 +22,7 @@ export const warnings: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> checked warnings for <@${user.id}>`;
             let modAction = `<@${interaction.user.id}> used warnings`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

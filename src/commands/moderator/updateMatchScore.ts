@@ -1,10 +1,9 @@
 import { MessageFlagsBitField } from "discord.js";
 import { Command } from "../../interfaces/Command";
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import GameModel from "../../database/models/GameModel";
 import tokens from "../../tokens";
-import { EmbedBuilder, TextChannel } from "discord.js";
 
 
 export const updateMatchScore: Command = {
@@ -61,11 +60,6 @@ export const updateMatchScore: Command = {
                     }
                     updateGame.abandoned = false;
                     await updateGame.save();
-                    const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
-                    const embed = new EmbedBuilder();
-                    embed.setTitle(`Game ${updateGameId} has been updated`);
-                    embed.setDescription(`Team A score now: ${teamAScore} and Team B score now: ${teamBScore} updated by <@${interaction.user.id}> because: ${reason}\nOld team A score: ${oldScoreA} and old team B score: ${oldScoreB}\nMatch was previously abandoned: ${oldAbandoned}`);
-                    await channel.send({ embeds: [embed.toJSON()] });
                     let followUpMessage = `Game ${updateGameId} has been updated:\n- Team A score: ${teamAScore}\n- Team B score: ${teamBScore}\n- Winner: ${updateGame.winner === 0 ? 'Team A' : 'Team B'}\n- Reason: ${reason}`;
                     if (endDateChanged) {
                         followUpMessage += `\n- End date set to 40 minutes from creation date`;
@@ -76,11 +70,11 @@ export const updateMatchScore: Command = {
                     });
                 }
             }
-            
+
             //log the cmd
             let logMessage = `<@${interaction.user.id}> updated game ${updateGameId} to TeamA: ${teamAScore} TeamB: ${teamBScore}. Reason: ${reason}.`;
             let modAction = `<@${interaction.user.id}> used update_match_score`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

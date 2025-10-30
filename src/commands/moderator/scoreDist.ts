@@ -1,5 +1,5 @@
 import { SubCommand } from "../../interfaces/Command";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import { getGames } from "../../modules/getters/getGame";
 import { getScoreDistGraph } from "../../utility/graph";
 import tokens from "../../tokens";
@@ -44,7 +44,7 @@ export const scoreDist: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> used score_distribution with from_game: ${interaction.options.getInteger("from_game") || "all time"}.`;
             let modAction = `<@${interaction.user.id}> used score_distribution`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

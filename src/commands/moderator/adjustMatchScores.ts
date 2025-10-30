@@ -10,7 +10,7 @@ import { RecalcUser } from "../../interfaces/Game";
 import { recalcMMR } from "../../utility/processMMR";
 import { updateStats } from "../../modules/updaters/updateStats";
 import { updateGame } from "../../modules/updaters/updateGame";
-import { logModInfo } from "../../loggers";
+import { logSMMInfo } from "../../loggers";
 
 const IncludesObjectId = (arr: Types.ObjectId[], includes: Types.ObjectId): boolean => {
     return arr.some((value) => value.equals(includes));
@@ -142,7 +142,7 @@ export const adjustMatchScores: SubCommand = {
         // Log the cmd
         let logMessage = `<@${interaction.user.id}> adjusted scores for match ${match.matchId} to TeamA:${scoreA} TeamB:${scoreB}`;
         let modAction = `<@${interaction.user.id}> used adjust_match_scores`;
-        await logModInfo(logMessage, interaction.client, modAction);
+        await logSMMInfo(logMessage, interaction.client, modAction);
     },
     name: "adjust_match_scores",
     allowedRoles: tokens.Mods

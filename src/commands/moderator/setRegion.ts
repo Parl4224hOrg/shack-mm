@@ -1,7 +1,7 @@
 import { SubCommand } from "../../interfaces/Command";
 import { userOption } from "../../utility/options";
 import { MessageFlagsBitField, SlashCommandStringOption, SlashCommandSubcommandBuilder } from "discord.js";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import tokens from "../../tokens";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { Regions } from "../../database/models/UserModel";
@@ -56,7 +56,7 @@ export const setRegion: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> set <@${user.id}>'s region to ${dbUser.region}.`;
             let modAction = `<@${interaction.user.id}> used set_region`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

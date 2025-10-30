@@ -134,13 +134,15 @@ export async function logWarn(warning: string, client: Client) {
     await channel.send({ embeds: [embed] });
 }
 
-export async function logModInfo(logMessage: string, client: Client, action?: string, pings?: string[]) {
-    const channel = await client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+export async function logSMMInfo(logMessage: string, client: Client, action?: string, isRef?:boolean, pings?: string[]) {
+    let channel: TextChannel;
     let embed = new EmbedBuilder();
-    if (action) {
+    if (isRef) {
+        channel = await client.channels.fetch(tokens.RefereeLogChannel) as TextChannel;
+        embed.setTitle(`REF ACTION: ${action}`);
+    }else{
+        channel = await client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
         embed.setTitle(`MOD ACTION: ${action}`);
-    } else {
-        embed.setTitle('MOD ACTION');
     }
     embed.setColor(Colors.Green);
     let time = new Date().getTime();

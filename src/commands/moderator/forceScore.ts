@@ -1,7 +1,7 @@
 import { SubCommand } from "../../interfaces/Command";
 import { reason, score } from "../../utility/options";
 import tokens from "../../tokens";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import { createAction } from "../../modules/constructors/createAction";
 import { Actions } from "../../database/models/ActionModel";
 import { MessageFlagsBitField, SlashCommandSubcommandBuilder } from "discord.js";

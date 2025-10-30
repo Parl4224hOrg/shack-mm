@@ -1,6 +1,6 @@
 import { SubCommand } from "../../interfaces/Command";
 import { userOption } from "../../utility/options";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import tokens from "../../tokens";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { MessageFlagsBitField, SlashCommandIntegerOption, SlashCommandSubcommandBuilder } from "discord.js";
@@ -78,7 +78,7 @@ export const lateReview: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> used late review on <@${user.id}>.`;
             let modAction = `<@${interaction.user.id}> used late_review`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

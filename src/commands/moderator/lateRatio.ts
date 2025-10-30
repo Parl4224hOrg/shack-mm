@@ -1,6 +1,6 @@
 import { SubCommand } from "../../interfaces/Command";
 import { userOption } from "../../utility/options";
-import { logError, logModInfo } from "../../loggers";
+import { logError, logSMMInfo } from "../../loggers";
 import tokens from "../../tokens";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder } from "discord.js";
@@ -33,11 +33,11 @@ export const lateRatio: SubCommand = {
                 flags: ephemeral,
                 content: `${user.username} is late ${latePercent.toFixed(2)}% by an average of ${avgLateTime.toFixed(2)} seconds. They need to be late ${latePercentNeeded.toFixed(2)}% to receive a cooldown.`
             })
-            
+
             //log the cmd
             let logMessage = `<@${interaction.user.id}> checked late ratio for <@${user.id}>.`;
             let modAction = `<@${interaction.user.id}> used late_ratio`;
-            await logModInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }
