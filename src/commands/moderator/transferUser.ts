@@ -1,11 +1,11 @@
-import {SubCommand} from "../../interfaces/Command";
-import {MessageFlagsBitField, SlashCommandSubcommandBuilder, SlashCommandUserOption} from "discord.js";
+import { SubCommand } from "../../interfaces/Command";
+import { MessageFlagsBitField, SlashCommandSubcommandBuilder, SlashCommandUserOption } from "discord.js";
 import tokens from "../../tokens";
-import {logError} from "../../loggers";
-import {getUserByUser} from "../../modules/getters/getUser";
-import {getStats} from "../../modules/getters/getStats";
-import {updateStats} from "../../modules/updaters/updateStats";
-import {updateUser} from "../../modules/updaters/updateUser";
+import { logError, logSMMInfo } from "../../loggers";
+import { getUserByUser } from "../../modules/getters/getUser";
+import { getStats } from "../../modules/getters/getStats";
+import { updateStats } from "../../modules/updaters/updateStats";
+import { updateUser } from "../../modules/updaters/updateUser";
 import ActionModel from "../../database/models/ActionModel";
 import WarnModel from "../../database/models/WarnModel";
 
@@ -57,12 +57,17 @@ export const transferUser: SubCommand = {
             await updateStats(stats);
 
             // Transfer Actions and warnings
-            await ActionModel.updateMany({userId: oldUser.id}, {"$set": {"userId": newUser.id}});
-            await WarnModel.updateMany({userId: oldUser._id}, {"$set": {"userId": newUser._id}});
+            await ActionModel.updateMany({ userId: oldUser.id }, { "$set": { "userId": newUser.id } });
+            await WarnModel.updateMany({ userId: oldUser._id }, { "$set": { "userId": newUser._id } });
 
             await interaction.guild!.members.kick(oldUser.id, "Remove transferred user from server")
 
-            await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${oldUser.id}> has been transferred to <@${newUser.id}>`})
+            await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${oldUser.id}> has been transferred to <@${newUser.id}>` })
+
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> transferred <@${oldUser.id}> to <@${newUser.id}>`;
+            let modAction = `<@${interaction.user.id}> used transfer_user`;
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

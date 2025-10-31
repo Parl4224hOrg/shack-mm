@@ -1,14 +1,13 @@
 import { ChannelType } from "discord.js";
-import {SubCommand} from "../../interfaces/Command";
-import {reason, userOption} from "../../utility/options";
+import { SubCommand } from "../../interfaces/Command";
+import { reason, userOption } from "../../utility/options";
 import tokens from "../../tokens";
-import {logError} from "../../loggers";
-import {createActionUser} from "../../modules/constructors/createAction";
-import {Actions} from "../../database/models/ActionModel";
-import {getUserByUser} from "../../modules/getters/getUser";
-import {updateUser} from "../../modules/updaters/updateUser";
-import {SlashCommandSubcommandBuilder} from "discord.js";
-import {EmbedBuilder, TextChannel} from "discord.js";
+import { logError, logSMMInfo } from "../../loggers";
+import { createActionUser } from "../../modules/constructors/createAction";
+import { Actions } from "../../database/models/ActionModel";
+import { getUserByUser } from "../../modules/getters/getUser";
+import { updateUser } from "../../modules/updaters/updateUser";
+import { SlashCommandSubcommandBuilder } from "discord.js";
 
 export const removeCooldown: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -19,23 +18,24 @@ export const removeCooldown: SubCommand = {
     run: async (interaction, data) => {
         try {
             let reason = interaction.options.getString('reason', true);
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
+            const user = interaction.options.getUser('user', true);
+            const dbUser = await getUserByUser(user, data);
             dbUser.banUntil = 0;
             await updateUser(dbUser, data);
             await createActionUser(Actions.RemoveCooldown, interaction.user.id, dbUser.id, interaction.options.getString('reason', true), 'cooldown removed');
             if (interaction.channel?.type === ChannelType.PublicThread ||
                 interaction.channel?.type === ChannelType.PrivateThread ||
                 interaction.channel?.type === ChannelType.AnnouncementThread) {
-                await interaction.reply({content: `<${dbUser.id}> cooldown removed`});
+                await interaction.reply({ content: `<${dbUser.id}> cooldown removed` });
             } else {
-                await interaction.reply({content: `<@${dbUser.id}> cooldown removed`});
+                await interaction.reply({ content: `<@${dbUser.id}> cooldown removed` });
             }
-            await interaction.reply({content: `<@${dbUser.id}> cooldown removed`});
-            const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
-            const embed = new EmbedBuilder();
-            embed.setTitle(`User ${dbUser.id} has been cooldown removed`);
-            embed.setDescription(`<@${dbUser.id}> cooldown removed by <@${interaction.user.id}> because: ${reason}`);
-            await channel.send({embeds: [embed.toJSON()]});
+            await interaction.reply({ content: `<@${dbUser.id}> cooldown removed` });
+
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> removed <@${user.id}>'s cooldown. Reason: ${reason}.`;
+            let modAction = `<@${interaction.user.id}> used remove_cooldown`;
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

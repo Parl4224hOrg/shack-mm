@@ -1,26 +1,26 @@
 import { ChannelType } from "discord.js";
-import {SubCommand} from "../../interfaces/Command";
-import {cdType, reason, userOption} from "../../utility/options";
+import { SubCommand } from "../../interfaces/Command";
+import { cdType, reason, userOption } from "../../utility/options";
 import tokens from "../../tokens";
-import {logError} from "../../loggers";
-import {createActionUser} from "../../modules/constructors/createAction";
-import {Actions} from "../../database/models/ActionModel";
-import {getUserByUser} from "../../modules/getters/getUser";
-import {updateUser} from "../../modules/updaters/updateUser";
-import {SlashCommandSubcommandBuilder} from "discord.js";
-import {EmbedBuilder, TextChannel} from "discord.js";
+import { logError, logSMMInfo } from "../../loggers";
+import { createActionUser } from "../../modules/constructors/createAction";
+import { Actions } from "../../database/models/ActionModel";
+import { getUserByUser } from "../../modules/getters/getUser";
+import { updateUser } from "../../modules/updaters/updateUser";
+import { SlashCommandSubcommandBuilder } from "discord.js";
 
 export const reverseCooldown: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName('reverse_cooldown')
-        .setDescription('Reverses a cooldown given by a bot')
+        .setDescription("Reverses a cooldown with changing user's ban counter")
         .addUserOption(userOption('User to reverse cooldown of'))
         .addStringOption(cdType)
         .addStringOption(reason),
     run: async (interaction, data) => {
         try {
             let reason = interaction.options.getString('reason', true);
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
+            const user = interaction.options.getUser('user', true);
+            const dbUser = await getUserByUser(user, data);
             if (interaction.options.getString('type', true) == 'abandon') {
                 dbUser.banCounterAbandon--;
                 dbUser.banUntil = 0;
@@ -39,15 +39,15 @@ export const reverseCooldown: SubCommand = {
             if (interaction.channel?.type === ChannelType.PublicThread ||
                 interaction.channel?.type === ChannelType.PrivateThread ||
                 interaction.channel?.type === ChannelType.AnnouncementThread) {
-                await interaction.reply({content: `<${dbUser.id}> cooldown reversed`});
+                await interaction.reply({ content: `<${dbUser.id}> cooldown reversed` });
             } else {
-                await interaction.reply({content: `<@${dbUser.id}> cooldown reversed`});
+                await interaction.reply({ content: `<@${dbUser.id}> cooldown reversed` });
             }
-            const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
-            const embed = new EmbedBuilder();
-            embed.setTitle(`User ${dbUser.id} cooldown reversed`);
-            embed.setDescription(`<@${dbUser.id}> cooldown reversed by <@${interaction.user.id}> because: ${reason}`);
-            await channel.send({embeds: [embed.toJSON()]});
+
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> reversed <@${user.id}>'s cooldown,Reason:${reason}.\nAbandon CD Counter: ${dbUser.banCounterAbandon}, Fail to Accept Counter: ${dbUser.banCounterFail}`;
+            let modAction = `<@${interaction.user.id}> used reverse_cooldown`;
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

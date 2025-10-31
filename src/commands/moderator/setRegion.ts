@@ -1,11 +1,11 @@
-import {SubCommand} from "../../interfaces/Command";
-import {userOption} from "../../utility/options";
-import {MessageFlagsBitField, SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
-import {logError} from "../../loggers";
+import { SubCommand } from "../../interfaces/Command";
+import { userOption } from "../../utility/options";
+import { MessageFlagsBitField, SlashCommandStringOption, SlashCommandSubcommandBuilder } from "discord.js";
+import { logError, logSMMInfo } from "../../loggers";
 import tokens from "../../tokens";
-import {getUserByUser} from "../../modules/getters/getUser";
-import {Regions} from "../../database/models/UserModel";
-import {updateUser} from "../../modules/updaters/updateUser";
+import { getUserByUser } from "../../modules/getters/getUser";
+import { Regions } from "../../database/models/UserModel";
+import { updateUser } from "../../modules/updaters/updateUser";
 
 export const setRegion: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -17,21 +17,21 @@ export const setRegion: SubCommand = {
             .setDescription("region to set")
             .setRequired(true)
             .setChoices({
-                    name: "NAE",
-                    value: "NAE"
-                }, {
-                    name: "NAW",
-                    value: "NAW"
-                }, {
-                    name: "EUE",
-                    value: "EUE"
-                }, {
-                    name: "EUW",
-                    value: "EUW",
-                }, {
-                    name: "APAC",
-                    value: "APAC"
-                }
+                name: "NAE",
+                value: "NAE"
+            }, {
+                name: "NAW",
+                value: "NAW"
+            }, {
+                name: "EUE",
+                value: "EUE"
+            }, {
+                name: "EUW",
+                value: "EUW",
+            }, {
+                name: "APAC",
+                value: "APAC"
+            }
             )),
     run: async (interaction, data) => {
         try {
@@ -41,7 +41,8 @@ export const setRegion: SubCommand = {
                     await member.roles.remove(role, "remove region role");
                 }
             }
-            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
+            const user = interaction.options.getUser('user', true);
+            const dbUser = await getUserByUser(user, data);
             switch (interaction.options.getString('region', true)) {
                 case "NAE": dbUser.region = Regions.NAE; await member.roles.add(tokens.RegionRoles.NAE); break;
                 case "NAW": dbUser.region = Regions.NAW; await member.roles.add(tokens.RegionRoles.NAW); break;
@@ -50,7 +51,12 @@ export const setRegion: SubCommand = {
                 case "APAC": dbUser.region = Regions.APAC; await member.roles.add(tokens.RegionRoles.APAC); break;
             }
             await updateUser(dbUser, data);
-            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "updated user's region"});
+            await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "updated user's region" });
+
+            //log the cmd
+            let logMessage = `<@${interaction.user.id}> set <@${user.id}>'s region to ${dbUser.region}.`;
+            let modAction = `<@${interaction.user.id}> used set_region`;
+            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }
