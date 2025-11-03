@@ -1,15 +1,15 @@
 import {Command, SubCommand} from "../../interfaces/Command";
-import {actions} from "../moderator/actions";
-import {moderatorActions} from "../moderator/moderatorActions";
-import {mapPlay} from "../moderator/mapPlay";
-import {nextMapPool} from "../moderator/nextMapPool";
-import {rankDist} from "../moderator/rankDist";
-import {scoreDist} from "../moderator/scoreDist";
-import {abandonRatio} from "../moderator/abandonRatio";
-import {failToAcceptRatio} from "../moderator/failToAcceptRatio";
-import {lateRatio} from "../moderator/lateRatio";
-import {lateReview} from "../moderator/lateReview";
-import {troubleMakers} from "../moderator/troubleMakers";
+import {actions} from "./actions";
+import {moderatorActions} from "./moderatorActions";
+import {mapPlay} from "./mapPlay";
+import {nextMapPool} from "./nextMapPool";
+import {rankDist} from "./rankDist";
+import {scoreDist} from "./scoreDist";
+import {abandonRatio} from "./abandonRatio";
+import {failToAcceptRatio} from "./failToAcceptRatio";
+import {lateRatio} from "./lateRatio";
+import {lateReview} from "./lateReview";
+import {troubleMakers} from "./troubleMakers";
 import {Collection} from "discord.js";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {onSubCommand} from "../../events/onSubCommand";
@@ -29,17 +29,17 @@ export const _modInfo: Command = {
     data: new SlashCommandBuilder()
         .setName('mod_info')
         .setDescription('Mod info commands')
-        .addSubcommand(actions.data)
+        .addSubcommand(actions.data)//
         .addSubcommand(moderatorActions.data)
-        .addSubcommand(abandonRatio.data)
-        .addSubcommand(mapPlay.data)
-        .addSubcommand(nextMapPool.data)
-        .addSubcommand(rankDist.data)
-        .addSubcommand(scoreDist.data)
-        .addSubcommand(failToAcceptRatio.data)
-        .addSubcommand(lateRatio.data)
-        .addSubcommand(lateReview.data)
-        .addSubcommand(troubleMakers.data)
+        .addSubcommand(abandonRatio.data)//
+        .addSubcommand(mapPlay.data)//
+        .addSubcommand(nextMapPool.data)//
+        .addSubcommand(rankDist.data)//
+        .addSubcommand(scoreDist.data)//
+        .addSubcommand(failToAcceptRatio.data)//
+        .addSubcommand(lateRatio.data)//
+        .addSubcommand(lateReview.data)//
+        .addSubcommand(troubleMakers.data)//
     ,
     run: async (interaction, data) => {
         try {
