@@ -66,7 +66,7 @@ export const transferUser: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> transferred <@${oldUser.id}> to <@${newUser.id}>`;
-            let modAction = `<@${interaction.user.id}> used transfer_user`;
+            let modAction = `${interaction.user.displayName} used transfer_user`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

@@ -21,7 +21,7 @@ export const warnings: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> checked warnings for <@${user.id}>`;
-            let modAction = `<@${interaction.user.id}> used warnings`;
+            let modAction = `${interaction.user.displayName} used warnings`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

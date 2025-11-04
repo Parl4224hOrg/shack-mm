@@ -67,7 +67,7 @@ export const mute: SubCommand = {
 
                 //log the cmd
                 let logMessage = `<@${interaction.user.id}> unmuted <@${user.id}>. Reason: ${reason}.`;
-                let modAction = `<@${interaction.user.id}> used mute`;
+                let modAction = `${interaction.user.displayName} used mute`;
                 await logSMMInfo(logMessage, interaction.client, modAction);
 
                 await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${user.id}> has been un-muted` });
@@ -79,7 +79,7 @@ export const mute: SubCommand = {
 
                 //log the cmd
                 let logMessage = `<@${interaction.user.id}> muted <@${user.id}> for ${time} ${durationText}. Reason: ${reason}.`;
-                let modAction = `<@${interaction.user.id}> used mute`;
+                let modAction = `${interaction.user.displayName} used mute`;
                 await logSMMInfo(logMessage, interaction.client, modAction);
 
                 muteMessage = `<@${user.id}> has been muted, make a ticket in ${grammaticalTime(muteDuration)} to appeal`;

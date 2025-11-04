@@ -34,7 +34,7 @@ export const refNullify: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> nullified game ${game ? game.id : 'N/A'}. Reason: ${reason}.`;
-            let modAction = `<@${interaction.user.id}> used nullify`;
+            let modAction = `${interaction.user.displayName} used nullify`;
             await logSMMInfo(logMessage, interaction.client, modAction, isReferee);
         } catch (e) {
             await logError(e, interaction);

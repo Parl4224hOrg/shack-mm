@@ -32,7 +32,7 @@ export const refEasyTime: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> sent easy_time message for <@${user.id}> in game number:${game.matchNumber}.`;
-            let modAction = `<@${interaction.user.id}> used easy_time`;
+            let modAction = `${interaction.user.displayName} used easy_time`;
             await logSMMInfo(logMessage, interaction.client, modAction, isReferee);
         } catch (e) {
             await logError(e, interaction);

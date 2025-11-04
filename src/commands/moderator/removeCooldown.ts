@@ -34,7 +34,7 @@ export const removeCooldown: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> removed <@${user.id}>'s cooldown. Reason: ${reason}.`;
-            let modAction = `<@${interaction.user.id}> used remove_cooldown`;
+            let modAction = `${interaction.user.displayName} used remove_cooldown`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

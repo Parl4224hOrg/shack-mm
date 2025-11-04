@@ -46,7 +46,7 @@ export const reverseCooldown: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> reversed <@${user.id}>'s cooldown,Reason:${reason}.\nAbandon CD Counter: ${dbUser.banCounterAbandon}, Fail to Accept Counter: ${dbUser.banCounterFail}`;
-            let modAction = `<@${interaction.user.id}> used reverse_cooldown`;
+            let modAction = `${interaction.user.displayName} used reverse_cooldown`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

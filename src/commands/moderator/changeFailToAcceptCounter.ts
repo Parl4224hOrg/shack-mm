@@ -67,7 +67,7 @@ export const changeFailToAcceptCounter: SubCommand = {
             }
             //log the cmd
             let logMessage = `<@${interaction.user.id}> adjusted fail to accept cd counter for <@${user.id}> by ${amount}. New counter is ${dbUser.banCounterFail}, Reason:${reason}.`;
-            let modAction = `<@${interaction.user.id}> used change_fail_to_accept_counter`;
+            let modAction = `${interaction.user.displayName} used change_fail_to_accept_counter`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

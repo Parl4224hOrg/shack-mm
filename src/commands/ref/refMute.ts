@@ -77,7 +77,7 @@ export const refMute: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> muted <@${user.id}>. Reason: ${interaction.options.getString('reason', true)}.`;
-            let modAction = `<@${interaction.user.id}> used ref_warn`;
+            let modAction = `${interaction.user.displayName} used ref_warn`;
             await logSMMInfo(logMessage, interaction.client, modAction, isReferee);
         } catch (e) {
             await logError(e, interaction);

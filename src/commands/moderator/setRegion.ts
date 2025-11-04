@@ -55,7 +55,7 @@ export const setRegion: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> set <@${user.id}>'s region to ${dbUser.region}.`;
-            let modAction = `<@${interaction.user.id}> used set_region`;
+            let modAction = `${interaction.user.displayName} used set_region`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

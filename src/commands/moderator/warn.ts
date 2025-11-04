@@ -67,7 +67,7 @@ export const warn: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> warned <@${user.id}>. Reason: ${interaction.options.getString('reason', true)}.`;
-            let modAction = `<@${interaction.user.id}> used warn`;
+            let modAction = `${interaction.user.displayName} used warn`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

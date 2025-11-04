@@ -25,7 +25,7 @@ export const toggleReferee: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> made <@${user.id}> a referee`;
-            let modAction = `<@${interaction.user.id}> used toggle_referee`;
+            let modAction = `${interaction.user.displayName} used toggle_referee`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
