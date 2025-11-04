@@ -3,13 +3,13 @@ import {Collection, MessageFlagsBitField} from "discord.js";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {logError} from "../../loggers";
-import {easyTime} from "../moderator/easyTime";
-import {nullify} from "../moderator/nullify";
-import {warn} from "../moderator/warn";
-import {forceAbandon} from "../moderator/forceAbandon";
-import {refMute} from "../moderator/refMute";
+import {refMute} from "./refMute";
+import { refForceAbandon } from "./refForceAbandon";
+import { refWarn } from "./refWarn";
+import { refNullify } from "./refNullify";
+import { refEasyTime } from "./refEasyTime";
 
-export const subCommandListTemp: SubCommand[] = [easyTime, warn, nullify, forceAbandon, refMute];
+export const subCommandListTemp: SubCommand[] = [refEasyTime, refNullify, refWarn, refForceAbandon, refMute];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -21,11 +21,11 @@ export const _ref: Command = {
     data: new SlashCommandBuilder()
         .setName('ref')
         .setDescription('Referee Commands')
-        .addSubcommand(easyTime.data)
-        .addSubcommand(nullify.data)
-        .addSubcommand(warn.data)
-        .addSubcommand(forceAbandon.data)
-        .addSubcommand(refMute.data)
+        .addSubcommand(refEasyTime.data)
+        .addSubcommand(refNullify.data)//
+        .addSubcommand(refWarn.data)//
+        .addSubcommand(refForceAbandon.data)//
+        .addSubcommand(refMute.data)//
     ,
     run: async (interaction, data) => {
         try {

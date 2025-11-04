@@ -22,7 +22,7 @@ import {onSubCommand} from "../../events/onSubCommand";
 import {commandPermission} from "../../utility/commandPermission";
 import {mute} from "./mute";
 import {toggleReferee} from "./toggleReferee";
-import {refMute} from "./refMute";
+import {refMute} from "../ref/refMute";
 import {changeAbandonCDCounter} from "./changeAbandonCDCounter";
 import {manualSubmitIfAbandoned} from "./manualSubmitIfAbandoned";
 import {manualSubmitIfNotAbandoned} from "./manualSubmitIfNotAbandoned";

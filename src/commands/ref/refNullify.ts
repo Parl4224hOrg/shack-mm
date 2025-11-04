@@ -6,13 +6,14 @@ import { createAction } from "../../modules/constructors/createAction";
 import { Actions } from "../../database/models/ActionModel";
 import { MessageFlagsBitField, SlashCommandSubcommandBuilder } from "discord.js";
 
-export const nullify: SubCommand = {
+export const refNullify: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
-        .setName('nullify')
+        .setName('ref_nullify')
         .setDescription('Nullifies a match')
         .addStringOption(reason),
     run: async (interaction, data) => {
         try {
+            const isReferee = true;
             let reason = interaction.options.getString('reason', true);
             const game = data.getGameByChannel(interaction.channelId);
             if (!game) {
@@ -34,7 +35,7 @@ export const nullify: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> nullified game ${game ? game.id : 'N/A'}. Reason: ${reason}.`;
             let modAction = `<@${interaction.user.id}> used nullify`;
-            await logSMMInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction, isReferee);
         } catch (e) {
             await logError(e, interaction);
         }

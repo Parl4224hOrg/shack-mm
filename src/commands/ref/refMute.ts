@@ -12,7 +12,7 @@ import warnModel from "../../database/models/WarnModel";
 export const refMute: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName('ref_mute')
-        .setDescription("Mutes a player for 30 minutes (referee command)")
+        .setDescription("Mutes a player (referee command)")
         .addUserOption(userOption("User to mute"))
         .addStringOption(new SlashCommandStringOption()
             .setName("reason")
@@ -20,6 +20,7 @@ export const refMute: SubCommand = {
             .setRequired(true)),
     run: async (interaction, data) => {
         try {
+            const isReferee = true;
             const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user, data);
             const member = await interaction.guild!.members.fetch(user.id);
@@ -77,7 +78,7 @@ export const refMute: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> muted <@${user.id}>. Reason: ${interaction.options.getString('reason', true)}.`;
             let modAction = `<@${interaction.user.id}> used ref_warn`;
-            await logSMMInfo(logMessage, interaction.client, modAction, true);
+            await logSMMInfo(logMessage, interaction.client, modAction, isReferee);
         } catch (e) {
             await logError(e, interaction);
         }

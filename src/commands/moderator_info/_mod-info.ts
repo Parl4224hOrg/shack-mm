@@ -29,17 +29,17 @@ export const _modInfo: Command = {
     data: new SlashCommandBuilder()
         .setName('mod_info')
         .setDescription('Mod info commands')
-        .addSubcommand(actions.data)//
+        .addSubcommand(actions.data)
         .addSubcommand(moderatorActions.data)
-        .addSubcommand(abandonRatio.data)//
-        .addSubcommand(mapPlay.data)//
-        .addSubcommand(nextMapPool.data)//
-        .addSubcommand(rankDist.data)//
-        .addSubcommand(scoreDist.data)//
-        .addSubcommand(failToAcceptRatio.data)//
-        .addSubcommand(lateRatio.data)//
-        .addSubcommand(lateReview.data)//
-        .addSubcommand(troubleMakers.data)//
+        .addSubcommand(abandonRatio.data)
+        .addSubcommand(mapPlay.data)
+        .addSubcommand(nextMapPool.data)
+        .addSubcommand(rankDist.data)
+        .addSubcommand(scoreDist.data)
+        .addSubcommand(failToAcceptRatio.data)
+        .addSubcommand(lateRatio.data)
+        .addSubcommand(lateReview.data)
+        .addSubcommand(troubleMakers.data)
     ,
     run: async (interaction, data) => {
         try {

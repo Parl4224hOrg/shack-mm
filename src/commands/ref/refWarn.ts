@@ -8,9 +8,9 @@ import warnModel from "../../database/models/WarnModel";
 import moment from "moment";
 import tokens from "../../tokens";
 
-export const warn: SubCommand = {
+export const refWarn: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
-        .setName("warn")
+        .setName("ref_warn")
         .setDescription("Warns a player")
         .addUserOption(userOption("User to warn"))
         .addStringOption(new SlashCommandStringOption()
@@ -19,13 +19,15 @@ export const warn: SubCommand = {
             .setRequired(true)),
     run: async (interaction, data) => {
         try {
+            // Check if the command was run under /ref or /mod
+            const isReferee = true;
             const user = interaction.options.getUser('user', true);
             const dbUser = await getUserByUser(user, data);
             await warnModel.create({
                 userId: dbUser._id,
                 reason: interaction.options.getString('reason', true),
                 timeStamp: moment().unix(),
-                modId: interaction.user.id,
+                modId: 'by Referee',
                 removed: false,
             });
 
@@ -41,7 +43,6 @@ export const warn: SubCommand = {
                     await interaction.followUp({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "cannot send message, command executed" });
                 }
             } else {
-
                 await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: "Warn is working" });
                 if (interaction.channel && interaction.channel.isSendable()) {
                     await interaction.channel.send({
@@ -68,7 +69,7 @@ export const warn: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> warned <@${user.id}>. Reason: ${interaction.options.getString('reason', true)}.`;
             let modAction = `<@${interaction.user.id}> used warn`;
-            await logSMMInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction, isReferee);
         } catch (e) {
             await logError(e, interaction);
         }
