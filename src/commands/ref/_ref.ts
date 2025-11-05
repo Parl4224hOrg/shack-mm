@@ -22,10 +22,10 @@ export const _ref: Command = {
         .setName('ref')
         .setDescription('Referee Commands')
         .addSubcommand(refEasyTime.data)
-        .addSubcommand(refNullify.data)//
-        .addSubcommand(refWarn.data)//
-        .addSubcommand(refForceAbandon.data)//
-        .addSubcommand(refMute.data)//
+        .addSubcommand(refNullify.data)
+        .addSubcommand(refWarn.data)
+        .addSubcommand(refForceAbandon.data)
+        .addSubcommand(refMute.data)
     ,
     run: async (interaction, data) => {
         try {
