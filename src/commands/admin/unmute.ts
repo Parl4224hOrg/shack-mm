@@ -24,7 +24,7 @@ export const unmute: Command = {
             await updateUser(dbUser, data);
             await member.roles.remove(tokens.MutedRole, "Remove using /unmute");
             await logInfo(`Unmuted ${member.user.tag} (${user.id}) unmute.ts ln 25`, interaction.client, [Tokens.Parl]);
-            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${user.id}> has been un-muted`});
+            await interaction.reply({content: `<@${user.id}> has been un-muted`});
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
             embed.setTitle(`User ${user.id} has been unmuted`);
