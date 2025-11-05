@@ -90,7 +90,7 @@ export const manualSubmitIfAbandoned: SubCommand = {
             
             //log the cmd
             let logMessage = `<@${interaction.user.id}> used manual_submit_if_abandoned for match ${matchId} with scores teamA: ${game.scoreA}, teamB: ${game.scoreB}.`;
-            let modAction = `<@${interaction.user.id}> used manual_submit_if_abandoned`;
+            let modAction = `${interaction.user.displayName} used manual_submit_if_abandoned`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         }
         catch (e) {

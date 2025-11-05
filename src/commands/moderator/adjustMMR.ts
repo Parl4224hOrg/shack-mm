@@ -28,7 +28,7 @@ export const adjustMMR: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> adjusted MMR for <@${user.id}> by ${mmrDelta}. New MMR is ${stats.mmr}.`;
-            let modAction = `<@${interaction.user.id}> used adjust_mmr`;
+            let modAction = `${interaction.user.displayName} used adjust_mmr`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

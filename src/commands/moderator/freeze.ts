@@ -50,7 +50,7 @@ export const freeze: SubCommand = {
             }
             //log the cmd
             let logMessage = `<@${interaction.user.id}> used freeze for <@${user.id}>.`;
-            let modAction = `<@${interaction.user.id}> used freeze`;
+            let modAction = `${interaction.user.displayName} used freeze`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

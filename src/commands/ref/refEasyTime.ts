@@ -4,13 +4,14 @@ import { userOption } from "../../utility/options";
 import { logError, logSMMInfo } from "../../loggers";
 import tokens from "../../tokens";
 
-export const easyTime: SubCommand = {
+export const refEasyTime: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
-        .setName('easy_time')
+        .setName('ref_easy_time')
         .setDescription("Sends a message to join with a built in discord timestamp")
         .addUserOption(userOption("User to mention in message")),
     run: async (interaction, data) => {
         try {
+            const isReferee = true;
             const game = data.getGameByChannel(interaction.channelId);
             const user = interaction.options.getUser('user', true);
             if (!game) {
@@ -32,7 +33,7 @@ export const easyTime: SubCommand = {
             //log the cmd
             let logMessage = `<@${interaction.user.id}> sent easy_time message for <@${user.id}> in game number:${game.matchNumber}.`;
             let modAction = `${interaction.user.displayName} used easy_time`;
-            await logSMMInfo(logMessage, interaction.client, modAction);
+            await logSMMInfo(logMessage, interaction.client, modAction, isReferee);
         } catch (e) {
             await logError(e, interaction);
         }

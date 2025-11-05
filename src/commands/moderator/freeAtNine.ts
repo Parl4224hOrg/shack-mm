@@ -84,7 +84,7 @@ export const freeAtNine: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> used free_at_nine for <@${user.id}>.`;
-            let modAction = `<@${interaction.user.id}> used force_abandon`;
+            let modAction = `${interaction.user.displayName} used force_abandon`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await interaction.followUp({ content: 'An error occurred while processing the command.', flags: MessageFlagsBitField.Flags.Ephemeral });

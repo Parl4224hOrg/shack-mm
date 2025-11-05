@@ -66,8 +66,8 @@ export const cooldown: SubCommand = {
             }
             
             //log the cmd
-            let logMessage = `<@${discordUser.tag}> (<@${user.id}>) has been cd for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`;
-            let modAction = `User <@${user.id}> has been cd`;
+            let logMessage = `<@${interaction.user.id}> cd <@${user.id}> for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action, Reason:${reason}.`;
+            let modAction = `${interaction.user.displayName} used cooldown.`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

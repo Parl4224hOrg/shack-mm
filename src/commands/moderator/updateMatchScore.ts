@@ -73,7 +73,7 @@ export const updateMatchScore: Command = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> updated game ${updateGameId} to TeamA: ${teamAScore} TeamB: ${teamBScore}. Reason: ${reason}.`;
-            let modAction = `<@${interaction.user.id}> used update_match_score`;
+            let modAction = `${interaction.user.displayName} used update_match_score`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

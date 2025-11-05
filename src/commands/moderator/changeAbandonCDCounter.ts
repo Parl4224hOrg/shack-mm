@@ -8,7 +8,6 @@ import { Actions } from "../../database/models/ActionModel";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { updateUser } from "../../modules/updaters/updateUser";
 import { SlashCommandSubcommandBuilder, SlashCommandIntegerOption } from "discord.js";
-import { EmbedBuilder, TextChannel } from "discord.js";
 
 export const changeAbandonCDCounter: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -68,7 +67,7 @@ export const changeAbandonCDCounter: SubCommand = {
 
             //log the cmd
             let logMessage = `<@${interaction.user.id}> adjusted abandon cd counter for <@${user.id}> by ${amount}. New counter is ${dbUser.banCounterAbandon}, Reason:${reason}.`;
-            let modAction = `<@${interaction.user.id}> used change_abandon_cd_counter`;
+            let modAction = `${interaction.user.displayName} used change_abandon_cd_counter`;
             await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

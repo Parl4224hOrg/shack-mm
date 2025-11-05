@@ -28,8 +28,8 @@ export const warnRemove: SubCommand = {
             }
 
             // Log the cmd
-            let logMessage = `<@${interaction.user.id}> removed warning ${interaction.options.getString('id', true)}.`;
-            let modAction = `<@${interaction.user.id}> used remove_warn`;
+            let logMessage = `<@${interaction.user.id}> removed warning ${interaction.options.getString('id', true)} from ${warn ? `<@${warn.userId}>` : 'N/A'}.`;
+            let modAction = `${interaction.user.displayName} used remove_warn`;
             logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);

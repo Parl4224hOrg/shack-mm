@@ -141,7 +141,7 @@ export const adjustMatchScores: SubCommand = {
 
         // Log the cmd
         let logMessage = `<@${interaction.user.id}> adjusted scores for match ${match.matchId} to TeamA:${scoreA} TeamB:${scoreB}`;
-        let modAction = `<@${interaction.user.id}> used adjust_match_scores`;
+        let modAction = `${interaction.user.displayName} used adjust_match_scores`;
         await logSMMInfo(logMessage, interaction.client, modAction);
     },
     name: "adjust_match_scores",
