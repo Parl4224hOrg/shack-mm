@@ -34,7 +34,7 @@ export const nullify: SubCommand = {
                 let channel: TextChannel;
                 if (isReferee) {
                     channel = await interaction.client.channels.fetch(tokens.RefereeLogChannel) as TextChannel;
-                } else { 
+                } else {
                     channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                 }
                 const embed = new EmbedBuilder();

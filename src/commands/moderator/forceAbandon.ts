@@ -27,13 +27,13 @@ export const forceAbandon: SubCommand = {
                 await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false}, false, true, true);
                 if (isReferee) {
                     await createActionUser(Actions.ForceAbandon, 'by Referee', dbUser.id, reason, `<@${dbUser.id}> force abandoned from game ${game.id}`);
-                } else { 
+                } else {
                     await createActionUser(Actions.ForceAbandon, interaction.user.id, dbUser.id, reason, `<@${dbUser.id}> force abandoned from game ${game.id}`);
                 }
                 let channel: TextChannel;
                 if (isReferee) {
                     channel = await interaction.client.channels.fetch(tokens.RefereeLogChannel) as TextChannel;
-                } else { 
+                } else {
                     channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
                 }
                 const embed = new EmbedBuilder();
