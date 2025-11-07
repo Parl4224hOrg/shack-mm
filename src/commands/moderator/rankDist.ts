@@ -1,10 +1,10 @@
-import { SubCommand } from "../../interfaces/Command";
-import { logError, logSMMInfo } from "../../loggers";
+import {SubCommand} from "../../interfaces/Command";
+import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import StatsModel from "../../database/models/StatsModel";
-import { Collection, SlashCommandSubcommandBuilder } from "discord.js";
-import { getRank } from "../../utility/ranking";
-import { getRankDistGraph } from "../../utility/graph";
+import {Collection, SlashCommandSubcommandBuilder} from "discord.js";
+import {getRank} from "../../utility/ranking";
+import {getRankDistGraph} from "../../utility/graph";
 
 export const rankDist: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -13,7 +13,7 @@ export const rankDist: SubCommand = {
     run: async (interaction) => {
         try {
             await interaction.deferReply();
-            const stats = await StatsModel.find({ gamesPlayed: { "$gte": 10 } });
+            const stats = await StatsModel.find({gamesPlayed: {"$gte": 10}});
             const totals = new Collection<string, number>();
             totals.set("Wood", 0);
             totals.set("Copper", 0);
@@ -41,12 +41,8 @@ export const rankDist: SubCommand = {
                 labels.push(total[0]);
                 data.push((total[1] / totalNumber * 100).toFixed(1));
             }
-            await interaction.followUp({ files: [await getRankDistGraph(labels, data)] });
 
-            //log the cmd
-            let logMessage = `<@${interaction.user.id}> checked rank distribution.`;
-            let modAction = `<@${interaction.user.id}> used rank_distribution`;
-            await logSMMInfo(logMessage, interaction.client, modAction);
+            await interaction.followUp({files: [await getRankDistGraph(labels, data)]});
         } catch (e) {
             await logError(e, interaction);
         }

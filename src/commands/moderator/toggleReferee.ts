@@ -1,10 +1,11 @@
-import { SubCommand } from "../../interfaces/Command";
-import { MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder } from "discord.js";
-import { userOption } from "../../utility/options";
-import { logError, logSMMInfo } from "../../loggers";
+import {SubCommand} from "../../interfaces/Command";
+import {MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
+import {userOption} from "../../utility/options";
+import {logError} from "../../loggers";
 import tokens from "../../tokens";
-import { getUserByUser } from "../../modules/getters/getUser";
-import { updateUser } from "../../modules/updaters/updateUser";
+import {getUserByUser} from "../../modules/getters/getUser";
+import {updateUser} from "../../modules/updaters/updateUser";
+import {EmbedBuilder, TextChannel} from "discord.js";
 
 export const toggleReferee: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -17,16 +18,15 @@ export const toggleReferee: SubCommand = {
             .setRequired(true)),
     run: async (interaction, data) => {
         try {
-            const user = interaction.options.getUser('user', true);
-            const dbUser = await getUserByUser(user, data);
+            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             dbUser.referee = interaction.options.getBoolean('is_ref', true);
             await updateUser(dbUser, data);
-            await interaction.reply({ flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${dbUser.id}> ${dbUser.referee ? "is now" : "is no longer"} a referee.` });
-
-            //log the cmd
-            let logMessage = `<@${interaction.user.id}> made <@${user.id}> a referee`;
-            let modAction = `<@${interaction.user.id}> used toggle_referee`;
-            await logSMMInfo(logMessage, interaction.client, modAction);
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: `<@${dbUser.id}> ${dbUser.referee ? "is now" : "is no longer"} a referee.`});
+            const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+            const embed = new EmbedBuilder();
+            embed.setTitle(`User ${dbUser.id} referee toggle`);
+            embed.setDescription(`<@${dbUser.id}> ${dbUser.referee ? "is now" : "is no longer"} a referee by <@${interaction.user.id}>`);
+            await channel.send({embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);
         }

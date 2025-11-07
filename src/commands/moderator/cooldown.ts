@@ -1,7 +1,7 @@
 import { ChannelType } from "discord.js";
 import {SubCommand} from "../../interfaces/Command";
 import {reason, userOption} from "../../utility/options";
-import {logError} from "../../loggers";
+import {logError, logModInfo} from "../../loggers";
 import tokens from "../../tokens";
 import moment from "moment";
 import {getUserByUser} from "../../modules/getters/getUser";
@@ -66,6 +66,10 @@ export const cooldown: SubCommand = {
                 console.error(`Failed to send DM to user ${user.id}:`, dmError);
             }
             
+            let logMessage = `${discordUser.tag} (${user.id}) has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`;
+            let modAction = `User ${user.id} has been cooldowned`;
+            logModInfo(logMessage, interaction.client, modAction);
+
             await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
             const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();

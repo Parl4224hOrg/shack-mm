@@ -1,7 +1,7 @@
 import { SubCommand } from "../../interfaces/Command";
 import { userOption } from "../../utility/options";
 import tokens from "../../tokens";
-import { logError, logSMMInfo } from "../../loggers";
+import { logError } from "../../loggers";
 import { getUserByUser } from "../../modules/getters/getUser";
 import { getStats } from "../../modules/getters/getStats";
 import { getUserActions } from "../../modules/getters/getAction";
@@ -28,8 +28,7 @@ export const abandonRatio: SubCommand = {
         ),
     run: async (interaction, data) => {
         try {
-            const user = interaction.options.getUser('user', true);
-            const dbUser = await getUserByUser(user, data);
+            const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             const gamesCount = interaction.options.getInteger('games', false);
             const days = interaction.options.getInteger('days', false);
 
@@ -97,19 +96,14 @@ export const abandonRatio: SubCommand = {
             let userDisplay = interaction.options.getUser('user', true).username;
             await interaction.reply({
                 content: `**Abandon Ratio for ${userDisplay}**\n` +
-                    `${timeBold}\n` +
-                    `Total Games Played: ${totalGames}\n` +
-                    `Abandons: ${abandons}\n` +
-                    `Force Abandons: ${forceAbandons}\n` +
-                    `Total Abandons: ${totalAbandons}\n` +
-                    `Current Abandon (CD) Counter: ${dbUser.banCounterAbandon}\n` +
-                    `Ratio: ${ratio}%`
+                        `${timeBold}\n` +
+                        `Total Games Played: ${totalGames}\n` +
+                        `Abandons: ${abandons}\n` +
+                        `Force Abandons: ${forceAbandons}\n` +
+                        `Total Abandons: ${totalAbandons}\n` +
+                        `Current Abandon (CD) Counter: ${dbUser.banCounterAbandon}\n` +
+                        `Ratio: ${ratio}%`
             });
-
-            // Log the cmd
-            let logMessage = `<@${interaction.user.id}> checked abandon ratio for <@${user.id}>: ${ratio}% over ${totalGames} games.`;
-            let modAction = `<@${interaction.user.id}> used abandon_ratio`;
-            await logSMMInfo(logMessage, interaction.client, modAction);
         } catch (e) {
             await logError(e, interaction);
         }

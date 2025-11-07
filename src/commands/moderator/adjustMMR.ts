@@ -1,11 +1,12 @@
-import { SubCommand } from "../../interfaces/Command";
-import { userOption } from "../../utility/options";
-import { logError, logSMMInfo } from "../../loggers";
-import { getUserByUser } from "../../modules/getters/getUser";
-import { getStats } from "../../modules/getters/getStats";
-import { updateStats } from "../../modules/updaters/updateStats";
+import {SubCommand} from "../../interfaces/Command";
+import {userOption} from "../../utility/options";
+import {logError} from "../../loggers";
+import {getUserByUser} from "../../modules/getters/getUser";
+import {getStats} from "../../modules/getters/getStats";
+import {updateStats} from "../../modules/updaters/updateStats";
 import tokens from "../../tokens";
-import { SlashCommandSubcommandBuilder } from "discord.js";
+import {SlashCommandSubcommandBuilder} from "discord.js";
+import {EmbedBuilder, TextChannel} from "discord.js";
 
 export const adjustMMR: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -24,12 +25,14 @@ export const adjustMMR: SubCommand = {
             }
             stats.mmr += mmrDelta;
             await updateStats(stats);
-            await interaction.reply({ content: `<@${dbUser.id}>'s MMR has been adjusted by ${mmrDelta}. New MMR is ${stats.mmr}.` });
-
-            //log the cmd
-            let logMessage = `<@${interaction.user.id}> adjusted MMR for <@${user.id}> by ${mmrDelta}. New MMR is ${stats.mmr}.`;
-            let modAction = `<@${interaction.user.id}> used adjust_mmr`;
-            await logSMMInfo(logMessage, interaction.client, modAction);
+            await interaction.reply({content: `<@${dbUser.id}>'s MMR has been adjusted by ${mmrDelta}. New MMR is ${stats.mmr}.` });
+            if(mmrDelta !== 0) {
+                const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+                const embed = new EmbedBuilder();
+                embed.setTitle(`User ${dbUser.id} has been MMR adjusted`);
+                embed.setDescription(`<@${dbUser.id}> MMR has been adjusted by ${mmrDelta}. New MMR is ${stats.mmr}. Done by <@${interaction.user.id}>`);
+                await channel.send({embeds: [embed.toJSON()]});
+            }
         } catch (e) {
             await logError(e, interaction);
         }

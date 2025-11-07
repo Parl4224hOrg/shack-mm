@@ -1,11 +1,11 @@
-import { SubCommand } from "../../interfaces/Command";
-import { userOption } from "../../utility/options";
-import { logError, logSMMInfo } from "../../loggers";
+import {SubCommand} from "../../interfaces/Command";
+import {userOption} from "../../utility/options";
+import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import ActionModel from "../../database/models/ActionModel";
-import { ActionEmbed } from "../../embeds/ModEmbeds";
-import { MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder } from "discord.js";
-import { getUserByUser } from "../../modules/getters/getUser";
+import {ActionEmbed} from "../../embeds/ModEmbeds";
+import {MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
+import {getUserByUser} from "../../modules/getters/getUser";
 
 export const moderatorActions: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -28,12 +28,7 @@ export const moderatorActions: SubCommand = {
                 modId: { $ne: shackBotId }
             }).sort({ time: -1 }).limit(20);
 
-            await interaction.reply({ flags: visible, content: `Showing last 20 moderator infractions (not warnings) for ${user.username}`, embeds: [ActionEmbed(actions, dbUser)] });
-
-            //log the cmd
-            let logMessage = `<@${interaction.user.id}> checked actions on <@${user.id}>`;
-            let modAction = `<@${interaction.user.id}> used moderator_actions`;
-            await logSMMInfo(logMessage, interaction.client, modAction);
+            await interaction.reply({flags: visible, content: `Showing last 20 moderator infractions (not warnings) for ${user.username}`, embeds: [ActionEmbed(actions, dbUser)]});
         } catch (e) {
             await logError(e, interaction);
         }

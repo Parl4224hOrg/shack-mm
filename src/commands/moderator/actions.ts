@@ -1,13 +1,13 @@
-import { SubCommand } from "../../interfaces/Command";
-import { userOption } from "../../utility/options";
-import { logError, logSMMInfo } from "../../loggers";
+import {SubCommand} from "../../interfaces/Command";
+import {userOption} from "../../utility/options";
+import {logError} from "../../loggers";
 import tokens from "../../tokens";
-import { getUserByUser } from "../../modules/getters/getUser";
+import {getUserByUser} from "../../modules/getters/getUser";
 import ActionModel from "../../database/models/ActionModel";
-import { ActionEmbed } from "../../embeds/ModEmbeds";
+import {ActionEmbed} from "../../embeds/ModEmbeds";
 import WarnModel from "../../database/models/WarnModel";
-import { warningEmbeds } from "../../embeds/statsEmbed";
-import { MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder, User } from "discord.js";
+import {warningEmbeds} from "../../embeds/statsEmbed";
+import {MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
 
 export const actions: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -37,13 +37,8 @@ export const actions: SubCommand = {
                     { reason: { $not: /^late$/i } }
                 ]
             }).sort({ timeStamp: -1 }).limit(10);
-
-            await interaction.reply({ flags: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)] });
-
-            // Log the cmd
-            let logMessage = `<@${interaction.user.id}> checked action for ${user.id}`;
-            let modAction = `<@${interaction.user.id}> used actions`;
-            await logSMMInfo(logMessage, interaction.client, modAction);
+                        
+            await interaction.reply({flags: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
         } catch (e) {
             await logError(e, interaction);
         }
