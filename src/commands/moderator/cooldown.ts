@@ -1,7 +1,7 @@
 import { ChannelType } from "discord.js";
 import {SubCommand} from "../../interfaces/Command";
 import {reason, userOption} from "../../utility/options";
-import {logError, logSMMInfo} from "../../loggers";
+import {logError} from "../../loggers";
 import tokens from "../../tokens";
 import moment from "moment";
 import {getUserByUser} from "../../modules/getters/getUser";
@@ -10,6 +10,7 @@ import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {punishment} from "../../utility/punishment";
+import {EmbedBuilder, TextChannel} from "discord.js";
 
 export const cooldown: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -65,10 +66,12 @@ export const cooldown: SubCommand = {
                 console.error(`Failed to send DM to user ${user.id}:`, dmError);
             }
             
-            //log the cmd
-            let logMessage = `<@${discordUser.tag}> (<@${user.id}>) has been cd for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`;
-            let modAction = `User <@${user.id}> has been cd`;
-            await logSMMInfo(logMessage, interaction.client, modAction);
+            await interaction.reply({content: `<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action`});
+            const channel = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+            const embed = new EmbedBuilder();
+            embed.setTitle(`User ${user.id} has been cooldowned`);
+            embed.setDescription(`<@${user.id}> has been cooldowned for ${grammaticalTime(user.banUntil - now)}, it was a ${action} action by <@${interaction.user.id}> because: ${reason}`);
+            await channel.send({embeds: [embed.toJSON()]});
         } catch (e) {
             await logError(e, interaction);
         }
