@@ -37,7 +37,7 @@ export const actions: SubCommand = {
                     { reason: { $not: /^late$/i } }
                 ]
             }).sort({ timeStamp: -1 }).limit(10);
-                        
+
             await interaction.reply({flags: visible, content: `Showing actions for ${user.username}`, embeds: [ActionEmbed(actions, dbUser), warningEmbeds(user, warnings)]});
         } catch (e) {
             await logError(e, interaction);

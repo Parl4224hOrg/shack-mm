@@ -96,13 +96,13 @@ export const abandonRatio: SubCommand = {
             let userDisplay = interaction.options.getUser('user', true).username;
             await interaction.reply({
                 content: `**Abandon Ratio for ${userDisplay}**\n` +
-                        `${timeBold}\n` +
-                        `Total Games Played: ${totalGames}\n` +
-                        `Abandons: ${abandons}\n` +
-                        `Force Abandons: ${forceAbandons}\n` +
-                        `Total Abandons: ${totalAbandons}\n` +
-                        `Current Abandon (CD) Counter: ${dbUser.banCounterAbandon}\n` +
-                        `Ratio: ${ratio}%`
+                    `${timeBold}\n` +
+                    `Total Games Played: ${totalGames}\n` +
+                    `Abandons: ${abandons}\n` +
+                    `Force Abandons: ${forceAbandons}\n` +
+                    `Total Abandons: ${totalAbandons}\n` +
+                    `Current Abandon (CD) Counter: ${dbUser.banCounterAbandon}\n` +
+                    `Ratio: ${ratio}%`
             });
         } catch (e) {
             await logError(e, interaction);
