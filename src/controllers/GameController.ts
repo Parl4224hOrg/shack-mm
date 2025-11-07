@@ -376,8 +376,8 @@ export class GameController {
         for (let user of this.users) {
             const dbUser = await getUserById(user.dbId, this.data);
             if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
-                const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                await logChannel.send(`User ${dbUser.oculusName} is late.`);
+                const logChannel = await this.client.channels.fetch(tokens.LateLogChannel) as TextChannel;
+                await logChannel.send(`Match ${this.matchNumber}: User ${dbUser.oculusName} is late .`);
                 lateUserMentions.push(`<@${user.discordId}>`);
             }
         }
@@ -467,8 +467,8 @@ export class GameController {
                 for (let user of this.users) {
                     const dbUser = await getUserById(user.dbId, this.data);
                     if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
-                        const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-                        await logChannel.send(`User ${dbUser.oculusName} is late.`);
+                        const logChannel = await this.client.channels.fetch(tokens.LateLogChannel) as TextChannel;
+                        await logChannel.send(`Match ${this.matchNumber}: User ${dbUser.oculusName} is late.`);
                         lateUsers.push(user);
                         user.isLate = true;
                     }
@@ -593,14 +593,16 @@ export class GameController {
 
     async updateJoinedPlayers() {
         const playerList = await this.server?.refreshList();
+        const listRetrievedTime = moment().unix();
         if (playerList && playerList.PlayerList) {
             for (let player of playerList.PlayerList) {
                 this.joinedPlayers.add(player.UniqueId.toLowerCase());
             }
         }
-        const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
+        const logChannel = await this.client.channels.fetch(tokens.LateLogChannel) as TextChannel;
         const joinedPlayersList = Array.from(this.joinedPlayers).join(', ');
-        await logChannel.send(`Current joined players: ${joinedPlayersList}`);
+        const secondsElapsed = listRetrievedTime - this.finalGenTime;
+        await logChannel.send(`Match ${this.matchNumber}: ${secondsElapsed} seconds after match gen - Current joined players: ${joinedPlayersList}`);
     }
 
     async switchMap() {
