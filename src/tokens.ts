@@ -57,6 +57,7 @@ export default {
     MapTestAnnouncementChannel: "1295856528494170224",
     PlaytestLogChannel: "1328152474640453703",
     ManualRoleLogChannel: "1342254281524514918",
+    LateLogChannel: "1435767496782118932",
     // constants
     ApplyLates: true,
     ApplyNewLates: true,
