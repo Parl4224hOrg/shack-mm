@@ -1,4 +1,4 @@
-import {Client, Colors, EmbedBuilder, EmbedField, Interaction, TextChannel} from "discord.js";
+import { Client, Colors, EmbedBuilder, EmbedField, Interaction, TextChannel } from "discord.js";
 import tokens from './tokens';
 
 
@@ -9,7 +9,7 @@ export async function logError(error: any, interaction: Interaction) {
     embed.setTitle('ERROR');
     embed.setColor(Colors.Red);
     let time = new Date().getTime();
-    embed.setFooter({text: `${time}`});
+    embed.setFooter({ text: `${time}` });
     let fields: EmbedField[] = [];
 
     // if (error.stack) {
@@ -64,7 +64,7 @@ export async function logError(error: any, interaction: Interaction) {
             name: "command",
             value: `\`\`\`${interaction.commandName}\`\`\``,
             inline: true,
-        },{
+        }, {
             name: "userId",
             value: `\`\`\`${interaction.user.id}\`\`\``,
             inline: true,
@@ -94,7 +94,7 @@ export async function logError(error: any, interaction: Interaction) {
         }
     }
     embed.setFields(fields);
-    await channel!.send({embeds: [embed]});
+    await channel!.send({ embeds: [embed] });
 }
 
 export async function logInfo(message: string, client: Client, pings?: string[]) {
@@ -104,7 +104,7 @@ export async function logInfo(message: string, client: Client, pings?: string[])
     embed.setTitle('INFO');
     embed.setColor(Colors.Green);
     let time = new Date().getTime();
-    embed.setFooter({text: `${time}`});
+    embed.setFooter({ text: `${time}` });
     embed.setFields([{
         name: 'message',
         value: message,
@@ -115,7 +115,7 @@ export async function logInfo(message: string, client: Client, pings?: string[])
         pings = pings.map(ping => `<@${ping}>`);
         ping = pings.join(" ");
     }
-    await channel.send({content: ping, embeds: [embed]});
+    await channel.send({ content: ping, embeds: [embed] });
 }
 
 export async function logWarn(warning: string, client: Client) {
@@ -125,11 +125,36 @@ export async function logWarn(warning: string, client: Client) {
     embed.setTitle('WARN');
     embed.setColor(Colors.Yellow);
     let time = new Date().getTime();
-    embed.setFooter({text: `${time}`});
+    embed.setFooter({ text: `${time}` });
     embed.setFields([{
         name: 'message',
         value: warning,
         inline: false
     }]);
-    await channel.send({embeds: [embed]});
+    await channel.send({ embeds: [embed] });
+}
+
+export async function logModInfo(logMessage: string, client: Client, action?: string, pings?: string[]) {
+    const guild = await client.guilds.fetch(tokens.GuildID);
+    const channel = await guild.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
+    let embed = new EmbedBuilder();
+    if (action) {
+        embed.setTitle(`MOD ACTION: ${action}`);
+    } else {
+        embed.setTitle('MOD ACTION');
+    }
+    embed.setColor(Colors.Green);
+    let time = new Date().getTime();
+    embed.setFooter({ text: `${time}` });
+    embed.setFields([{
+        name: 'message',
+        value: logMessage,
+        inline: false
+    }]);
+    let ping = "";
+    if (pings) {
+        pings = pings.map(ping => `<@${ping}>`);
+        ping = pings.join(" ");
+    }
+    await channel.send({ content: ping, embeds: [embed] });
 }
