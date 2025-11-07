@@ -142,6 +142,14 @@ export default {
             id: "SMM-NAC-ONE",
             region: Regions.NAC,
         }
+        ,{
+            ip: "40.160.225.32",
+            port: 9101,
+            password: process.env.RCON_PASS ?? "NO PASSWORD",
+            name: "NAC-TWO shackmm.com",
+            id: "SMM-NAC-TWO",
+            region: Regions.NAC,
+        }
     ],
     MapIds: {
         Oilrig: "UGC4499790",
