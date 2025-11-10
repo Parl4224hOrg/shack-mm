@@ -376,8 +376,6 @@ export class GameController {
         for (let user of this.users) {
             const dbUser = await getUserById(user.dbId, this.data);
             if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
-                const logChannel = await this.client.channels.fetch(tokens.LateLogChannel) as TextChannel;
-                await logChannel.send(`Match ${this.matchNumber}: User ${dbUser.oculusName} is late .`);
                 lateUserMentions.push(`<@${user.discordId}>`);
             }
         }
@@ -393,7 +391,7 @@ export class GameController {
 
         //Every 30 seconds check server for players
         if (minutesPassed <= 5) {
-            await this.updateJoinedPlayers();
+            await this.updateJoinedPlayers(this.halfMinutesPassed);
         }
 
         // Every 30 seconds after 5 minutes
@@ -460,7 +458,6 @@ export class GameController {
 
         // 5 minutes passed
         if (minutesPassed == 5) {
-            await this.updateJoinedPlayers();
             const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
             const lateUsers: GameUser[] = [];
             if (this.serverSetup) {
@@ -591,18 +588,25 @@ export class GameController {
         }
     }
 
-    async updateJoinedPlayers() {
+    async updateJoinedPlayers(halfSeconds: number) {
         const playerList = await this.server?.refreshList();
-        const listRetrievedTime = moment().unix();
         if (playerList && playerList.PlayerList) {
             for (let player of playerList.PlayerList) {
                 this.joinedPlayers.add(player.UniqueId.toLowerCase());
             }
         }
+        const lateUsers: string[] = [];
+        for (let user of this.users) {
+            const dbUser = await getUserById(user.dbId, this.data);
+            if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
+                lateUsers.push(dbUser.oculusName);
+            }
+        }
+        const notJoinedMessage = lateUsers.join(', ');
+        const joinedMessage = Array.from(this.joinedPlayers.values()).join(', ');
+        const notJoinedQualifier = lateUsers.length > 0 ? "Not Joined: " : "Late: ";
         const logChannel = await this.client.channels.fetch(tokens.LateLogChannel) as TextChannel;
-        const joinedPlayersList = Array.from(this.joinedPlayers).join(', ');
-        const secondsElapsed = listRetrievedTime - this.finalGenTime;
-        await logChannel.send(`Match ${this.matchNumber}: ${secondsElapsed} seconds after match gen - Current joined players: ${joinedPlayersList}`);
+        await logChannel.send(`Match ${this.matchNumber}: ${halfSeconds * 30} seconds after match gen User Report:\nJoined: ${joinedMessage}\n${notJoinedQualifier}${notJoinedMessage}`);
     }
 
     async switchMap() {
