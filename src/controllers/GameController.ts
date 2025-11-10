@@ -588,7 +588,7 @@ export class GameController {
         }
     }
 
-    async updateJoinedPlayers(halfSeconds: number) {
+    async updateJoinedPlayers(halfMinutes: number) {
         const playerList = await this.server?.refreshList();
         if (playerList && playerList.PlayerList) {
             for (let player of playerList.PlayerList) {
@@ -604,9 +604,9 @@ export class GameController {
         }
         const notJoinedMessage = lateUsers.join(', ');
         const joinedMessage = Array.from(this.joinedPlayers.values()).join(', ');
-        const notJoinedQualifier = lateUsers.length > 0 ? "Not Joined: " : "Late: ";
+        const notJoinedQualifier = halfMinutes <= 10 ? "Not Joined: " : "Late: ";
         const logChannel = await this.client.channels.fetch(tokens.LateLogChannel) as TextChannel;
-        await logChannel.send(`Match ${this.matchNumber}: ${halfSeconds * 30} seconds after match gen User Report:\nJoined: ${joinedMessage}\n${notJoinedQualifier}${notJoinedMessage}`);
+        await logChannel.send(`Match ${this.matchNumber}: ${halfMinutes * 30} seconds after match gen User Report:\nJoined: ${joinedMessage}\n${notJoinedQualifier}${notJoinedMessage}`);
     }
 
     async switchMap() {
