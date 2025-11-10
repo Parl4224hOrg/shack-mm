@@ -204,7 +204,12 @@ export const matchScore = async (interaction: ButtonInteraction, data: Data, sco
     }
 }
 
-export const getServerRegion = (users: QueueUser[]): Regions => {
+/**
+ * Gets the valid servers for a given set of users
+ * @param users users that are in the game
+ * @returns Regions where the array is the best server to play in followed by the next best.
+ */
+export const getServerRegion = (users: QueueUser[]): Regions[] => {
     let APAC = 0;
     let NAW = 0;
     let NAE = 0;
@@ -223,13 +228,13 @@ export const getServerRegion = (users: QueueUser[]): Regions => {
     }
 
     if (APAC > 0 && EU > 0) {
-        return Regions.NAC;
+        return [Regions.NAC];
     } else if (APAC > 0) {
-        return Regions.NAC;
+        return [Regions.NAC, Regions.NAW];
     } else if (EU > 0) {
-        return Regions.NAE;
+        return [Regions.NAE, Regions.NAC];
     } else if (NAW > NAE) {
-        return Regions.NAC;
+        return [Regions.NAC, Regions.NAW, Regions.NAE];
     }
-    return Regions.NAC;
+    return [Regions.NAC, Regions.NAE, Regions.NAW];
 }

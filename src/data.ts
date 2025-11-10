@@ -405,16 +405,16 @@ export class Data {
             const gameNum = await this.getIdSND()
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
             let serv: GameServer | null = null;
-            for (let server of this.servers) {
-                if (!server.isInUse() && server.region == getServerRegion(users)) {
-                    serv = server;
-                }
-            }
-            if (!serv && getServerRegion(users) == Regions.NAC) {
-                for (let server of this.servers) {
-                    if (!server.isInUse() && server.region == Regions.NAE) {
+            const validServers = getServerRegion(users);
+            for (const validServer of validServers) {
+                for (const server of this.servers) {
+                    if (!server.isInUse() && server.region == validServer) {
                         serv = server;
+                        break;
                     }
+                }
+                if (serv) {
+                    break;
                 }
             }
             let game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this, serv);
