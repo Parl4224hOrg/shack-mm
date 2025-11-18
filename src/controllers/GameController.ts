@@ -568,8 +568,20 @@ export class GameController {
                 }
             }
             if (numFound == 9 && numTotal == 10 && !this.sentUnregisteredDm) {
+                // We have 10 players on the server, only 9 matched to known users.
+                // Identify the queued user whose registered oculusName was not found among the players.
                 this.sentUnregisteredDm = true;
-                const entry = this.users.find(user => !foundUniqueIds.includes(user.dbId.toString()));
+                let entry: GameUser | undefined;
+                try {
+                    // dbUsers is aligned with this.users by construction above
+                    const idx = dbUsers.findIndex(u => !foundUniqueIds.includes(u.oculusName));
+                    if (idx >= 0) {
+                        entry = this.users[idx];
+                    }
+                } catch (_) {
+                    // fallback: no-op, entry remains undefined
+                }
+
                 if (entry) {
                     const user = await this.client.users.fetch(entry.discordId);
                     try {
