@@ -14,7 +14,7 @@ async function getBrowser(): Promise<Browser> {
     if (!browserPromise) {
         browserPromise = puppeteer.launch({
             headless: true,
-            args: ["--disable-web-security", "--allow-file-access-from-files"],
+            args: ["--disable-web-security", "--allow-file-access-from-files", "--no-sandbox"],
         });
     }
     return browserPromise;
