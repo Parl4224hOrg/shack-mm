@@ -142,10 +142,10 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
         mmrStreakText: streak.mmrChange > 0 ? `+${streak.mmrChange.toFixed(1)}` : streak.mmrChange.toFixed(1),
         streakText: `${streak.streakLength}${streak.streakType === "win" ? "W" : "L"}`,
         streakColor: streak.streakType === "win" ? "--accent-green" : "--accent-red",
-        mmrUntilRankUp: (rank.max - stats.mmr).toFixed(2),
+        mmrUntilRankUp: rank.max < 100000 ? (rank.max - stats.mmr).toFixed(2) : "N/A",
         rankImage: `data:image/png;base64,${getImageBase64(rank.name.toLowerCase())}`,
         rankName: rank.name,
-        rankRange: rank.threshold > 0 ? rank.max < 100000 ? `${rank.threshold}-${rank.max}` : `≥${rank.threshold}` : `≤${rank.threshold}`,
+        rankRange: rank.threshold > 0 ? rank.max < 100000 ? `${rank.threshold}-${rank.max}` : `≥${rank.threshold}` : `≤${rank.max}`,
     });
 
     const browser = await getBrowser();
