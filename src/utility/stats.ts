@@ -38,9 +38,9 @@ function getImageBase64(rank: string) {
 }
 
 function getMinMaxMmr(stats: StatsInt) {
-    let min = -10000;
+    let min = 10000;
     let minMatchNumber = 0;
-    let max = 10000;
+    let max = -10000;
     let maxMatchNumber = 0;
 
     let matchNumber = 10;
@@ -69,7 +69,7 @@ export function getLatestMmrStreak(history: number[]): MmrStreak {
     }
 
     const n = history.length;
-    let streakLength = 1;
+    let streakLength = 0;
 
     const last = history[n - 1];
     const prev = history[n - 2];
@@ -84,9 +84,9 @@ export function getLatestMmrStreak(history: number[]): MmrStreak {
         const isWin = curr > before;
         const isLoss = curr < before;
 
-        if (streakType === "win" && isWin) {
+        if (streakType == "win" && isWin) {
             streakLength++;
-        } else if (streakType === "loss" && isLoss) {
+        } else if (streakType == "loss" && isLoss) {
             streakLength++;
         } else {
             break;
@@ -141,8 +141,9 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
         mmr: stats.mmr.toFixed(2),
         mmrStreakText: streak.mmrChange > 0 ? `+${streak.mmrChange.toFixed(1)}` : streak.mmrChange.toFixed(1),
         streakText: `${streak.streakLength}${streak.streakType === "win" ? "W" : "L"}`,
-        mmrUntilRankUp: 150,
-        rankImage: `data:image/png;base64,${getImageBase64("platinum")}`,
+        streakColor: streak.streakType === "win" ? "--accent-green" : "--accent-red",
+        mmrUntilRankUp: (rank.max - stats.mmr).toFixed(2),
+        rankImage: `data:image/png;base64,${getImageBase64(rank.name.toLowerCase())}`,
         rankName: rank.name,
         rankRange: rank.threshold > 0 ? rank.max < 100000 ? `${rank.threshold}-${rank.max}` : `≥${rank.threshold}` : `≤${rank.threshold}`,
     });
