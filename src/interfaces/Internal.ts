@@ -40,6 +40,7 @@ export interface GameData {
 export interface Rank {
     name: string;
     threshold: number;
+    max: number;
     roleId: string;
 }
 

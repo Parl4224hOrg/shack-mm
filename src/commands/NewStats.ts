@@ -4,10 +4,9 @@ import {userOptional} from "../utility/options";
 import tokens from "../tokens";
 import {getUserByUser} from "../modules/getters/getUser";
 import {getStats} from "../modules/getters/getStats";
-import {statsEmbed} from "../embeds/statsEmbed";
 import {MessageFlagsBitField} from "discord.js";
 import {logError} from "../loggers";
-import generateStatsImage from "../utility/stats";
+import {generateStatsImage} from "../utility/stats";
 
 export const NewStats: Command ={
     data: new SlashCommandBuilder()
@@ -26,7 +25,7 @@ export const NewStats: Command ={
             // @ts-ignore
             if (queueId != "ALL") {
                 const stats = await getStats(dbUser._id, queueId);
-                const image = await generateStatsImage(stats);
+                const image = await generateStatsImage(stats, user.displayName);
                 await interaction.reply({files: [image]});
             } else {
                 await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'getting stats for all is not currently supported'});

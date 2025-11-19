@@ -5,7 +5,7 @@ import {getStats} from "../modules/getters/getStats";
 import {Client, GuildMember, Role} from "discord.js";
 
 export const getRank = (mmr: number): Rank => {
-    let highRank: Rank = {name: 'unranked', threshold: -999999, roleId: ''};
+    let highRank: Rank = {name: 'unranked', threshold: -999999, max: 1000000, roleId: ''};
     for (let rank of tokens.Ranks) {
         if (rank.threshold <= mmr && rank.threshold >= highRank.threshold) {
             highRank = rank;
