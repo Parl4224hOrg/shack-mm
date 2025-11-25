@@ -1,0 +1,35 @@
+# .github/workflows/deploy.yml
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["SMM Deployment CI"]
+    types: [completed]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: [self-hosted, deploy-runner]   # <-- your runner labels here
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy shack-mm container
+        run: |
+          echo "Stopping/removing existing shack-mm container if exists..."
+          docker stop shack-mm || true
+          docker rm shack-mm || true
+
+          echo "Pulling newest version..."
+          docker pull parl4224h/shack-mm:latest
+
+          echo "Starting container..."
+          docker run -d \
+            --name shack-mm \
+            --restart unless-stopped \
+            --env-file /home/ubuntu/smm.env \
+            -v /home/ubuntu/smm_mount:/user/mounted \
+            parl4224h/shack-mm:latest
+
+          echo "Deploy complete!"
