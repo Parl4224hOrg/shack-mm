@@ -112,19 +112,19 @@ export default {
     // servers
     Servers: [
         {
-            ip: "15.204.218.198",
+            ip: "15.204.243.166",
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
             name: "NAE-ONE shackmm.com",
-            id: "NAE-ONE",
+            id: "SMM-NAE-ONE",
             region: Regions.NAE,
         },
         {
-            ip: "15.204.218.215",
-            port: 9100,
+            ip: "15.204.243.166",
+            port: 9101,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
             name: "NAE-TWO shackmm.com",
-            id: "NAE-TWO",
+            id: "SMM-NAE-TWO",
             region: Regions.NAE,
         },
         {
