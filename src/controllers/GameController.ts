@@ -817,6 +817,11 @@ export class GameController {
                 await logInfo(`autorequeue - temp array after filtering: [${temp.map(u => u.discordId).join(', ')}]`, this.client);
                 await this.data.addAbandoned(temp);
             }
+            const game = await getGameById(this.id);
+            if (game) {
+                game.abandoned = true;
+                await updateGame(game);
+            }
             return true;
         } else {
             return false;
