@@ -25,6 +25,5 @@ export const categoryDelete: Command = {
         }
     },
     name: 'category_delete',
-    allowedUsers: [tokens.Parl],
-    allowedRoles: tokens.Mods,
+    allowedRoles: [tokens.LeadModRole],
 }
