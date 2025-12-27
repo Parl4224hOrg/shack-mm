@@ -38,7 +38,8 @@ export const stats: Command = {
                     await interaction.reply({embeds: [embed]});
                 } else {
                     if (userStats.gamesPlayedSinceReset < 10) {
-                        await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "This user has not played enough games to view their stats, you can still see their current available stats by setting the use-old-stats option to true."});
+                        const embed = statsEmbed(userStats, dbUser, user.username, user.avatarURL()!)
+                        await interaction.reply({embeds: [embed]});
                     } else {
                         const image = await generateStatsImage(userStats, user.displayName);
                         await interaction.reply({files: [image]});
