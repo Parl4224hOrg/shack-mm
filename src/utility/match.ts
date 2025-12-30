@@ -3,7 +3,7 @@ import {
     ButtonInteraction,
     ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
+    EmbedBuilder, Guild,
     MessageFlagsBitField,
     TextChannel
 } from "discord.js";
@@ -14,6 +14,7 @@ import {MapData} from "../interfaces/Internal";
 import mapModel from "../database/models/MapModel";
 import {QueueUser} from "../interfaces/Game";
 import {Regions} from "../database/models/UserModel";
+import * as discordTranscripts from "discord-html-transcripts";
 
 export const registerMaps = (data: Data, maps: string[]) => {
     const mapData = data.getQueue().getMapData();
@@ -237,4 +238,23 @@ export const getServerRegion = (users: QueueUser[]): Regions[] => {
         return [Regions.NAC, Regions.NAW, Regions.NAE];
     }
     return [Regions.NAC, Regions.NAE, Regions.NAW];
+}
+
+export const handleChannelLog = async (id: string, guild: Guild) => {
+    const channel = await guild.channels.fetch(id) as TextChannel;
+    if (!channel) {
+        return;
+    }
+
+    const attachment = await discordTranscripts.createTranscript(channel);
+
+    const logChannel = await guild.channels.fetch(tokens.GameLogChannel) as TextChannel;
+    if (!logChannel) {
+        return;
+    }
+    await logChannel.send({
+        files: [attachment]
+    });
+
+    await channel.delete();
 }

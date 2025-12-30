@@ -2,6 +2,14 @@ import {OverwriteResolvable, PermissionsBitField, Role} from "discord.js";
 import tokens from "../tokens";
 
 
+export const hidePerms: OverwriteResolvable = {
+    id: tokens.GuildID,
+    deny: [
+        PermissionsBitField.Flags.ViewChannel,
+    ],
+    type: 0,
+}
+
 export const getAcceptPerms = (acceptRole: Role | string): OverwriteResolvable[] => {
     const perms: OverwriteResolvable[] = [];
     perms.push({
