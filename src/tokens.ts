@@ -38,6 +38,7 @@ export default {
     ModeratorLogChannel: "1249964183588438158",
     RefereeLogChannel: "1252310023116161075",
     LeadModRole: "1175171342736294028",
+    ModChannel: "1152662159768158329",
     RegionRoles: {
         NAE: "1186176045829849089",
         NAW: "1186176099969925160",

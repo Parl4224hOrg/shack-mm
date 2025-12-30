@@ -7,9 +7,7 @@ import {
     TextInputStyle
 } from "discord.js";
 import {logError} from "../loggers";
-import {getUserByUser} from "../modules/getters/getUser";
-import {updateUser} from "../modules/updaters/updateUser";
-import tokens from "../tokens";
+import {handleRegister} from "../utility/register";
 
 export const register: Modal = {
     data: new ModalBuilder()
@@ -28,15 +26,15 @@ export const register: Modal = {
         ]),
     run: async (interaction, data) => {
         try {
-            const name = interaction.fields.getTextInputValue('name');
-            const dbUser = await getUserByUser(interaction.user, data);
-            dbUser.oculusName = name.replace("<@", "").replace(">", "");
-            await updateUser(dbUser, data);
-            const member = await interaction.guild!.members.fetch(interaction.user);
-            await member.roles.add(tokens.Player);
-            await interaction.reply({
-                flags: MessageFlagsBitField.Flags.Ephemeral,
-                content: `Go to <#${tokens.RegionSelect}> to select a region (required)\nGo to <#${tokens.SNDReadyChannel}> to ready up or use \`/ready 5v5\`\nTo change your registered name use \`/register\` or the button above`,
+            await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral});
+            const res = await handleRegister(
+                interaction.fields.getTextInputValue('name'),
+                interaction.user,
+                data,
+                interaction.guild!
+            )
+            await interaction.followUp({
+                content: res.message
             });
         } catch (e) {
             await logError(e, interaction);

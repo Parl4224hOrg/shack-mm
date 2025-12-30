@@ -7,8 +7,7 @@ import {
     TextInputStyle
 } from "discord.js";
 import {logError} from "../loggers";
-import {getUserByUser} from "../modules/getters/getUser";
-import {updateUser} from "../modules/updaters/updateUser";
+import {handleRegister} from "../utility/register";
 export const reRegister: Modal = {
     data: new ModalBuilder()
         .setTitle("Register")
@@ -26,13 +25,15 @@ export const reRegister: Modal = {
         ]),
     run: async (interaction, data) => {
         try {
-            const name = interaction.fields.getTextInputValue('name');
-            const dbUser = await getUserByUser(interaction.user, data);
-            dbUser.oculusName = name.replace("<@", "").replace(">", "");
-            await updateUser(dbUser, data);
-            await interaction.reply({
-                flags: MessageFlagsBitField.Flags.Ephemeral,
-                content: "You have updated your registered name",
+            await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral});
+            const res = await handleRegister(
+                interaction.fields.getTextInputValue('name'),
+                interaction.user,
+                data,
+                interaction.guild!
+            )
+            await interaction.followUp({
+                content: res.message
             });
         } catch (e) {
             await logError(e, interaction);

@@ -1102,7 +1102,7 @@ export class GameController {
             const acceptChannel = await this.guild.channels.fetch(this.acceptChannelId) as TextChannel;
             await acceptChannel.permissionOverwrites.set([hidePerms]);
             this.data.getQueue().getDeleteQueue().queue(
-                () => handleChannelLog(acceptChannel.id, this.guild)
+                () => handleChannelLog(acceptChannel.id, this.guild, this.matchNumber)
             )
             this.working = false;
             await logInfo(`Finished vote channel gen\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
@@ -1283,11 +1283,11 @@ export class GameController {
             this.finalGenTime = moment().unix();
             await teamAChannel.permissionOverwrites.set([hidePerms]);
             this.data.getQueue().getDeleteQueue().queue(
-                () => handleChannelLog(teamAChannel.id, this.guild)
+                () => handleChannelLog(teamAChannel.id, this.guild, this.matchNumber)
             )
             await teamBChannel.permissionOverwrites.set([hidePerms]);
             this.data.getQueue().getDeleteQueue().queue(
-                () => handleChannelLog(teamBChannel.id, this.guild)
+                () => handleChannelLog(teamBChannel.id, this.guild, this.matchNumber)
             )
           
             const gameTemp = await getGameById(this.id);
@@ -1565,9 +1565,9 @@ export class GameController {
         }
         await updateGame(game!);
         this.cleanedUp = true;
-        queue.queue(async () => handleChannelLog(this.acceptChannelId, this.guild));
-        queue.queue(async () => handleChannelLog(this.teamAChannelId, this.guild));
-        queue.queue(async () => handleChannelLog(this.teamBChannelId, this.guild));
+        queue.queue(async () => handleChannelLog(this.acceptChannelId, this.guild, this.matchNumber));
+        queue.queue(async () => handleChannelLog(this.teamAChannelId, this.guild, this.matchNumber));
+        queue.queue(async () => handleChannelLog(this.teamBChannelId, this.guild, this.matchNumber));
         this.processed = true;
         await this.cleanup(queue);
     }
@@ -1586,7 +1586,7 @@ export class GameController {
             const role = await this.guild.roles.fetch(this.teamBRoleId);
             await role?.delete();
         });
-        queue.queue(async () => handleChannelLog(this.finalChannelId, this.guild));
+        queue.queue(async () => handleChannelLog(this.finalChannelId, this.guild, this.matchNumber));
         if (!this.cleanedUp && !this.abandoned) {
             await this.sendScoreEmbed();
         }
