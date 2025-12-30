@@ -49,7 +49,10 @@ export const transferUser: SubCommand = {
             newUser.lates = oldUser.lates;
             newUser.lateTimes = oldUser.lateTimes;
             newUser.referee = oldUser.referee;
-            await updateUser(newUser, data)
+            await updateUser(newUser, data);
+
+            oldUser.transferred = true;
+            await updateUser(oldUser, data);
 
             // transfer stats
             const stats = await getStats(oldUser._id, "SND");

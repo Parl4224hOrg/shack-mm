@@ -39,6 +39,7 @@ export interface UserInt extends Document {
     referee: boolean;
     gamesPlayedSinceLates: number;
     canBeFreed: boolean;
+    transferred: boolean;
 }
 
 export const UserSchema = new Schema({
@@ -72,6 +73,7 @@ export const UserSchema = new Schema({
     referee: Boolean,
     gamesPlayedSinceLates: Number,
     canBeFreed: Boolean,
+    transferred: Boolean,
 })
 
 export default model<UserInt>('users', UserSchema)

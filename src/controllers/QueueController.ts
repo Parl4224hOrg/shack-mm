@@ -129,6 +129,9 @@ export class QueueController {
         if (user.banUntil > moment().unix()) {
             return {success: false, message: `You are currently banned for another ${grammaticalTime(user.banUntil - moment().unix())}`};
         }
+        if (user.transferred) {
+            return {success: false, message: "Your account shows as being transferred, please make a ticket if you believe this is an error"};
+        }
         if (this.data.inGame(user._id) && checkGame) {
             return {success: false, message: `You are currently in a game`};
         }
