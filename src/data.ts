@@ -152,6 +152,11 @@ export class Data {
         }
     }
 
+    clearCache() {
+        this.userCache.clear();
+        this.discordToObject.clear();
+    }
+
     checkCacheByDiscord(id: string) {
         const dbId = this.discordToObject.get(id);
         if (!dbId) {return undefined}
