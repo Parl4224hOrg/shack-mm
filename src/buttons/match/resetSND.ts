@@ -1,6 +1,6 @@
 import {Button} from "../../interfaces/Button";
 import {ButtonBuilder} from "@discordjs/builders";
-import {ButtonStyle, MessageFlagsBitField} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField, TextChannel} from "discord.js";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import axios from "axios";
@@ -18,6 +18,8 @@ export const resetSND: Button = {
             if (!game) {
                 await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game"});
             } else {
+                const channel = await interaction.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+                await channel.send(`<@${interaction.user.id}> | ${interaction.user.id} | ${interaction.user.username}\nreset the game | match: ${game.matchNumber} on server: ${game.server?.id ?? "not assigned"}`);
                 await game.resetSND();
                 await axios.post(`https://shackmm.com/kill-feed/${game.server!.id}/start?game=${game.matchNumber}`, {},
                     {

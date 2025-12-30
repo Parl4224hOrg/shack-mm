@@ -14,7 +14,7 @@ import {GameController} from "./controllers/GameController";
 import {getUserById, getUserByUser} from "./modules/getters/getUser";
 import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
 import UserModel from "./database/models/UserModel";
-import userModel, {Regions, UserInt} from "./database/models/UserModel";
+import userModel, {UserInt} from "./database/models/UserModel";
 import {getStats} from "./modules/getters/getStats";
 import {getRank, roleRemovalCallback} from "./utility/ranking";
 import {updateUser} from "./modules/updaters/updateUser";
@@ -414,6 +414,8 @@ export class Data {
                     }
                 }
                 if (serv) {
+                    const channel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+                    await channel.send(`Game ${gameNum} started on server ${serv.id}`);
                     break;
                 }
             }

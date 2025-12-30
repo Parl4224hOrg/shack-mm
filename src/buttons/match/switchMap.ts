@@ -2,7 +2,8 @@ import {ButtonBuilder} from "@discordjs/builders";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {Button} from "../../interfaces/Button";
-import {ButtonStyle, MessageFlagsBitField} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField, TextChannel} from "discord.js";
+import tokens from "../../tokens";
 
 export const switchMap: Button = {
     data: new ButtonBuilder()
@@ -14,6 +15,8 @@ export const switchMap: Button = {
             const dbUser = await getUserByUser(interaction.user, data);
             const game = data.findGame(dbUser._id);
             if (game) {
+                const channel = await interaction.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+                await channel.send(`<@${interaction.user.id}> | ${interaction.user.id} | ${interaction.user.username}\nswitched maps | match: ${game.matchNumber} on server: ${game.server?.id ?? "not assigned"}`);
                 await interaction.deferReply();
                 await game.switchMap();
                 await interaction.followUp({content: `Map switched by <@${interaction.user.id}>`});
