@@ -240,7 +240,7 @@ export const getServerRegion = (users: QueueUser[]): Regions[] => {
     return [Regions.NAC, Regions.NAE, Regions.NAW];
 }
 
-export const handleChannelLog = async (id: string, guild: Guild, matchId: number) => {
+export const handleChannelLog = async (id: string, guild: Guild, matchId: number, channelName: string) => {
     const channel = await guild.channels.fetch(id) as TextChannel;
     if (!channel) {
         return;
@@ -254,7 +254,7 @@ export const handleChannelLog = async (id: string, guild: Guild, matchId: number
     }
     await logChannel.send({
         files: [attachment],
-        content: `Transcript for ${channel.name} match ${matchId}`
+        content: `Transcript for ${channelName} channel match ${matchId}`
     });
 
     await channel.delete();
