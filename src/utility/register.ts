@@ -31,10 +31,10 @@ export const handleRegister = async (name: string, user: User, data: Data, guild
         }
 
     }
+    const member = await guild.members.fetch(user);
+    await member.roles.add(tokens.Player);
 
     if (!registered) {
-        const member = await guild.members.fetch(user);
-        await member.roles.add(tokens.Player);
         return {
             success: true,
             message: `You have registered please go to <#${tokens.RegionSelect}> to select your region`,
