@@ -29,6 +29,7 @@ import {grammaticalTime} from "../utility/grammatical";
 import {createActionUser} from "../modules/constructors/createAction";
 import {Actions} from "../database/models/ActionModel";
 import {RateLimitedQueue} from "../utility/rate-limited-queue";
+import lateModel from "../database/models/LateModel";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
@@ -505,6 +506,9 @@ export class GameController {
                             await channel.send(`<@${user.discordId}> has been given a late`);
                         }
                     }
+                } else {
+                    await channel.send("Assuming lobby is being used no lates are being applied");
+                    await lateModel.deleteMany({matchId: this.matchNumber});
                 }
             } else {
                 await channel.send("Assuming lobby is being used no lates are being applied");
