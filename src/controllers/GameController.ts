@@ -376,7 +376,7 @@ export class GameController {
         const lateUserMentions: string[] = [];
         for (let user of this.users) {
             const dbUser = await getUserById(user.dbId, this.data);
-            if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
+            if (dbUser && ![...this.joinedPlayers].some(jp => jp == dbUser.oculusName)) {
                 lateUserMentions.push(`<@${user.discordId}>`);
             }
         }
@@ -418,7 +418,7 @@ export class GameController {
             for (let user of RefreshList.PlayerList) {
                 for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
                     let dbUser = await getUserById(gameUser.dbId, this.data);
-                    if (user.UniqueId && dbUser.oculusName && user.UniqueId.toLowerCase() === dbUser.oculusName.toLowerCase()) {
+                    if (user.UniqueId && dbUser.oculusName && user.UniqueId == dbUser.oculusName) {
                         gameUser.hasBeenGivenLate = true;
                     }
                 }
@@ -464,7 +464,7 @@ export class GameController {
             if (this.serverSetup) {
                 for (let user of this.users) {
                     const dbUser = await getUserById(user.dbId, this.data);
-                    if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
+                    if (dbUser && ![...this.joinedPlayers].some(jp => jp == dbUser.oculusName)) {
                         const logChannel = await this.client.channels.fetch(tokens.LateLogChannel) as TextChannel;
                         await logChannel.send(`Match ${this.matchNumber}: User ${dbUser.oculusName} is late.`);
                         lateUsers.push(user);
@@ -608,13 +608,13 @@ export class GameController {
         const playerList = await this.server?.refreshList();
         if (playerList && playerList.PlayerList) {
             for (let player of playerList.PlayerList) {
-                this.joinedPlayers.add(player.UniqueId.toLowerCase());
+                this.joinedPlayers.add(player.UniqueId);
             }
         }
         const lateUsers: string[] = [];
         for (let user of this.users) {
             const dbUser = await getUserById(user.dbId, this.data);
-            if (dbUser && ![...this.joinedPlayers].some(jp => jp.toLowerCase() === dbUser.oculusName.toLowerCase())) {
+            if (dbUser && ![...this.joinedPlayers].some(jp => jp == dbUser.oculusName)) {
                 lateUsers.push(dbUser.oculusName);
             }
         }
