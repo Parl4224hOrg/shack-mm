@@ -47,6 +47,14 @@ class Serializer {
         return this.replaceLast(data, "]");
     }
 
+    private requeueSerializer(toSerialize: Types.ObjectId[]): string {
+        let data = "[ ";
+        for (let entry of toSerialize) {
+            data += `"${entry.toHexString()}",`;
+        }
+        return this.replaceLast(data, "]");
+    }
+
     public serializeGame(toSerialize: GameController): string {
         const alreadySerialized = ["votes", "joinedPlayers", "maps"];
         return JSON.stringify({
@@ -93,7 +101,7 @@ class Serializer {
             processing: toSerialize.processing,
             working: toSerialize.working,
             finalGenTime: toSerialize.finalGenTime,
-            requeueArray: toSerialize.requeueArray,
+            requeueArray: this.requeueSerializer(toSerialize.requeueArray),
             server: toSerialize.server?.id ?? "none",
             acceptMessageId: toSerialize.acceptMessageId,
             autoReadied: toSerialize.autoReadied,
@@ -182,6 +190,19 @@ class Serializer {
         return newArray;
     }
 
+    private requeueDeserializer(data: any): Types.ObjectId[] {
+        try {
+            const newArray = [];
+            for (let value of JSON.parse(data) as string[]) {
+                newArray.push(Types.ObjectId.createFromHexString(value));
+            }
+            return newArray;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
     public async deserializeGame(data: string, client: Client, dataClass: Data): Promise<GameController> {
         console.log("Loading Game")
         const parsed = JSON.parse(data);
@@ -231,7 +252,7 @@ class Serializer {
         game.processing = parsed.processing;
         game.working = parsed.working;
         game.finalGenTime = parsed.finalGenTime;
-        game.requeueArray = parsed.requeueArray;
+        game.requeueArray = this.requeueDeserializer(parsed.requeueArray);
         game.server = parsed.server == "none" ? null : dataClass.getServerById(parsed.server);
         game.acceptMessageId = parsed.acceptMessageId;
         game.autoReadied = parsed.autoReadied;
