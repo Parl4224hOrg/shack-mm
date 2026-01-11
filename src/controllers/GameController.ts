@@ -476,7 +476,7 @@ export class GameController {
             const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
             await logChannel.send(`Game controller line 346, serverSetup value: ${this.serverSetup}`);
             if (tokens.ApplyLates && this.serverSetup) {
-                if (lateUsers.length > 0 && lateUsers.length < 7) {
+                if (lateUsers.length < 8) {
                     for (let user of lateUsers) {
                         let dbUser = await getUserById(user.dbId, this.data);
                         const lates = await LateModel.find({user: dbUser.id});
@@ -506,6 +506,8 @@ export class GameController {
                             await channel.send(`<@${user.discordId}> has been given a late`);
                         }
                     }
+                } else if (lateUsers.length == 0) {
+                    await channel.send("Everyone has joined on time");
                 } else {
                     await channel.send("Assuming lobby is being used no lates are being applied");
                     await lateModel.deleteMany({matchId: this.matchNumber});
