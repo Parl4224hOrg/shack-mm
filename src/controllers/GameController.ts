@@ -1336,7 +1336,11 @@ export class GameController {
             if (userVotes.includes(vote)) {
                 userVotes.forEach((value, index) => {if (value == vote) userVotes.splice(index, 1);});
                 this.votes.set(id, userVotes);
-                message = `Removed vote for ${this.mapSet[vote]}`;
+                if (this.state >= 4) {
+                    message = `Removed vote for ${this.sideSet[vote as '1' | '2']}`;
+                } else {
+                    message = `Removed vote for ${this.mapSet[vote]}`;
+                }
             } else if (userVotes.length == this.currentMaxVotes) {
                 if (this.state >= 4) {
                     return {
