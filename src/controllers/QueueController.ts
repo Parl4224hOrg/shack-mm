@@ -1,4 +1,4 @@
-import {Client, Collection, TextChannel} from "discord.js";
+import {Client, Collection, GuildMember, TextChannel} from "discord.js";
 import {QueueUser} from "../interfaces/Game";
 import {GameData, InternalResponse, MapData, PingMeUser, QueueData} from "../interfaces/Internal";
 import {Data} from "../data";
@@ -14,7 +14,6 @@ import {addLastPlayedMap, logReady, logUnready} from "../utility/match";
 import {getUserById} from "../modules/getters/getUser";
 import {shuffleArray} from "../utility/makeTeams";
 import {Regions} from "../database/models/UserModel";
-import {logInfo} from "../loggers";
 import {RateLimitedQueue} from "../utility/rate-limited-queue";
 
 const removeDuplicates = (array: QueueUser[]) => {
@@ -99,7 +98,7 @@ export class QueueController {
 
     }
 
-    async addUser(user: UserInt, time: number, checkGame: boolean = true): Promise<InternalResponse> {
+    async addUser(user: UserInt, time: number, checkGame: boolean = true, byPassAutoQueueCheck: boolean = false): Promise<InternalResponse> {
         if (user.banUntil > moment().unix()) {
             return {success: false, message: `You are currently banned for another ${grammaticalTime(user.banUntil - moment().unix())}`};
         }
@@ -119,7 +118,7 @@ export class QueueController {
         if (user.frozen) {
             return {success: false, message: "You cannot queue as you have a pending ticket please go resolve it in order to queue"}
         }
-        if (this.activeAutoQueue) {
+        if (this.activeAutoQueue && !byPassAutoQueueCheck) {
             return {success: false, message: "There is an auto queue in progress please wait"}
         }
         this.removeUser(user._id, true);
@@ -139,6 +138,42 @@ export class QueueController {
             success: true,
             message: `You have readied up for ${time} minutes\nThere are ${this.inQueue.length} players in ${this.queueId}`
         }
+    }
+
+    private async requeueUsers(users: Types.ObjectId[]) {
+        const guild = this.client.guilds.cache.get(tokens.GuildID)!;
+
+        const fetchedUsers: {user: UserInt, member: GuildMember}[] = [];
+
+        this.activeAutoQueue = true;
+        for (let user of users) {
+            const dbUser = await getUserById(user, this.data);
+            const member = await guild.members.fetch(dbUser.id);
+            if (member.roles.cache.hasAny(tokens.ModRole, tokens.LeadModRole, tokens.OwnerRole)) {
+                fetchedUsers.unshift({
+                    user: dbUser,
+                    member: member
+                });
+            } else {
+                fetchedUsers.push({
+                    user: dbUser,
+                    member: member
+                });
+            }
+        }
+
+        for (const {user, member} of fetchedUsers) {
+            const response = await this.addUser(user, 15, false, true);
+            if (user.dmAuto) {
+                this.dmQueue.queue(async () => {
+                    if (!member.dmChannel) {
+                        await member.createDM(true);
+                    }
+                    await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
+                });
+            }
+        }
+        this.activeAutoQueue = false;
     }
 
     async tick() {
@@ -166,11 +201,11 @@ export class QueueController {
             await game.tick();
             if (game.isProcessed()) {
                 // Log the type of each element in requeueArray
-                const start = Date.now();
                 shuffleArray(game.requeueArray);
-                const arrayClone: Types.ObjectId[] = JSON.parse(JSON.stringify(game.requeueArray));
-
+                const arrayClone = game.requeueArray.map(id => Types.ObjectId.createFromHexString(id.toString()));
+                await this.requeueUsers(arrayClone);
                 game.requeueArray = [];
+
                 if (!game.abandoned) {
                     await game.cleanup(this.deleteQueue);
                 }
@@ -179,44 +214,14 @@ export class QueueController {
                     await addLastPlayedMap(this.data, game.map, game.matchNumber);
                 }
                 this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
-                for (let user of arrayClone) {
-                    const dbUser = await getUserById(user, this.data);
-                    const response = await this.addUser(dbUser, 15, false);
-                    if (dbUser.dmAuto) {
-                        this.dmQueue.queue(async () => {
-                            const member = await guild.members.fetch(dbUser.id);
-                            if (!member.dmChannel) {
-                                await member.createDM(true);
-                            }
-                            await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
-                        });
-                    }
-                }
-                game.requeueArray = [];
-                await logInfo(`[QueueController.tick] Requeue Time: ${Date.now() - start}ms`, this.client);
+
                 await this.data.Leaderboard.setLeaderboard();
             }
             if (game.abandoned && !game.autoReadied) {
                 shuffleArray(game.requeueArray);
-
-                const arrayClone: Types.ObjectId[] = game.requeueArray.map(id => Types.ObjectId.createFromHexString(id.toString()));
-
+                const arrayClone = game.requeueArray.map(id => Types.ObjectId.createFromHexString(id.toString()));
                 game.requeueArray = [];
-                this.activeAutoQueue = true;
-                for (let user of arrayClone) {
-                    const dbUser = await getUserById(user, this.data);
-                    const response = await this.addUser(dbUser, 15, false);
-                    if (dbUser.dmAuto) {
-                        this.dmQueue.queue(async () => {
-                            const member = await guild.members.fetch(dbUser.id);
-                            if (!member.dmChannel) {
-                                await member.createDM(true);
-                            }
-                            await member.dmChannel!.send(`Auto Ready:\n${response.message}`);
-                        });
-                    }
-                }
-                this.activeAutoQueue = false;
+                await this.requeueUsers(arrayClone);
             }
         }
         const queueChannel = await guild.channels.fetch(tokens.SNDChannel) as TextChannel;
