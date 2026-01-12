@@ -78,32 +78,6 @@ export class QueueController {
         return this.mapData;
     }
 
-    async load(data: string) {
-        const parsed = JSON.parse(data);
-        this.inQueue = parsed.inQueue;
-        for (let ping of parsed.pingMe) {
-            this.pingMe.set(ping.id, ping);
-        }
-        for (let game of parsed.activeGames) {
-            let server = null;
-            if (game.server) {
-                server = this.data.getServer(game.server.name ?? "none");
-            }
-            const newGame = new GameController(Types.ObjectId.createFromHexString(game.id),
-                this.client, await this.client.guilds.fetch(tokens.GuildID), game.matchNumber, [], [], "SND",
-                game.scoreLimit, this.data, server);
-            await newGame.load(game);
-            // Log the contents and types of requeueArray after loading
-            await logInfo(`[QueueController.load] game.requeueArray contents: ${JSON.stringify(newGame.requeueArray)}`, this.client);
-            await logInfo(`[QueueController.load] game.requeueArray types: ${newGame.requeueArray.map(e => typeof e).join(", ")}`, this.client);
-            this.activeGames.push(newGame);
-        }
-        this.generating = parsed.generating;
-        for (let data of parsed.mapData) {
-            this.mapData.push(data);
-        }
-    }
-
     async addPingMe(userId: string, inQueue: number, expire_time: number) {
         if (expire_time < 0) {
             this.pingMe.set(userId, {
