@@ -1,7 +1,8 @@
 import Handlebars from "handlebars";
 import puppeteer, {Browser} from "puppeteer";
 import * as path from "node:path";
-import fs from "fs";    
+import fs from "fs";
+import {join} from "path";
 import {StatsInt} from "../database/models/StatsModel";
 import {getRank} from "./ranking";
 
@@ -22,7 +23,8 @@ async function getBrowser(): Promise<Browser> {
 // Load + compile template once
 async function getTemplate(): Promise<Handlebars.TemplateDelegate> {
     if (!templateFn) {
-        const filePath = resolveTemplatePath();
+        const mountedFolder = join(process.cwd(), "../../mounted");
+        const filePath = path.join(mountedFolder, "RankCardTemplate.html");
         const src = fs.readFileSync(filePath, "utf8");
         templateFn = Handlebars.compile(src.toString());
     }
@@ -44,22 +46,6 @@ function getWlImageBase64(result: "win" | "loss") {
         path.join(process.cwd(), "../../mounted"),
     ]);
     return fs.readFileSync(filePath, {encoding: "base64"});
-}
-
-function resolveTemplatePath() {
-    const candidates = [
-        path.join(process.cwd(), "resources", "RankCardTemplate copy.html"),
-        path.join(process.cwd(), "resources", "RankCardTemplate.html"),
-        path.join(process.cwd(), "../../mounted", "RankCardTemplate.html"),
-    ];
-
-    for (const candidate of candidates) {
-        if (fs.existsSync(candidate)) {
-            return candidate;
-        }
-    }
-
-    throw new Error("Rank card template not found.");
 }
 
 function resolveAssetPath(fileName: string, folders: string[]) {
