@@ -22,9 +22,40 @@ export const autoLate = async (id: Types.ObjectId, data: Data) => {
     }
 }
 
+export const getCooldownSeconds = (banCounter: number, severity: number) => {
+    const adjustedBanCounter = banCounter + severity - 1;
+    const DAY = 24 * 60 * 60;
+
+    switch (adjustedBanCounter) {
+        case 0:
+            return 30 * 60;
+        case 1:
+            return 8 * 60 * 60;
+        case 2:
+            return DAY;
+        case 3:
+            return DAY * 2;
+        case 4:
+            return DAY * 4;
+        case 5:
+            return DAY * 8;
+        case 6:
+            return DAY * 16;
+        case 7:
+            return DAY * 32;
+        case 8:
+            return DAY * 64;
+        case 9:
+            return DAY * 128;
+        case 10:
+            return DAY * 256;
+        default:
+            return DAY * 512;
+    }
+}
+
 export const punishment = async (user: UserInt, data: Data, acceptFail: boolean, severity: number, now: number): Promise<UserInt> => {
     const banCounter = acceptFail ? user.banCounterFail : user.banCounterAbandon
-    const adjustedBanCounter = banCounter + severity - 1; // Adjust the ban counter based on severity
 
     user.lastBan = now;
     user.lastReductionAbandon = now;
@@ -32,46 +63,8 @@ export const punishment = async (user: UserInt, data: Data, acceptFail: boolean,
     user.lastReductionFail = now;
     user.gamesPlayedSinceReductionFail = 0;
 
-    const DAY = 24 * 60 * 60; // Number of seconds in a day
-    
-    switch (adjustedBanCounter) {
-        case 0:
-            user.banUntil = now + 30 * 60;
-            break;
-        case 1:
-            user.banUntil = now + 8 * 60 * 60;
-            break;
-        case 2:
-            user.banUntil = now + DAY;
-            break;
-        case 3:
-            user.banUntil = now + DAY * 2;
-            break;
-        case 4:
-            user.banUntil = now + DAY * 4;
-            break;
-        case 5:
-            user.banUntil = now + DAY * 8;
-            break;
-        case 6:
-            user.banUntil = now + DAY * 16;
-            break;
-        case 7:
-            user.banUntil = now + DAY * 32;
-            break;
-        case 8:
-            user.banUntil = now + DAY * 64;
-            break;
-        case 9:
-            user.banUntil = now + DAY * 128;
-            break;
-        case 10:
-            user.banUntil = now + DAY * 256;
-            break;
-        default:
-            user.banUntil = now + DAY * 512;
-            break;
-    }
+    const cooldownSeconds = getCooldownSeconds(banCounter, severity);
+    user.banUntil = now + cooldownSeconds;
     if (acceptFail) {
         user.banCounterFail += severity;
     } else {
