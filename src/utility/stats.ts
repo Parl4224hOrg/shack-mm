@@ -1,8 +1,7 @@
 import Handlebars from "handlebars";
 import puppeteer, {Browser} from "puppeteer";
 import * as path from "node:path";
-import fs from "fs";
-import {join} from "path";
+import fs from "fs";    
 import {StatsInt} from "../database/models/StatsModel";
 import {getRank} from "./ranking";
 
@@ -23,8 +22,7 @@ async function getBrowser(): Promise<Browser> {
 // Load + compile template once
 async function getTemplate(): Promise<Handlebars.TemplateDelegate> {
     if (!templateFn) {
-        const mountedFolder = join(process.cwd(), "../../mounted");
-        const filePath = path.join(mountedFolder, "RankCardTemplate.html");
+        const filePath = resolveTemplatePath();
         const src = fs.readFileSync(filePath, "utf8");
         templateFn = Handlebars.compile(src.toString());
     }
@@ -32,9 +30,47 @@ async function getTemplate(): Promise<Handlebars.TemplateDelegate> {
 }
 
 function getImageBase64(rank: string) {
-    const mountedFolder = join(process.cwd(), "../../mounted");
-    const filePath = path.join(mountedFolder, `${rank}.png`);
+    const filePath = resolveAssetPath(`${rank}.png`, [
+        path.join(process.cwd(), "resources", "rank-icons"),
+        path.join(process.cwd(), "../../mounted"),
+    ]);
     return fs.readFileSync(filePath, {encoding: 'base64'});
+}
+
+function getWlImageBase64(result: "win" | "loss") {
+    const fileName = result === "win" ? "win.png" : "lose.png";
+    const filePath = resolveAssetPath(fileName, [
+        path.join(process.cwd(), "resources", "WL"),
+        path.join(process.cwd(), "../../mounted"),
+    ]);
+    return fs.readFileSync(filePath, {encoding: "base64"});
+}
+
+function resolveTemplatePath() {
+    const candidates = [
+        path.join(process.cwd(), "resources", "RankCardTemplate copy.html"),
+        path.join(process.cwd(), "resources", "RankCardTemplate.html"),
+        path.join(process.cwd(), "../../mounted", "RankCardTemplate.html"),
+    ];
+
+    for (const candidate of candidates) {
+        if (fs.existsSync(candidate)) {
+            return candidate;
+        }
+    }
+
+    throw new Error("Rank card template not found.");
+}
+
+function resolveAssetPath(fileName: string, folders: string[]) {
+    for (const folder of folders) {
+        const candidate = path.join(folder, fileName);
+        if (fs.existsSync(candidate)) {
+            return candidate;
+        }
+    }
+
+    throw new Error(`Asset not found: ${fileName}`);
 }
 
 function getMinMaxMmr(stats: StatsInt) {
@@ -123,6 +159,11 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
     const rank = getRank(stats.mmr);
     const minMaxMmr = getMinMaxMmr(stats);
     const streak = getLatestMmrStreak(stats.mmrHistory);
+    const historyItems = getRecentHistory(stats.gameHistory, 10);
+    const wlIcons = {
+        win: getWlImageBase64("win"),
+        loss: getWlImageBase64("loss"),
+    };
 
     const template = await getTemplate();
 
@@ -147,6 +188,15 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
         mmrUntilRankUp: rank.max < 100000 ? (rank.max - stats.mmr).toFixed(2) : "N/A",
         rankImage: `data:image/png;base64,${getImageBase64(rank.name.toLowerCase())}`,
         rankName: rank.name,
+        historyItems: historyItems.map((result) => {
+            if (result === "win") {
+                return {label: "W", src: `data:image/png;base64,${wlIcons.win}`, isDraw: false};
+            }
+            if (result === "loss") {
+                return {label: "L", src: `data:image/png;base64,${wlIcons.loss}`, isDraw: false};
+            }
+            return {label: "D", isDraw: true};
+        }),
         rankRange: rank.threshold > 0 ? rank.max < 100000 ? `${rank.threshold}-${rank.max}` : `≥${rank.threshold}` : `≤${rank.max}`,
     });
 
@@ -170,3 +220,10 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
         omitBackground: true
     }) as Buffer;
 };
+
+function getRecentHistory(history: string[], count: number): string[] {
+    if (history.length <= count) {
+        return history.slice(0);
+    }
+    return history.slice(-count);
+}
