@@ -1274,6 +1274,41 @@ export class GameController {
                 } else {
                     message = `Removed vote for ${this.mapSet[vote]}`;
                 }
+                let voteLabel = `Match ${this.matchNumber}: `;
+                switch (this.state) {
+                    case 1:
+                        voteLabel += "Team A, Ban Three";
+                        break;
+                    case 2:
+                        voteLabel += "Team B, Ban Two";
+                        break;
+                    case 3:
+                        voteLabel += "Team A, Select One";
+                        break;
+                    case 4:
+                        voteLabel += "Team B, Select One";
+                        break;
+                    default:
+                        voteLabel += "Vote";
+                        break;
+                }
+                const removedVote = this.state >= 4 ? this.sideSet[vote as '1' | '2'] : this.mapSet[vote];
+                let discordId = 'not found';
+                for (let user of this.users) {
+                    if (String(user.dbId) == String(userId)) {
+                        discordId = user.discordId;
+                    }
+                }
+                const logChannel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+                const embed = new EmbedBuilder();
+                embed.setTitle(`Unvote for ${voteLabel}`);
+                embed.setDescription("Removed vote:");
+                embed.addFields({
+                    name: discordId,
+                    value: `<@${discordId}>\n${removedVote}`,
+                    inline: false,
+                });
+                await logChannel.send({content: `Unvote for ${voteLabel}`, embeds: [embed.toJSON()]});
             } else if (userVotes.length == this.currentMaxVotes) {
                 if (this.state >= 4) {
                     return {
