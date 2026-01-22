@@ -22,26 +22,35 @@ import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
 import {
     getMapData,
+    getMapRadarChart,
     getMapsDB,
-    logAccept,
-    logScoreSubmit,
-    logScoreAccept,
     handleChannelLog,
-    getMapRadarChart
+    logAccept,
+    logScoreAccept,
+    logScoreSubmit
 } from "../utility/match";
 import {GameServer} from "../server/server";
 import {GameModes, RCONError} from "rcon-pavlov";
 import {MapInt} from "../database/models/MapModel";
 import LateModel from "../database/models/LateModel";
+import lateModel from "../database/models/LateModel";
 import {grammaticalTime} from "../utility/grammatical";
 import {createActionUser} from "../modules/constructors/createAction";
 import {Actions} from "../database/models/ActionModel";
 import {RateLimitedQueue} from "../utility/rate-limited-queue";
-import lateModel from "../database/models/LateModel";
+import axios from "axios";
 
 
 const logVotes = async (votes: Collection<string, string[]>,
-                        orderedMapList: {"1": string, "2": string, "3": string, "4": string, "5": string, "6": string, "7": string} | {"1": string, "2": string},
+                        orderedMapList: {
+                            "1": string,
+                            "2": string,
+                            "3": string,
+                            "4": string,
+                            "5": string,
+                            "6": string,
+                            "7": string
+                        } | { "1": string, "2": string },
                         voteLabel: string, gameUsers: GameUser[], client: Client) => {
     const channel = await client.channels.fetch(tokens.GameLogChannel) as TextChannel;
 
@@ -208,6 +217,11 @@ export class GameController {
 
     sentUnregisteredDm = false;
 
+    serverScoreA: number = -1;
+    serverScoreB: number = -1;
+    private scorePollTimeout: NodeJS.Timeout | null = null;
+    private scorePollRunning: boolean = false;
+
     constructor(id: Types.ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, data: Data, server: GameServer | null) {
         this.id = id;
         this.client = client;
@@ -305,6 +319,71 @@ export class GameController {
         } catch (e) {
             console.error(e);
         }
+    }
+
+    private stopScorePolling() {
+        this.scorePollRunning = false;
+        if (this.scorePollTimeout) {
+            clearTimeout(this.scorePollTimeout);
+            this.scorePollTimeout = null;
+        }
+    }
+
+    private async startOrRestartScorePolling() {
+        this.stopScorePolling();
+
+        if (!this.server) {
+            return;
+        }
+
+        this.scorePollRunning = true;
+
+        const pollOnce = async () => {
+            if (!this.scorePollRunning || !this.server) {
+                return;
+            }
+
+            try {
+                const res = await axios.get<{ scoreA: number; scoreB: number; interval: number }>(
+                    `https://shackmm.com/kill-feed/${this.server.id}/score-poll`,
+                    {
+                        headers: {
+                            key: tokens.ServerKey,
+                        },
+                    }
+                );
+
+                const {scoreA, scoreB, interval} = res.data;
+
+                this.serverScoreA = scoreA;
+                this.serverScoreB = scoreB;
+
+                // interval === -1 means a team has won; stop polling.
+                if (interval === -1) {
+                    this.stopScorePolling();
+                    return;
+                }
+
+                if (!this.scorePollRunning) {
+                    return;
+                }
+
+                const nextInterval = Number.isFinite(interval) && interval > 0 ? interval : 1000;
+                this.scorePollTimeout = setTimeout(() => {
+                    void pollOnce();
+                }, nextInterval);
+            } catch (e) {
+                // If the endpoint hiccups, retry after a short backoff.
+                if (!this.scorePollRunning) {
+                    return;
+                }
+                this.scorePollTimeout = setTimeout(() => {
+                    void pollOnce();
+                }, 5000);
+            }
+        };
+
+        void pollOnce();
     }
 
     async SendMinutesLeft(minutesLeft: number) {
@@ -535,7 +614,7 @@ export class GameController {
                         const channel = await user.createDM();
                         await channel.send("You may have an incorrect registered name the bot thinks this should be your name:`" + notFoundUniqueId + "`\nPlease register your name with using the button in #sign-up or by using /register");
                         const logChannel = await this.client.channels.fetch(tokens.ModeratorLogChannel);
-                        if (logChannel && logChannel.isSendable() ) {
+                        if (logChannel && logChannel.isSendable()) {
                             await logChannel.send(`User ${entry.discordId} was dmed with a guess of their name: \`${notFoundUniqueId}\``);
                         }
 
@@ -579,6 +658,16 @@ export class GameController {
 
             const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
             await channel.send({content: "Scores have been accepted"});
+
+            const logChannel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+
+            if (this.scores[0] != this.serverScoreA || this.scores[1] != this.serverScoreB) {
+                await logChannel.send({content: `Match ${this.matchNumber} had incorrect scores submitted\nServer: ${this.serverScoreA}-${this.serverScoreB}\nUser: ${this.scores[0]}-${this.scores[1]}\n<@&${tokens.ModRole}>`,
+                    allowedMentions: {roles: [tokens.ModRole]}
+                });
+            } else {
+                await logChannel.send({content: `Match ${this.matchNumber} has correct scores submitted\nServer: ${this.serverScoreA}-${this.serverScoreB}\nUser: ${this.scores[0]}-${this.scores[1]}`});
+            }
 
             const gameTemp = await getGameById(this.id);
             const game = gameTemp!;
@@ -660,7 +749,10 @@ export class GameController {
                 }
             }
 
-            const message = await acceptChannel.send({content: `${matchRole.toString()} ${tokens.AcceptMessage}`, components: [acceptView()]});
+            const message = await acceptChannel.send({
+                content: `${matchRole.toString()} ${tokens.AcceptMessage}`,
+                components: [acceptView()]
+            });
             await message.pin();
             this.acceptMessageId = message.id;
         }
@@ -674,7 +766,6 @@ export class GameController {
         if (accepted) {
             this.state++;
         }
-
 
 
         if (this.acceptCountdown == 60) {
@@ -714,7 +805,7 @@ export class GameController {
                 // const serverInfo = await this.server.serverInfo()
                 try {
                     //if (Number(serverInfo.ServerInfo.Team0Score) >= 6 || Number(serverInfo.ServerInfo.Team1Score) >= 6) {
-                        //validAbandon = false;
+                    //validAbandon = false;
                     //}
                 } catch (e) {
                     if (e instanceof TypeError) {
@@ -722,8 +813,7 @@ export class GameController {
                     }
                     await logWarn("Score returned by server nonexistent", this.client);
                 }
-            }
-            catch (e) {
+            } catch (e) {
                 await logWarn(`${e}`, this.client);
             }
         }
@@ -738,20 +828,20 @@ export class GameController {
             this.server = null;
 
             await logInfo(`abandon() - User ${user.discordId} abandoning. State: ${this.state}, acceptFail: ${acceptFail}, isAcceptPhaseAbandon: ${isAcceptPhaseAbandon}, punishmentAcceptFail: ${punishmentAcceptFail}`, this.client);
-            
+
             if (this.state < 10) {
                 this.state += 10;
             }
-            
+
             await abandon(user.dbId, user.discordId, this.guild, punishmentAcceptFail, this.data, this.matchNumber, sendForcedMessage);
             await this.sendAbandonMessage(user.discordId);
-            
+
             const shouldAutoReady = !acceptFail && (this.finalGenTime + 15 * 60 >= moment().unix() || !this.votingFinished);
             await logInfo(
                 `abandon() - AutoReady check: acceptFail=${acceptFail}, finalGenTime=${this.finalGenTime}, timeCheck=${this.finalGenTime + 15 * 60 >= moment().unix()}, votingFinished=${this.votingFinished}, shouldAutoReady=${shouldAutoReady}`,
                 this.client
             );
-            
+
             if (shouldAutoReady && !this.autoReadied) {
                 this.autoReadied = true;
                 const temp: GameUser[] = [];
@@ -828,7 +918,7 @@ export class GameController {
 
         await logVotes(this.votes, state <= 4 ? this.mapSet : this.sideSet, voteLabel, this.users, this.client);
 
-        mapVotes = mapVotes.sort((a, b) => b.total-a.total);
+        mapVotes = mapVotes.sort((a, b) => b.total - a.total);
         let randomRange;
         let bans: string[];
 
@@ -864,8 +954,7 @@ export class GameController {
             } else {
                 bans = getRandom(mapVotes, 0, randomRange + 3, 3);
             }
-        }
-        else if (state == 3) {
+        } else if (state == 3) {
             if (mapVotes[1].total == mapVotes[2].total) {
                 if (mapVotes[2].total == mapVotes[3].total) {
                     randomRange = 2;
@@ -891,15 +980,13 @@ export class GameController {
                     bans = getRandom(mapVotes, 0, 2, 2);
                 }
             }
-        }
-        else if (state == 4){
+        } else if (state == 4) {
             if (mapVotes[0].total == mapVotes[1].total) {
                 bans = getRandom(mapVotes, 0, 2, 1);
             } else {
                 bans = [mapVotes[0].id];
             }
-        }
-        else {
+        } else {
             if (mapVotes[0].total == mapVotes[1].total) {
                 bans = getRandom(mapVotes, 0, 2, 2);
             } else {
@@ -953,7 +1040,7 @@ export class GameController {
                 '6': "",
                 '7': "",
             }
-        } else if (state == 4){
+        } else if (state == 4) {
             this.mapSet = {
                 '1': newMaps[0],
                 '2': newMaps[1],
@@ -982,7 +1069,7 @@ export class GameController {
             this.working = true;
 
             await logInfo(`Starting vote channel gen\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
-            
+
             const teamARole = await this.guild.roles.create({
                 name: `team-a-${this.matchNumber}`,
                 reason: 'Create role for team a'
@@ -992,7 +1079,7 @@ export class GameController {
             const teamBRole = await this.guild.roles.create({
                 name: `team-b-${this.matchNumber}`,
                 reason: 'Create role for team b'
-            });        
+            });
             this.teamBRoleId = teamBRole.id;
 
             for (let user of this.users) {
@@ -1050,7 +1137,8 @@ export class GameController {
             const teamAMessage = await teamAChannel.send({
                 components: voteA1(this.mapSet["1"], 0, this.mapSet["2"], 0, this.mapSet["3"], 0, this.mapSet["4"],
                     0, this.mapSet["5"], 0, this.mapSet["6"], 0, this.mapSet["7"], 0),
-                content: `Team A - ${teamAStr}Please ban three maps`});
+                content: `Team A - ${teamAStr}Please ban three maps`
+            });
             this.voteA1MessageId = teamAMessage.id;
 
             await teamBChannel.send({content: `Team B - ${teamBStr}Team A is banning 3 maps`});
@@ -1079,8 +1167,10 @@ export class GameController {
 
             await teamAChannel.send({content: `${bans[0]}, ${bans[1]}, and ${bans[2]} banned`});
             await teamBChannel.send({content: `Team A banned ${bans[0]}, ${bans[1]}, and ${bans[2]}`});
-            const banMessage = await teamBChannel.send({content: "Please ban two maps",
-                components: [voteB1(this.mapSet["1"], 0, this.mapSet["2"], 0, this.mapSet["3"], 0, this.mapSet["4"], 0)]});
+            const banMessage = await teamBChannel.send({
+                content: "Please ban two maps",
+                components: [voteB1(this.mapSet["1"], 0, this.mapSet["2"], 0, this.mapSet["3"], 0, this.mapSet["4"], 0)]
+            });
             this.voteB1MessageId = banMessage.id;
             this.working = false;
             await logInfo(`Ended vote A1 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
@@ -1102,8 +1192,10 @@ export class GameController {
 
             await teamBChannel.send({content: `${bans[0]} and ${bans[1]} banned`});
             await teamAChannel.send({content: `Team B banned ${bans[0]} and ${bans[1]}`});
-            const banMessage = await teamAChannel.send({content: "Please select a map",
-                components: [voteA2(this.mapSet["1"], 0, this.mapSet["2"], 0)]});
+            const banMessage = await teamAChannel.send({
+                content: "Please select a map",
+                components: [voteA2(this.mapSet["1"], 0, this.mapSet["2"], 0)]
+            });
             this.voteA2MessageId = banMessage.id;
             this.working = false;
             await logInfo(`Ended vote B1 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
@@ -1126,8 +1218,10 @@ export class GameController {
 
             await teamAChannel.send({content: `Selected ${bans[0]}`});
             await teamBChannel.send({content: `Team A selected ${bans[0]}`});
-            const banMessage = await teamBChannel.send({content: "Please select a side",
-                components: [voteB2(this.sideSet["1"], 0, this.sideSet["2"], 0)]});
+            const banMessage = await teamBChannel.send({
+                content: "Please select a side",
+                components: [voteB2(this.sideSet["1"], 0, this.sideSet["2"], 0)]
+            });
             this.voteB2MessageId = banMessage.id;
             this.working = false;
             await logInfo(`Ended vote A2 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
@@ -1168,11 +1262,21 @@ export class GameController {
             let totalNAW = 0;
             for (let user of this.users) {
                 switch (user.region) {
-                    case Regions.APAC: totalAPAC++; break;
-                    case Regions.EUE: totalEUE++; break;
-                    case Regions.EUW: totalEUW++; break;
-                    case Regions.NAE: totalNAE++; break;
-                    case Regions.NAW: totalNAW++; break;
+                    case Regions.APAC:
+                        totalAPAC++;
+                        break;
+                    case Regions.EUE:
+                        totalEUE++;
+                        break;
+                    case Regions.EUW:
+                        totalEUW++;
+                        break;
+                    case Regions.NAE:
+                        totalNAE++;
+                        break;
+                    case Regions.NAW:
+                        totalNAW++;
+                        break;
                 }
             }
             let serverMessage;
@@ -1191,10 +1295,10 @@ export class GameController {
                 }
 
             } else if (totalAPAC === 0 && totalNAE === 0 && totalNAW === 0) {
-                serverMessage = "Play on EU because all players are EU.";  
+                serverMessage = "Play on EU because all players are EU.";
                 this.serverSetup = false;
             } else if (totalEUE === 0 && totalEUW === 0 && totalNAE === 0 && totalNAW === 0) {
-                serverMessage = "Play on APAC because all players are APAC.";  
+                serverMessage = "Play on APAC because all players are APAC.";
                 this.serverSetup = false;
             } else if (totalAPAC === 0) {
                 // No APAC, only NA + EU
@@ -1202,7 +1306,7 @@ export class GameController {
                     serverMessage = "Play on NAE because there are NAW players and EU players.";
                 } else if (totalNAW === 0 && totalEUE > 0) {
                     serverMessage = "Play on EU because there are EUE players and no NAW players. If all EUE players agree, NAE may be used.";
-                } else if ( (totalNAE + totalNAW) > (totalEUE + totalEUW) ) { 
+                } else if ((totalNAE + totalNAW) > (totalEUE + totalEUW)) {
                     serverMessage = "Play on NAE because majority NA over EU. If all NA players agree, EU may be used.";
                 } else {
                     serverMessage = "Play on EU because majority EU over NA. If all EU players agree, NAE may be used.";
@@ -1217,7 +1321,7 @@ export class GameController {
             } else {
                 serverMessage = "The bot failed to pick a region. Please let the moderators know.";
             }
-          
+
             let message;
             if (this.server && this.serverSetup) {
                 try {
@@ -1225,19 +1329,21 @@ export class GameController {
                 } catch (e) {
                     console.error(e);
                 }
-                message = await finalChannel.send({components: [initialSubmit(), initialSubmitServer()],
+                message = await finalChannel.send({
+                    components: [initialSubmit(), initialSubmitServer()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.mapData!, this.sides, this.data)],
                     content: `${serverMessage}. This match might be played on the server titled: \`SMM Match-${this.matchNumber}\`\n`
                 });
             } else {
-                message = await finalChannel.send({components: [initialSubmit()],
+                message = await finalChannel.send({
+                    components: [initialSubmit()],
                     embeds: [await teamsEmbed(this.users, this.matchNumber, this.queueId, this.mapData!, this.sides, this.data)],
                     content: `${serverMessage}`
                 });
             }
 
             await finalChannel.messages.pin(message);
-            await finalChannel.send({ content: `\`\`\`${serverMessage}\`\`\`` });
+            await finalChannel.send({content: `\`\`\`${serverMessage}\`\`\``});
             this.finalGenTime = moment().unix();
             await teamAChannel.permissionOverwrites.set([hidePerms]);
             this.data.getQueue().getDeleteQueue().queue(
@@ -1247,7 +1353,7 @@ export class GameController {
             this.data.getQueue().getDeleteQueue().queue(
                 () => handleChannelLog(teamBChannel.id, this.guild, this.matchNumber, "team-b-vote")
             )
-          
+
             const gameTemp = await getGameById(this.id);
             const game = gameTemp!;
             game.map = this.map;
@@ -1286,7 +1392,9 @@ export class GameController {
 
         if (userVotes) {
             if (userVotes.includes(vote)) {
-                userVotes.forEach((value, index) => {if (value == vote) userVotes.splice(index, 1);});
+                userVotes.forEach((value, index) => {
+                    if (value == vote) userVotes.splice(index, 1);
+                });
                 this.votes.set(id, userVotes);
                 if (this.state >= 4) {
                     message = `Removed vote for ${this.sideSet[vote as '1' | '2']}`;
@@ -1397,33 +1505,46 @@ export class GameController {
             case 1: {
                 const teamAChannel = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;
                 const mapVoteMessage = await teamAChannel.messages.fetch(this.voteA1MessageId);
-                await mapVoteMessage.edit({content: mapVoteMessage.content,
+                await mapVoteMessage.edit({
+                    content: mapVoteMessage.content,
                     components: voteA1(this.mapSet["1"], one, this.mapSet["2"], two, this.mapSet["3"], three, this.mapSet["4"], four,
-                        this.mapSet["5"], five, this.mapSet["6"], six, this.mapSet["7"], seven)});
-            } break;
+                        this.mapSet["5"], five, this.mapSet["6"], six, this.mapSet["7"], seven)
+                });
+            }
+                break;
             case 2: {
                 const teamBChannel = await this.guild.channels.fetch(this.teamBChannelId) as TextChannel;
                 const mapVoteEdit = await teamBChannel.messages.fetch(this.voteB1MessageId);
-                await mapVoteEdit.edit({content: mapVoteEdit.content,
-                    components: [voteB1(this.mapSet["1"], one, this.mapSet["2"], two, this.mapSet["3"], three, this.mapSet["4"], four)]});
-            } break;
+                await mapVoteEdit.edit({
+                    content: mapVoteEdit.content,
+                    components: [voteB1(this.mapSet["1"], one, this.mapSet["2"], two, this.mapSet["3"], three, this.mapSet["4"], four)]
+                });
+            }
+                break;
             case 3: {
                 const teamAChannel = await this.guild.channels.fetch(this.teamAChannelId) as TextChannel;
                 const mapVoteMessage = await teamAChannel.messages.fetch(this.voteA2MessageId);
-                await mapVoteMessage.edit({content: mapVoteMessage.content,
-                    components: [voteA2(this.mapSet["1"], one, this.mapSet["2"], two)]});
-            } break;
+                await mapVoteMessage.edit({
+                    content: mapVoteMessage.content,
+                    components: [voteA2(this.mapSet["1"], one, this.mapSet["2"], two)]
+                });
+            }
+                break;
             case 4: {
                 const teamBChannel = await this.guild.channels.fetch(this.teamBChannelId) as TextChannel;
                 const sideVoteMessage = await teamBChannel.messages.fetch(this.voteB2MessageId);
-                await sideVoteMessage.edit({content: sideVoteMessage.content,
-                    components: [voteB2(this.sideSet["1"], one, this.sideSet["2"], two)]});
-            } break;
+                await sideVoteMessage.edit({
+                    content: sideVoteMessage.content,
+                    components: [voteB2(this.sideSet["1"], one, this.sideSet["2"], two)]
+                });
+            }
+                break;
         }
         return {success: true, message: message};
     }
 
     async resetSND() {
+        await this.startOrRestartScorePolling();
         return this.server!.resetSND();
     }
 
@@ -1495,7 +1616,10 @@ export class GameController {
         if (this.scores[0] < 0 && this.scores[1] < 0) {
             this.scores[team] = score;
             await logScoreSubmit(discordId, this.matchNumber, score, this.client);
-            return {success: true, message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"} by <@${discordId}>`}
+            return {
+                success: true,
+                message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"} by <@${discordId}>`
+            }
         } else {
             let scoreA = this.scores[0];
             let scoreB = this.scores[1];
@@ -1512,7 +1636,10 @@ export class GameController {
                     this.scores = [scoreA, scoreB];
                 }
                 await logScoreSubmit(discordId, this.matchNumber, score, this.client);
-                return {success: true, message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"} by <@${discordId}>`};
+                return {
+                    success: true,
+                    message: `Score of ${score} submitted for ${(team == 0) ? "team a" : "team b"} by <@${discordId}>`
+                };
             } else if (team == 0) {
                 this.scores[0] = scoreA;
                 await logScoreSubmit(discordId, this.matchNumber, score, this.client);
@@ -1536,8 +1663,12 @@ export class GameController {
         this.scores = [scoreA, scoreB];
         this.state = 7;
         this.scoresAccept = [true, true];
-        return {success: true, message: `Scores force submitted
-        \`team_a: ${scoreA}\nteam_b: ${scoreB}\``, flags: new MessageFlagsBitField().add(MessageFlagsBitField.Flags.Ephemeral).toJSON()}
+        return {
+            success: true,
+            message: `Scores force submitted
+        \`team_a: ${scoreA}\nteam_b: ${scoreB}\``,
+            flags: new MessageFlagsBitField().add(MessageFlagsBitField.Flags.Ephemeral).toJSON()
+        }
     }
 
     async userAccept(id: Types.ObjectId) {
@@ -1570,6 +1701,7 @@ export class GameController {
     }
 
     async cleanup(queue: RateLimitedQueue) {
+        this.stopScorePolling();
         await this.server?.unregisterServer()
         queue.queue(async () => {
             const role = await this.guild.roles.fetch(this.matchRoleId);
@@ -1593,7 +1725,10 @@ export class GameController {
         this.cleanedUp = true
         const game = await getGameById(this.id);
         const channel = await this.guild.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
-        await channel.send({content: `Match ${this.matchNumber}`, embeds: [matchFinalEmbed(game!, this.users, this.mapData!)]});
+        await channel.send({
+            content: `Match ${this.matchNumber}`,
+            embeds: [matchFinalEmbed(game!, this.users, this.mapData!)]
+        });
     }
 
     isProcessed() {
@@ -1668,7 +1803,9 @@ export class GameController {
     }
 
     requeue(user: UserInt): boolean {
-        if (this.requeueArray.find((item) => {return String(item) == String(user._id)})) {
+        if (this.requeueArray.find((item) => {
+            return String(item) == String(user._id)
+        })) {
             this.requeueArray.forEach((value, index) => {
                 if (String(value) == String(user._id)) this.requeueArray.splice(index, 1);
             })
