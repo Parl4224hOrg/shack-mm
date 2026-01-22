@@ -222,6 +222,8 @@ export class GameController {
     private scorePollTimeout: NodeJS.Timeout | null = null;
     private scorePollRunning: boolean = false;
 
+    usedCommunity = false;
+
     constructor(id: Types.ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, data: Data, server: GameServer | null) {
         this.id = id;
         this.client = client;
@@ -329,7 +331,7 @@ export class GameController {
         }
     }
 
-    private async startOrRestartScorePolling() {
+    async startOrRestartScorePolling() {
         this.stopScorePolling();
 
         if (!this.server) {
@@ -529,6 +531,7 @@ export class GameController {
                 } else if (lateUsers.length == 0) {
                     await channel.send("Everyone has joined on time");
                 } else {
+                    this.usedCommunity = true;
                     await channel.send("Assuming lobby is being used no lates are being applied");
                     await lateModel.deleteMany({matchId: this.matchNumber});
                 }
@@ -661,7 +664,9 @@ export class GameController {
 
             const logChannel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
 
-            if (this.scores[0] != this.serverScoreA || this.scores[1] != this.serverScoreB) {
+            if (this.server == null || this.usedCommunity || this.serverScoreA < 0 || this.serverScoreB < 0) {
+                await logChannel.send({content: `Match ${this.matchNumber} has scores submitted without using server\nUser: ${this.scores[0]}-${this.scores[1]}`});
+            } else if (this.scores[0] != this.serverScoreA || this.scores[1] != this.serverScoreB) {
                 await logChannel.send({content: `Match ${this.matchNumber} had incorrect scores submitted\nServer: ${this.serverScoreA}-${this.serverScoreB}\nUser: ${this.scores[0]}-${this.scores[1]}\n<@&${tokens.ModRole}>`,
                     allowedMentions: {roles: [tokens.ModRole]}
                 });
@@ -1544,7 +1549,9 @@ export class GameController {
     }
 
     async resetSND() {
-        await this.startOrRestartScorePolling();
+        if (this.server != null) {
+            await this.startOrRestartScorePolling();
+        }
         return this.server!.resetSND();
     }
 

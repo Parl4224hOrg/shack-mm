@@ -111,6 +111,7 @@ class Serializer {
             serverId: toSerialize.serverId,
             maps: this.mapsSerializer(toSerialize.maps),
             votingFinished: toSerialize.votingFinished,
+            usedCommunity: toSerialize.usedCommunity,
         }, (key, value) => {
             try {
                 if (alreadySerialized.includes(key)) {
@@ -262,7 +263,12 @@ class Serializer {
         game.serverId = parsed.serverId;
         game.maps = this.mapsDeserializer(parsed.maps);
         game.votingFinished = parsed.votingFinished;
+        game.usedCommunity = parsed.usedCommunity;
         console.log("Successfully loaded game")
+
+        if (game.server) {
+            void game.startOrRestartScorePolling();
+        }
         return game;
     }
 
