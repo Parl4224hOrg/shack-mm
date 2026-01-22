@@ -321,32 +321,44 @@ export const getMapWinRadarChart = async (teamA: {map: string, winRate: number}[
                     label: "Team A",
                     data: aData,
                     borderColor: "rgba(54, 162, 235, 1)",
-                    backgroundColor: "rgba(54, 162, 235, 0.2)",
+                    backgroundColor: "rgba(54, 162, 235, 0.25)",
                     pointBackgroundColor: "rgba(54, 162, 235, 1)",
-                    pointRadius: 3,
-                    borderWidth: 2,
+                    pointBorderColor: "rgba(54, 162, 235, 1)",
+                    pointRadius: 4,
+                    pointHoverRadius: 5,
+                    borderWidth: 5, // thicker line
                 },
                 {
                     label: "Team B",
                     data: bData,
                     borderColor: "rgba(255, 99, 132, 1)",
-                    backgroundColor: "rgba(255, 99, 132, 0.2)",
+                    backgroundColor: "rgba(255, 99, 132, 0.25)",
                     pointBackgroundColor: "rgba(255, 99, 132, 1)",
-                    pointRadius: 3,
-                    borderWidth: 2,
+                    pointBorderColor: "rgba(255, 99, 132, 1)",
+                    pointRadius: 4,
+                    pointHoverRadius: 5,
+                    borderWidth: 5, // thicker line
                 },
             ],
         },
         options: {
-            responsive: false, // node-canvas has a fixed size
+            responsive: false,
+            // Important: prevents chart.js from clearing the canvas after our background fill
+            // and ensures transparent areas show our dark fill.
+            // (Works in Chart.js v3/v4)
             plugins: {
-                legend: { display: true, position: "top" },
+                legend: {
+                    display: true,
+                    position: "top",
+                    labels: {
+                        color: "#e6e6e6",
+                        boxWidth: 18,
+                        boxHeight: 10,
+                    },
+                },
                 tooltip: {
                     callbacks: {
-                        label: (ctx) => {
-                            const v = ctx.parsed.r ?? 0;
-                            return `${ctx.dataset.label}: ${(v * 100).toFixed(1)}%`;
-                        },
+                        label: (c) => `${c.dataset.label}: ${((c.parsed.r ?? 0) * 100).toFixed(1)}%`,
                     },
                 },
             },
@@ -354,9 +366,30 @@ export const getMapWinRadarChart = async (teamA: {map: string, winRate: number}[
                 r: {
                     min: 0,
                     max: 1,
-                    ticks: {
-                        callback: (v) => `${Number(v) * 100}%`,
+                    angleLines: {
+                        color: "rgba(255,255,255,0.18)",
+                        lineWidth: 2,
                     },
+                    grid: {
+                        color: "rgba(255,255,255,0.12)",
+                        lineWidth: 2,
+                    },
+                    pointLabels: {
+                        color: "#e6e6e6",
+                        font: { size: 14, weight: "bold" },
+                    },
+                    ticks: {
+                        color: "#cfcfcf",
+                        backdropColor: "rgba(0,0,0,0)",
+                        showLabelBackdrop: false,
+                        callback: (v) => `${Math.round(Number(v) * 100)}%`,
+                    },
+                },
+            },
+            elements: {
+                line: {
+                    borderJoinStyle: "round",
+                    tension: 0,
                 },
             },
         },
