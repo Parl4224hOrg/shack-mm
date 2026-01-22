@@ -225,18 +225,20 @@ export class QueueController {
             }
         }
         const queueChannel = await guild.channels.fetch(tokens.SNDChannel) as TextChannel;
-        for (let user of this.pingMe.values()) {
-            if (this.inQueueNumber() >= user.inQueue && !user.pinged) {
-                this.pingMeQueue.queue(async () => {
-                    await queueChannel.send(`<@${user.id}> there are in ${user.inQueue} queue`);
-                });
-                user.pinged = true;
-            }
-            if (time > user.expires && user.expires >= 0) {
-                this.pingMe.delete(user.id);
-            }
-            if (this.inQueueNumber() < user.inQueue) {
-                user.pinged = false;
+        if (!this.activeAutoQueue) {
+            for (let user of this.pingMe.values()) {
+                if (this.inQueueNumber() >= user.inQueue && !user.pinged) {
+                    this.pingMeQueue.queue(async () => {
+                        await queueChannel.send(`<@${user.id}> there are in ${user.inQueue} queue`);
+                    });
+                    user.pinged = true;
+                }
+                if (time > user.expires && user.expires >= 0) {
+                    this.pingMe.delete(user.id);
+                }
+                if (this.inQueueNumber() < user.inQueue) {
+                    user.pinged = false;
+                }
             }
         }
     }
