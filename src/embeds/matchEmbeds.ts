@@ -23,9 +23,13 @@ export const matchFinalEmbed = (game: GameInt, users: GameUser[], mapData: MapIn
 
     for (let user of users) {
         if (user.team == 0) {
-            teamA += `<@${user.discordId}>\n`;
+            const index = game.teamA.indexOf(user.dbId);
+            let change = index >= 0 ? game.teamAChanges[index].toFixed(2) : "??.??";
+            teamA += `Δ${change} | <@${user.discordId}>\n`;
         } else {
-            teamB += `<@${user.discordId}>\n`;
+            const index = game.teamB.indexOf(user.dbId);
+            let change = index >= 0 ? game.teamBChanges[index].toFixed(2) : "??.??";
+            teamB += `Δ${change} | <@${user.discordId}>\n`;
         }
     }
 
@@ -33,12 +37,12 @@ export const matchFinalEmbed = (game: GameInt, users: GameUser[], mapData: MapIn
         {
             name: `Team A: ${game.sides[0]}`,
             value: teamA,
-            inline: true,
+            inline: false,
         },
         {
             name: `Team B: ${game.sides[1]}`,
             value: teamB,
-            inline: true,
+            inline: false,
         },
     ]);
 
