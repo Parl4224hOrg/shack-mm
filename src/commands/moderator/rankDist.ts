@@ -12,7 +12,7 @@ export const rankDist: SubCommand = {
         .setDescription("Displays the rank distribution")
         .addStringOption(option => option
             .setName("thresholds")
-            .setDescription("The thresholds to use for ranks comma separated following low to high")
+            .setDescription("The thresholds to use for ranks comma separated following high to low")
             .setRequired(false)
         ),
     run: async (interaction) => {
@@ -31,7 +31,7 @@ export const rankDist: SubCommand = {
 
                     ranks[i].threshold = parseInt(split[i]);
                     if (i < ranks.length - 1) {
-                        if (ranks[i].threshold > parseInt(split[i + 1])) {
+                        if (ranks[i].threshold < parseInt(split[i + 1])) {
                             await interaction.followUp({content: "Thresholds are not in order"});
                             return;
                         }
