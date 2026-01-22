@@ -1,4 +1,5 @@
 import {ChartJSNodeCanvas} from "chartjs-node-canvas";
+import {ChartConfiguration} from "chart.js";
 
 const width = 1000;
 const height = 600;
@@ -295,4 +296,73 @@ export const getRankDistGraph = async (ranks: string[], percents: string[]) => {
 
     return await canvas.renderToBuffer(config);
 }
+
+export const getMapWinRadarChart = async (teamA: {map: string, winRate: number}[], teamB: {map: string, winRate: number}[]) => {
+    // Merge labels (keep stable order: teamA maps, then any extra from teamB)
+    const labels: string[] = [];
+    const pushLabel = (m: string) => {
+        if (!labels.includes(m)) labels.push(m);
+    };
+    for (const x of teamA) pushLabel(x.map);
+    for (const x of teamB) pushLabel(x.map);
+
+    const aByMap = new Map(teamA.map(x => [x.map, x.winRate]));
+    const bByMap = new Map(teamB.map(x => [x.map, x.winRate]));
+
+    const aData = labels.map(l => aByMap.get(l) ?? 0);
+    const bData = labels.map(l => bByMap.get(l) ?? 0);
+
+    const config: ChartConfiguration<"radar", number[], string> = {
+        type: "radar",
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: "Team A",
+                    data: aData,
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    backgroundColor: "rgba(54, 162, 235, 0.2)",
+                    pointBackgroundColor: "rgba(54, 162, 235, 1)",
+                    pointRadius: 3,
+                    borderWidth: 2,
+                },
+                {
+                    label: "Team B",
+                    data: bData,
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    backgroundColor: "rgba(255, 99, 132, 0.2)",
+                    pointBackgroundColor: "rgba(255, 99, 132, 1)",
+                    pointRadius: 3,
+                    borderWidth: 2,
+                },
+            ],
+        },
+        options: {
+            responsive: false, // node-canvas has a fixed size
+            plugins: {
+                legend: { display: true, position: "top" },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => {
+                            const v = ctx.parsed.r ?? 0;
+                            return `${ctx.dataset.label}: ${(v * 100).toFixed(1)}%`;
+                        },
+                    },
+                },
+            },
+            scales: {
+                r: {
+                    min: 0,
+                    max: 1,
+                    ticks: {
+                        callback: (v) => `${Number(v) * 100}%`,
+                    },
+                },
+            },
+        },
+    };
+
+    // Return an image buffer (PNG). If you prefer, return a base64 string instead.
+    return canvas.renderToBuffer(config);
+};
 

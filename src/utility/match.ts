@@ -3,7 +3,8 @@ import {
     ButtonInteraction,
     ChatInputCommandInteraction,
     Client,
-    EmbedBuilder, Guild,
+    EmbedBuilder,
+    Guild,
     MessageFlagsBitField,
     TextChannel
 } from "discord.js";
@@ -15,6 +16,10 @@ import mapModel from "../database/models/MapModel";
 import {QueueUser} from "../interfaces/Game";
 import {Regions} from "../database/models/UserModel";
 import * as discordTranscripts from "discord-html-transcripts";
+import {Types} from "mongoose";
+import gameModel, {GameInt} from "../database/models/GameModel";
+import moment from "moment";
+import {getMapWinRadarChart} from "./graph";
 
 export const registerMaps = (data: Data, maps: string[]) => {
     const mapData = data.getQueue().getMapData();
@@ -36,7 +41,9 @@ export const registerMaps = (data: Data, maps: string[]) => {
             lastGame: 0,
         })
     }
-    mapData.forEach((map, i) => {if (!maps.includes(map.mapName)) mapData.splice(i, 1)})
+    mapData.forEach((map, i) => {
+        if (!maps.includes(map.mapName)) mapData.splice(i, 1)
+    })
 }
 
 export const getMapsDB = async (limit: number = tokens.VoteSize) => {
@@ -171,14 +178,20 @@ export const matchVotes = async (interaction: ButtonInteraction, data: Data) => 
                 await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: response.message});
             }
         } else {
-            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game please contact a mod"});
+            await interaction.reply({
+                flags: MessageFlagsBitField.Flags.Ephemeral,
+                content: "Could not find game please contact a mod"
+            });
         }
     } else {
-        await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find controller please contact a mod"});
+        await interaction.reply({
+            flags: MessageFlagsBitField.Flags.Ephemeral,
+            content: "Could not find controller please contact a mod"
+        });
     }
 }
 
-export const matchReady = async (interaction: ButtonInteraction | ChatInputCommandInteraction, data: Data, queueId: string, queue: string, time: number)=> {
+export const matchReady = async (interaction: ButtonInteraction | ChatInputCommandInteraction, data: Data, queueId: string, queue: string, time: number) => {
     const response = await data.ready(queueId, queue, interaction.user, time);
     await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: response.message});
 }
@@ -186,10 +199,13 @@ export const matchReady = async (interaction: ButtonInteraction | ChatInputComma
 export const matchUnready = async (interaction: ButtonInteraction | ChatInputCommandInteraction, data: Data, queueId: string) => {
     const dbUser = await getUserByUser(interaction.user, data);
     data.removeFromQueue(dbUser._id, queueId);
-    await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: `You have unreadied from ${queueId} queues`})
+    await interaction.reply({
+        flags: MessageFlagsBitField.Flags.Ephemeral,
+        content: `You have unreadied from ${queueId} queues`
+    })
 }
 
-export const matchScore = async (interaction: ButtonInteraction, data: Data, score: number)=> {
+export const matchScore = async (interaction: ButtonInteraction, data: Data, score: number) => {
     const dbUser = await getUserByUser(interaction.user, data);
     const controller = data.findController();
     if (controller) {
@@ -198,10 +214,16 @@ export const matchScore = async (interaction: ButtonInteraction, data: Data, sco
             const response = await game.submitScore(dbUser._id, score, interaction.user.id);
             await interaction.reply({content: response.message});
         } else {
-            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find game please contact a mod"});
+            await interaction.reply({
+                flags: MessageFlagsBitField.Flags.Ephemeral,
+                content: "Could not find game please contact a mod"
+            });
         }
     } else {
-        await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Could not find controller please contact a mod"});
+        await interaction.reply({
+            flags: MessageFlagsBitField.Flags.Ephemeral,
+            content: "Could not find controller please contact a mod"
+        });
     }
 }
 
@@ -218,13 +240,18 @@ export const getServerRegion = (users: QueueUser[]): Regions[] => {
     for (let user of users) {
         switch (user.region) {
             case Regions.NAE:
-                NAW++; break;
+                NAW++;
+                break;
             case Regions.NAW:
-                NAE++; break;
+                NAE++;
+                break;
             case Regions.EUW:
             case Regions.EUE:
-                EU++; break;
-            case Regions.APAC: APAC++; break;
+                EU++;
+                break;
+            case Regions.APAC:
+                APAC++;
+                break;
         }
     }
 
@@ -258,4 +285,82 @@ export const handleChannelLog = async (id: string, guild: Guild, matchId: number
     });
 
     await channel.delete();
+}
+
+type WinLoss = { wins: number; losses: number };
+
+const getWinsLossesByAppearances = (
+    games: GameInt[],
+    mapLabelSet: Set<string>,
+    teamIdSet: Set<string>
+): Map<string, WinLoss> => {
+    const winLossMap = new Map<string, WinLoss>();
+
+    for (const game of games) {
+        if (!mapLabelSet.has(game.map)) continue;
+
+        // Ensure entry exists
+        let entry = winLossMap.get(game.map);
+        if (!entry) {
+            entry = {wins: 0, losses: 0};
+            winLossMap.set(game.map, entry);
+        }
+
+        const aWon = game.scoreA > game.scoreB;
+        const bWon = game.scoreB > game.scoreA;
+
+        // For each current-team player that appears on teamA in this game, count outcome for that player
+        for (const player of game.teamA) {
+            if (!teamIdSet.has(player.toString())) continue;
+            if (aWon) entry.wins++;
+            else if (bWon) entry.losses++;
+            // if tie is possible and you want to ignore ties, do nothing
+        }
+
+        // Same for teamB
+        for (const player of game.teamB) {
+            if (!teamIdSet.has(player.toString())) continue;
+            if (bWon) entry.wins++;
+            else if (aWon) entry.losses++;
+        }
+    }
+
+    return winLossMap;
+};
+
+
+export const getMapRadarChart = async (teamA: Types.ObjectId[], teamB: Types.ObjectId[]) => {
+    const thirtyDaysAgo = moment().subtract(30, 'days').unix();
+    const teamAGames = await gameModel.find({
+        users: {$in: teamA},
+        scoreA: {$gte: 0},
+        scoreB: {$gte: 0},
+        creationDate: {$gte: thirtyDaysAgo}
+    });
+    const teamBGames = await gameModel.find({
+        users: {$in: teamB},
+        scoreA: {$gte: 0},
+        scoreB: {$gte: 0},
+        creationDate: {$gte: thirtyDaysAgo}
+    });
+
+    const maps = await getMapsDB(100);
+    const mapLabelSet = new Set(maps.map(m => m.name));
+
+    const teamAIdSet = new Set(teamA.map(id => id.toString()));
+    const teamBIdSet = new Set(teamB.map(id => id.toString()));
+
+    const teamAWinLoss = getWinsLossesByAppearances(teamAGames, mapLabelSet, teamAIdSet);
+    const teamBWinLoss = getWinsLossesByAppearances(teamBGames, mapLabelSet, teamBIdSet);
+
+    const teamAWinRate = Array.from(teamAWinLoss.entries()).map(([map, wl]) => ({
+        map,
+        winRate: wl.wins / (wl.wins + wl.losses),
+    }));
+    const teamBWinRate = Array.from(teamBWinLoss.entries()).map(([map, wl]) => ({
+        map,
+        winRate: wl.wins / (wl.wins + wl.losses),
+    }));
+
+    return getMapWinRadarChart(teamAWinRate, teamBWinRate);
 }
