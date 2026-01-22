@@ -329,7 +329,7 @@ const getWinsLossesByAppearances = (
 };
 
 
-export const getMapRadarChart = async (teamA: Types.ObjectId[], teamB: Types.ObjectId[]) => {
+export const getMapRadarChart = async (teamA: Types.ObjectId[], teamB: Types.ObjectId[], maps: string[]) => {
     const thirtyDaysAgo = moment().subtract(30, 'days').unix();
     const teamAGames = await gameModel.find({
         users: {$in: teamA},
@@ -344,8 +344,7 @@ export const getMapRadarChart = async (teamA: Types.ObjectId[], teamB: Types.Obj
         creationDate: {$gte: thirtyDaysAgo}
     });
 
-    const maps = await getMapsDB(100);
-    const mapLabelSet = new Set(maps.map(m => m.name));
+    const mapLabelSet = new Set(maps);
 
     const teamAIdSet = new Set(teamA.map(id => id.toString()));
     const teamBIdSet = new Set(teamB.map(id => id.toString()));

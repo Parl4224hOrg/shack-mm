@@ -20,7 +20,15 @@ import {Data} from "../data";
 import {Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
-import {getMapData, getMapsDB, logAccept, logScoreSubmit, logScoreAccept, handleChannelLog} from "../utility/match";
+import {
+    getMapData,
+    getMapsDB,
+    logAccept,
+    logScoreSubmit,
+    logScoreAccept,
+    handleChannelLog,
+    getMapRadarChart
+} from "../utility/match";
 import {GameServer} from "../server/server";
 import {GameModes, RCONError} from "rcon-pavlov";
 import {MapInt} from "../database/models/MapModel";
@@ -1027,6 +1035,17 @@ export class GameController {
                     teamBStr += `<@${player.discordId}> `;
                 }
             }
+
+            const winRates = await getMapRadarChart(
+                this.users.filter(u => u.team == 0).map(u => u.dbId),
+                this.users.filter(u => u.team == 1).map(u => u.dbId),
+                this.maps.map(m => m.name)
+            );
+
+            await Promise.all([
+                teamAChannel.send({files: [winRates]}),
+                teamBChannel.send({files: [winRates]}),
+            ]);
 
             const teamAMessage = await teamAChannel.send({
                 components: voteA1(this.mapSet["1"], 0, this.mapSet["2"], 0, this.mapSet["3"], 0, this.mapSet["4"],
