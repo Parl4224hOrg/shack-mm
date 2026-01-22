@@ -456,6 +456,7 @@ export class GameController {
     async matchTick() {
         const time = moment().unix();
         const minutesPassed = Math.floor((time - this.finalGenTime) / 60);
+        const logChannel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
 
         await this.doHalfMinuteTick(time, minutesPassed);
 
@@ -495,8 +496,6 @@ export class GameController {
                 }
             }
             await channel.send("5 minutes have passed");
-            const logChannel = await this.client.channels.fetch(tokens.LogChannel) as TextChannel;
-            await logChannel.send(`Game controller line 346, serverSetup value: ${this.serverSetup}`);
             if (tokens.ApplyLates && this.serverSetup) {
                 if (lateUsers.length < 8) {
                     for (let user of lateUsers) {
@@ -557,40 +556,61 @@ export class GameController {
                 dbUsers.push(await getUserById(user.dbId, this.data));
             }
             try {
-                const AllPlayers = await this.server.inspectAll();
-                numTotal = AllPlayers.InspectList.length;
-                for (const player of AllPlayers.InspectList) {
-                    let found = false;
-                    for (const user of dbUsers) {
-                        if (user.oculusName == player.UniqueId) {
-                            found = true;
-                            numFound++;
-                            foundUniqueIds.push(player.UniqueId);
-                            const currentTeam = player.TeamId;
-                            let assignedTeam = "none";
-                            for (const gameUser of this.users) {
-                                if (gameUser.dbId.equals(user.id)) {
-                                    assignedTeam = this.sides[gameUser.team].toLowerCase() == "ct" ? "0" : "1";
-                                }
-                            }
-                            try {
-                                if (assignedTeam != "none" && currentTeam != assignedTeam) {
-                                    await this.server.switchTeam(player.UniqueId, assignedTeam);
-                                }
-                            } catch (e) {
-                                if (e instanceof RCONError) {
-                                    await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
-                                }
-                                console.error(e);
-                            }
-                        }
-                    }
-                    if (!found) {
+                const allPlayers = await this.server.inspectAll();
+                numTotal = allPlayers.InspectList.length;
+
+                // 1) dbUsers lookup by oculusName (UniqueId in InspectAll)
+                const dbUsersByOculusName = new Map<string, UserInt>();
+                for (const user of dbUsers) {
+                    dbUsersByOculusName.set(user.oculusName, user);
+                }
+
+                // 2) assigned team lookup by db user id
+                const assignedTeamByDbUserId = new Map<string, "0" | "1">();
+                for (const gameUser of this.users) {
+                    const side = this.sides[gameUser.team]; // "CT" | "T"
+                    const teamId: "0" | "1" = side == "CT" ? "0" : "1";
+                    assignedTeamByDbUserId.set(gameUser.dbId.toString(), teamId);
+                }
+
+                let didSwitch = false;
+                for (const player of allPlayers.InspectList) {
+                    const dbUser = dbUsersByOculusName.get(player.UniqueId);
+
+                    if (!dbUser) {
                         notFoundUniqueId = player.UniqueId;
-                        await logInfo(`Player ${player.UniqueId} not found in database should be kicked, skipping due to bug`, this.client);
-                        // await this.server.kick(player.UniqueId);
+
+                        await logChannel.send(
+                            `Player ${player.UniqueId} was not found among the registered users and was kicked from the server.`
+                        );
+                        await this.server.kick(player.UniqueId);
+                        continue;
+                    }
+
+                    numFound++;
+                    foundUniqueIds.push(player.UniqueId);
+
+                    const currentTeam = player.TeamId; // "0" | "1"
+                    const assignedTeam = assignedTeamByDbUserId.get(dbUser.id.toString()); // "0" | "1" | undefined
+
+                    try {
+                        if (assignedTeam && currentTeam != assignedTeam) {
+                            didSwitch = true;
+                            await logChannel.send(`Player ${player.UniqueId} was switched to team ${assignedTeam}`);
+                            await this.server!.switchTeam(player.UniqueId, assignedTeam);
+                        }
+                    } catch (e) {
+                        if (e instanceof RCONError) {
+                            await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
+                        }
+                        console.error(e);
                     }
                 }
+
+                if (!didSwitch) {
+                    await logChannel.send(`No players were switched to teams`);
+                }
+
             } catch (e) {
                 if (e instanceof RCONError) {
                     await logWarn(`RCON Error: ${e.name} : ${e.message}`, this.client);
@@ -667,7 +687,8 @@ export class GameController {
             if (this.server == null || this.usedCommunity || this.serverScoreA < 0 || this.serverScoreB < 0) {
                 await logChannel.send({content: `Match ${this.matchNumber} has scores submitted without using server\nUser: ${this.scores[0]}-${this.scores[1]}`});
             } else if (this.scores[0] != this.serverScoreA || this.scores[1] != this.serverScoreB) {
-                await logChannel.send({content: `Match ${this.matchNumber} had incorrect scores submitted\nServer: ${this.serverScoreA}-${this.serverScoreB}\nUser: ${this.scores[0]}-${this.scores[1]}\n<@&${tokens.ModRole}>`,
+                await logChannel.send({
+                    content: `Match ${this.matchNumber} had incorrect scores submitted\nServer: ${this.serverScoreA}-${this.serverScoreB}\nUser: ${this.scores[0]}-${this.scores[1]}\n<@&${tokens.ModRole}>`,
                     allowedMentions: {roles: [tokens.ModRole]}
                 });
             } else {
