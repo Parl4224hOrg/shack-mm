@@ -95,8 +95,8 @@ export default {
         {name: 'Master', threshold: 2050, max: 2499, roleId: '1152692826669326398'}, // 9
         {name: 'Diamond', threshold: 1821, max: 2049, roleId: '1152692676035088464'}, // 8
         {name: 'Platinum', threshold: 1650, max: 1820, roleId: '1152692485332664411'}, // 7
-        {name: 'Gold', threshold: 1430, max: 1649, roleId: '1152692439342141531'}, // 6
-        {name: 'Silver', threshold: 1450, max: 1429, roleId: '1152692319749931050'}, // 5
+        {name: 'Gold', threshold: 1530, max: 1649, roleId: '1152692439342141531'}, // 6
+        {name: 'Silver', threshold: 1450, max: 1529, roleId: '1152692319749931050'}, // 5
         {name: 'Bronze', threshold: 1350, max: 1449, roleId: '1152692197439836331'}, // 4
         {name: 'Iron', threshold: 1250, max: 1249, roleId: '1152692103256744086'}, // 3
         {name: 'Copper', threshold: 1150, max: 1149, roleId: '1152659149017075894'}, // 2
