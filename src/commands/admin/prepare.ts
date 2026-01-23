@@ -1,8 +1,8 @@
 import {Command} from "../../interfaces/Command";
-import {SlashCommandBuilder} from "@discordjs/builders";
+import {ButtonBuilder, SlashCommandBuilder} from "@discordjs/builders";
 import tokens from "../../tokens";
 import {logError} from "../../loggers";
-import {TextChannel, MessageFlagsBitField} from "discord.js";
+import {TextChannel, MessageFlagsBitField, ActionRowBuilder} from "discord.js";
 import {
     MapTestSignupView,
     regionSelectView,
@@ -11,6 +11,7 @@ import {
     SNDFILLReadyView2,
     SNDFILLReadyView3
 } from "../../views/staticViews";
+import {updateInfo} from "../../buttons/update-info";
 
 export const prepare: Command = {
     data: new SlashCommandBuilder()
@@ -50,7 +51,10 @@ export const prepare: Command = {
                     }
                         break;
                     case 'info': {
-                        await interaction.channel!.send({content: "Press This Button to Update #mm-info"})
+                        await interaction.channel!.send({
+                            content: "Press This Button to Update #mm-info",
+                            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(updateInfo.data)]
+                        })
                         await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'prepared info updater'})
                     }
                         break;
