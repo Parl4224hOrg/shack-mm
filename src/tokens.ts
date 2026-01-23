@@ -91,16 +91,16 @@ export default {
     MapPool: ["Japan", "Manor", "Streets", "Harbor", "Stockpile", "Oilrig", "Cobble", "Cache", "Vertigo", "Mirage", "Stahl", "Overpass", "Dust 2", "Inferno"],
     PingToPlayTime: 90 * 60,
     Ranks: [
-        {name: 'Grandmaster', threshold: 2300, max: 1000000, roleId: '1285641380600877157'}, // 10
-        {name: 'Master', threshold: 1950, max: 2299, roleId: '1152692826669326398'}, // 9
-        {name: 'Diamond', threshold: 1821, max: 1949, roleId: '1152692676035088464'}, // 8
-        {name: 'Platinum', threshold: 1701, max: 1820, roleId: '1152692485332664411'}, // 7
-        {name: 'Gold', threshold: 1611, max: 1700, roleId: '1152692439342141531'}, // 6
-        {name: 'Silver', threshold: 1551, max: 1610, roleId: '1152692319749931050'}, // 5
-        {name: 'Bronze', threshold: 1470, max: 1550, roleId: '1152692197439836331'}, // 4
-        {name: 'Iron', threshold: 1375, max: 1469, roleId: '1152692103256744086'}, // 3
-        {name: 'Copper', threshold: 1300, max: 1374, roleId: '1152659149017075894'}, // 2
-        {name: 'Wood', threshold: -99999, max: 1299, roleId: '1152691861186682880'}], // 1
+        {name: 'Grandmaster', threshold: 2500, max: 1000000, roleId: '1285641380600877157'}, // 10
+        {name: 'Master', threshold: 2050, max: 2499, roleId: '1152692826669326398'}, // 9
+        {name: 'Diamond', threshold: 1821, max: 2049, roleId: '1152692676035088464'}, // 8
+        {name: 'Platinum', threshold: 1650, max: 1820, roleId: '1152692485332664411'}, // 7
+        {name: 'Gold', threshold: 1430, max: 1649, roleId: '1152692439342141531'}, // 6
+        {name: 'Silver', threshold: 1450, max: 1429, roleId: '1152692319749931050'}, // 5
+        {name: 'Bronze', threshold: 1350, max: 1449, roleId: '1152692197439836331'}, // 4
+        {name: 'Iron', threshold: 1250, max: 1249, roleId: '1152692103256744086'}, // 3
+        {name: 'Copper', threshold: 1150, max: 1149, roleId: '1152659149017075894'}, // 2
+        {name: 'Wood', threshold: -99999, max: 1149, roleId: '1152691861186682880'}], // 1
     RankRoles: ['1152692826669326398', '1152692676035088464', '1152692485332664411', '1152692439342141531', '1152692319749931050',
     '1152692197439836331', '1152692103256744086', '1152659149017075894', '1152691861186682880'],
     RankedRole: '1225164446263939203',
