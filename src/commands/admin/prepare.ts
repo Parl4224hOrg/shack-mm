@@ -50,8 +50,8 @@ export const prepare: Command = {
                     }
                         break;
                     case 'info': {
-                        await interaction.channel!.send({content: tokens.InfoMessage})
-                        await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'prepared info view'})
+                        await interaction.channel!.send({content: "Press This Button to Update #mm-info"})
+                        await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'prepared info updater'})
                     }
                         break;
                     case 'c': {
@@ -97,5 +97,5 @@ export const prepare: Command = {
         }
     },
     name: 'prepare',
-    allowedRoles: [tokens.LeadModRole],
+    allowedRoles: [tokens.AdminRole],
 }

@@ -18,7 +18,6 @@ export default {
     MasterGuild: '1204816540231401472',
     MatchCategory: '1171850272465764402',
     ModRole: '1152657002212884550',
-    AdminRole: '1152652534763241542',
     OwnerRole: '1204928541045825636',
     GeneralChannel: '1152652410184024247',
     SNDChannel: '1171851238594318387',
@@ -37,7 +36,7 @@ export default {
     QueueLogChannel: "1191799332924559360",
     ModeratorLogChannel: "1249964183588438158",
     RefereeLogChannel: "1252310023116161075",
-    LeadModRole: "1175171342736294028",
+    AdminRole: "1175171342736294028",
     ModChannel: "1152662159768158329",
     RegionRoles: {
         NAE: "1186176045829849089",
@@ -59,6 +58,7 @@ export default {
     PlaytestLogChannel: "1328152474640453703",
     ManualRoleLogChannel: "1342254281524514918",
     LateLogChannel: "1435767496782118932",
+    InfoChannel: "1152654652484104212",
     // constants
     ApplyLates: true,
     ApplyNewLates: true,
@@ -107,7 +107,6 @@ export default {
     // messages
     AcceptMessage: messages.acceptMessage,
     SignUpMessage: messages.signUp,
-    InfoMessage: messages.info,
     RegionSelectMessage: messages.region,
     NoMessage: messages.no,
     // servers

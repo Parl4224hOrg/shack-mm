@@ -27,5 +27,5 @@ export const setFreeStatus: Command = {
         
     },
     name: "set_free_status",
-    allowedRoles: [tokens.LeadModRole, tokens.OwnerRole]
+    allowedRoles: [tokens.AdminRole, tokens.OwnerRole]
 }

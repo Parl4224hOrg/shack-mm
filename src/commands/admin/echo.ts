@@ -26,5 +26,5 @@ export const echo: Command = {
         }
     },
     name: 'echo',
-    allowedRoles: [tokens.LeadModRole],
+    allowedRoles: [tokens.AdminRole],
 }

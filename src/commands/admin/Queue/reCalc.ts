@@ -104,5 +104,5 @@ export const reCalc: SubCommand = {
         }
     },
     name: 're_calc',
-    allowedRoles: [tokens.LeadModRole],
+    allowedRoles: [tokens.AdminRole],
 }

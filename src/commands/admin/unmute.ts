@@ -1,5 +1,5 @@
 import { Command } from "../../interfaces/Command";
-import {MessageFlagsBitField, SlashCommandBuilder} from "discord.js";
+import {SlashCommandBuilder} from "discord.js";
 import { userOption } from "../../utility/options";
 import tokens from "../../tokens";
 import {logError, logInfo} from "../../loggers";
@@ -35,5 +35,5 @@ export const unmute: Command = {
         }
     },
     name: 'unmute',
-    allowedRoles: [tokens.LeadModRole],
+    allowedRoles: [tokens.AdminRole],
 };

@@ -30,5 +30,5 @@ export const softResetUser: Command = {
         }
     },
     name: "soft_reset_user",
-    allowedRoles: [tokens.AdminRole, tokens.LeadModRole],
+    allowedRoles: [tokens.AdminRole, tokens.AdminRole],
 }

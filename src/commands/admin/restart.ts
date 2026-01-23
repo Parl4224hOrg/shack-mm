@@ -17,5 +17,5 @@ export const restart: Command = {
         }
     },
     name: 'restart',
-    allowedRoles: [tokens.LeadModRole],
+    allowedRoles: [tokens.AdminRole],
 }

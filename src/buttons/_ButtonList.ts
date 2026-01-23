@@ -39,6 +39,7 @@ import {promptResetGame} from "./match/reset-game/prompt";
 import {confirmSwitchMap} from "./match/switch-map/confirm";
 import {cancelSwitchMap} from "./match/switch-map/cancel";
 import {promptSwitchMap} from "./match/switch-map/prompt";
+import {updateInfo} from "./update-info";
 
 const buttonList: Button[] = [accept, draw, loss, win, confirmScore, score0, score1, score2, score3, score4, score5,
     missing, unready, readyAPAC15, readyAPAC30, readyAPAC60, readyAPAC120, readyEU15, readyEU30, readyEU60, readyEU120,
@@ -46,7 +47,7 @@ const buttonList: Button[] = [accept, draw, loss, win, confirmScore, score0, sco
     vote3, vote4, vote5, vote6, vote7, score6, score7, score8, score9, p2pToggle, lfg, stats, games, NAE, NAW, EUE, EUW, APAC,
 pingMeButton, autoReady, checkBanButton, abandonButton, abandonDeny, abandonConfirm, graphButton, ratingChangeButton,
     mapTesterToggle, mapTestSignup, mapTestRemoveSignup, register, lateRatioButton, confirmSwitchMap, cancelSwitchMap, promptSwitchMap,
-    promptResetGame, confirmResetGame, cancelResetGame];
+    promptResetGame, confirmResetGame, cancelResetGame, updateInfo];
 let ButtonMap: Collection<string, Button> = new Collection<string, Button>();
 
 for (let command of buttonList) {

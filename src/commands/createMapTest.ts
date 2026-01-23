@@ -71,5 +71,5 @@ export const createMapTest: Command = {
         }
     },
     name: "create_map_test",
-    allowedRoles: tokens.Mods.concat([tokens.OwnerRole, tokens.MapMakerRole, tokens.LeadModRole])
+    allowedRoles: tokens.Mods.concat([tokens.OwnerRole, tokens.MapMakerRole, tokens.AdminRole])
 }

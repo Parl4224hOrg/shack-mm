@@ -119,5 +119,5 @@ export const updateMapTest: Command = {
         }
     },
     name: "update_map_test",
-    allowedRoles: tokens.Mods.concat([tokens.OwnerRole, tokens.MapMakerRole, tokens.LeadModRole])
+    allowedRoles: tokens.Mods.concat([tokens.OwnerRole, tokens.MapMakerRole, tokens.AdminRole])
 }

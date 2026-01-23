@@ -149,7 +149,7 @@ export class QueueController {
         for (let user of users) {
             const dbUser = await getUserById(user, this.data);
             const member = await guild.members.fetch(dbUser.id);
-            if (member.roles.cache.hasAny(tokens.ModRole, tokens.LeadModRole, tokens.OwnerRole)) {
+            if (member.roles.cache.hasAny(tokens.ModRole, tokens.AdminRole, tokens.OwnerRole)) {
                 fetchedUsers.unshift({
                     user: dbUser,
                     member: member

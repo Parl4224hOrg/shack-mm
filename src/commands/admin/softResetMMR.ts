@@ -34,5 +34,5 @@ export const softResetMMR: Command = {
         }
     },
     name: "soft_reset_mmr",
-    allowedRoles: [tokens.AdminRole, tokens.LeadModRole],
+    allowedRoles: [tokens.AdminRole, tokens.AdminRole],
 }

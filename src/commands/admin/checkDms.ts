@@ -27,5 +27,5 @@ export const checkDms: Command = {
         }
     },
     name: "check_dms",
-    allowedRoles: [tokens.LeadModRole],
+    allowedRoles: [tokens.AdminRole],
 }
