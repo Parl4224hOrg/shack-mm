@@ -573,7 +573,6 @@ export class GameController {
                     assignedTeamByDbUserId.set(gameUser.dbId.toString(), teamId);
                 }
 
-                let didSwitch = false;
                 for (const player of allPlayers.InspectList) {
                     const dbUser = dbUsersByOculusName.get(player.UniqueId);
 
@@ -594,9 +593,7 @@ export class GameController {
                     const assignedTeam = assignedTeamByDbUserId.get(dbUser._id.toString()); // "0" | "1" | undefined
 
                     try {
-                        await logChannel.send(`Player ${player.UniqueId} assigned: ${assignedTeam} actual: ${currentTeam} comparison: ${assignedTeam == currentTeam}`);
                         if (assignedTeam && currentTeam != assignedTeam) {
-                            didSwitch = true;
                             await logChannel.send(`Player ${player.UniqueId} was switched to team ${assignedTeam}`);
                             await this.server!.switchTeam(player.UniqueId, assignedTeam);
                         }
@@ -606,10 +603,6 @@ export class GameController {
                         }
                         console.error(e);
                     }
-                }
-
-                if (!didSwitch) {
-                    await logChannel.send(`No players were switched to teams`);
                 }
 
             } catch (e) {
