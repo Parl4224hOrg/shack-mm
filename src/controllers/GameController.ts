@@ -594,6 +594,7 @@ export class GameController {
                     const assignedTeam = assignedTeamByDbUserId.get(dbUser.id.toString()); // "0" | "1" | undefined
 
                     try {
+                        await logChannel.send(`Player ${player.UniqueId} assigned: ${assignedTeam} actual: ${currentTeam} comparison: ${assignedTeam == currentTeam}`);
                         if (assignedTeam && currentTeam != assignedTeam) {
                             didSwitch = true;
                             await logChannel.send(`Player ${player.UniqueId} was switched to team ${assignedTeam}`);
