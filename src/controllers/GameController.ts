@@ -591,7 +591,7 @@ export class GameController {
                     foundUniqueIds.push(player.UniqueId);
 
                     const currentTeam = player.TeamId; // "0" | "1"
-                    const assignedTeam = assignedTeamByDbUserId.get(dbUser.id.toString()); // "0" | "1" | undefined
+                    const assignedTeam = assignedTeamByDbUserId.get(dbUser._id.toString()); // "0" | "1" | undefined
 
                     try {
                         await logChannel.send(`Player ${player.UniqueId} assigned: ${assignedTeam} actual: ${currentTeam} comparison: ${assignedTeam == currentTeam}`);
