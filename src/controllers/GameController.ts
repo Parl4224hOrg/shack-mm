@@ -10,8 +10,8 @@ import tokens from "../tokens";
 import {acceptView} from "../views/acceptView";
 import {abandon, punishment} from "../utility/punishment";
 import {voteA1, voteA2, voteB1, voteB2} from "../views/voteViews";
-import {acceptScore, initialSubmit, initialSubmitServer} from "../views/submitScoreViews";
-import {matchConfirmEmbed, matchFinalEmbed, teamsEmbed} from "../embeds/matchEmbeds";
+import {acceptScore, initialSubmit, initialSubmitServer, scorePromptView} from "../views/submitScoreViews";
+import {matchConfirmEmbed, matchFinalEmbed, matchScorePrompt, teamsEmbed} from "../embeds/matchEmbeds";
 import {GameData, InternalResponse} from "../interfaces/Internal";
 import {logInfo, logWarn} from "../loggers";
 import {GameUser, ids, Vote} from "../interfaces/Game";
@@ -363,6 +363,7 @@ export class GameController {
                 // interval === -1 means a team has won; stop polling.
                 if (interval === -1) {
                     this.stopScorePolling();
+                    void this.promptScores();
                     return;
                 }
 
@@ -386,6 +387,19 @@ export class GameController {
         };
 
         void pollOnce();
+    }
+
+    async promptScores() {
+        if (!this.server) {
+            return;
+        }
+
+        this.scores = [this.serverScoreA, this.serverScoreB];
+        const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
+        await channel.send({
+            embeds: [matchScorePrompt(this.scores)],
+            components: [scorePromptView()]
+        });
     }
 
     async SendMinutesLeft(minutesLeft: number) {

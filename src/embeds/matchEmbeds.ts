@@ -71,6 +71,26 @@ export const matchConfirmEmbed = (scores: number[]) => {
     return embed.toJSON();
 }
 
+export const matchScorePrompt = (scores: number[]) => {
+    const embed = new EmbedBuilder()
+
+    embed.setTitle('Confirm Servers Scores')
+    embed.setDescription('If these score are incorrect resubmit using the buttons below')
+    embed.setFields([
+        {
+            name: 'Team A',
+            value: String(scores[0]),
+            inline: true ,
+        },{
+            name: 'Team B',
+            value: String(scores[1]),
+            inline: true,
+        }
+    ])
+
+    return embed.toJSON();
+}
+
 export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: string, map: MapInt, sides: string[], data: Data) => {
     const embed = new EmbedBuilder()
 
