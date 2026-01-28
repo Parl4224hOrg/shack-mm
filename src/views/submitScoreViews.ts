@@ -30,9 +30,10 @@ export const roundsWon = () => {
     return [rowA.toJSON(), rowB.toJSON()];
 }
 
-export const winsOrLoss = new ActionRowBuilder<MessageActionRowComponentBuilder>()
-    .addComponents(win.data, loss.data).toJSON();
-
+export const winsOrLoss = () => {
+    return new ActionRowBuilder<MessageActionRowComponentBuilder>()
+        .addComponents(win.data, loss.data).toJSON();
+}
 export const acceptScore = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
         .addComponents(confirmScore.data).toJSON()
