@@ -395,8 +395,8 @@ export class GameController {
         }
 
         this.scores = [this.serverScoreA, this.serverScoreB];
+        this.scoresConfirmMessageSent = true;
         this.state = 6;
-        this.scoresConfirmMessageSent = false;
         const channel = await this.client.channels.fetch(this.finalChannelId) as TextChannel;
         await channel.send({
             embeds: [matchScorePrompt(this.scores)],
