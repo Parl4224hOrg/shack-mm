@@ -310,6 +310,7 @@ export class Data {
                 const guild = await this.client.guilds.fetch(tokens.GuildID);
                 this.statusChannel = await guild.channels.fetch(tokens.ActiveGamesChannel) as VoiceChannel;
             }
+            this.FILL_SND.removeDuplicates();
             if (this.FILL_SND.inQueueNumber() >= tokens.PlayerCount) {
                 await this.createMatch("NA", this.FILL_SND, 'SND', tokens.ScoreLimitSND);
             }

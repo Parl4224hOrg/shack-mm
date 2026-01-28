@@ -176,6 +176,10 @@ export class QueueController {
         this.activeAutoQueue = false;
     }
 
+    removeDuplicates() {
+        this.inQueue = removeDuplicates(this.inQueue);
+    }
+
     async tick() {
         this.inQueue = removeDuplicates(this.inQueue);
         const time = moment().unix()
