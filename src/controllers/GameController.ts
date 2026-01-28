@@ -223,6 +223,7 @@ export class GameController {
     private scorePollRunning: boolean = false;
 
     usedCommunity = false;
+    gameStarted = false;
 
     constructor(id: Types.ObjectId, client: Client, guild: Guild, matchNumber: number, teamA: ids[], teamB: ids[], queueId: string, scoreLimit: number, data: Data, server: GameServer | null) {
         this.id = id;
@@ -391,6 +392,9 @@ export class GameController {
 
     async promptScores() {
         if (!this.server) {
+            return;
+        }
+        if (!this.gameStarted) {
             return;
         }
 
@@ -1570,6 +1574,7 @@ export class GameController {
     }
 
     async resetSND() {
+        this.gameStarted = true;
         if (this.server != null) {
             await this.startOrRestartScorePolling();
         }
