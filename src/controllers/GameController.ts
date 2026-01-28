@@ -821,20 +821,10 @@ export class GameController {
     async abandon(user: GameUser, acceptFail: boolean, forced: boolean = false, sendForcedMessage: boolean = false) {
         let validAbandon = true;
         if (this.server) {
-            try {
-                // const serverInfo = await this.server.serverInfo()
-                try {
-                    //if (Number(serverInfo.ServerInfo.Team0Score) >= 6 || Number(serverInfo.ServerInfo.Team1Score) >= 6) {
-                    //validAbandon = false;
-                    //}
-                } catch (e) {
-                    if (e instanceof TypeError) {
-                        validAbandon = true;
-                    }
-                    await logWarn("Score returned by server nonexistent", this.client);
-                }
-            } catch (e) {
-                await logWarn(`${e}`, this.client);
+            if (Math.max(this.serverScoreA, this.serverScoreB) >= 9) {
+                validAbandon = false;
+                const channel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+                await channel.send(`Match ${this.matchNumber}: User <@${user.discordId}> tried to abandon once a team had reached 9 rounds`);
             }
         }
         if (validAbandon || forced) {
