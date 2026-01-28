@@ -36,5 +36,5 @@ export const acceptScore = () => {
 
 export const scorePromptView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(confirmScore.data, win.data, loss.data).toJSON()
+        .addComponents(confirmScore.data, win.data, loss.data, autoReady.data).toJSON()
 }
