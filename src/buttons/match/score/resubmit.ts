@@ -12,7 +12,7 @@ export const resubmit: Button = {
         .setStyle(ButtonStyle.Secondary),
     run: async (interaction) => {
         try {
-            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'Select Win or Loss', components: [winsOrLoss]})
+            await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'Select Win or Loss', components: [winsOrLoss()]})
         } catch (e) {
             await logError(e, interaction);
         }
