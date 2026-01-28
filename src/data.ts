@@ -412,9 +412,10 @@ export class Data {
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
             let serv: GameServer | null = null;
             const validServers = getServerRegion(users);
+            const otherGamesInProgressServerIds = this.getQueue().activeGames.map(game => game.serverId);
             for (const validServer of validServers) {
                 for (const server of this.servers) {
-                    if (!server.isInUse() && server.region == validServer) {
+                    if (!server.isInUse() && server.region == validServer && !otherGamesInProgressServerIds.includes(server.id)) {
                         serv = server;
                         break;
                     }
@@ -432,7 +433,10 @@ export class Data {
             const channelCount = (await guild.channels.fetch()).size;
             if (channelCount > 490) {
                 const channel = await guild.channels.fetch(tokens.ModChannel) as TextChannel;
-                await channel.send(`Server has reached 490 channels delete tickets to prevent the bot from breaking`);
+                await channel.send({
+                    content: `Server has reached 490 channels delete tickets to prevent the bot from breaking <@&${tokens.AdminRole}>`,
+                    allowedMentions: {roles: [tokens.AdminRole]}
+                });
             }
         } catch (e) {
             console.error(e);
