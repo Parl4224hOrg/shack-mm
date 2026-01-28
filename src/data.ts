@@ -426,6 +426,13 @@ export class Data {
             }
             let game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this, serv);
             queue.addGame(game);
+
+            const guild = await this.client.guilds.fetch(tokens.GuildID);
+            const channelCount = (await guild.channels.fetch()).size;
+            if (channelCount > 490) {
+                const channel = await guild.channels.fetch(tokens.ModChannel) as TextChannel;
+                await channel.send(`Server has reached 490 channels delete tickets to prevent the bot from breaking`);
+            }
         } catch (e) {
             console.error(e);
         }
