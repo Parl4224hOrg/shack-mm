@@ -7,6 +7,7 @@ import {autoReady} from "../buttons/match/autoReady";
 import {abandonButton} from "../buttons/match/abandon/abandonButton";
 import {promptResetGame} from "../buttons/match/reset-game/prompt";
 import {promptSwitchMap} from "../buttons/match/switch-map/prompt";
+import {resubmit} from "../buttons/match/score/resubmit";
 
 export const initialSubmit = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -29,6 +30,9 @@ export const roundsWon = () => {
     return [rowA.toJSON(), rowB.toJSON()];
 }
 
+export const winsOrLoss = new ActionRowBuilder<MessageActionRowComponentBuilder>()
+    .addComponents(win.data, loss.data).toJSON();
+
 export const acceptScore = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
         .addComponents(confirmScore.data).toJSON()
@@ -36,5 +40,5 @@ export const acceptScore = () => {
 
 export const scorePromptView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(confirmScore.data, win.data, loss.data, autoReady.data).toJSON()
+        .addComponents(confirmScore.data, resubmit.data, autoReady.data).toJSON()
 }
