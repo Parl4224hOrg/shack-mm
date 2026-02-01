@@ -362,7 +362,7 @@ export class GameController {
                 this.serverScoreB = scoreB;
 
                 // interval === -1 means a team has won; stop polling.
-                if (interval === -1) {
+                if (interval == -1 && this.submitCooldown <= 0) {
                     this.stopScorePolling();
                     void this.promptScores();
                     return;
