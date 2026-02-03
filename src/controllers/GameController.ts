@@ -5,7 +5,7 @@ import moment from "moment/moment";
 import {processMMR} from "../utility/processMMR";
 import {updateGame} from "../modules/updaters/updateGame";
 import {getGuildMember} from "../utility/discordGetters";
-import {getAcceptPerms, getMatchPerms, hidePerms} from "../utility/channelPerms";
+import {getAcceptPerms, getMatchPerms, getVCPerms, hidePerms} from "../utility/channelPerms";
 import tokens from "../tokens";
 import {acceptView} from "../views/acceptView";
 import {abandon, punishment} from "../utility/punishment";
@@ -143,8 +143,10 @@ export class GameController {
     voteChannelsGen = false;
     teamAChannelId = '';
     teamARoleId = '';
+    teamAVCid = '';
     teamBChannelId = '';
     teamBRoleId = '';
+    teamBVCid = '';
     voteA1MessageId = '';
     voteB1MessageId = '';
     voteA2MessageId = '';
@@ -1146,6 +1148,26 @@ export class GameController {
             );
             this.teamBChannelId = teamBChannel.id;
 
+            const teamAVC = await this.guild.channels.create({
+                name: `Team A-${this.matchNumber}`,
+                type: ChannelType.GuildVoice,
+                permissionOverwrites: getVCPerms(teamARole),
+                position: 0,
+                parent: tokens.MatchCategory,
+                reason: 'Create vc for team a',
+            });
+            this.teamAVCid = teamAVC.id;
+
+            const teamBVC = await this.guild.channels.create({
+                name: `Team B-${this.matchNumber}`,
+                type: ChannelType.GuildVoice,
+                permissionOverwrites: getVCPerms(teamBRole),
+                position: 0,
+                parent: tokens.MatchCategory,
+                reason: 'Create vc for team b',
+            });
+            this.teamBVCid = teamBVC.id;
+
             let teamAStr = "";
             let teamBStr = "";
             for (let player of this.users) {
@@ -1756,6 +1778,14 @@ export class GameController {
         if (!this.cleanedUp && !this.abandoned) {
             await this.sendScoreEmbed();
         }
+        queue.queue(async () => {
+            const vc = await this.guild.channels.fetch(this.teamAVCid);
+            await vc?.delete();
+        });
+        queue.queue(async () => {
+            const vc = await this.guild.channels.fetch(this.teamBVCid);
+            await vc?.delete();
+        })
     }
 
     async sendScoreEmbed() {

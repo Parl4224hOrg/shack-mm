@@ -73,8 +73,10 @@ class Serializer {
             voteChannelsGen: toSerialize.voteChannelsGen,
             teamAChannelId: toSerialize.teamAChannelId,
             teamARoleId: toSerialize.teamARoleId,
+            teamAVCid: toSerialize.teamAVCid,
             teamBChannelId: toSerialize.teamBChannelId,
             teamBRoleId: toSerialize.teamBRoleId,
+            teamBVCid: toSerialize.teamBVCid,
             voteA1MessageId: toSerialize.voteA1MessageId,
             voteB1MessageId: toSerialize.voteB1MessageId,
             voteA2MessageId: toSerialize.voteA2MessageId,
@@ -226,8 +228,10 @@ class Serializer {
         game.voteChannelsGen = parsed.voteChannelsGen;
         game.teamAChannelId = parsed.teamAChannelId;
         game.teamARoleId = parsed.teamARoleId;
+        game.teamAVCid = parsed.teamAVCid;
         game.teamBChannelId = parsed.teamBChannelId;
         game.teamBRoleId = parsed.teamBRoleId;
+        game.teamBVCid = parsed.teamBVCid;
         game.voteA1MessageId = parsed.voteA1MessageId;
         game.voteB1MessageId = parsed.voteB1MessageId;
         game.voteA2MessageId = parsed.voteA2MessageId;
