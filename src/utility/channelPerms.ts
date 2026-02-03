@@ -70,7 +70,6 @@ export const getVCPerms = (role: Role | string): OverwriteResolvable[] => {
     perms.push(vcModPerms, vcDenyEverybody, mutedPerms);
 
     return perms;
-
 }
 
 const modPerms: OverwriteResolvable = {
