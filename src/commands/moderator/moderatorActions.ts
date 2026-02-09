@@ -7,6 +7,14 @@ import {ActionEmbed} from "../../embeds/ModEmbeds";
 import {MessageFlagsBitField, SlashCommandBooleanOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {getUserByUser} from "../../modules/getters/getUser";
 
+function chunk<T>(array: T[], size = 20): T[][] {
+    const result: T[][] = [];
+    for (let i = 0; i < array.length; i += size) {
+        result.push(array.slice(i, i + size));
+    }
+    return result;
+}
+
 export const moderatorActions: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
         .setName("moderator_actions")
@@ -26,9 +34,11 @@ export const moderatorActions: SubCommand = {
             const actions = await ActionModel.find({
                 userId: user.id,
                 modId: { $ne: shackBotId }
-            }).sort({ time: -1 }).limit(20);
+            }).sort({ time: -1 });
 
-            await interaction.reply({flags: visible, content: `Showing last 20 moderator infractions (not warnings) for ${user.username}`, embeds: [ActionEmbed(actions, dbUser)]});
+            const chunks = chunk(actions, 20);
+
+            await interaction.reply({flags: visible, content: `Showing last 20 moderator infractions (not warnings) for ${user.username}`, embeds: chunks.map(chunk => ActionEmbed(chunk, dbUser))});
         } catch (e) {
             await logError(e, interaction);
         }
