@@ -38,7 +38,11 @@ export const moderatorActions: SubCommand = {
 
             const chunks = chunk(actions, 20);
 
-            await interaction.reply({flags: visible, content: `Showing last 20 moderator infractions (not warnings) for ${user.username}`, embeds: chunks.map(chunk => ActionEmbed(chunk, dbUser))});
+            await interaction.reply({flags: visible, content: `Showing infractions against ${user.username} in groups of 20.`});
+
+            for (const chunk of chunks) {
+                await interaction.followUp({flags: visible, embeds: [ActionEmbed(chunk, dbUser)]});
+            }
         } catch (e) {
             await logError(e, interaction);
         }
