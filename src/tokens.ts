@@ -59,6 +59,7 @@ export default {
     ManualRoleLogChannel: "1342254281524514918",
     LateLogChannel: "1435767496782118932",
     InfoChannel: "1152654652484104212",
+    PotentialAltsChannel: "1471543218146513027",
     // constants
     ApplyLates: true,
     ApplyNewLates: true,

@@ -20,7 +20,7 @@ export const handleRegister = async (name: string, user: User, data: Data, guild
     if (matchedNames.length > 1) {
         dbUser.frozen = true;
         await updateUser(dbUser, data);
-        const channel = await guild.channels.fetch(tokens.ModChannel) as TextChannel;
+        const channel = await guild.channels.fetch(tokens.PotentialAltsChannel) as TextChannel;
         await channel.send({
             content: `<@${dbUser.id}> has registered with an already registered name ${dbUser.oculusName} they have been frozen and instructed to make a ticket\n<@&${tokens.ModRole}>`,
             allowedMentions: {roles: [tokens.ModRole]}
