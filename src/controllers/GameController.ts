@@ -339,6 +339,9 @@ export class GameController {
             return;
         }
 
+        this.serverScoreA = -1;
+        this.serverScoreB = -1;
+
         this.scorePollRunning = true;
 
         const pollOnce = async () => {
@@ -1574,11 +1577,12 @@ export class GameController {
     }
 
     async resetSND() {
-        this.gameStarted = true;
-        if (this.server != null) {
-            await this.startOrRestartScorePolling();
+        if (!this.server) {
+            return
         }
-        return this.server!.resetSND();
+        await this.server.resetSND();
+        await this.startOrRestartScorePolling();
+        this.gameStarted = true;
     }
 
     async confirmScoreSubmit() {
