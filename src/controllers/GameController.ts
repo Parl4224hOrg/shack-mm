@@ -1791,7 +1791,7 @@ export class GameController {
 
     getMissing() {
         let missingStr = '';
-        for (let user of this.users) {
+        for (let user of this.users.sort((a, b) => a.discordId.localeCompare(b.discordId))) {
             if (!user.accepted) {
                 missingStr += `<@${user.discordId}>  `;
             }
