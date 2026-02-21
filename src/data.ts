@@ -22,6 +22,7 @@ import {GameServer} from "./server/server";
 import {getServerRegion, registerMaps} from "./utility/match";
 import serializer from "./serializers/serializer";
 import MapTestModel from "./database/models/MapTestModel";
+import mapTestModel from "./database/models/MapTestModel";
 import fs from "fs";
 import {join} from "path";
 
@@ -129,13 +130,13 @@ export class Data {
                 const message = await channel.messages.fetch(mapTest.messageId);
                 await message.delete();
                 mapTest.deleted = true;
-                await MapTestModel.findByIdAndUpdate(mapTest._id, mapTest);
+                await mapTestModel.findByIdAndUpdate(mapTest._id, mapTest);
             } catch (e) {
                 await logWarn(`Failed to delete message for map test (${mapTest.id})`, this.client);
             }
         }
 
-        const mapTestsToNotify = await MapTestModel.find({time: {"$lte": moment().unix() + 3600 * 2}, pinged: false, deleted: false});
+        const mapTestsToNotify = await MapTestModel.find({time: {"$lte": moment().unix() + 3600 * 2}, pinged: false});
         for (let mapTest of mapTestsToNotify) {
             for (let player of mapTest.players) {
                 const user = await this.client.users.fetch(player);
@@ -147,31 +148,7 @@ export class Data {
                 }
             }
             mapTest.pinged = true;
-            await MapTestModel.findByIdAndUpdate(mapTest._id, mapTest);
-        }
-
-        const shouldQueueBeLocked = await MapTestModel.find({
-            time: {
-                "$lte": moment().unix() + 60 * 30,
-                "$gte": moment().unix() - 60 * 30
-            },
-            deleted: false
-        }).countDocuments();
-
-        if (shouldQueueBeLocked > 0) {
-            if (!this.FILL_SND.locked) {
-                this.FILL_SND.locked = true;
-                const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
-                await channel.send("Queue is locked for a play test.");
-                await channel.setRateLimitPerUser(120, "set slow mode for map test");
-            }
-        } else {
-            if (this.FILL_SND.locked) {
-                this.FILL_SND.locked = false;
-                const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
-                await channel.send("Queue is unlocked from play tests.");
-                await channel.setRateLimitPerUser(0, "remove slow mode for map test");
-            }
+            await mapTestModel.findByIdAndUpdate(mapTest._id, mapTest);
         }
     }
 
