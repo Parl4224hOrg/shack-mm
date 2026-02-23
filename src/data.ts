@@ -152,8 +152,8 @@ export class Data {
 
         const shouldQueueBeLocked = await MapTestModel.find({
             time: {
-                "$lte": moment().unix() + 60 * 30,
-                "$gte": moment().unix() - 60 * 30
+                "$lte": now + 60 * 19,
+                "$gte": now - 60 * 29
             },
             deleted: false
         }).countDocuments();
