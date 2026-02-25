@@ -5,6 +5,7 @@ import {Data} from "../data";
 import {updateUser} from "../modules/updaters/updateUser";
 import tokens from "../tokens";
 import userModel from "../database/models/UserModel";
+import moment from "moment";
 
 export const handleRegister = async (name: string, user: User, data: Data, guild: Guild): Promise<InternalResponse> => {
 
@@ -20,9 +21,21 @@ export const handleRegister = async (name: string, user: User, data: Data, guild
     if (matchedNames.length > 1) {
         dbUser.frozen = true;
         await updateUser(dbUser, data);
+        const now = moment().unix();
+        let otherAccounts = "";
+        for (const matchedName of matchedNames) {
+            if (matchedName.id != dbUser.id) {
+                otherAccounts += `\n<@${matchedName.id}>: Frozen: ${matchedName.frozen}, Muted: ${matchedName.muteUntil > now ? `<t:${matchedName.muteUntil}:F>` : matchedName.muteUntil < 0 ? "Perma" : "No"}`;
+            }
+        }
+
         const channel = await guild.channels.fetch(tokens.PotentialAltsChannel) as TextChannel;
         await channel.send({
-            content: `<@${dbUser.id}> has registered with an already registered name ${dbUser.oculusName} they have been frozen and instructed to make a ticket\n<@&${tokens.ModRole}>`,
+            content: `
+            <@${dbUser.id}> has registered with an already registered name ${dbUser.oculusName} they have been frozen and instructed to make a ticket\n<@&${tokens.ModRole}>
+            Name: ${name}
+            Other Accounts:${otherAccounts}   
+            `,
             allowedMentions: {roles: [tokens.ModRole]}
         });
         return {
