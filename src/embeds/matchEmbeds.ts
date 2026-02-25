@@ -158,7 +158,8 @@ export const gameEmbed = (game: GameController) => {
     } else {
         let accepted = "";
         let noAccepted = "";
-        for (let user of game.users.sort((a, b) => a.discordId.localeCompare(b.discordId))) {
+        const sortedUsers = [...game.users].sort((a, b) => a.discordId.localeCompare(b.discordId));
+        for (let user of sortedUsers) {
             if (user.accepted) {
                 accepted += `<@${user.discordId}>\n`;
             } else {
