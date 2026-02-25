@@ -1,5 +1,5 @@
 import {ChannelType, VoiceState, StageInstancePrivacyLevel} from "discord.js";
-import {logWarn} from "../loggers";
+import {logInfo, logWarn} from "../loggers";
 import {Data} from "../data";
 import tokens from "../tokens";
 
@@ -18,6 +18,7 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
                     isSpeaker = true;
                 }
             }
+            await logInfo(`${newState.member?.id}: IsSpeaker: ${isSpeaker} IsMod: ${isMod}`, data.client);
             const isStage = newState.channel.type == ChannelType.GuildStageVoice;
             if (isStage && newState.requestToSpeakTimestamp == null) {
                 if (isSpeaker && newState.suppress && !newState.channel.stageInstance) {
