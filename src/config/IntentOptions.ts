@@ -7,6 +7,7 @@ export const IntentOptions = [
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildVoiceStates,
 ]
 
 export const PartialsOptions = [
