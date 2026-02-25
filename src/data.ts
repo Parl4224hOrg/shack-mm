@@ -159,15 +159,15 @@ export class Data {
         }).countDocuments();
 
         if (shouldQueueBeLocked > 0) {
-            if (!this.FILL_SND.locked) {
-                this.FILL_SND.locked = true;
+            if (!this.FILL_SND.playtestLocked) {
+                this.FILL_SND.playtestLocked = true;
                 const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
                 await channel.send("Queue is locked for a play test.");
                 await channel.setRateLimitPerUser(120, "set slow mode for map test");
             }
         } else {
-            if (this.FILL_SND.locked) {
-                this.FILL_SND.locked = false;
+            if (this.FILL_SND.playtestLocked) {
+                this.FILL_SND.playtestLocked = false;
                 const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
                 await channel.send("Queue is unlocked from play tests.");
                 await channel.setRateLimitPerUser(0, "remove slow mode for map test");
@@ -511,10 +511,7 @@ export class Data {
             return {success: false, message: `You must set a region in <#${tokens.RegionSelect}> before you can play`}
         }
         const queueController = this.getQueue();
-        if (!queueController.locked) {
-            return await queueController.addUser(dbUser, time);
-        }
-        return {success: false, message: "This queue is currently locked"}
+        return await queueController.addUser(dbUser, time);
     }
 
     async addPingMe(queueId: string, queue: string, user: User, inQueue: number, expire_time: number) {

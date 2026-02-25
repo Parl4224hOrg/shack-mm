@@ -45,6 +45,7 @@ export class QueueController {
     activeAutoQueue = false;
     public mapData: MapData[] = [];
     public locked = false;
+    public playtestLocked = false;
 
     // Queues For awaited actions
     private dmQueue = new RateLimitedQueue(1, 500);
@@ -99,6 +100,12 @@ export class QueueController {
     }
 
     async addUser(user: UserInt, time: number, checkGame: boolean = true, byPassAutoQueueCheck: boolean = false): Promise<InternalResponse> {
+        if (this.locked) {
+            return {success: false, message: "The queue is currently locked, please try again later"};
+        }
+        if (this.playtestLocked) {
+            return {success: false, message: "The queue is currently locked for a playtest, please try again later"};
+        }
         if (user.banUntil > moment().unix()) {
             return {success: false, message: `You are currently banned for another ${grammaticalTime(user.banUntil - moment().unix())}`};
         }

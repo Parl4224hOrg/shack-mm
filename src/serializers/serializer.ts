@@ -134,6 +134,7 @@ class Serializer {
             generating: toSerialize.generating,
             mapData: toSerialize.mapData,
             locked: toSerialize.locked,
+            playtestLocked: toSerialize.playtestLocked,
         });
     }
 
@@ -295,6 +296,7 @@ class Serializer {
         queue.generating = parsed.generating;
         queue.mapData = parsed.mapData;
         queue.locked = parsed.locked;
+        queue.playtestLocked = parsed.playtestLocked;
         console.log("Successfully loaded queue")
 
         return queue;
