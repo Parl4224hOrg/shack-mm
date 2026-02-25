@@ -60,6 +60,7 @@ export default {
     LateLogChannel: "1435767496782118932",
     InfoChannel: "1152654652484104212",
     PotentialAltsChannel: "1471543218146513027",
+    MatchChannelSpeakRole: "1476073323673817108",
     // constants
     ApplyLates: true,
     ApplyNewLates: true,

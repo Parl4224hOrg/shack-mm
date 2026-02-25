@@ -39,9 +39,17 @@ export const getMatchPerms = (role: Role | string): OverwriteResolvable[] => {
         type: 0,
     });
 
-    perms.push(modPerms, denyEverybody, mutedPerms);
+    perms.push(modPerms, denyEverybody, mutedPerms, MatchSpeakPerms);
 
     return perms;
+}
+
+const MatchSpeakPerms: OverwriteResolvable = {
+    id: tokens.MatchChannelSpeakRole,
+    allow: [
+        PermissionsBitField.Flags.SendMessages
+    ],
+    type: 0,
 }
 
 const modPerms: OverwriteResolvable = {
