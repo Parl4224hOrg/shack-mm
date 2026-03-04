@@ -31,6 +31,25 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
                 } else if (isSpeaker && newState.suppress) {
                     await newState.setSuppressed(false);
                 }
+
+                if (isSpeaker) {
+                    const botMember = newState.guild.members.me;
+                    if (botMember) {
+                        const memberSpeakers = newState.channel.members.filter((member) => {
+                            const voiceState = member.voice;
+                            return !member.user.bot && !voiceState.suppress && voiceState.channelId == newState.channelId;
+                        });
+
+                        if (memberSpeakers.size == 1 && memberSpeakers.has(newState.member!.id)) {
+                            if (botMember.voice.channelId != newState.channelId) {
+                                await botMember.voice.setChannel(newState.channel);
+                            }
+                            if (botMember.voice.suppress) {
+                                await botMember.voice.setSuppressed(false);
+                            }
+                        }
+                    }
+                }
             }
 
             if (!canJoin && !isMod && !isSpeaker) {
@@ -50,7 +69,34 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
 
             }
         }
+
+        await leaveIfBotOnlySpeaker(oldState, newState);
     } catch (e) {
         await logWarn(`voiceUpdateError:\n${e}`, oldState.client);
+    }
+}
+
+const leaveIfBotOnlySpeaker = async (oldState: VoiceState, newState: VoiceState) => {
+    const stageCandidates = [newState.channel, oldState.channel].filter(
+        (channel) => channel?.type == ChannelType.GuildStageVoice
+    );
+
+    for (const stage of stageCandidates) {
+        const botMember = stage.guild.members.me;
+        if (!botMember || botMember.voice.channelId != stage.id) {
+            continue;
+        }
+
+        const unsuppressedMembers = stage.members.filter((member) => !member.voice.suppress);
+        const botIsOnlySpeaker = unsuppressedMembers.size == 1 && unsuppressedMembers.has(botMember.id);
+        if (!botIsOnlySpeaker) {
+            continue;
+        }
+
+        if (stage.stageInstance) {
+            await stage.stageInstance.delete();
+        }
+
+        await botMember.voice.disconnect();
     }
 }
