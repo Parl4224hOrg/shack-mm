@@ -32,14 +32,40 @@ export const ticketDelete: Command = {
                 }
             }
 
-            let message = "Tickets to Delete:";
+            const lines = ["Tickets to Delete:"];
             for (let i = 0; i < 100; i++) {
                 const ticket = maxHeap.remove();
                 if (!ticket) break;
                 // await interaction.guild!.channels.delete(ticket.channelId);
-                message += `\n<#${ticket.channelId}>`;
+                lines.push(`<#${ticket.channelId}>`);
             }
-            await interaction.followUp(message);
+
+            const maxLength = 1800;
+            const messages: string[] = [];
+            let currentMessage = "";
+
+            for (const line of lines) {
+                const candidate = currentMessage.length > 0
+                    ? `${currentMessage}\n${line}`
+                    : line;
+
+                if (candidate.length > maxLength) {
+                    if (currentMessage.length > 0) {
+                        messages.push(currentMessage);
+                    }
+                    currentMessage = line;
+                } else {
+                    currentMessage = candidate;
+                }
+            }
+
+            if (currentMessage.length > 0) {
+                messages.push(currentMessage);
+            }
+
+            for (const message of messages) {
+                await interaction.followUp(message);
+            }
         } catch (e) {
             await logError(e, interaction);
         }
