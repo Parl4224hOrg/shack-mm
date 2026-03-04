@@ -7,20 +7,12 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
     try {
         if (newState.channel) {
             const canJoin = data.canJoinStream(newState.member!.id);
-            let isMod = false;
-            let isSpeaker = false;
-            for (let role of newState.member!.roles.cache) {
-                if (tokens.Mods.includes(role[0])) {
-                    isMod = true;
-                    break;
-                }
-                if (tokens.StreamerRole == role[0]) {
-                    isSpeaker = true;
-                }
-            }
+            const roleIds = newState.member!.roles.cache.map((role) => role.id);
+            const isMod = roleIds.some((roleId) => tokens.Mods.includes(roleId));
+            const isSpeaker = roleIds.includes(tokens.StreamerRole);
             await logInfo(`${newState.member?.id}: IsSpeaker: ${isSpeaker} IsMod: ${isMod}`, data.client);
             const isStage = newState.channel.type == ChannelType.GuildStageVoice;
-            if (isStage && newState.requestToSpeakTimestamp == null) {
+            if (isStage) {
                 if (isSpeaker && newState.suppress && !newState.channel.stageInstance) {
                     await newState.channel.createStageInstance({
                         privacyLevel: StageInstancePrivacyLevel.GuildOnly,
@@ -35,17 +27,20 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
                 if (isSpeaker) {
                     const botMember = newState.guild.members.me;
                     if (botMember) {
-                        const memberSpeakers = newState.channel.members.filter((member) => {
-                            const voiceState = member.voice;
-                            return !member.user.bot && !voiceState.suppress && voiceState.channelId == newState.channelId;
+                        const streamerMembers = newState.channel.members.filter((member) => {
+                            const hasStreamerRole = member.roles.cache.has(tokens.StreamerRole);
+                            return !member.user.bot && hasStreamerRole && member.voice.channelId == newState.channelId;
                         });
 
-                        if (memberSpeakers.size == 1 && memberSpeakers.has(newState.member!.id)) {
+                        if (streamerMembers.size == 1 && streamerMembers.has(newState.member!.id)) {
                             if (botMember.voice.channelId != newState.channelId) {
                                 await botMember.voice.setChannel(newState.channel);
                             }
-                            if (botMember.voice.suppress) {
-                                await botMember.voice.setSuppressed(false);
+
+                            await newState.guild.members.fetchMe();
+                            const refreshedBotMember = newState.guild.members.me;
+                            if (refreshedBotMember && refreshedBotMember.voice.suppress) {
+                                await refreshedBotMember.voice.setSuppressed(false);
                             }
                         }
                     }
@@ -54,19 +49,6 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
 
             if (!canJoin && !isMod && !isSpeaker) {
                 await newState.disconnect("Joined opposing team's stage");
-            }
-        } else {
-            if (!oldState.channel) {
-                return;
-            }
-            if (oldState.channel.type == ChannelType.GuildStageVoice) {
-                if (oldState.channel.stageInstance) {
-                    const extracted = oldState.channel.stageInstance.topic.split(" Match")[0]
-                    if (extracted.slice(0, extracted.length - 2) == oldState.member!.displayName) {
-                        await oldState.channel.stageInstance.delete();
-                    }
-                }
-
             }
         }
 
