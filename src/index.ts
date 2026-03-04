@@ -30,10 +30,10 @@ const main = async () => {
         "messageCreate",
         async (message) => await onMessage(message)
     );
-    BOT.on(
-        "voiceStateUpdate",
-        async (oldState, newState) => await onVoiceUpdate(oldState, newState, data)
-    );
+    // BOT.on(
+    //     "voiceStateUpdate",
+    //     async (oldState, newState) => await onVoiceUpdate(oldState, newState, data)
+    // );
     BOT.on(
         "guildMemberUpdate",
         async (oldMember, newMember) => await onMemberUpdate(oldMember, newMember),

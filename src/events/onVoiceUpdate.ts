@@ -50,14 +50,7 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
                                 }
                             }
 
-                            try {
-                                const refreshedBotMember = await newState.guild.members.fetchMe();
-                                if (refreshedBotMember.voice.suppress) {
-                                    await refreshedBotMember.voice.setSuppressed(false);
-                                }
-                            } catch (e) {
-                                await logWarn(`voiceUpdateWarn: Bot failed to unsuppress in stage ${newState.channel.id}: ${e}`, newState.client);
-                            }
+                            await unsuppressBotWithRetry(newState);
                         }
                     }
 
@@ -92,6 +85,36 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
     } catch (e) {
         await logWarn(`voiceUpdateError:\n${e}`, oldState.client);
     }
+}
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const unsuppressBotWithRetry = async (newState: VoiceState) => {
+    for (let attempt = 1; attempt <= 6; attempt++) {
+        try {
+            const refreshedBotMember = await newState.guild.members.fetchMe();
+            const inTargetChannel = refreshedBotMember.voice.channelId == newState.channelId;
+            if (inTargetChannel && refreshedBotMember.voice.suppress) {
+                await refreshedBotMember.voice.setSuppressed(false);
+            }
+
+            if (inTargetChannel && !refreshedBotMember.voice.suppress) {
+                return;
+            }
+        } catch (e) {
+            await logWarn(
+                `voiceUpdateWarn: Bot unsuppress attempt ${attempt} failed in stage ${newState.channel?.id}: ${e}`,
+                newState.client
+            );
+        }
+
+        await delay(600);
+    }
+
+    await logWarn(
+        `voiceUpdateWarn: Bot remained suppressed after retries in stage ${newState.channel?.id}`,
+        newState.client
+    );
 }
 
 const leaveIfBotOnlySpeaker = async (oldState: VoiceState, newState: VoiceState) => {
