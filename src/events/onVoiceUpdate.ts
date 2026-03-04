@@ -13,35 +13,62 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
             await logInfo(`${newState.member?.id}: IsSpeaker: ${isSpeaker} IsMod: ${isMod}`, data.client);
             const isStage = newState.channel.type == ChannelType.GuildStageVoice;
             if (isStage) {
-                if (isSpeaker && newState.suppress && !newState.channel.stageInstance) {
-                    await newState.channel.createStageInstance({
-                        privacyLevel: StageInstancePrivacyLevel.GuildOnly,
-                        sendStartNotification: false,
-                        topic: `${newState.member!.displayName}'s Match Stream`,
-                    });
-                    await newState.setSuppressed(false);
-                } else if (isSpeaker && newState.suppress) {
-                    await newState.setSuppressed(false);
-                }
-
                 if (isSpeaker) {
-                    const botMember = newState.guild.members.me;
-                    if (botMember) {
-                        const streamerMembers = newState.channel.members.filter((member) => {
-                            const hasStreamerRole = member.roles.cache.has(tokens.StreamerRole);
-                            return !member.user.bot && hasStreamerRole && member.voice.channelId == newState.channelId;
-                        });
+                    const streamerMembers = newState.channel.members.filter((member) => {
+                        const hasStreamerRole = member.roles.cache.has(tokens.StreamerRole);
+                        return !member.user.bot && hasStreamerRole && member.voice.channelId == newState.channelId;
+                    });
 
-                        if (streamerMembers.size == 1 && streamerMembers.has(newState.member!.id)) {
+                    const isFirstStreamerInChannel = streamerMembers.size == 1 && streamerMembers.has(newState.member!.id);
+                    if (isFirstStreamerInChannel) {
+                        let botMember = newState.guild.members.me;
+                        if (!botMember) {
+                            try {
+                                botMember = await newState.guild.members.fetchMe();
+                            } catch (e) {
+                                await logWarn(`voiceUpdateWarn: Unable to fetch bot member: ${e}`, newState.client);
+                            }
+                        }
+
+                        if (botMember) {
                             if (botMember.voice.channelId != newState.channelId) {
-                                await botMember.voice.setChannel(newState.channel);
+                                try {
+                                    await botMember.voice.setChannel(newState.channel);
+                                    await logInfo(`Bot joined stage ${newState.channel.id}`, data.client);
+                                } catch (e) {
+                                    await logWarn(`voiceUpdateWarn: Bot failed to join stage ${newState.channel.id}: ${e}`, newState.client);
+                                }
                             }
 
-                            await newState.guild.members.fetchMe();
-                            const refreshedBotMember = newState.guild.members.me;
-                            if (refreshedBotMember && refreshedBotMember.voice.suppress) {
-                                await refreshedBotMember.voice.setSuppressed(false);
+                            try {
+                                const refreshedBotMember = await newState.guild.members.fetchMe();
+                                if (refreshedBotMember.voice.suppress) {
+                                    await refreshedBotMember.voice.setSuppressed(false);
+                                    await logInfo(`Bot unsuppressed in stage ${newState.channel.id}`, data.client);
+                                }
+                            } catch (e) {
+                                await logWarn(`voiceUpdateWarn: Bot failed to unsuppress in stage ${newState.channel.id}: ${e}`, newState.client);
                             }
+                        }
+                    }
+
+                    if (!newState.channel.stageInstance) {
+                        try {
+                            await newState.channel.createStageInstance({
+                                privacyLevel: StageInstancePrivacyLevel.GuildOnly,
+                                sendStartNotification: false,
+                                topic: `${newState.member!.displayName}'s Match Stream`,
+                            });
+                        } catch (e) {
+                            await logWarn(`voiceUpdateWarn: Failed to create stage instance ${newState.channel.id}: ${e}`, newState.client);
+                        }
+                    }
+
+                    if (newState.suppress) {
+                        try {
+                            await newState.setSuppressed(false);
+                        } catch (e) {
+                            await logWarn(`voiceUpdateWarn: Failed to unsuppress streamer ${newState.member!.id}: ${e}`, newState.client);
                         }
                     }
                 }
