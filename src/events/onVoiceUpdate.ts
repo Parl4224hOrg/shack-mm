@@ -1,4 +1,5 @@
 import {ChannelType, VoiceState, StageInstancePrivacyLevel} from "discord.js";
+import {getVoiceConnection, joinVoiceChannel} from "@discordjs/voice";
 import {logInfo, logWarn} from "../loggers";
 import {Data} from "../data";
 import tokens from "../tokens";
@@ -33,7 +34,18 @@ export const onVoiceUpdate = async (oldState: VoiceState, newState: VoiceState, 
                         if (botMember) {
                             if (botMember.voice.channelId != newState.channelId) {
                                 try {
-                                    await botMember.voice.setChannel(newState.channel);
+                                    const existingConnection = getVoiceConnection(newState.guild.id);
+                                    if (existingConnection) {
+                                        existingConnection.destroy();
+                                    }
+
+                                    joinVoiceChannel({
+                                        channelId: newState.channel.id,
+                                        guildId: newState.guild.id,
+                                        adapterCreator: newState.guild.voiceAdapterCreator,
+                                        selfDeaf: false,
+                                        selfMute: false,
+                                    });
                                     await logInfo(`Bot joined stage ${newState.channel.id}`, data.client);
                                 } catch (e) {
                                     await logWarn(`voiceUpdateWarn: Bot failed to join stage ${newState.channel.id}: ${e}`, newState.client);
@@ -106,6 +118,11 @@ const leaveIfBotOnlySpeaker = async (oldState: VoiceState, newState: VoiceState)
             await stage.stageInstance.delete();
         }
 
-        await botMember.voice.disconnect();
+        const connection = getVoiceConnection(stage.guild.id);
+        if (connection) {
+            connection.destroy();
+        } else {
+            await botMember.voice.disconnect();
+        }
     }
 }
