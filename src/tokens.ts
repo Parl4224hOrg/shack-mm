@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import messages from "./messages.json";
 import {Regions} from "./database/models/UserModel";
+
 dotenv.config();
 
 
@@ -61,6 +62,7 @@ export default {
     InfoChannel: "1152654652484104212",
     PotentialAltsChannel: "1471543218146513027",
     MatchChannelSpeakRole: "1476073323673817108",
+    TicketArchiveCategories: ["1393696992147804270", "1393697034636234882", "1393697108845924413", "1422649614737080330", "1422649663026237530", "1422649703043956806", "1422649735159746570", "1422649780617871531"],
     // constants
     ApplyLates: true,
     ApplyNewLates: true,
@@ -104,7 +106,7 @@ export default {
         {name: 'Copper', threshold: 1150, max: 1149, roleId: '1152659149017075894'}, // 2
         {name: 'Wood', threshold: -99999, max: 1149, roleId: '1152691861186682880'}], // 1
     RankRoles: ['1152692826669326398', '1152692676035088464', '1152692485332664411', '1152692439342141531', '1152692319749931050',
-    '1152692197439836331', '1152692103256744086', '1152659149017075894', '1152691861186682880'],
+        '1152692197439836331', '1152692103256744086', '1152659149017075894', '1152691861186682880'],
     RankedRole: '1225164446263939203',
     // messages
     AcceptMessage: messages.acceptMessage,
@@ -136,7 +138,7 @@ export default {
             name: "NAW-ONE shackmm.com",
             id: "SMM-NAW-ONE",
             region: Regions.NAW,
-        },{
+        }, {
             ip: "40.160.225.32",
             port: 9100,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
@@ -144,7 +146,7 @@ export default {
             id: "SMM-NAC-ONE",
             region: Regions.NAC,
         }
-        ,{
+        , {
             ip: "40.160.225.32",
             port: 9101,
             password: process.env.RCON_PASS ?? "NO PASSWORD",
