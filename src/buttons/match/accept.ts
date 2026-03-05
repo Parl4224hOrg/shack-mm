@@ -41,6 +41,7 @@ const flushMessageEmbedEdit = async (message: Message, acceptCount: number) => {
                 await flushMessageEmbedEdit(message, acceptCount);
             }, EDIT_COOLDOWN - elapsed);
         }
+        return;
     }
 
     const nextEmbed = state.pendingEmbed;
@@ -59,10 +60,11 @@ const flushMessageEmbedEdit = async (message: Message, acceptCount: number) => {
 const updateAcceptMessage = async (message: Message, embed: APIEmbed, acceptCount: number) => {
     const state = editStates.get(message.id) ?? {
         lastEditAt: 0,
-        acceptCount: 0,
+        lastAcceptCount: 0,
         pendingEmbed: null,
         timer: null,
     };
+    editStates.set(message.id, state);
 
     state.pendingEmbed = embed;
 
