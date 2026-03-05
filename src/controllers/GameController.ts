@@ -11,7 +11,7 @@ import {acceptView} from "../views/acceptView";
 import {abandon, punishment} from "../utility/punishment";
 import {voteA1, voteA2, voteB1, voteB2} from "../views/voteViews";
 import {acceptScore, initialSubmit, initialSubmitServer, scorePromptView} from "../views/submitScoreViews";
-import {matchConfirmEmbed, matchFinalEmbed, matchScorePrompt, teamsEmbed} from "../embeds/matchEmbeds";
+import {gameEmbed, matchConfirmEmbed, matchFinalEmbed, matchScorePrompt, teamsEmbed} from "../embeds/matchEmbeds";
 import {GameData, InternalResponse} from "../interfaces/Internal";
 import {logInfo, logWarn} from "../loggers";
 import {GameUser, ids, Vote} from "../interfaces/Game";
@@ -794,7 +794,8 @@ export class GameController {
 
             const message = await acceptChannel.send({
                 content: `${matchRole.toString()} ${tokens.AcceptMessage}`,
-                components: [acceptView()]
+                components: [acceptView()],
+                embeds: [gameEmbed(this)],
             });
             await message.pin();
             this.acceptMessageId = message.id;
@@ -1163,8 +1164,8 @@ export class GameController {
             );
 
             await Promise.all([
-                teamAChannel.send({files: [winRates]}),
-                teamBChannel.send({files: [winRates]}),
+                teamAChannel.send({files: [winRates], embeds: [gameEmbed(this)]}),
+                teamBChannel.send({files: [winRates], embeds: [gameEmbed(this)]}),
             ]);
 
             const teamAMessage = await teamAChannel.send({

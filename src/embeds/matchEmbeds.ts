@@ -142,7 +142,7 @@ export const gameEmbed = (game: GameController) => {
         }
         let teamATitle = `Team A-${game.sides[0]}`;
         let teamBTitle = `Team B-${game.sides[1]}`;
-        if (game.gameStarted) {
+        if (game.gameStarted && game.serverScoreA >= 0 && game.serverScoreB >= 0) {
             teamATitle += ` Rounds: ${game.serverScoreA}`;
             teamBTitle += ` Rounds: ${game.serverScoreB}`;
         }
