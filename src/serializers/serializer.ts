@@ -289,6 +289,7 @@ class Serializer {
                 mmr: user.mmr,
                 name: user.name,
                 region: user.region as Regions,
+                duoId: user.duoId ? Types.ObjectId.createFromHexString(user.duoId) : undefined,
             });
         }
 

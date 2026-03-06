@@ -15,6 +15,7 @@ export interface QueueUser {
     mmr: number;
     name: string;
     region: Regions;
+    duoId?: Types.ObjectId;
 }
 
 export interface GameUser {

@@ -40,6 +40,7 @@ export interface UserInt extends Document {
     gamesPlayedSinceLates: number;
     canBeFreed: boolean;
     transferred: boolean;
+    duoId?: Types.ObjectId;
 }
 
 export const UserSchema = new Schema({
@@ -74,6 +75,7 @@ export const UserSchema = new Schema({
     gamesPlayedSinceLates: Number,
     canBeFreed: Boolean,
     transferred: Boolean,
+    duoId: Types.ObjectId,
 })
 
 export default model<UserInt>('users', UserSchema)

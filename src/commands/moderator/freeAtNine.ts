@@ -70,6 +70,7 @@ export const freeAtNine: SubCommand = {
                     mmr: stats.mmr,
                     name: dbUser.name,
                     region: dbUser.region,
+                    duoId: dbUser.duoId,
                 });
             }
             // 8. Remove cooldown (do not decrement ban counters)

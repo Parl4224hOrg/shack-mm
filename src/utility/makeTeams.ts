@@ -90,6 +90,12 @@ export const makeTeams = async (users: QueueUser[], client?: Client): Promise<{t
     } catch (e) {
         console.error("Failed to call makeTeamsSplittingBottomTwoPlayers:", e);
     }
+
+    try {
+        await makeTeamsWithDuos(users, client);
+    } catch (e) {
+        console.error("Failed to call makeTeamsWithDuos:", e);
+    }
     
     // Log the comparison
     try {
@@ -106,6 +112,225 @@ export const makeTeams = async (users: QueueUser[], client?: Client): Promise<{t
     
     return {teamA: teamA, teamB: teamB, mmrDiff: bestDiff};
 }
+
+export const makeTeamsWithDuos = async (users: QueueUser[], client?: Client): Promise<{teamA: ids[], teamB: ids[], mmrDiff: number}> => {
+    type Group = {
+        users: QueueUser[];
+        size: number;
+        mmrSum: number;
+    };
+
+    const playerToId = (player: QueueUser): ids => ({
+        db: player.dbId,
+        discord: player.discordId,
+        region: player.region
+    });
+
+    const findBestTeams = (
+        groups: Group[],
+        teamSize: number,
+        fixedA: QueueUser[] = [],
+        fixedB: QueueUser[] = []
+    ): {teamA: QueueUser[], teamB: QueueUser[], mmrDiff: number} | null => {
+        const remainingSizes = new Array(groups.length + 1).fill(0);
+        for (let idx = groups.length - 1; idx >= 0; idx--) {
+            remainingSizes[idx] = remainingSizes[idx + 1] + groups[idx].size;
+        }
+
+        let best: {teamA: QueueUser[], teamB: QueueUser[], mmrDiff: number} | null = null;
+
+        const recurse = (
+            index: number,
+            teamA: QueueUser[],
+            teamB: QueueUser[],
+            sizeA: number,
+            sizeB: number,
+            sumA: number,
+            sumB: number
+        ) => {
+            if (sizeA > teamSize || sizeB > teamSize) {
+                return;
+            }
+
+            const remaining = remainingSizes[index];
+            if (sizeA + remaining < teamSize || sizeB + remaining < teamSize) {
+                return;
+            }
+
+            if (index == groups.length) {
+                if (sizeA !== teamSize || sizeB !== teamSize) {
+                    return;
+                }
+                const diff = Math.abs(sumA - sumB);
+                if (!best || diff < best.mmrDiff) {
+                    best = {
+                        teamA: [...teamA],
+                        teamB: [...teamB],
+                        mmrDiff: diff
+                    };
+                }
+                return;
+            }
+
+            const group = groups[index];
+
+            teamA.push(...group.users);
+            recurse(
+                index + 1,
+                teamA,
+                teamB,
+                sizeA + group.size,
+                sizeB,
+                sumA + group.mmrSum,
+                sumB
+            );
+            teamA.splice(teamA.length - group.size, group.size);
+
+            teamB.push(...group.users);
+            recurse(
+                index + 1,
+                teamA,
+                teamB,
+                sizeA,
+                sizeB + group.size,
+                sumA,
+                sumB + group.mmrSum
+            );
+            teamB.splice(teamB.length - group.size, group.size);
+        };
+
+        const fixedASize = fixedA.length;
+        const fixedBSize = fixedB.length;
+        const fixedASum = fixedA.reduce((sum, player) => sum + player.mmr, 0);
+        const fixedBSum = fixedB.reduce((sum, player) => sum + player.mmr, 0);
+
+        recurse(0, [...fixedA], [...fixedB], fixedASize, fixedBSize, fixedASum, fixedBSum);
+        return best;
+    };
+
+    const userById = new Map<string, QueueUser>();
+    for (const user of users) {
+        userById.set(user.dbId.toString(), user);
+    }
+
+    const usedInDuo = new Set<string>();
+    const duoGroups: Group[] = [];
+    const soloGroups: Group[] = [];
+
+    for (const user of users) {
+        const userId = user.dbId.toString();
+        if (usedInDuo.has(userId)) {
+            continue;
+        }
+
+        const duoId = user.duoId?.toString();
+        if (!duoId) {
+            continue;
+        }
+
+        const partner = userById.get(duoId);
+        if (!partner) {
+            continue;
+        }
+
+        const partnerId = partner.dbId.toString();
+        if (partnerId == userId || usedInDuo.has(partnerId)) {
+            continue;
+        }
+
+        const partnerDuoId = partner.duoId?.toString() || "";
+        const isMutual = partnerDuoId == userId;
+        const withinRange = Math.abs(user.mmr - partner.mmr) <= 100;
+
+        if (!isMutual || !withinRange) {
+            continue;
+        }
+
+        usedInDuo.add(userId);
+        usedInDuo.add(partnerId);
+        duoGroups.push({
+            users: [user, partner],
+            size: 2,
+            mmrSum: user.mmr + partner.mmr
+        });
+    }
+
+    for (const user of users) {
+        const userId = user.dbId.toString();
+        if (!usedInDuo.has(userId)) {
+            soloGroups.push({
+                users: [user],
+                size: 1,
+                mmrSum: user.mmr
+            });
+        }
+    }
+
+    const teamSize = tokens.PlayerCount / 2;
+    let bestResult: {teamA: QueueUser[], teamB: QueueUser[], mmrDiff: number} | null = null;
+
+    const isAllDuos = duoGroups.length == 5 && soloGroups.length == 0 && users.length == 10;
+    if (isAllDuos) {
+        for (let i = 0; i < duoGroups.length; i++) {
+            const splitDuo = duoGroups[i];
+            const remainingGroups = duoGroups.filter((_, index) => index !== i);
+            const [first, second] = splitDuo.users;
+
+            const optionA = findBestTeams(remainingGroups, teamSize, [first], [second]);
+            if (optionA && (!bestResult || optionA.mmrDiff < bestResult.mmrDiff)) {
+                bestResult = optionA;
+            }
+
+            const optionB = findBestTeams(remainingGroups, teamSize, [second], [first]);
+            if (optionB && (!bestResult || optionB.mmrDiff < bestResult.mmrDiff)) {
+                bestResult = optionB;
+            }
+        }
+    } else {
+        bestResult = findBestTeams([...duoGroups, ...soloGroups], teamSize);
+    }
+
+    if (!bestResult) {
+        if (client) {
+            const channel = await client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+            await channel.send("No teams found with duos.");
+        }
+        return {teamA: [], teamB: [], mmrDiff: 0};
+    }
+
+    const teamA = bestResult.teamA.map(playerToId);
+    const teamB = bestResult.teamB.map(playerToId);
+
+    if (client) {
+        try {
+            const channel = await client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+            const embed = new EmbedBuilder();
+            embed.setTitle("Teams Generated With Duos");
+            embed.setDescription(`MMR Difference: ${bestResult.mmrDiff}`);
+
+            let teamAStr = "";
+            let teamBStr = "";
+            bestResult.teamA.forEach(user => teamAStr += `<@${user.discordId}> `);
+            bestResult.teamB.forEach(user => teamBStr += `<@${user.discordId}> `);
+
+            embed.addFields(
+                {name: "Team A", value: teamAStr || "N/A", inline: true},
+                {name: "Team B", value: teamBStr || "N/A", inline: true}
+            );
+
+            for (const group of duoGroups) {
+                const duoStr = group.users.map(user => `<@${user.discordId}>`).join(", ");
+                embed.addFields({name: "Duo", value: duoStr, inline: false});
+            }
+
+            await channel.send({embeds: [embed.toJSON()]});
+        } catch (e) {
+            console.error("Failed to log duo team generation:", e);
+        }
+    }
+
+    return {teamA, teamB, mmrDiff: bestResult.mmrDiff};
+};
 
 export const makeTeamsSplittingBottomTwoPlayers = async (users: QueueUser[], client?: Client): Promise<{teamA: ids[], teamB: ids[], mmrDiff: number}> => {
     // Sort users by MMR (ELO) in ascending order (lowest first)

@@ -137,6 +137,7 @@ export class QueueController {
             mmr: stats.mmr,
             name: user.name,
             region: user.region,
+            duoId: user.duoId,
         });
         const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
         await channel.send(`${user.name} has readied up for ${time} minutes`);
