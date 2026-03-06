@@ -5,6 +5,7 @@ import {getUserByUser} from "../../modules/getters/getUser";
 import {MessageFlagsBitField} from "discord.js";
 import {userOption} from "../../utility/options";
 import {updateUser} from "../../modules/updaters/updateUser";
+import {getStats} from "../../modules/getters/getStats";
 
 export const setDuo: Command = {
     data: new SlashCommandBuilder()
@@ -19,6 +20,29 @@ export const setDuo: Command = {
             if (dbUser._id.equals(partner._id)) {
                 await interaction.reply({
                     content: "You cannot set yourself as your duo",
+                    flags: MessageFlagsBitField.Flags.Ephemeral,
+                });
+                return;
+            }
+            const invokerStats = await getStats(dbUser._id, "SND");
+            const targetStats = await getStats(partner._id, "SND");
+            if (invokerStats.gamesPlayed <= 10) {
+                await interaction.reply({
+                    content: "You cannot set a duo with less than 10 games played",
+                    flags: MessageFlagsBitField.Flags.Ephemeral,
+                });
+                return;
+            }
+            if (targetStats.gamesPlayed <= 10) {
+                await interaction.reply({
+                    content: "You cannot a set a duo with a user who has less than 10 games played",
+                    flags: MessageFlagsBitField.Flags.Ephemeral,
+                });
+                return;
+            }
+            if (Math.abs(invokerStats.mmr - targetStats.mmr) >= 100) {
+                await interaction.reply({
+                    content: "You cannot set a duo with a mmr difference of more than 100",
                     flags: MessageFlagsBitField.Flags.Ephemeral,
                 });
                 return;
