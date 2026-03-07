@@ -859,6 +859,7 @@ export class GameController {
             const punishmentAcceptFail = acceptFail || isAcceptPhaseAbandon;
 
             this.server?.unregisterServer();
+            this.serverId = "";
             this.server = null;
 
             await logInfo(`abandon() - User ${user.discordId} abandoning. State: ${this.state}, acceptFail: ${acceptFail}, isAcceptPhaseAbandon: ${isAcceptPhaseAbandon}, punishmentAcceptFail: ${punishmentAcceptFail}`, this.client);
