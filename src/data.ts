@@ -147,7 +147,7 @@ export class Data {
                 }
             }
             mapTest.pinged = true;
-            await MapTestModel.findByIdAndUpdate(mapTest._id, mapTest);
+            await MapTestModel.findByIdAndUpdate(mapTest._id, { pinged: true });
         }
 
         const shouldQueueBeLocked = await MapTestModel.find({
