@@ -523,8 +523,13 @@ export class Data {
         this.getQueue().lock();
     }
 
-    unlockQueue() {
+    async unlockQueue() {
         this.getQueue().unlock();
+        if (this.getQueue().playtestLocked) {
+            this.getQueue().playtestLocked = false;
+            const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
+            await channel.setRateLimitPerUser(0, "remove slow mode for map test");
+        }
     }
 
     isLocked() {

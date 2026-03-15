@@ -9,7 +9,7 @@ export const lock: SubCommand = {
     run: async (interaction, data) => {
         try {
             if (data.isLocked()) {
-                data.unlockQueue();
+                await data.unlockQueue();
                 await interaction.reply({content: `Unlocked queue`});
             } else {
                 data.lockQueue();
