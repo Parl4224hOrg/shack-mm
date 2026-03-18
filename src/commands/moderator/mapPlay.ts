@@ -35,7 +35,7 @@ export const mapPlay: SubCommand = {
                 }
             }
             let display = `\`\`\`Number of times each map has been played${dateRange}\n`;
-            for (let total of totals) {
+            for (let total of totals.sort((a, b) => b - a)) {
                 display += `${total[0]}: ${total[1]}\n`;
             }
             display += "```";
