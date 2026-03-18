@@ -1,9 +1,8 @@
 import Server from "rcon-pavlov";
 import {Regions} from "../database/models/UserModel";
+import {releaseServerReservation} from "../utility/server-util";
 
 export class GameServer extends Server {
-    private inUse: boolean = false;
-    private matchNumber: number = -1;
     public readonly name: string;
     public readonly region: Regions
     public readonly id: string;
@@ -12,27 +11,16 @@ export class GameServer extends Server {
         super(ip, port, password, 8);
         this.name = name;
         this.region = region;
-        this.id = id
+        this.id = id;
     }
 
-    public async registerServer(matchNumber: number) {
+    public async registerServer() {
         await this.connect()
-        this.inUse = true;
-        this.matchNumber = matchNumber;
     }
 
     public async unregisterServer() {
-        this.inUse = false;
-        this.matchNumber = -1;
+        await releaseServerReservation(this.id);
         await this.updateServerName(this.name);
-        // await this.close();
-    }
-
-    public getMatchNumber(): number {
-        return this.matchNumber;
-    }
-
-    public isInUse() {
-        return this.inUse || this.matchNumber > 0;
+        await this.close();
     }
 }

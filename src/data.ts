@@ -13,7 +13,7 @@ import moment from "moment-timezone";
 import {GameController} from "./controllers/GameController";
 import {getUserById, getUserByUser} from "./modules/getters/getUser";
 import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
-import UserModel from "./database/models/UserModel";
+import UserModel, {Regions} from "./database/models/UserModel";
 import userModel, {UserInt} from "./database/models/UserModel";
 import {getStats} from "./modules/getters/getStats";
 import {getRank, roleRemovalCallback} from "./utility/ranking";
@@ -24,6 +24,7 @@ import serializer from "./serializers/serializer";
 import MapTestModel from "./database/models/MapTestModel";
 import fs from "fs";
 import {join} from "path";
+import {getServerReservation} from "./utility/server-util";
 
 const SAVE_ID = "saved";
 
@@ -51,6 +52,9 @@ export class Data {
     private banCounter = cron.schedule("*/10 * * * *", async () => {
         await this.banReductionTask();
     }, { runOnInit: false });
+    private playtestTask = cron.schedule("*/1 * * * *", async () => {
+        await this.playTestTask();
+    }, { runOnInit: false });
     private FILL_SND: QueueController;
     nextPing: number = moment().unix();
     readonly Leaderboard = new LeaderboardControllerClass(this);
@@ -75,6 +79,71 @@ export class Data {
 
     public getServers() {
         return this.servers;
+    }
+
+    private async playTestTask(){
+        const now = moment().unix();
+        const mapTestsToDelete = await MapTestModel.find({time: {"$lte": moment().unix() - 3600 * 6}, deleted: false});
+        const channel = await this.client.channels.fetch(tokens.MapTestAnnouncementChannel) as TextChannel;
+        for (let mapTest of mapTestsToDelete) {
+            try {
+                const message = await channel.messages.fetch(mapTest.messageId);
+                await message.delete();
+                mapTest.deleted = true;
+                await MapTestModel.findByIdAndUpdate(mapTest._id, mapTest);
+            } catch (e) {
+                await logWarn(`Failed to delete message for map test (${mapTest.id})`, this.client);
+            }
+        }
+
+        const mapTestsToNotify = await MapTestModel.find({time: {"$lte": moment().unix() + 3600 * 2}, pinged: false, deleted: false});
+        for (let mapTest of mapTestsToNotify) {
+            for (let player of mapTest.players) {
+                const user = await this.client.users.fetch(player);
+                if (user.dmChannel) {
+                    await user.dmChannel.send(`You have a map test at <t:${mapTest.time}:F> <t:${mapTest.time}:R>`);
+                } else {
+                    await user.createDM(true);
+                    await user.dmChannel!.send(`You have a map test at <t:${mapTest.time}:F> <t:${mapTest.time}:R>`);
+                }
+            }
+            mapTest.pinged = true;
+            await MapTestModel.findByIdAndUpdate(mapTest._id, { pinged: true });
+        }
+
+        // 30 minutes before and 20 minutes after
+        const upcomingAndCurrentPlaytests = await MapTestModel.find({
+            time: {
+                "$lte": now + 60 * 20,
+                "$gte": now - 60 * 30
+            },
+            deleted: false
+        }).exec();
+
+        for (const playtest of upcomingAndCurrentPlaytests) {
+            if (playtest.serverClaimed) {
+                continue;
+            }
+            await getServerReservation([Regions.NAE], playtest.id);
+        }
+
+        if (upcomingAndCurrentPlaytests.length > 0) {
+            if (!this.FILL_SND.playtestLocked) {
+                this.FILL_SND.playtestLocked = true;
+                const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
+                await channel.send("Queue is locked for a play test.");
+                await channel.setRateLimitPerUser(120, "set slow mode for map test");
+            }
+        } else {
+            if (this.FILL_SND.playtestLocked) {
+                this.FILL_SND.playtestLocked = false;
+                const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
+                await channel.send("Queue is unlocked from play tests.");
+                await channel.setRateLimitPerUser(0, "remove slow mode for map test");
+            }
+        }
+
+        // TODO: unregister servers once play tests are done
     }
 
     private async banReductionTask() {
@@ -119,58 +188,6 @@ export class Data {
                 if (user.muteUntil <= now) {
                     // await logInfo(`${user.id} should be unmuted, unix time for muteUntil: ${user.muteUntil}`, this.client);
                 }
-            }
-        }
-
-        const mapTestsToDelete = await MapTestModel.find({time: {"$lte": moment().unix() - 3600 * 6}, deleted: false});
-        const channel = await this.client.channels.fetch(tokens.MapTestAnnouncementChannel) as TextChannel;
-        for (let mapTest of mapTestsToDelete) {
-            try {
-                const message = await channel.messages.fetch(mapTest.messageId);
-                await message.delete();
-                mapTest.deleted = true;
-                await MapTestModel.findByIdAndUpdate(mapTest._id, mapTest);
-            } catch (e) {
-                await logWarn(`Failed to delete message for map test (${mapTest.id})`, this.client);
-            }
-        }
-
-        const mapTestsToNotify = await MapTestModel.find({time: {"$lte": moment().unix() + 3600 * 2}, pinged: false, deleted: false});
-        for (let mapTest of mapTestsToNotify) {
-            for (let player of mapTest.players) {
-                const user = await this.client.users.fetch(player);
-                if (user.dmChannel) {
-                    await user.dmChannel.send(`You have a map test at <t:${mapTest.time}:F> <t:${mapTest.time}:R>`);
-                } else {
-                    await user.createDM(true);
-                    await user.dmChannel!.send(`You have a map test at <t:${mapTest.time}:F> <t:${mapTest.time}:R>`);
-                }
-            }
-            mapTest.pinged = true;
-            await MapTestModel.findByIdAndUpdate(mapTest._id, { pinged: true });
-        }
-
-        const shouldQueueBeLocked = await MapTestModel.find({
-            time: {
-                "$lte": now + 60 * 19,
-                "$gte": now - 60 * 29
-            },
-            deleted: false
-        }).countDocuments();
-
-        if (shouldQueueBeLocked > 0) {
-            if (!this.FILL_SND.playtestLocked) {
-                this.FILL_SND.playtestLocked = true;
-                const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
-                await channel.send("Queue is locked for a play test.");
-                await channel.setRateLimitPerUser(120, "set slow mode for map test");
-            }
-        } else {
-            if (this.FILL_SND.playtestLocked) {
-                this.FILL_SND.playtestLocked = false;
-                const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
-                await channel.send("Queue is unlocked from play tests.");
-                await channel.setRateLimitPerUser(0, "remove slow mode for map test");
             }
         }
     }
@@ -291,6 +308,7 @@ export class Data {
         await logInfo('[load] roleUpdate started after load. loaded: ' + this.loaded, this.client);
         this.banCounter.start();
         await logInfo('[load] banCounter started after load. loaded: ' + this.loaded, this.client);
+        this.playtestTask.start();
         await logInfo('[load] logInfo called after load. loaded: ' + this.loaded, this.client);
         this.setLoaded(true);
         await logInfo('[load] setLoaded(true) called. loaded: ' + this.loaded, this.client);
@@ -434,20 +452,11 @@ export class Data {
             const gameNum = await this.getIdSND()
             const dbGame = await createGame(gameNum, "SND", userIds, teams.teamA, teams.teamB, teams.mmrDiff, regionId);
             let serv: GameServer | null = null;
-            const validServers = getServerRegion(users);
-            const otherGamesInProgressServerIds = this.getQueue().activeGames.map(game => game.serverId);
-            for (const validServer of validServers) {
-                for (const server of this.servers) {
-                    if (!server.isInUse() && server.region == validServer && !otherGamesInProgressServerIds.includes(server.id)) {
-                        serv = server;
-                        break;
-                    }
-                }
-                if (serv) {
-                    const channel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
-                    await channel.send(`Game ${gameNum} started on server ${serv.id}`);
-                    break;
-                }
+            const server = await getServerReservation(getServerRegion(users), dbGame.matchId.toString());
+            if (server) {
+                const channel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+                await channel.send(`Game ${gameNum} started on server ${server.id}`);
+                serv = this.getServerById(server.id)
             }
             let game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this, serv);
             queue.addGame(game);

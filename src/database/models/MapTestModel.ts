@@ -10,6 +10,7 @@ export interface MapTestInt extends Document {
     messageId: string;
     pinged: boolean;
     deleted: boolean;
+    serverClaimed: boolean;
 }
 
 export const MapTestSchema = new Schema({
@@ -22,6 +23,7 @@ export const MapTestSchema = new Schema({
     messageId: String,
     pinged: Boolean,
     deleted: Boolean,
+    serverClaimed: Boolean,
 });
 
 export default model<MapTestInt>("mapTests", MapTestSchema);

@@ -40,7 +40,6 @@ import {Actions} from "../database/models/ActionModel";
 import {RateLimitedQueue} from "../utility/rate-limited-queue";
 import axios from "axios";
 
-
 const logVotes = async (votes: Collection<string, string[]>,
                         orderedMapList: {
                             "1": string,
@@ -283,7 +282,7 @@ export class GameController {
             }
             if (this.initServer) {
                 this.initServer = false;
-                await this.server!.registerServer(this.matchNumber);
+                await this.server!.registerServer();
             }
             this.tickCount++;
             this.voteCountdown--;

@@ -44,7 +44,7 @@ import {ticketDelete} from "./admin/ticketDelete";
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
-    help, checkDms, dmOptions, _mod, _modInfo, serverStatus, late, categoryDelete, unregisterServer, ping, fixCDs, unmute, _ref,
+    help, checkDms, dmOptions, _mod, _modInfo, serverStatus, late, categoryDelete, ping, fixCDs, unmute, _ref,
     softResetMMR, softResetUser, createMapTest, updateMapTest, restart, removeGame, setFreeStatus, clearCache, testWinrate, removePingMe, ticketDelete];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
