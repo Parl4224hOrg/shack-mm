@@ -13,8 +13,8 @@ import moment from "moment-timezone";
 import {GameController} from "./controllers/GameController";
 import {getUserById, getUserByUser} from "./modules/getters/getUser";
 import {LeaderboardControllerClass} from "./controllers/LeaderboardController";
-import UserModel, {Regions} from "./database/models/UserModel";
-import userModel, {UserInt} from "./database/models/UserModel";
+import UserModel from "./database/models/UserModel";
+import userModel, {Regions, UserInt} from "./database/models/UserModel";
 import {getStats} from "./modules/getters/getStats";
 import {getRank, roleRemovalCallback} from "./utility/ranking";
 import {updateUser} from "./modules/updaters/updateUser";
@@ -24,11 +24,11 @@ import serializer from "./serializers/serializer";
 import MapTestModel from "./database/models/MapTestModel";
 import fs from "fs";
 import {join} from "path";
-import {getServerReservation} from "./utility/server-util";
+import {getReservedServer, getServerReservation, releaseServerReservation} from "./utility/server-util";
 
 const SAVE_ID = "saved";
 
-export class Data {
+class Data {
     readonly client: Client;
     private userCache = new Map<string, UserInt>();
     private discordToObject = new Map<string, string>();
@@ -45,16 +45,16 @@ export class Data {
         } finally {
             this.tickRunning = false;
         }
-    }, { runOnInit: false });
+    }, {runOnInit: false});
     private roleUpdate = cron.schedule("0 * * * *", async () => {
         await this.updateRoles();
-    }, { runOnInit: false });
+    }, {runOnInit: false});
     private banCounter = cron.schedule("*/10 * * * *", async () => {
         await this.banReductionTask();
-    }, { runOnInit: false });
+    }, {runOnInit: false});
     private playtestTask = cron.schedule("*/1 * * * *", async () => {
         await this.playTestTask();
-    }, { runOnInit: false });
+    }, {runOnInit: false});
     private FILL_SND: QueueController;
     nextPing: number = moment().unix();
     readonly Leaderboard = new LeaderboardControllerClass(this);
@@ -81,7 +81,7 @@ export class Data {
         return this.servers;
     }
 
-    private async playTestTask(){
+    private async playTestTask() {
         const now = moment().unix();
         const mapTestsToDelete = await MapTestModel.find({time: {"$lte": moment().unix() - 3600 * 6}, deleted: false});
         const channel = await this.client.channels.fetch(tokens.MapTestAnnouncementChannel) as TextChannel;
@@ -96,7 +96,11 @@ export class Data {
             }
         }
 
-        const mapTestsToNotify = await MapTestModel.find({time: {"$lte": moment().unix() + 3600 * 2}, pinged: false, deleted: false});
+        const mapTestsToNotify = await MapTestModel.find({
+            time: {"$lte": moment().unix() + 3600 * 2},
+            pinged: false,
+            deleted: false
+        });
         for (let mapTest of mapTestsToNotify) {
             for (let player of mapTest.players) {
                 const user = await this.client.users.fetch(player);
@@ -108,7 +112,7 @@ export class Data {
                 }
             }
             mapTest.pinged = true;
-            await MapTestModel.findByIdAndUpdate(mapTest._id, { pinged: true });
+            await MapTestModel.findByIdAndUpdate(mapTest._id, {pinged: true});
         }
 
         // 30 minutes before and 20 minutes after
@@ -125,6 +129,8 @@ export class Data {
                 continue;
             }
             await getServerReservation([Regions.NAE], playtest.id);
+            playtest.serverClaimed = true;
+            await MapTestModel.findByIdAndUpdate(playtest._id, {serverClaimed: true});
         }
 
         if (upcomingAndCurrentPlaytests.length > 0) {
@@ -143,7 +149,20 @@ export class Data {
             }
         }
 
-        // TODO: unregister servers once play tests are done
+        const toUnclaim = await MapTestModel.find({
+            time: {
+                $gte: now - 60 * 60
+            },
+            serverClaimed: true,
+        }).exec();
+        for (const playtest of toUnclaim) {
+            const reservation = await getReservedServer(playtest.id);
+            if (reservation) {
+                await releaseServerReservation(reservation.id);
+            }
+            playtest.serverClaimed = false;
+            await MapTestModel.findByIdAndUpdate(playtest._id, {serverClaimed: false});
+        }
     }
 
     private async banReductionTask() {
@@ -199,7 +218,9 @@ export class Data {
 
     checkCacheByDiscord(id: string) {
         const dbId = this.discordToObject.get(id);
-        if (!dbId) {return undefined}
+        if (!dbId) {
+            return undefined
+        }
         return this.userCache.get(dbId);
     }
 
@@ -227,7 +248,7 @@ export class Data {
         const users = await UserModel.find({});
         const guild = await this.client.guilds!.fetch(tokens.GuildID);
         for (let user of users) {
-            const stats = await getStats(user._id,  "SND");
+            const stats = await getStats(user._id, "SND");
             const member = await guild.members.fetch(user.id);
             if (member) {
                 member.roles.cache.forEach((value) => {
@@ -322,6 +343,7 @@ export class Data {
         }
         return null;
     }
+
     getServerById(id: string) {
         for (let server of this.servers) {
             if (id == server.id) {
@@ -359,7 +381,7 @@ export class Data {
             const check = `${this.FILL_SND.inQueueNumber()} in q`;
             if (check != this.botStatus && this.loaded) {
                 this.botStatus = check;
-                this.schedulePresenceUpdate({ name: check, type: ActivityType.Watching });
+                this.schedulePresenceUpdate({name: check, type: ActivityType.Watching});
             }
             const active = `Active Games: ${this.FILL_SND.activeGames.length}`;
             if (active != this.statusChannel!.name) {
@@ -373,6 +395,7 @@ export class Data {
     // Move potentially blocking operation away from the main tick loop
     private pendingName: string | null = null;
     private renameTimer: NodeJS.Timeout | null = null;
+
     private scheduleStatusRename(name: string, delayMs = 2000) {
         this.pendingName = name;
         if (this.renameTimer) return;
@@ -390,6 +413,7 @@ export class Data {
     // Move potentially blocking operation away from the main tick loop
     private pendingPresence: { name: string; type: ActivityType } | null = null;
     private presenceTimer: NodeJS.Timeout | null = null;
+
     private schedulePresenceUpdate(
         presence: { name: string; type: ActivityType },
         delayMs = 2000
@@ -590,3 +614,5 @@ export class Data {
         return {success: true, message: `data for ${queueId}`, data: queues};
     }
 }
+
+export default Data

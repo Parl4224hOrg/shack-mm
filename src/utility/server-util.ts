@@ -33,7 +33,7 @@ export const getServerReservation = async (allowedRegions: Regions[], reservedBy
 
 export const releaseServerReservation = async (id: string): Promise<boolean> => {
     const updated = await serverModel.findOneAndUpdate(
-        {_id: id},
+        {id: id},
         {
             $set: {
                 reservedBy: "",
@@ -44,4 +44,8 @@ export const releaseServerReservation = async (id: string): Promise<boolean> => 
         {}
     );
     return !!updated;
+}
+
+export const getReservedServer = async (reservedBy: string): Promise<ServerInt | null> => {
+    return await serverModel.findOne({reservedBy: reservedBy}).exec();
 }
