@@ -6,6 +6,7 @@ export const getServerReservation = async (allowedRegions: Regions[], reservedBy
 
     let server: ServerInt | null = null;
     for (const region of allowedRegions) {
+        if (server) break;
         for (const candidate of servers) {
             if (candidate.region == region) {
                 const updated = await serverModel.findOneAndUpdate(

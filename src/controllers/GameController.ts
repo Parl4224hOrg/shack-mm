@@ -857,7 +857,7 @@ export class GameController {
             const isAcceptPhaseAbandon = this.state === 0;
             const punishmentAcceptFail = acceptFail || isAcceptPhaseAbandon;
 
-            this.server?.unregisterServer();
+            await this.server?.unregisterServer();
             this.serverId = "";
             this.server = null;
 

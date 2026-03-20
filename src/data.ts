@@ -28,7 +28,7 @@ import {getReservedServer, getServerReservation, releaseServerReservation} from 
 
 const SAVE_ID = "saved";
 
-class Data {
+export class Data {
     readonly client: Client;
     private userCache = new Map<string, UserInt>();
     private discordToObject = new Map<string, string>();
@@ -128,7 +128,10 @@ class Data {
             if (playtest.serverClaimed) {
                 continue;
             }
-            await getServerReservation([Regions.NAE], playtest.id);
+            const reservation = await getServerReservation([Regions.NAE], playtest.id);
+            if (!reservation) {
+                continue;
+            }
             playtest.serverClaimed = true;
             await MapTestModel.findByIdAndUpdate(playtest._id, {serverClaimed: true});
         }
@@ -151,7 +154,7 @@ class Data {
 
         const toUnclaim = await MapTestModel.find({
             time: {
-                $gte: now - 60 * 60
+                $lte: now - 60 * 60
             },
             serverClaimed: true,
         }).exec();
@@ -614,5 +617,3 @@ class Data {
         return {success: true, message: `data for ${queueId}`, data: queues};
     }
 }
-
-export default Data
