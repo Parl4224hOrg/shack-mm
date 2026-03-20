@@ -40,7 +40,6 @@ import {Actions} from "../database/models/ActionModel";
 import {RateLimitedQueue} from "../utility/rate-limited-queue";
 import axios from "axios";
 
-
 const logVotes = async (votes: Collection<string, string[]>,
                         orderedMapList: {
                             "1": string,
@@ -283,7 +282,7 @@ export class GameController {
             }
             if (this.initServer) {
                 this.initServer = false;
-                await this.server!.registerServer(this.matchNumber);
+                await this.server!.registerServer();
             }
             this.tickCount++;
             this.voteCountdown--;
@@ -858,7 +857,7 @@ export class GameController {
             const isAcceptPhaseAbandon = this.state === 0;
             const punishmentAcceptFail = acceptFail || isAcceptPhaseAbandon;
 
-            this.server?.unregisterServer();
+            await this.server?.unregisterServer();
             this.serverId = "";
             this.server = null;
 

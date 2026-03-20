@@ -62,6 +62,7 @@ export const createMapTest: Command = {
                     messageId: message.id,
                     pinged: false,
                     deleted: false,
+                    serverClaimed: false
                 });
                 await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: "Created Map Signup"})
             } catch (e) {
