@@ -40,12 +40,11 @@ import {setFreeStatus} from "./admin/set-free-status";
 import {clearCache} from "./admin/clearCache";
 import {testWinrate} from "./admin/test-winrate";
 import {removePingMe} from "./queue/removePingMe";
-import {ticketDelete} from "./admin/ticketDelete";
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
     help, checkDms, dmOptions, _mod, _modInfo, serverStatus, late, categoryDelete, ping, fixCDs, unmute, _ref,
-    softResetMMR, softResetUser, createMapTest, updateMapTest, restart, removeGame, setFreeStatus, clearCache, testWinrate, removePingMe, ticketDelete];
+    softResetMMR, softResetUser, createMapTest, updateMapTest, restart, removeGame, setFreeStatus, clearCache, testWinrate, removePingMe];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

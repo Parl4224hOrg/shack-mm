@@ -1,4 +1,4 @@
-import {ActivityType, Client, TextChannel, User, VoiceChannel} from "discord.js";
+import {ActivityType, CategoryChannel, ChannelType, Client, TextChannel, User, VoiceChannel} from "discord.js";
 import cron from 'node-cron';
 import {logInfo, logWarn} from "./loggers";
 import {QueueController} from "./controllers/QueueController";
@@ -25,6 +25,12 @@ import MapTestModel from "./database/models/MapTestModel";
 import fs from "fs";
 import {join} from "path";
 import {getReservedServer, getServerReservation, releaseServerReservation} from "./utility/server-util";
+import {Heap} from "./utility/Heap";
+
+type TicketChannel = {
+    channelId: string;
+    lastMessageTimestamp: number;
+}
 
 const SAVE_ID = "saved";
 
@@ -64,6 +70,7 @@ export class Data {
     private servers: GameServer[] = [];
     private loaded: boolean = false;
     private queueSaveCache = "";
+    private ticketCleanupRunning = false;
 
     constructor(client: Client) {
         this.client = client
@@ -118,8 +125,8 @@ export class Data {
         // 30 minutes before and 20 minutes after
         const upcomingAndCurrentPlaytests = await MapTestModel.find({
             time: {
-                "$lte": now + 60 * 20,
-                "$gte": now - 60 * 30
+                "$lte": now + 60 * 30,
+                "$gte": now - 60 * 20
             },
             deleted: false
         }).exec();
@@ -490,16 +497,87 @@ export class Data {
 
             const guild = await this.client.guilds.fetch(tokens.GuildID);
             const channelCount = (await guild.channels.fetch()).size;
-            if (channelCount > 490) {
-                const channel = await guild.channels.fetch(tokens.ModChannel) as TextChannel;
-                await channel.send({
-                    content: `Server has reached 490 channels delete tickets to prevent the bot from breaking <@&${tokens.AdminRole}>`,
-                    allowedMentions: {roles: [tokens.AdminRole]}
-                });
+            if (channelCount > 480) {
+                void this.scheduleTicketCleanup();
             }
         } catch (e) {
             console.error(e);
         }
+    }
+
+    private async scheduleTicketCleanup() {
+        if (this.ticketCleanupRunning) {
+            return;
+        }
+        this.ticketCleanupRunning = true;
+
+        setTimeout(async () => {
+            try {
+                await this.deleteOldestTicketChannels();
+            } catch (e) {
+                console.error("Failed to delete archived tickets", e);
+                try {
+                    const channel = await this.client.channels.fetch(tokens.ModChannel) as TextChannel;
+                    await channel.send({
+                        content: `Failed to delete archived tickets automatically. <@&${tokens.AdminRole}>`,
+                        allowedMentions: {roles: [tokens.AdminRole]}
+                    });
+                } catch (notifyError) {
+                    console.error("Failed to notify about archived ticket cleanup failure", notifyError);
+                }
+            } finally {
+                this.ticketCleanupRunning = false;
+            }
+        }, 0);
+    }
+
+    private async deleteOldestTicketChannels() {
+        const guild = await this.client.guilds.fetch(tokens.GuildID);
+        const modChannel = await guild.channels.fetch(tokens.ModChannel) as TextChannel;
+        const oldestTickets = new Heap<TicketChannel>((a, b) => b.lastMessageTimestamp - a.lastMessageTimestamp);
+
+        for (const categoryId of tokens.TicketArchiveCategories) {
+            const category = await guild.channels.fetch(categoryId);
+            if (!category || category.type !== ChannelType.GuildCategory) {
+                continue;
+            }
+
+            const ticketCategory = category as CategoryChannel;
+            for (const child of ticketCategory.children.cache.values()) {
+                if (child.type !== ChannelType.GuildText) {
+                    continue;
+                }
+
+                const channel = child as TextChannel;
+                const lastMessage = await channel.messages.fetch({limit: 1});
+                oldestTickets.add({
+                    channelId: channel.id,
+                    lastMessageTimestamp: lastMessage.first()?.createdTimestamp ?? 0
+                });
+            }
+        }
+
+        let deletedCount = 0;
+        for (let i = 0; i < 100; i++) {
+            const ticket = oldestTickets.remove();
+            if (!ticket) {
+                break;
+            }
+
+            await guild.channels.delete(ticket.channelId);
+            deletedCount++;
+        }
+
+        if (deletedCount === 0) {
+            await modChannel.send("No archived tickets were available to delete.");
+            return;
+        }
+
+        await modChannel.send(
+            deletedCount === 100
+                ? "The 100 oldest tickets have been deleted."
+                : `The ${deletedCount} oldest tickets have been deleted.`
+        );
     }
 
     async addAbandoned(users: GameUser[]) {
