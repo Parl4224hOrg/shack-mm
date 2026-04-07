@@ -1,4 +1,4 @@
-import {Message} from "discord.js";
+import {Message, MessageReferenceType} from "discord.js";
 import {logWarn} from "../loggers";
 import tokens from "../tokens";
 
@@ -18,6 +18,9 @@ export const onMessage = async (message: Message) => {
                     break;
                 }
             }
+        }
+        if (message.reference?.type == MessageReferenceType.Forward) {
+            console.log("forwarded message detected");
         }
     } catch (e) {
         await logWarn("Message could not be processed", message.client);
