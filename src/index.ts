@@ -7,6 +7,7 @@ import {Data} from "./data";
 import {onJoin} from "./events/onJoin";
 import {onMessage} from "./events/onMessage";
 import {onMemberUpdate} from "./events/onMemberUpdate";
+import {onLeave} from "./events/onLeave";
 
 const main = async () => {
     const BOT = new Client({
@@ -33,6 +34,7 @@ const main = async () => {
         "guildMemberUpdate",
         async (oldMember, newMember) => await onMemberUpdate(oldMember, newMember),
     )
+    BOT.on("guildMemberRemove", async (member) => await onLeave(member, data))
 
     await BOT.login(tokens.BotToken);
 }
