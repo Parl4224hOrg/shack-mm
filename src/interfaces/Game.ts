@@ -5,7 +5,8 @@ import {StatsInt} from "../database/models/StatsModel";
 export interface ids {
     db: Types.ObjectId;
     discord: string;
-    region: Regions
+    region: Regions;
+    wasAutoReadied: boolean;
 }
 
 export interface QueueUser {
@@ -15,6 +16,7 @@ export interface QueueUser {
     mmr: number;
     name: string;
     region: Regions;
+    wasAutoReadied: boolean;
 }
 
 export interface GameUser {
@@ -26,6 +28,7 @@ export interface GameUser {
     joined: boolean;
     isLate: boolean;
     hasBeenGivenLate: boolean;
+    wasAutoReadied: boolean;
 }
 
 export interface RecalcUser {

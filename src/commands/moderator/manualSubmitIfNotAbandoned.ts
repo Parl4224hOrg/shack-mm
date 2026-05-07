@@ -74,11 +74,11 @@ export const manualSubmitIfNotAbandoned: SubCommand = {
             let users: GameUser[] = []
             for (let user of game.teamA) {
                 const dbUser = await getUserById(user, data);
-                users.push({dbId: user, discordId: dbUser.id, team: 0, accepted: true, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false});
+                users.push({dbId: user, discordId: dbUser.id, team: 0, accepted: true, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false, wasAutoReadied: false});
             }
             for (let user of game.teamB) {
                 const dbUser = await getUserById(user, data);
-                users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false});
+                users.push({dbId: user, discordId: dbUser.id, team: 1, accepted: true, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false, wasAutoReadied: false});
             }
             await createAction(Actions.ManualSubmit, interaction.user.id, interaction.options.getString('reason', true), `Score manually submitted for match ${matchId}: ${game.scoreA}-${game.scoreB}`);
 

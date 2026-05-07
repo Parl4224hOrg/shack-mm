@@ -15,7 +15,18 @@ export const abandon: Command = {
             const game = data.findGame(dbUser._id);
             if (game) {
                 await interaction.deferReply();
-                const res = await game.abandon({dbId: dbUser._id, discordId: dbUser.id, team: -1, accepted: false, region: Regions.APAC, joined: false, isLate: false, hasBeenGivenLate: false}, false);
+                const gameUser = game.getUsers().find(user => user.dbId.equals(dbUser._id)) ?? {
+                    dbId: dbUser._id,
+                    discordId: dbUser.id,
+                    team: -1,
+                    accepted: false,
+                    region: Regions.APAC,
+                    joined: false,
+                    isLate: false,
+                    hasBeenGivenLate: false,
+                    wasAutoReadied: false
+                };
+                const res = await game.abandon(gameUser, false);
                 if (res) {
                     await interaction.followUp("You have abandoned the game");
                 } else {

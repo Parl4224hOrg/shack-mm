@@ -8,7 +8,6 @@ import {grammaticalTime} from "./grammatical";
 import ActionModel, {Actions} from "../database/models/ActionModel";
 import {Data} from "../data";
 import {UserInt} from "../database/models/UserModel";
-import {wasUserInPreviousGeneratedGame} from "../modules/getters/getGame";
 import {logInfo} from "../loggers";
 
 export const autoLate = async (id: Types.ObjectId, data: Data) => {
@@ -80,19 +79,15 @@ export const punishment = async (user: UserInt, data: Data, acceptFail: boolean,
     return updateUser(user, data);
 }
 
-export const abandon = async (userId: Types.ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data, currentMatchId?: number, forced: boolean = false) => {
+export const abandon = async (userId: Types.ObjectId, discordId: string, guild: Guild, acceptFail: boolean, data: Data, wasAutoReadied: boolean, currentMatchId?: number, forced: boolean = false) => {
     let user = await getUserById(userId, data);
     const now = moment().unix();
     
-    // Check if user was in the previous generated game and if that game was abandoned
-    if (acceptFail) {
-        const { wasInGame, game } = await wasUserInPreviousGeneratedGame(userId, guild.client);
-        if (wasInGame && game && game.abandoned) {
-            await logInfo(`abandon() - User ${user.id} failed to accept match but was in abandoned game. Failed match: ${currentMatchId || 'unknown'}, Abandoned match: ${game.matchId}`, guild.client);
-            const channel = await guild.channels.fetch(tokens.GeneralChannel) as TextChannel;
-            await channel.send(`<@${user.id}> was a victim of autorequeue from an abandoned game, skipping fail-to-accept punishment.`);
-            return;
-        }
+    if (acceptFail && wasAutoReadied) {
+        await logInfo(`abandon() - User ${user.id} failed to accept match after being auto-readied. Failed match: ${currentMatchId || 'unknown'}`, guild.client);
+        const channel = await guild.channels.fetch(tokens.GeneralChannel) as TextChannel;
+        await channel.send(`<@${user.id}> was a victim of autorequeue from an abandoned game, skipping fail-to-accept punishment.`);
+        return;
     }
     
     user = await punishment(user, data, acceptFail, 1, now);

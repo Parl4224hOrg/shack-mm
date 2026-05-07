@@ -150,6 +150,7 @@ class Serializer {
                 joined: user.joined,
                 isLate: false,
                 hasBeenGivenLate: false,
+                wasAutoReadied: user.wasAutoReadied ?? false,
             });
         }
         return users;
@@ -289,6 +290,7 @@ class Serializer {
                 mmr: user.mmr,
                 name: user.name,
                 region: user.region as Regions,
+                wasAutoReadied: user.wasAutoReadied ?? false,
             });
         }
 

@@ -597,6 +597,7 @@ export class Data {
                     mmr: stats.mmr,
                     name: dbUser.name,
                     region: dbUser.region,
+                    wasAutoReadied: true,
                 });
             }
         }

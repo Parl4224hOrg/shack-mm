@@ -66,7 +66,7 @@ const logVotes = async (votes: Collection<string, string[]>,
         }
         let discordId = 'not found';
         for (let user of gameUsers) {
-            if (String(user.dbId) == String(vote[0])) {
+            if (user.dbId.equals(vote[0])) {
                 discordId = user.discordId;
             }
         }
@@ -241,6 +241,7 @@ export class GameController {
                 joined: false,
                 isLate: false,
                 hasBeenGivenLate: false,
+                wasAutoReadied: user.wasAutoReadied,
             });
         }
         for (let user of teamB) {
@@ -253,6 +254,7 @@ export class GameController {
                 joined: false,
                 isLate: false,
                 hasBeenGivenLate: false,
+                wasAutoReadied: user.wasAutoReadied,
             });
         }
         this.data = data;
@@ -867,7 +869,7 @@ export class GameController {
                 this.state += 10;
             }
 
-            await abandon(user.dbId, user.discordId, this.guild, punishmentAcceptFail, this.data, this.matchNumber, sendForcedMessage);
+            await abandon(user.dbId, user.discordId, this.guild, punishmentAcceptFail, this.data, user.wasAutoReadied, this.matchNumber, sendForcedMessage);
             await this.sendAbandonMessage(user.discordId);
 
             const shouldAutoReady = !acceptFail && (this.finalGenTime + 15 * 60 >= moment().unix() || !this.votingFinished);
@@ -1404,7 +1406,7 @@ export class GameController {
         if (this.state == 1 || this.state == 3) {
             let invalid = false;
             this.users.forEach((value) => {
-                if (String(value.dbId) == String(userId) && value.team != 0) {
+                if (value.dbId.equals(userId) && value.team != 0) {
                     invalid = true;
                 }
             })
@@ -1415,7 +1417,7 @@ export class GameController {
         if (this.state == 2 || this.state == 4) {
             let invalid = false;
             this.users.forEach((value) => {
-                if (String(value.dbId) == String(userId) && value.team != 1) {
+                if (value.dbId.equals(userId) && value.team != 1) {
                     invalid = true;
                 }
             })
@@ -1456,7 +1458,7 @@ export class GameController {
                 const removedVote = this.state >= 4 ? this.sideSet[vote as '1' | '2'] : this.mapSet[vote];
                 let discordId = 'not found';
                 for (let user of this.users) {
-                    if (String(user.dbId) == String(userId)) {
+                    if (user.dbId.equals(userId)) {
                         discordId = user.discordId;
                     }
                 }
@@ -1599,7 +1601,7 @@ export class GameController {
 
     getTeam(userId: Types.ObjectId) {
         for (let user of this.users) {
-            if (String(user.dbId) == String(userId)) {
+            if (user.dbId.equals(userId)) {
                 return user.team;
             }
         }
@@ -1615,7 +1617,7 @@ export class GameController {
                 await channel.send("Team a has accepted scores");
                 try {
                     // Find the user's discord ID for logging
-                    const user = this.users.find(u => String(u.dbId) === String(userId));
+                    const user = this.users.find(u => u.dbId.equals(userId));
                     if (user) {
                         await logScoreAccept(user.discordId, this.matchNumber, "Team A", this.client);
                     }
@@ -1626,7 +1628,7 @@ export class GameController {
                 await channel.send("Team b has accepted scores");
                 try {
                     // Find the user's discord ID for logging
-                    const user = this.users.find(u => String(u.dbId) === String(userId));
+                    const user = this.users.find(u => u.dbId.equals(userId));
                     if (user) {
                         await logScoreAccept(user.discordId, this.matchNumber, "Team B", this.client);
                     }
@@ -1711,7 +1713,7 @@ export class GameController {
 
     async userAccept(id: Types.ObjectId) {
         for (let user of this.users) {
-            if (String(user.dbId) == String(id)) {
+            if (user.dbId.equals(id)) {
                 user.accepted = true;
                 await logAccept(user.discordId, this.matchNumber, this.client);
             }
@@ -1843,10 +1845,10 @@ export class GameController {
 
     requeue(user: UserInt): boolean {
         if (this.requeueArray.find((item) => {
-            return String(item) == String(user._id)
+            return item.equals(user._id)
         })) {
             this.requeueArray.forEach((value, index) => {
-                if (String(value) == String(user._id)) this.requeueArray.splice(index, 1);
+                if (value.equals(user._id)) this.requeueArray.splice(index, 1);
             })
             return false;
         } else {

@@ -137,6 +137,7 @@ export class QueueController {
             mmr: stats.mmr,
             name: user.name,
             region: user.region,
+            wasAutoReadied: false,
         });
         const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
         await channel.send(`${user.name} has readied up for ${time} minutes`);
@@ -224,7 +225,7 @@ export class QueueController {
                 if (game.map != "" && game.scoresAccept[0] && game.scoresAccept[1]) {
                     await addLastPlayedMap(this.data, game.map, game.matchNumber);
                 }
-                this.activeGames.forEach((gameItr, i) => {if (String(gameItr.id) == String(game.id)) this.activeGames.splice(i, 1)});
+                this.activeGames.forEach((gameItr, i) => {if (gameItr.id.equals(game.id)) this.activeGames.splice(i, 1)});
 
                 await this.data.Leaderboard.setLeaderboard();
             }
@@ -297,7 +298,7 @@ export class QueueController {
 
     removeUser(userId: Types.ObjectId, noMessage: boolean) {
         this.inQueue.forEach( async (user, index) => {
-            if (String(user.dbId) == String(userId)) {
+            if (user.dbId.equals(userId)) {
                 this.inQueue.splice(index, 1);
                 const channel = await this.client.channels.fetch(tokens.SNDChannel) as TextChannel;
                 if (!noMessage) {
@@ -312,7 +313,7 @@ export class QueueController {
         for (let game of this.activeGames) {
             if (!game.abandoned) {
                 for (let user of game.getUsers()) {
-                    if (String(user.dbId) == String(userId)) {
+                    if (user.dbId.equals(userId)) {
                         return true;
                     }
                 }
@@ -325,7 +326,7 @@ export class QueueController {
         for (let game of this.activeGames) {
             if (!game.abandoned) {
                 for (let user of game.getUsers()) {
-                    if (String(user.dbId) == String(id)) {
+                    if (user.dbId.equals(id)) {
                         return game;
                     }
                 }
