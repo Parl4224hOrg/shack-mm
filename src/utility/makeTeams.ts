@@ -57,8 +57,8 @@ export const makeTeams = async (users: QueueUser[], client?: Client): Promise<{t
     let teamA: ids[] = [];
     let teamB: ids[] = [];
 
-    bestA.forEach(c => teamA.push({db: c.dbId, discord: c.discordId, region: c.region}));
-    bestB.forEach(c => teamB.push({db: c.dbId, discord: c.discordId, region: c.region}));
+    bestA.forEach(c => teamA.push({db: c.dbId, discord: c.discordId, region: c.region, wasAutoReadied: c.wasAutoReadied}));
+    bestB.forEach(c => teamB.push({db: c.dbId, discord: c.discordId, region: c.region, wasAutoReadied: c.wasAutoReadied}));
 
     // Log MMR difference to game-logs channel
     try {
@@ -166,8 +166,8 @@ export const makeTeamsSplittingBottomTwoPlayers = async (users: QueueUser[], cli
     // Convert to ids format
     let teamAIds: ids[] = [];
     let teamBIds: ids[] = [];
-    bestA.forEach(c => teamAIds.push({db: c.dbId, discord: c.discordId, region: c.region}));
-    bestB.forEach(c => teamBIds.push({db: c.dbId, discord: c.discordId, region: c.region}));
+    bestA.forEach(c => teamAIds.push({db: c.dbId, discord: c.discordId, region: c.region, wasAutoReadied: c.wasAutoReadied}));
+    bestB.forEach(c => teamBIds.push({db: c.dbId, discord: c.discordId, region: c.region, wasAutoReadied: c.wasAutoReadied}));
     // Log team generation to game-logs channel
     try {
         const channel = await client?.channels.fetch(tokens.GameLogChannel) as TextChannel;

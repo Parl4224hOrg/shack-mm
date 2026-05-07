@@ -16,8 +16,7 @@ export const abandonConfirm: Button = {
             const controller = data.findController();
             if (controller) {
                 const game = controller.findGame(dbUser._id);
-                const abandon = await game!.abandon(
-                    {
+                const gameUser = game!.getUsers().find(user => user.dbId.equals(dbUser._id)) ?? {
                         dbId: dbUser._id,
                         discordId: dbUser.id,
                         team: 0,
@@ -26,7 +25,9 @@ export const abandonConfirm: Button = {
                         joined: false,
                         isLate: false,
                         hasBeenGivenLate: false,
-                    }, false);
+                        wasAutoReadied: false,
+                    };
+                const abandon = await game!.abandon(gameUser, false);
                 if (abandon) {
                     await interaction.reply({content: "You have successfully abandoned"})
                 } else {

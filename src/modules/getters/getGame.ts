@@ -32,7 +32,7 @@ export const wasUserInPreviousGeneratedGame = async (userId: Types.ObjectId, cli
         return { wasInGame: false, game: null };
     }
     
-    const wasInGame = previousGame.users.some((user: Types.ObjectId) => user.toString() === userId.toString());
+    const wasInGame = previousGame.users.some((user: Types.ObjectId) => user.equals(userId));
     if (client) {
         await logInfo(`wasUserInPreviousGeneratedGame - User ${userId}: Match ID ${previousGame.matchId}, Abandoned: ${previousGame.abandoned}, Was in game: ${wasInGame}`, client);
     }
