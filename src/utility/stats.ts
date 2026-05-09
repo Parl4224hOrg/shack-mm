@@ -5,7 +5,8 @@ import fs from "fs";
 import {join} from "path";
 import {StatsInt} from "../database/models/StatsModel";
 import {getRank} from "./ranking";
-import {formatMmrForStatsImage} from "./stats-formatting";
+import {formatMmrForStatsImage, formatRemainingMmrForStatsImage} from "./stats-formatting";
+import tokens from "../tokens";
 
 let browserPromise: Promise<Browser> | null = null;
 let templateFn: Handlebars.TemplateDelegate | null = null;
@@ -80,6 +81,28 @@ function getMinMaxMmr(stats: StatsInt) {
     return {min, max, minMatchNumber, maxMatchNumber};
 }
 
+function getNextRankThreshold(mmr: number): number | null {
+    const nextRank = tokens.Ranks
+        .filter((rank) => rank.threshold > mmr)
+        .sort((a, b) => a.threshold - b.threshold)[0];
+
+    return nextRank?.threshold ?? null;
+}
+
+function getRankRangeText(rankThreshold: number): string {
+    const nextThreshold = getNextRankThreshold(rankThreshold);
+
+    if (nextThreshold === null) {
+        return `≥${rankThreshold}`;
+    }
+
+    if (rankThreshold <= 0) {
+        return `≤${nextThreshold - 1}`;
+    }
+
+    return `${rankThreshold}-${nextThreshold - 1}`;
+}
+
 type MmrStreak = {
     streakLength: number;
     streakType: "win" | "loss";
@@ -144,6 +167,7 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
     };
 
     const rank = getRank(stats.mmr);
+    const nextRankThreshold = getNextRankThreshold(stats.mmr);
     const minMaxMmr = getMinMaxMmr(stats);
     const streak = getLatestMmrStreak(stats.mmrHistory);
     const historyItems = getRecentHistory(stats.gameHistory, 10);
@@ -172,7 +196,7 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
         mmrStreakText: streak.mmrChange > 0 ? `+${streak.mmrChange.toFixed(1)}` : streak.mmrChange.toFixed(1),
         streakText: `${streak.streakLength}${streak.streakType === "win" ? "W" : "L"}`,
         streakColor: streak.streakType === "win" ? "--accent-green" : "--accent-red",
-        mmrUntilRankUp: rank.max < 100000 ? formatMmrForStatsImage(rank.max - stats.mmr) : "N/A",
+        mmrUntilRankUp: nextRankThreshold !== null ? formatRemainingMmrForStatsImage(nextRankThreshold - stats.mmr) : "N/A",
         rankImage: `data:image/png;base64,${getImageBase64(rank.name.toLowerCase())}`,
         rankName: rank.name,
         historyItems: historyItems.map((result) => {
@@ -184,7 +208,7 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
             }
             return {label: "D", isDraw: true};
         }),
-        rankRange: rank.threshold > 0 ? rank.max < 100000 ? `${rank.threshold}-${rank.max}` : `≥${rank.threshold}` : `≤${rank.max}`,
+        rankRange: getRankRangeText(rank.threshold),
     });
 
     const browser = await getBrowser();
