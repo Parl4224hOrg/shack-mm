@@ -5,6 +5,7 @@ import fs from "fs";
 import {join} from "path";
 import {StatsInt} from "../database/models/StatsModel";
 import {getRank} from "./ranking";
+import {formatMmrForStatsImage} from "./stats-formatting";
 
 let browserPromise: Promise<Browser> | null = null;
 let templateFn: Handlebars.TemplateDelegate | null = null;
@@ -156,10 +157,10 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
     const outputHtml = template({
         gradient: gradients[rank.name.toLowerCase() as keyof typeof gradients],
         playerName: name,
-        highestMmr: minMaxMmr.max.toFixed(2),
+        highestMmr: formatMmrForStatsImage(minMaxMmr.max),
         highestMmrMatchNumber: minMaxMmr.maxMatchNumber,
         highestIcon: `data:image/png;base64,${getImageBase64(getRank(minMaxMmr.max).name.toLowerCase())}`,
-        lowestMmr: minMaxMmr.min.toFixed(2),
+        lowestMmr: formatMmrForStatsImage(minMaxMmr.min),
         lowestMmrMatchNumber: minMaxMmr.minMatchNumber,
         lowestIcon: `data:image/png;base64,${getImageBase64(getRank(minMaxMmr.min).name.toLowerCase())}`,
         rankNumber: stats.rank,
@@ -167,11 +168,11 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
         totalGames: stats.gamesPlayed,
         wins: stats.wins,
         losses: stats.losses,
-        mmr: stats.mmr.toFixed(2),
+        mmr: formatMmrForStatsImage(stats.mmr),
         mmrStreakText: streak.mmrChange > 0 ? `+${streak.mmrChange.toFixed(1)}` : streak.mmrChange.toFixed(1),
         streakText: `${streak.streakLength}${streak.streakType === "win" ? "W" : "L"}`,
         streakColor: streak.streakType === "win" ? "--accent-green" : "--accent-red",
-        mmrUntilRankUp: rank.max < 100000 ? (rank.max - stats.mmr).toFixed(2) : "N/A",
+        mmrUntilRankUp: rank.max < 100000 ? formatMmrForStatsImage(rank.max - stats.mmr) : "N/A",
         rankImage: `data:image/png;base64,${getImageBase64(rank.name.toLowerCase())}`,
         rankName: rank.name,
         historyItems: historyItems.map((result) => {
