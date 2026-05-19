@@ -49,8 +49,8 @@ export const freeze: SubCommand = {
                         if (member) {
                             await member.roles.remove(tokens.MutedRole, "remove using /freeze");
                             await logInfo(`Unmuted ${member.user.id} (${dbUser.id}) freeze.ts ln 39`, interaction.client);
-                            muteMessage = "and was unmuted if in server.";
                         }
+                        muteMessage = "and was unmuted if in server.";
                     }
                     await interaction.followUp({content: `<@${dbUser.id}> has been unfrozen ${muteMessage}`});
                 }
