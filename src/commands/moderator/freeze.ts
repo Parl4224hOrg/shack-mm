@@ -4,7 +4,7 @@ import {logError, logInfo} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
 import {updateUser} from "../../modules/updaters/updateUser";
 import tokens from "../../tokens";
-import {MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
+import {GuildMember, MessageFlagsBitField, SlashCommandSubcommandBuilder} from "discord.js";
 import {createActionUser} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import moment from "moment-timezone";
@@ -22,7 +22,13 @@ export const freeze: SubCommand = {
                 await interaction.deferReply();
                 const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
                 const guild = await interaction.client.guilds.fetch(tokens.GuildID);
-                const member = await guild.members.fetch(dbUser.id);
+                let member: GuildMember | undefined = undefined;
+
+                try {
+                    member = await guild.members.fetch(dbUser.id);
+                } catch (error) {
+                    console.info(`freeze.ts: Failed to fetch member for user ${dbUser.id}:`, error);
+                }
                 dbUser.frozen = !dbUser.frozen;
                 
                 if (dbUser.frozen) {
@@ -38,13 +44,15 @@ export const freeze: SubCommand = {
                 } else {
                     await createActionUser(Actions.Freeze, interaction.user.id, dbUser.id, "User was un-frozen", "User was un-frozen");
                     await updateUser(dbUser, data);
+                    let muteMessage = "and was not unmuted.";
                     if (dbUser.muteUntil > 0 && dbUser.muteUntil < moment().unix()) {
                         if (member) {
                             await member.roles.remove(tokens.MutedRole, "remove using /freeze");
                             await logInfo(`Unmuted ${member.user.id} (${dbUser.id}) freeze.ts ln 39`, interaction.client);
+                            muteMessage = "and was unmuted if in server.";
                         }
                     }
-                    await interaction.followUp({content: `<@${dbUser.id}> has been unfrozen, and unmuted if in server.`});
+                    await interaction.followUp({content: `<@${dbUser.id}> has been unfrozen ${muteMessage}`});
                 }
             }
         } catch (e) {
