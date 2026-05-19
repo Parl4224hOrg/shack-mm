@@ -286,6 +286,14 @@ export class GameController {
                 this.initServer = false;
                 await this.server!.registerServer();
             }
+            if (this.abandoned) {
+                if (this.abandonCountdown <= 0 && !this.cleanedUp) {
+                    await this.abandonCleanup(false, this.data.getQueue().getDeleteQueue());
+                } else {
+                    this.abandonCountdown--;
+                }
+                return;
+            }
             this.tickCount++;
             this.voteCountdown--;
             switch (this.state) {
@@ -314,11 +322,6 @@ export class GameController {
                     await this.processMatch();
                     break;
                 default:
-                    if (this.abandoned && this.abandonCountdown <= 0 && !this.cleanedUp) {
-                        await this.abandonCleanup(false, this.data.getQueue().getDeleteQueue());
-                    } else if (this.abandoned) {
-                        this.abandonCountdown--;
-                    }
             }
         } catch (e) {
             console.error(e);
@@ -953,6 +956,10 @@ export class GameController {
         }
 
         await logVotes(this.votes, state <= 4 ? this.mapSet : this.sideSet, voteLabel, this.users, this.client);
+        if (this.abandoned) {
+            await logWarn(`Vote calc for state ${state} stopped because match ${this.matchNumber} is abandoned`, this.client);
+            return [];
+        }
 
         mapVotes = mapVotes.sort((a, b) => b.total - a.total);
         let randomRange;
@@ -1193,11 +1200,19 @@ export class GameController {
             this.working = true;
             await logInfo(`Started vote A1 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
             const bans = await this.calcVotes(2);
+            if (this.abandoned || bans.length < 3) {
+                this.working = false;
+                return;
+            }
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
             const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
 
             const teamA1Message = await teamAChannel.messages.fetch(this.voteA1MessageId)
             await teamA1Message.edit({content: `~~${teamA1Message.content}~~ Voting has ended`, components: []});
+            if (this.abandoned) {
+                this.working = false;
+                return;
+            }
 
             this.currentMaxVotes = 2;
 
@@ -1218,11 +1233,19 @@ export class GameController {
             this.working = true;
             await logInfo(`Started vote B1 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
             const bans = await this.calcVotes(3);
+            if (this.abandoned || bans.length < 2) {
+                this.working = false;
+                return;
+            }
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
             const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
 
             const teamB1Message = await teamBChannel.messages.fetch(this.voteB1MessageId)
             await teamB1Message.edit({content: `~~${teamB1Message.content}~~ Voting has ended`, components: []});
+            if (this.abandoned) {
+                this.working = false;
+                return;
+            }
 
             this.currentMaxVotes = 1;
 
@@ -1243,11 +1266,19 @@ export class GameController {
             this.working = true;
             await logInfo(`Started vote A2 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
             const bans = await this.calcVotes(4);
+            if (this.abandoned || bans.length < 1) {
+                this.working = false;
+                return;
+            }
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
             const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
 
             const teamA2Message = await teamAChannel.messages.fetch(this.voteA2MessageId)
             await teamA2Message.edit({content: `~~${teamA2Message.content}~~ Voting has ended`, components: []});
+            if (this.abandoned) {
+                this.working = false;
+                return;
+            }
 
             this.map = bans[0];
             this.mapData = await getMapData(this.map);
@@ -1269,11 +1300,19 @@ export class GameController {
             this.finalChannelGen = true;
             await logInfo(`Started vote B2 calc\nState: ${this.state}\nVoteCountdown: ${this.voteCountdown}\nTickCount: ${this.tickCount}\nBanned: ${this.allBans}\nMaps: ${this.mapSet}`, this.client);
             const bans = await this.calcVotes(5);
+            if (this.abandoned || bans.length < 2) {
+                this.finalChannelGen = false;
+                return;
+            }
             const teamAChannel = await this.client.channels.fetch(this.teamAChannelId) as TextChannel;
             const teamBChannel = await this.client.channels.fetch(this.teamBChannelId) as TextChannel;
 
             const teamB2Message = await teamBChannel.messages.fetch(this.voteB2MessageId)
             await teamB2Message.edit({content: `~~${teamB2Message.content}~~ Voting has ended`, components: []});
+            if (this.abandoned) {
+                this.finalChannelGen = false;
+                return;
+            }
 
             this.sides = [bans[1], bans[0]];
 
@@ -1281,6 +1320,10 @@ export class GameController {
 
             await teamAChannel.send({content: `Selected ${bans[0]}`});
             await teamBChannel.send({content: `Team B selected ${bans[0]}`});
+            if (this.abandoned) {
+                this.finalChannelGen = false;
+                return;
+            }
 
             const finalChannel = await this.guild.channels.create({
                 name: `match-${this.matchNumber}`,
