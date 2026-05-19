@@ -220,6 +220,7 @@ export class GameController {
     serverScoreB: number = -1;
     private scorePollTimeout: NodeJS.Timeout | null = null;
     private scorePollRunning: boolean = false;
+    private scorePollGeneration: number = 0;
 
     usedCommunity = false;
     gameStarted = false;
@@ -330,6 +331,7 @@ export class GameController {
 
     private stopScorePolling() {
         this.scorePollRunning = false;
+        this.scorePollGeneration++;
         if (this.scorePollTimeout) {
             clearTimeout(this.scorePollTimeout);
             this.scorePollTimeout = null;
@@ -347,9 +349,10 @@ export class GameController {
         this.serverScoreB = -1;
 
         this.scorePollRunning = true;
+        const pollGeneration = this.scorePollGeneration;
 
         const pollOnce = async () => {
-            if (!this.scorePollRunning || !this.server) {
+            if (!this.scorePollRunning || this.scorePollGeneration != pollGeneration || !this.server) {
                 return;
             }
 
@@ -363,6 +366,10 @@ export class GameController {
                     }
                 );
 
+                if (!this.scorePollRunning || this.scorePollGeneration != pollGeneration) {
+                    return;
+                }
+
                 const {scoreA, scoreB, interval} = res.data;
 
                 this.serverScoreA = scoreA;
@@ -375,7 +382,7 @@ export class GameController {
                     return;
                 }
 
-                if (!this.scorePollRunning) {
+                if (!this.scorePollRunning || this.scorePollGeneration != pollGeneration) {
                     return;
                 }
 
@@ -385,7 +392,7 @@ export class GameController {
                 }, nextInterval);
             } catch (e) {
                 // If the endpoint hiccups, retry after a short backoff.
-                if (!this.scorePollRunning) {
+                if (!this.scorePollRunning || this.scorePollGeneration != pollGeneration) {
                     return;
                 }
                 this.scorePollTimeout = setTimeout(() => {
@@ -1627,8 +1634,14 @@ export class GameController {
             return
         }
         await this.server.resetSND();
-        await this.startOrRestartScorePolling();
+        await axios.post(`https://shackmm.com/kill-feed/${this.server.id}/start?game=${this.matchNumber}`, {},
+            {
+                headers: {
+                    key: tokens.ServerKey,
+                }
+            });
         this.gameStarted = true;
+        await this.startOrRestartScorePolling();
     }
 
     async confirmScoreSubmit() {

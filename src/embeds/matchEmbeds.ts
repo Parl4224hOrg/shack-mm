@@ -74,7 +74,7 @@ export const matchConfirmEmbed = (scores: number[]) => {
 export const matchScorePrompt = (scores: number[]) => {
     const embed = new EmbedBuilder()
 
-    embed.setTitle('Confirm Servers Scores')
+    embed.setTitle('Confirm Server\'s Scores')
     embed.setDescription('If these score are incorrect resubmit using the buttons below')
     embed.setFields([
         {
