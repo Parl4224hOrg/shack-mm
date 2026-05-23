@@ -33,7 +33,6 @@ import {GameServer} from "../server/server";
 import {GameModes, RCONError} from "rcon-pavlov";
 import {MapInt} from "../database/models/MapModel";
 import LateModel from "../database/models/LateModel";
-import lateModel from "../database/models/LateModel";
 import {grammaticalTime} from "../utility/grammatical";
 import {createActionUser} from "../modules/constructors/createAction";
 import {Actions} from "../database/models/ActionModel";
@@ -272,6 +271,10 @@ export class GameController {
         this.firstTick = true;
     }
 
+    private shouldApplyLates() {
+        return tokens.ApplyLates && this.serverSetup && !this.usedCommunity && this.server != null;
+    }
+
     async tick() {
         try {
             if (this.firstTick) {
@@ -452,13 +455,13 @@ export class GameController {
         }
 
         // Every 30 seconds after 5 minutes
-        if (this.server && minutesPassed >= 5) {
+        if (this.shouldApplyLates() && minutesPassed >= 5) {
             for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
                 const dbUser = await getUserById(gameUser.dbId, this.data);
                 const found = await LateModel.findOne({user: dbUser.id, matchId: this.matchNumber});
                 if (!found) {
                     await LateModel.create({
-                        user: gameUser.discordId,
+                        user: dbUser.id,
                         oculusName: dbUser.oculusName,
                         joinTime: moment().unix(),
                         channelGenTime: this.finalGenTime,
@@ -469,7 +472,7 @@ export class GameController {
                     await found.save();
                 }
             }
-            const RefreshList = await this.server.refreshList();
+            const RefreshList = await this.server!.refreshList();
             const channel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
             for (let user of RefreshList.PlayerList) {
                 for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
@@ -530,7 +533,7 @@ export class GameController {
                 }
             }
             await channel.send("5 minutes have passed");
-            if (tokens.ApplyLates && this.serverSetup) {
+            if (this.shouldApplyLates()) {
                 if (lateUsers.length < 8) {
                     for (let user of lateUsers) {
                         let dbUser = await getUserById(user.dbId, this.data);
@@ -566,10 +569,11 @@ export class GameController {
                 } else {
                     this.usedCommunity = true;
                     await channel.send("Assuming lobby is being used no lates are being applied");
-                    await lateModel.deleteMany({matchId: this.matchNumber});
+                    await LateModel.deleteMany({matchId: this.matchNumber});
                 }
             } else {
                 await channel.send("Assuming lobby is being used no lates are being applied");
+                await LateModel.deleteMany({matchId: this.matchNumber});
             }
         }
 
@@ -701,6 +705,20 @@ export class GameController {
     async switchMap() {
         await this.server!.switchMap(this.mapData!.ugc, GameModes.SearchAndDestroy);
         await this.server!.updateServerName(`SMM Match-${this.matchNumber}`);
+    }
+
+    async restartKillFeed() {
+        if (!this.server) {
+            return;
+        }
+        await axios.post(`https://shackmm.com/kill-feed/${this.server.id}/start?game=${this.matchNumber}`, {},
+            {
+                headers: {
+                    key: tokens.ServerKey,
+                }
+            });
+        this.gameStarted = true;
+        await this.startOrRestartScorePolling();
     }
 
     async processMatch() {
@@ -1634,14 +1652,7 @@ export class GameController {
             return
         }
         await this.server.resetSND();
-        await axios.post(`https://shackmm.com/kill-feed/${this.server.id}/start?game=${this.matchNumber}`, {},
-            {
-                headers: {
-                    key: tokens.ServerKey,
-                }
-            });
-        this.gameStarted = true;
-        await this.startOrRestartScorePolling();
+        await this.restartKillFeed();
     }
 
     async confirmScoreSubmit() {

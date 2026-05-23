@@ -19,6 +19,7 @@ export const confirmSwitchMap: Button = {
                 await channel.send(`<@${interaction.user.id}> | ${interaction.user.id} | ${interaction.user.username}\nswitched maps | match: ${game.matchNumber} on server: ${game.server?.id ?? "not assigned"}`);
                 await interaction.update({content: "Switching map...", components: []});
                 await game.switchMap();
+                await game.restartKillFeed();
                 await interaction.followUp({content: `Map switched by <@${interaction.user.id}>`});
             } else {
                 await interaction.update({content: "Could not find game", components: []});
