@@ -45,7 +45,8 @@ COPY . .
 
 RUN npm ci --omit-dev
 
-RUN npx puppeteer browsers install chrome
+RUN rm -rf /root/.cache/puppeteer \
+    && npx puppeteer browsers install chrome
 
 RUN npx tsc
 
