@@ -4,6 +4,7 @@ FROM node:24
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        ca-certificates \
+       chromium \
        fonts-liberation \
        libasound2 \
        libatk-bridge2.0-0 \
@@ -39,14 +40,13 @@ RUN apt-get update \
        xdg-utils \
     && rm -rf /var/lib/apt/lists/*
 
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
 WORKDIR /user/src/app
 
 COPY . .
 
 RUN npm ci --omit-dev
-
-RUN rm -rf /root/.cache/puppeteer \
-    && npx puppeteer browsers install chrome
 
 RUN npx tsc
 
