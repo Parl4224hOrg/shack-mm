@@ -45,6 +45,8 @@ COPY . .
 
 RUN npm ci --omit-dev
 
+RUN npx puppeteer browsers install chrome
+
 RUN npx tsc
 
 CMD ["node", "build/index.js"]
