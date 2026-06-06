@@ -881,6 +881,7 @@ export class GameController {
             }
         }
         if (validAbandon || forced) {
+            this.requeueArray = this.requeueArray.filter((id) => !id.equals(user.dbId));
             this.abandoned = true;
             this.abandonCountdown = tokens.AbandonTime;
             // For punishment purposes, treat accept phase abandons as fail-to-accept
