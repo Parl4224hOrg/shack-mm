@@ -1,8 +1,9 @@
 import {Button} from "../../interfaces/Button";
 import {ButtonBuilder} from "@discordjs/builders";
-import {ButtonStyle, MessageFlagsBitField} from "discord.js";
+import {ButtonStyle, MessageFlagsBitField, TextChannel} from "discord.js";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
+import tokens from "../../tokens";
 
 export const autoReady: Button = {
     data: new ButtonBuilder()
@@ -22,6 +23,11 @@ export const autoReady: Button = {
                 } else {
                     await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "You will no longer be re readied at the end of the game"});
                 }
+                const gameLogChannel = await interaction.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+                await gameLogChannel.send(
+                    `<@${interaction.user.id}> | ${interaction.user.id} | ${interaction.user.username}\n` +
+                    `${result ? "added to" : "removed from"} the re-ready list | match: ${game.matchNumber}`
+                );
             }
         } catch (e) {
             await logError(e, interaction);
