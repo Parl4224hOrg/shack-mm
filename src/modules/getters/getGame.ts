@@ -12,7 +12,12 @@ export const getGameByMatchId = async (gameId: number) => {
 }
 
 export const getGames = async (rangeStart: number = 0) => {
-    return GameModel.find({scoreB: {"$gte": 0}, scoreA: {'$gte': 0}, matchId: {"$gte": rangeStart}});
+    return GameModel.find({
+        scoreB: {"$gte": 0},
+        scoreA: {'$gte': 0},
+        matchId: {"$gte": rangeStart},
+        nullified: {$ne: true},
+    });
 }
 
 export const getPreviousGeneratedGame = async (client?: Client) => {
@@ -38,4 +43,3 @@ export const wasUserInPreviousGeneratedGame = async (userId: Types.ObjectId, cli
     }
     return { wasInGame, game: previousGame };
 }
-
