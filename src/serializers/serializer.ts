@@ -7,7 +7,7 @@ import {Data} from "../data";
 import {Regions} from "../database/models/UserModel";
 import {QueueController} from "../controllers/QueueController";
 import {PingMeUser} from "../interfaces/Internal";
-import {MapInt} from "../database/models/MapModel";
+import MapModel, {MapInt} from "../database/models/MapModel";
 
 class Serializer {
     private replaceLast(toReplace: string, replaceWith: string): string {
@@ -241,6 +241,7 @@ class Serializer {
         game.currentMaxVotes = parsed.currentMaxVotes;
         game.allBans = parsed.allBans;
         game.map = parsed.map;
+        game.mapData = game.map ? await MapModel.findOne({name: game.map}) : null;
         game.sides = parsed.sides;
         game.finalChannelGen = parsed.finalChannelGen;
         game.finalChannelId = parsed.finalChannelId;

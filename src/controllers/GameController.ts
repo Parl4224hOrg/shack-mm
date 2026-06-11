@@ -703,7 +703,13 @@ export class GameController {
     }
 
     async switchMap() {
-        await this.server!.switchMap(this.mapData!.ugc, GameModes.SearchAndDestroy);
+        if (!this.mapData && this.map) {
+            this.mapData = await getMapData(this.map);
+        }
+        if (!this.mapData?.ugc) {
+            throw new Error(`Cannot switch match ${this.matchNumber}: map data or UGC is missing for "${this.map}"`);
+        }
+        await this.server!.switchMap(this.mapData.ugc, GameModes.SearchAndDestroy);
         await this.server!.updateServerName(`SMM Match-${this.matchNumber}`);
     }
 
