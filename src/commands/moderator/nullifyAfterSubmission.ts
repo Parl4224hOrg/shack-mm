@@ -64,7 +64,7 @@ export const nullifyAfterSubmission: SubCommand = {
             return;
         }
 
-        await interaction.deferReply({flags: MessageFlagsBitField.Flags.Ephemeral});
+        await interaction.deferReply();
 
         if (match.nullified) {
             await interaction.followUp({content: `Match ${matchId} is already nullified.`});
