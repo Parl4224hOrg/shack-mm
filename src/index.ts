@@ -8,6 +8,7 @@ import {onJoin} from "./events/onJoin";
 import {onMessage} from "./events/onMessage";
 import {onMemberUpdate} from "./events/onMemberUpdate";
 import {onLeave} from "./events/onLeave";
+import {closeStatsBrowser} from "./utility/stats";
 
 const main = async () => {
     const BOT = new Client({
@@ -16,6 +17,28 @@ const main = async () => {
     });
 
     const data = new Data(BOT);
+    let shuttingDown = false;
+
+    const shutdown = async (signal: NodeJS.Signals) => {
+        if (shuttingDown) {
+            return;
+        }
+
+        shuttingDown = true;
+        console.log(`Received ${signal}; shutting down`);
+
+        try {
+            await closeStatsBrowser();
+            BOT.destroy();
+        } catch (error) {
+            console.error("Failed to cleanly shut down", error);
+        } finally {
+            process.exit(0);
+        }
+    };
+
+    process.once("SIGINT", shutdown);
+    process.once("SIGTERM", shutdown);
 
     BOT.once("ready", async () => await onReady(BOT, data));
     BOT.on(

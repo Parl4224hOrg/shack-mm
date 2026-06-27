@@ -1,5 +1,5 @@
 import Handlebars from "handlebars";
-import puppeteer, {Browser} from "puppeteer";
+import puppeteer, {Browser, Page} from "puppeteer";
 import * as path from "node:path";
 import fs from "fs";
 import {join} from "path";
@@ -9,18 +9,78 @@ import {formatMmrForStatsImage, formatRemainingMmrForStatsImage} from "./stats-f
 import tokens from "../tokens";
 
 let browserPromise: Promise<Browser> | null = null;
+let browserIdleTimer: NodeJS.Timeout | null = null;
+let activePages = 0;
 let templateFn: Handlebars.TemplateDelegate | null = null;
+const configuredBrowserIdleTimeoutMs = Number(process.env.STATS_BROWSER_IDLE_MS ?? 60_000);
+const BROWSER_IDLE_TIMEOUT_MS = Number.isFinite(configuredBrowserIdleTimeoutMs)
+    ? configuredBrowserIdleTimeoutMs
+    : 60_000;
 
 // Launch or reuse the single browser
 async function getBrowser(): Promise<Browser> {
+    clearStatsBrowserIdleTimer();
+
     if (!browserPromise) {
-        browserPromise = puppeteer.launch({
+        const nextBrowserPromise = puppeteer.launch({
             headless: true,
             executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
             args: ["--disable-web-security", "--allow-file-access-from-files", "--no-sandbox"],
         });
+
+        browserPromise = nextBrowserPromise;
+
+        nextBrowserPromise
+            .then((browser) => {
+                browser.once("disconnected", () => {
+                    if (browserPromise === nextBrowserPromise) {
+                        browserPromise = null;
+                    }
+                });
+            })
+            .catch(() => {
+                if (browserPromise === nextBrowserPromise) {
+                    browserPromise = null;
+                }
+            });
     }
     return browserPromise;
+}
+
+export async function closeStatsBrowser(): Promise<void> {
+    clearStatsBrowserIdleTimer();
+
+    const browserToClose = browserPromise;
+    browserPromise = null;
+
+    if (!browserToClose) {
+        return;
+    }
+
+    const browser = await browserToClose;
+    await browser.close();
+}
+
+function clearStatsBrowserIdleTimer() {
+    if (!browserIdleTimer) {
+        return;
+    }
+
+    clearTimeout(browserIdleTimer);
+    browserIdleTimer = null;
+}
+
+function scheduleStatsBrowserIdleClose() {
+    if (activePages > 0 || !browserPromise || browserIdleTimer || BROWSER_IDLE_TIMEOUT_MS <= 0) {
+        return;
+    }
+
+    browserIdleTimer = setTimeout(() => {
+        browserIdleTimer = null;
+        closeStatsBrowser().catch((error) => console.error("Failed to close idle stats browser", error));
+    }, BROWSER_IDLE_TIMEOUT_MS);
+
+    browserIdleTimer.unref();
 }
 
 // Load + compile template once
@@ -213,24 +273,37 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
     });
 
     const browser = await getBrowser();
+    let page: Page | null = null;
 
-    const page = await browser.newPage();
+    try {
+        page = await browser.newPage();
+        activePages++;
 
-    await page.setViewport({
-        width: 360,
-        height: 600,
-        deviceScaleFactor: 2, // for sharper text
-    });
+        await page.setViewport({
+            width: 360,
+            height: 600,
+            deviceScaleFactor: 2, // for sharper text
+        });
 
-    await page.setContent(outputHtml, {
-        waitUntil: "load",
-    });
+        await page.setContent(outputHtml, {
+            waitUntil: "load",
+        });
 
-    return await page.screenshot({
-        type: "png",
-        fullPage: true,
-        omitBackground: true
-    }) as Buffer;
+        return await page.screenshot({
+            type: "png",
+            fullPage: true,
+            omitBackground: true
+        }) as Buffer;
+    } finally {
+        try {
+            await page?.close();
+        } finally {
+            if (page) {
+                activePages--;
+            }
+            scheduleStatsBrowserIdleClose();
+        }
+    }
 };
 
 function getRecentHistory(history: string[], count: number): string[] {
