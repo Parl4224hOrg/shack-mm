@@ -39,6 +39,8 @@ import {Actions} from "../database/models/ActionModel";
 import {RateLimitedQueue} from "../utility/rate-limited-queue";
 import axios from "axios";
 
+const killFeedApiBaseUrl = "http://localhost:4000";
+
 const logVotes = async (votes: Collection<string, string[]>,
                         orderedMapList: {
                             "1": string,
@@ -361,7 +363,7 @@ export class GameController {
 
             try {
                 const res = await axios.get<{ scoreA: number; scoreB: number; interval: number }>(
-                    `https://shackmm.com/kill-feed/${this.server.id}/score-poll`,
+                    `${killFeedApiBaseUrl}/kill-feed/${this.server.id}/score-poll`,
                     {
                         headers: {
                             key: tokens.ServerKey,
@@ -717,7 +719,7 @@ export class GameController {
         if (!this.server) {
             return;
         }
-        await axios.post(`https://shackmm.com/kill-feed/${this.server.id}/start?game=${this.matchNumber}`, {},
+        await axios.post(`${killFeedApiBaseUrl}/kill-feed/${this.server.id}/start?game=${this.matchNumber}`, {},
             {
                 headers: {
                     key: tokens.ServerKey,
