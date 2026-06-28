@@ -879,16 +879,31 @@ export class GameController {
         return this.acceptChannelId == id || this.finalChannelId == id || this.teamAChannelId == id || this.teamBChannelId == id;
     }
 
+    private getServerScoreLogText() {
+        if (this.serverScoreA < 0 || this.serverScoreB < 0) {
+            return "unavailable";
+        }
+
+        return `${this.serverScoreA}-${this.serverScoreB}`;
+    }
+
+    private getTeamLogText(user: GameUser) {
+        return user.team == 0 ? "Team A" : "Team B";
+    }
+
     async abandon(user: GameUser, acceptFail: boolean, forced: boolean = false, sendForcedMessage: boolean = false) {
         let validAbandon = true;
         if (this.server) {
             if (Math.max(this.serverScoreA, this.serverScoreB) >= 9) {
                 validAbandon = false;
                 const channel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
-                await channel.send(`Match ${this.matchNumber}: User <@${user.discordId}> tried to abandon once a team had reached 9 rounds`);
+                await channel.send(`Match ${this.matchNumber}: User <@${user.discordId}> (${this.getTeamLogText(user)}) tried to abandon once a team had reached 9 rounds. Score: ${this.getServerScoreLogText()}`);
             }
         }
         if (validAbandon || forced) {
+            const gameLogChannel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
+            await gameLogChannel.send(`Match ${this.matchNumber}: User <@${user.discordId}> (${this.getTeamLogText(user)}) ${forced ? "was force abandoned" : "abandoned"} at score ${this.getServerScoreLogText()}`);
+
             this.requeueArray = this.requeueArray.filter((id) => !id.equals(user.dbId));
             this.abandoned = true;
             this.abandonCountdown = tokens.AbandonTime;
