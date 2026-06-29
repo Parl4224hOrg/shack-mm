@@ -37,7 +37,36 @@ import {grammaticalTime} from "../utility/grammatical";
 import {createActionUser} from "../modules/constructors/createAction";
 import {Actions} from "../database/models/ActionModel";
 import {RateLimitedQueue} from "../utility/rate-limited-queue";
-import axios from "axios";
+import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
+
+const getKillFeedApiUrl = (baseUrl: string, path: string) => `${baseUrl.replace(/\/$/, "")}${path}`;
+
+const requestKillFeedApi = async <T>(path: string, config: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+    const requestConfig: AxiosRequestConfig = {
+        ...config,
+        headers: {
+            key: tokens.ServerKey,
+            ...config.headers,
+        },
+    };
+
+    try {
+        return await axios.request<T>({
+            ...requestConfig,
+            url: getKillFeedApiUrl(tokens.KillFeedApiBaseUrl, path),
+        });
+    } catch (error) {
+        if (tokens.KillFeedApiBaseUrl == tokens.KillFeedApiFallbackBaseUrl) {
+            throw error;
+        }
+
+        console.warn(`Kill-feed API request failed against ${tokens.KillFeedApiBaseUrl}; retrying ${tokens.KillFeedApiFallbackBaseUrl}`, error);
+        return axios.request<T>({
+            ...requestConfig,
+            url: getKillFeedApiUrl(tokens.KillFeedApiFallbackBaseUrl, path),
+        });
+    }
+};
 
 const logVotes = async (votes: Collection<string, string[]>,
                         orderedMapList: {
@@ -360,13 +389,9 @@ export class GameController {
             }
 
             try {
-                const res = await axios.get<{ scoreA: number; scoreB: number; interval: number }>(
-                    `${tokens.KillFeedApiBaseUrl}/kill-feed/${this.server.id}/score-poll`,
-                    {
-                        headers: {
-                            key: tokens.ServerKey,
-                        },
-                    }
+                const res = await requestKillFeedApi<{ scoreA: number; scoreB: number; interval: number }>(
+                    `/kill-feed/${this.server.id}/score-poll`,
+                    {method: "GET"}
                 );
 
                 if (!this.scorePollRunning || this.scorePollGeneration != pollGeneration) {
@@ -717,12 +742,10 @@ export class GameController {
         if (!this.server) {
             return;
         }
-        await axios.post(`${tokens.KillFeedApiBaseUrl}/kill-feed/${this.server.id}/start?game=${this.matchNumber}`, {},
-            {
-                headers: {
-                    key: tokens.ServerKey,
-                }
-            });
+        await requestKillFeedApi(`/kill-feed/${this.server.id}/start?game=${this.matchNumber}`, {
+            method: "POST",
+            data: {},
+        });
         this.gameStarted = true;
         await this.startOrRestartScorePolling();
     }

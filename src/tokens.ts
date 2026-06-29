@@ -13,6 +13,7 @@ export default {
     BotKey: process.env.BOT_KEY ?? 'no-key',
     ServerKey: process.env.SERVER_KEY ?? 'no-key',
     KillFeedApiBaseUrl: process.env.KILL_FEED_API_BASE_URL ?? 'http://localhost:4000',
+    KillFeedApiFallbackBaseUrl: process.env.KILL_FEED_API_FALLBACK_BASE_URL ?? 'https://shackmm.com',
     // Discord stuff
     GuildID: '1152652407856189560',
     Parl: '484100069688344606',
