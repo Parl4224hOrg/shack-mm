@@ -41,6 +41,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV KILL_FEED_API_BASE_URL=http://host.docker.internal:4000
 
 WORKDIR /user/src/app
 
