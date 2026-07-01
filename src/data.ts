@@ -88,6 +88,27 @@ export class Data {
         return this.servers;
     }
 
+    getSpeakerStatus(channelId: string, userId: string): {canSpeak: boolean, canJoin: boolean} {
+        for (let game of this.FILL_SND.activeGames) {
+            for (let user of game.users) {
+                if (user.discordId == userId) {
+                    if (user.team == 0 && channelId == game.teamAVCid) {
+                        return {canSpeak: true, canJoin: true};
+                    } else if (user.team == 1 && channelId == game.teamAVCid) {
+                        return {canSpeak: false, canJoin: false};
+                    }
+
+                    if (user.team == 1 && channelId == game.teamBVCid) {
+                        return {canSpeak: true, canJoin: true};
+                    } else if (user.team == 0 && channelId == game.teamBVCid) {
+                        return {canSpeak: false, canJoin: false};
+                    }
+                }
+            }
+        }
+
+        return {canSpeak: false, canJoin: true};
+    }
     private async playTestTask() {
         const now = moment().unix();
         const mapTestsToDelete = await MapTestModel.find({time: {"$lte": moment().unix() - 3600 * 6}, deleted: false});

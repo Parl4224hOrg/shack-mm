@@ -1,11 +1,11 @@
 import {Types} from "mongoose";
-import {ChannelType, Client, Collection, EmbedBuilder, Guild, MessageFlagsBitField, TextChannel} from "discord.js";
+import {ChannelType, Client, Collection, EmbedBuilder, Guild, MessageFlagsBitField, StageInstancePrivacyLevel, TextChannel} from "discord.js";
 import {getGameById} from "../modules/getters/getGame";
 import moment from "moment/moment";
 import {processMMR} from "../utility/processMMR";
 import {updateGame} from "../modules/updaters/updateGame";
 import {getGuildMember} from "../utility/discordGetters";
-import {getAcceptPerms, getMatchPerms, getVCPerms, hidePerms} from "../utility/channelPerms";
+import {getAcceptPerms, getMatchPerms, getStagePerms, hidePerms} from "../utility/channelPerms";
 import tokens from "../tokens";
 import {acceptView} from "../views/acceptView";
 import {abandon, punishment} from "../utility/punishment";
@@ -1230,8 +1230,8 @@ export class GameController {
 
             const teamAVC = await this.guild.channels.create({
                 name: `Team A-${this.matchNumber}`,
-                type: ChannelType.GuildVoice,
-                permissionOverwrites: getVCPerms(teamARole),
+                type: ChannelType.GuildStageVoice,
+                permissionOverwrites: getStagePerms(teamARole),
                 position: 0,
                 parent: tokens.MatchCategory,
                 reason: 'Create vc for team a',
@@ -1240,13 +1240,25 @@ export class GameController {
 
             const teamBVC = await this.guild.channels.create({
                 name: `Team B-${this.matchNumber}`,
-                type: ChannelType.GuildVoice,
-                permissionOverwrites: getVCPerms(teamBRole),
+                type: ChannelType.GuildStageVoice,
+                permissionOverwrites: getStagePerms(teamBRole),
                 position: 0,
                 parent: tokens.MatchCategory,
                 reason: 'Create vc for team b',
             });
             this.teamBVCid = teamBVC.id;
+
+            await teamAVC.createStageInstance({
+                privacyLevel: StageInstancePrivacyLevel.GuildOnly,
+                sendStartNotification: false,
+                topic: `Team A-${this.matchNumber}`,
+            });
+
+            await teamBVC.createStageInstance({
+                privacyLevel: StageInstancePrivacyLevel.GuildOnly,
+                sendStartNotification: false,
+                topic: `Team B-${this.matchNumber}`,
+            });
 
             let teamAStr = "";
             let teamBStr = "";
