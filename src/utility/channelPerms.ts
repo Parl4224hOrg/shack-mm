@@ -128,6 +128,8 @@ const stageEveryone: OverwriteResolvable = {
             PermissionsBitField.Flags.AttachFiles,
             PermissionsBitField.Flags.EmbedLinks,
             PermissionsBitField.Flags.RequestToSpeak,
+            PermissionsBitField.Flags.SendMessages,
+            PermissionsBitField.Flags.AddReactions
         ],
     type: 0,
 }
