@@ -510,7 +510,10 @@ export class Data {
             const server = await getServerReservation(getServerRegion(users), dbGame.matchId.toString());
             if (server) {
                 const channel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
-                await channel.send(`Game ${gameNum} started on server ${server.id}`);
+                await channel.send({
+                    content: `Game ${gameNum} started on server ${server.id}`,
+                    allowedMentions: {users: []}
+                });
                 serv = this.getServerById(server.id)
             }
             let game = new GameController(dbGame._id, this.client, await this.client.guilds.fetch(tokens.GuildID), gameNum, teams.teamA, teams.teamB, queueId, scoreLimit, this, serv);

@@ -19,7 +19,10 @@ export const confirmResetGame: Button = {
             } else {
                 const channel = await interaction.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
                 await interaction.update({content: "Starting game...", components: []});
-                await channel.send(`<@${interaction.user.id}> | ${interaction.user.id} | ${interaction.user.username}\nreset the game | match: ${game.matchNumber} on server: ${game.server?.id ?? "not assigned"}`);
+                await channel.send({
+                    content: `<@${interaction.user.id}> | ${interaction.user.id} | ${interaction.user.username}\nreset the game | match: ${game.matchNumber} on server: ${game.server?.id ?? "not assigned"}`,
+                    allowedMentions: {users: []}
+                });
                 await game.resetSND();
                 await interaction.followUp({content: `Game started by <@${dbUser.id}>`});
             }

@@ -16,7 +16,10 @@ export const confirmSwitchMap: Button = {
             const game = data.findGame(dbUser._id);
             if (game) {
                 const channel = await interaction.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
-                await channel.send(`<@${interaction.user.id}> | ${interaction.user.id} | ${interaction.user.username}\nswitched maps | match: ${game.matchNumber} on server: ${game.server?.id ?? "not assigned"}`);
+                await channel.send({
+                    content: `<@${interaction.user.id}> | ${interaction.user.id} | ${interaction.user.username}\nswitched maps | match: ${game.matchNumber} on server: ${game.server?.id ?? "not assigned"}`,
+                    allowedMentions: {users: []}
+                });
                 await interaction.update({content: "Switching map...", components: []});
                 await game.switchMap();
                 await game.restartKillFeed();

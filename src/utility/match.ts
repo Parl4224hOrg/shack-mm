@@ -129,7 +129,7 @@ export const logAccept = async (userId: string, matchId: number, client: Client)
     const embed = new EmbedBuilder();
     embed.setTitle("User has accepted");
     embed.setDescription(`<@${userId}> has accepted match ${matchId}`);
-    await channel.send({embeds: [embed.toJSON()]});
+    await channel.send({embeds: [embed.toJSON()], allowedMentions: {users: []}});
 }
 
 export const logScoreSubmit = async (userId: string, matchId: number, score: number, client: Client) => {
@@ -137,7 +137,7 @@ export const logScoreSubmit = async (userId: string, matchId: number, score: num
     const embed = new EmbedBuilder();
     embed.setTitle("User has Submitted a score");
     embed.setDescription(`<@${userId}> has submitted a score of ${score} for match ${matchId}`);
-    await channel.send({embeds: [embed.toJSON()]});
+    await channel.send({embeds: [embed.toJSON()], allowedMentions: {users: []}});
 }
 
 export const logScoreAccept = async (userId: string, matchId: number, team: string, client: Client) => {
@@ -146,7 +146,7 @@ export const logScoreAccept = async (userId: string, matchId: number, team: stri
         const embed = new EmbedBuilder();
         embed.setTitle("User has Accepted Scores");
         embed.setDescription(`<@${userId}> has accepted scores for ${team} in match ${matchId}`);
-        await channel.send({embeds: [embed.toJSON()]});
+        await channel.send({embeds: [embed.toJSON()], allowedMentions: {users: []}});
     } catch (e) {
         console.error("Failed to log score acceptance to channel:", e);
     }
@@ -281,7 +281,8 @@ export const handleChannelLog = async (id: string, guild: Guild, matchId: number
     }
     await logChannel.send({
         files: [attachment],
-        content: `Transcript for ${channelName} channel match ${matchId}`
+        content: `Transcript for ${channelName} channel match ${matchId}`,
+        allowedMentions: {users: []}
     });
 
     await channel.delete();

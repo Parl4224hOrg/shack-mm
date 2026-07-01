@@ -24,10 +24,11 @@ export const autoReady: Button = {
                     await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "You will no longer be re readied at the end of the game"});
                 }
                 const gameLogChannel = await interaction.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
-                await gameLogChannel.send(
-                    `<@${interaction.user.id}> | ${interaction.user.id} | ${interaction.user.username}\n` +
-                    `${result ? "added to" : "removed from"} the re-ready list | match: ${game.matchNumber}`
-                );
+                await gameLogChannel.send({
+                    content: `<@${interaction.user.id}> | ${interaction.user.id} | ${interaction.user.username}\n` +
+                        `${result ? "added to" : "removed from"} the re-ready list | match: ${game.matchNumber}`,
+                    allowedMentions: {users: []}
+                });
             }
         } catch (e) {
             await logError(e, interaction);

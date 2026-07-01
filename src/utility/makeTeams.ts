@@ -77,7 +77,7 @@ export const makeTeams = async (users: QueueUser[], client?: Client): Promise<{t
             { name: "Team B", value: teamBStr, inline: true }
         );
         
-        await channel.send({embeds: [embed.toJSON()]});
+        await channel.send({embeds: [embed.toJSON()], allowedMentions: {users: []}});
     } catch (e) {
         console.error("Failed to log team generation:", e);
     }
@@ -99,7 +99,7 @@ export const makeTeams = async (users: QueueUser[], client?: Client): Promise<{t
         embed.setDescription(`makeTeams got a MMRDiff of ${bestDiff}, splitting the bottom 2 players got a MMRDiff of ${bottomTwoSplitDiff}, with a difference of ${Math.abs(bestDiff - bottomTwoSplitDiff)}`);
         embed.setColor(bestDiff < bottomTwoSplitDiff ? 0x00FF00 : 0xFF0000); // Green if original is better, red if bottom2 split is better
         
-        await channel.send({embeds: [embed.toJSON()]});
+        await channel.send({embeds: [embed.toJSON()], allowedMentions: {users: []}});
     } catch (e) {
         console.error("Failed to log comparison:", e);
     }
@@ -182,7 +182,7 @@ export const makeTeamsSplittingBottomTwoPlayers = async (users: QueueUser[], cli
             { name: "Team A", value: teamAStr, inline: true },
             { name: "Team B", value: teamBStr, inline: true }
         );
-        await channel.send({embeds: [embed.toJSON()]});
+        await channel.send({embeds: [embed.toJSON()], allowedMentions: {users: []}});
     } catch (e) {
         console.error("Failed to log team generation:", e);
     }

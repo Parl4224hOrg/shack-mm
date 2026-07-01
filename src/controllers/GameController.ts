@@ -115,7 +115,7 @@ const logVotes = async (votes: Collection<string, string[]>,
         });
     }
 
-    await channel.send({content: `Votes for ${voteLabel}`, embeds: [embed.toJSON()]});
+    await channel.send({content: `Votes for ${voteLabel}`, embeds: [embed.toJSON()], allowedMentions: {users: []}});
 }
 
 const getRandom = (votes: Vote[], lowerBound: number, upperBound: number, count: number): string[] => {
@@ -584,7 +584,10 @@ export class GameController {
                                 const generalChannel = await this.client.channels.fetch(tokens.GeneralChannel) as TextChannel;
                                 await generalChannel.send(`<@${dbUser.id}> has been cooldowned for ${grammaticalTime(dbUser.banUntil - now)} for being late to match ${this.matchNumber}. Late ${latePercent}% with average time ${avgLateTime} seconds`);
                             } else {
-                                await logChannel.send(`<@${dbUser.id}> should receive a cooldown for being late, but applying lates is disabled\nLate %: ${latePercent}\nLate Avg: ${avgLateTime}`)
+                                await logChannel.send({
+                                    content: `<@${dbUser.id}> should receive a cooldown for being late, but applying lates is disabled\nLate %: ${latePercent}\nLate Avg: ${avgLateTime}`,
+                                    allowedMentions: {users: []}
+                                })
                                 await channel.send(`<@${user.discordId}> has been given a late`);
                             }
                         } else {
@@ -644,9 +647,10 @@ export class GameController {
                     if (!dbUser) {
                         notFoundUniqueId = player.UniqueId;
 
-                        await logChannel.send(
-                            `Player ${player.UniqueId} was not found among the registered users and was kicked from the server.`
-                        );
+                        await logChannel.send({
+                            content: `Player ${player.UniqueId} was not found among the registered users and was kicked from the server.`,
+                            allowedMentions: {users: []}
+                        });
                         await this.server.kick(player.UniqueId);
                         continue;
                     }
@@ -659,7 +663,10 @@ export class GameController {
 
                     try {
                         if (assignedTeam && currentTeam != assignedTeam) {
-                            await logChannel.send(`Player ${player.UniqueId} was switched to team ${assignedTeam}`);
+                            await logChannel.send({
+                                content: `Player ${player.UniqueId} was switched to team ${assignedTeam}`,
+                                allowedMentions: {users: []}
+                            });
                             await this.server!.switchTeam(player.UniqueId, assignedTeam);
                         }
                     } catch (e) {
@@ -762,14 +769,14 @@ export class GameController {
             const logChannel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
 
             if (this.server == null || this.usedCommunity || this.serverScoreA < 0 || this.serverScoreB < 0) {
-                await logChannel.send({content: `Match ${this.matchNumber} has scores submitted without using server\nUser: ${this.scores[0]}-${this.scores[1]}`});
+                await logChannel.send({content: `Match ${this.matchNumber} has scores submitted without using server\nUser: ${this.scores[0]}-${this.scores[1]}`, allowedMentions: {users: []}});
             } else if (this.scores[0] != this.serverScoreA || this.scores[1] != this.serverScoreB) {
                 await logChannel.send({
                     content: `Match ${this.matchNumber} had incorrect scores submitted\nServer: ${this.serverScoreA}-${this.serverScoreB}\nUser: ${this.scores[0]}-${this.scores[1]}\n<@&${tokens.ModRole}>`,
-                    allowedMentions: {roles: [tokens.ModRole]}
+                    allowedMentions: {roles: [tokens.ModRole], users: []}
                 });
             } else {
-                await logChannel.send({content: `Match ${this.matchNumber} has correct scores submitted\nServer: ${this.serverScoreA}-${this.serverScoreB}\nUser: ${this.scores[0]}-${this.scores[1]}`});
+                await logChannel.send({content: `Match ${this.matchNumber} has correct scores submitted\nServer: ${this.serverScoreA}-${this.serverScoreB}\nUser: ${this.scores[0]}-${this.scores[1]}`, allowedMentions: {users: []}});
             }
 
             const gameTemp = await getGameById(this.id);
@@ -920,12 +927,18 @@ export class GameController {
             if (Math.max(this.serverScoreA, this.serverScoreB) >= 9) {
                 validAbandon = false;
                 const channel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
-                await channel.send(`Match ${this.matchNumber}: User <@${user.discordId}> (${this.getTeamLogText(user)}) tried to abandon once a team had reached 9 rounds. Score: ${this.getServerScoreLogText()}`);
+                await channel.send({
+                    content: `Match ${this.matchNumber}: User <@${user.discordId}> (${this.getTeamLogText(user)}) tried to abandon once a team had reached 9 rounds. Score: ${this.getServerScoreLogText()}`,
+                    allowedMentions: {users: []}
+                });
             }
         }
         if (validAbandon || forced) {
             const gameLogChannel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
-            await gameLogChannel.send(`Match ${this.matchNumber}: User <@${user.discordId}> (${this.getTeamLogText(user)}) ${forced ? "was force abandoned" : "abandoned"} at score ${this.getServerScoreLogText()}`);
+            await gameLogChannel.send({
+                content: `Match ${this.matchNumber}: User <@${user.discordId}> (${this.getTeamLogText(user)}) ${forced ? "was force abandoned" : "abandoned"} at score ${this.getServerScoreLogText()}`,
+                allowedMentions: {users: []}
+            });
 
             this.requeueArray = this.requeueArray.filter((id) => !id.equals(user.dbId));
             this.abandoned = true;
@@ -1618,7 +1631,7 @@ export class GameController {
                     value: `<@${discordId}>\n${removedVote}`,
                     inline: false,
                 });
-                await logChannel.send({content: `Unvote for ${voteLabel}`, embeds: [embed.toJSON()]});
+                await logChannel.send({content: `Unvote for ${voteLabel}`, embeds: [embed.toJSON()], allowedMentions: {users: []}});
             } else if (userVotes.length == this.currentMaxVotes) {
                 if (this.state >= 4) {
                     return {
