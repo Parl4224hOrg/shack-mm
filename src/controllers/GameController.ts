@@ -1,5 +1,5 @@
 import {Types} from "mongoose";
-import {ChannelType, Client, Collection, EmbedBuilder, Guild, MessageFlagsBitField, StageInstancePrivacyLevel, TextChannel} from "discord.js";
+import {ChannelType, Client, Collection, EmbedBuilder, Guild, MessageFlagsBitField, StageInstancePrivacyLevel, TextChannel, VoiceBasedChannel} from "discord.js";
 import {getGameById} from "../modules/getters/getGame";
 import moment from "moment/moment";
 import {processMMR} from "../utility/processMMR";
@@ -1905,14 +1905,23 @@ export class GameController {
         if (!this.cleanedUp && !this.abandoned) {
             await this.sendScoreEmbed();
         }
-        queue.queue(async () => {
-            const vc = await this.guild.channels.fetch(this.teamAVCid);
-            await vc?.delete();
-        });
-        queue.queue(async () => {
-            const vc = await this.guild.channels.fetch(this.teamBVCid);
-            await vc?.delete();
-        })
+        queue.queue(async () => this.moveUsersAndDeleteVoiceChannel(this.teamAVCid));
+        queue.queue(async () => this.moveUsersAndDeleteVoiceChannel(this.teamBVCid));
+    }
+
+    private async moveUsersAndDeleteVoiceChannel(channelId: string) {
+        const channel = await this.guild.channels.fetch(channelId);
+        if (!channel) {
+            return;
+        }
+
+        const voiceChannel = channel as VoiceBasedChannel;
+        await Promise.allSettled(
+            voiceChannel.members.map(member =>
+                member.voice.setChannel(tokens.GeneralVoiceChannel, "match cleanup")
+            )
+        );
+        await voiceChannel.delete();
     }
 
     async sendScoreEmbed() {

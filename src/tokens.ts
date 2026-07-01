@@ -33,6 +33,7 @@ export default {
     LossEmoji: '<:Loss:1174459377709764800>',
     DrawEmoji: '<:Draw:1174459379114848336>',
     ActiveGamesChannel: "1183155071433850960",
+    GeneralVoiceChannel: "1161404151738150973",
     LeaderboardMessage: "1183920824164569130",
     LeaderboardChannel: "1171851273499312159",
     GameLogChannel: "1185432060173746236",
