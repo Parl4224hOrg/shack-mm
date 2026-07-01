@@ -1918,7 +1918,7 @@ export class GameController {
         const voiceChannel = channel as VoiceBasedChannel;
         await Promise.allSettled(
             voiceChannel.members.map(member =>
-                member.voice.setChannel(tokens.GeneralVoiceChannel, "match cleanup")
+                member.voice.setChannel(tokens.PostMatchVoiceChannel, "match cleanup")
             )
         );
         await voiceChannel.delete();
