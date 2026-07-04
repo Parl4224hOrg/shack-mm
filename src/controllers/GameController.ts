@@ -41,6 +41,8 @@ import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
 
 const getKillFeedApiUrl = (baseUrl: string, path: string) => `${baseUrl.replace(/\/$/, "")}${path}`;
 
+const formatRecordingError = (error: unknown) => error instanceof Error ? error.message : String(error);
+
 const requestKillFeedApi = async <T>(path: string, config: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
     const requestConfig: AxiosRequestConfig = {
         ...config,
@@ -174,6 +176,8 @@ export class GameController {
     teamBChannelId = '';
     teamBRoleId = '';
     teamBVCid = '';
+    teamARecordingSessionId = '';
+    teamBRecordingSessionId = '';
     voteA1MessageId = '';
     voteB1MessageId = '';
     voteA2MessageId = '';
@@ -1273,6 +1277,8 @@ export class GameController {
                 topic: `Team B-${this.matchNumber}`,
             });
 
+            await this.startTeamRecordings();
+
             let teamAStr = "";
             let teamBStr = "";
             for (let player of this.users) {
@@ -1918,11 +1924,11 @@ export class GameController {
         if (!this.cleanedUp && !this.abandoned) {
             await this.sendScoreEmbed();
         }
-        queue.queue(async () => this.moveUsersAndDeleteVoiceChannel(this.teamAVCid));
-        queue.queue(async () => this.moveUsersAndDeleteVoiceChannel(this.teamBVCid));
+        queue.queue(async () => this.moveUsersStopRecordingAndDeleteVoiceChannel(this.teamAVCid, this.teamARecordingSessionId));
+        queue.queue(async () => this.moveUsersStopRecordingAndDeleteVoiceChannel(this.teamBVCid, this.teamBRecordingSessionId));
     }
 
-    private async moveUsersAndDeleteVoiceChannel(channelId: string) {
+    private async moveUsersStopRecordingAndDeleteVoiceChannel(channelId: string, recordingSessionId: string) {
         const channel = await this.guild.channels.fetch(channelId);
         if (!channel) {
             return;
@@ -1934,7 +1940,59 @@ export class GameController {
                 member.voice.setChannel(tokens.PostMatchVoiceChannel, "match cleanup")
             )
         );
+
+        await this.stopRecording(recordingSessionId, channelId);
         await voiceChannel.delete();
+    }
+
+    private async startTeamRecordings() {
+        const teamAUserIds = this.users.filter(user => user.team == 0).map(user => user.discordId);
+        const teamBUserIds = this.users.filter(user => user.team == 1).map(user => user.discordId);
+
+        if (!this.teamARecordingSessionId) {
+            try {
+                const recordingService = this.data.getRecordingService();
+                const session = await recordingService.startRecording({
+                    guildId: this.guild.id,
+                    voiceChannelId: this.teamAVCid,
+                    textChannelId: this.teamAChannelId,
+                    discordUserIds: teamAUserIds,
+                });
+                this.teamARecordingSessionId = session.id;
+                await logInfo(`Started Team A recording for match ${this.matchNumber}: ${session.id}`, this.client);
+            } catch (error) {
+                await logWarn(`Failed to start Team A recording for match ${this.matchNumber}: ${formatRecordingError(error)}`, this.client);
+            }
+        }
+
+        if (!this.teamBRecordingSessionId) {
+            try {
+                const recordingService = this.data.getRecordingService();
+                const session = await recordingService.startRecording({
+                    guildId: this.guild.id,
+                    voiceChannelId: this.teamBVCid,
+                    textChannelId: this.teamBChannelId,
+                    discordUserIds: teamBUserIds,
+                });
+                this.teamBRecordingSessionId = session.id;
+                await logInfo(`Started Team B recording for match ${this.matchNumber}: ${session.id}`, this.client);
+            } catch (error) {
+                await logWarn(`Failed to start Team B recording for match ${this.matchNumber}: ${formatRecordingError(error)}`, this.client);
+            }
+        }
+    }
+
+    private async stopRecording(recordingSessionId: string, channelId: string) {
+        try {
+            const session = recordingSessionId
+                ? await this.data.getRecordingService().stopRecording(recordingSessionId)
+                : await this.data.getRecordingService().stopActiveRecordingForVoiceChannel(this.guild.id, channelId);
+            if (session) {
+                await logInfo(`Stopped recording for match ${this.matchNumber}, channel ${channelId}: ${session.id}`, this.client);
+            }
+        } catch (error) {
+            await logWarn(`Failed to stop recording for match ${this.matchNumber}, channel ${channelId}: ${formatRecordingError(error)}`, this.client);
+        }
     }
 
     async sendScoreEmbed() {

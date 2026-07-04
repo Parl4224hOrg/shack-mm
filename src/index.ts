@@ -29,6 +29,7 @@ const main = async () => {
         console.log(`Received ${signal}; shutting down`);
 
         try {
+            await data.close();
             await closeStatsBrowser();
             BOT.destroy();
         } catch (error) {

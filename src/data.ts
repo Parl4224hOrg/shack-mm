@@ -26,6 +26,7 @@ import fs from "fs";
 import {join} from "path";
 import {getReservedServer, getServerReservation, releaseServerReservation} from "./utility/server-util";
 import {Heap} from "./utility/Heap";
+import {RecordingService} from "./recording/service";
 
 type TicketChannel = {
     channelId: string;
@@ -71,6 +72,7 @@ export class Data {
     private loaded: boolean = false;
     private queueSaveCache = "";
     private ticketCleanupRunning = false;
+    private recordingService?: RecordingService;
 
     constructor(client: Client) {
         this.client = client
@@ -86,6 +88,18 @@ export class Data {
 
     public getServers() {
         return this.servers;
+    }
+
+    public getRecordingService() {
+        if (!this.recordingService) {
+            this.recordingService = new RecordingService();
+        }
+
+        return this.recordingService;
+    }
+
+    public async close() {
+        await this.recordingService?.close();
     }
 
     getSpeakerStatus(channelId: string, userId: string): {canSpeak: boolean, canJoin: boolean} {

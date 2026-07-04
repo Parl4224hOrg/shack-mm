@@ -75,6 +75,21 @@ export default {
     VoteTime: 30,
     VoteSize: 7,
     AbandonTime: 30,
+    Recording: {
+        PostgresConnectionString: process.env.RECORDING_POSTGRES_CONNECTION_STRING ?? "",
+        RabbitMq: {
+            Host: "clvr-rabbitmq",
+            Port: 5672,
+            UserName: process.env.RECORDING_RABBITMQ_USERNAME ?? "",
+            Password: process.env.RECORDING_RABBITMQ_PASSWORD ?? "",
+            VirtualHost: "/",
+        },
+        AssignmentQueue: "smm.recorder.assignments",
+        CommandQueuePrefix: "smm.recorder.commands",
+        SessionRetentionDuration: "24h",
+        RecorderHeartbeatStaleThreshold: "30s",
+        StartClaimTimeout: "30s",
+    },
     Images: {
         Dust2: "https://shackmm.com/static/images/map/c80a4af9-a05c-4e1e-a290-a883d45e27c4.jpg",
         Oilrig: "https://shackmm.com/static/images/map/83f94459-d196-4caa-b822-169b9dd9454f.png",
