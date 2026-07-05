@@ -18,10 +18,17 @@ export enum RecordingTrackType {
     Participant = 1,
 }
 
+export enum RecordingTeam {
+    A = 0,
+    B = 1,
+}
+
 export type StartRecordingInput = {
     guildId: string;
     voiceChannelId: string;
     textChannelId?: string;
+    matchId: number;
+    team: RecordingTeam;
     discordUserIds: string[];
 };
 
@@ -30,6 +37,8 @@ export type RecordingSessionDto = {
     guildId: string;
     voiceChannelId: string;
     textChannelId?: string;
+    matchId: number;
+    team: RecordingTeam;
     discordUserIds: string[];
     assignedRecorderId?: string;
     status: RecordingSessionStatus;
@@ -79,6 +88,10 @@ export function recorderStatusName(status: RecorderStatus): string {
 
 export function trackTypeName(type: RecordingTrackType): string {
     return RecordingTrackType[type]?.toLowerCase() ?? `unknown:${type}`;
+}
+
+export function recordingTeamName(team: RecordingTeam): string {
+    return RecordingTeam[team]?.toLowerCase() ?? `unknown:${team}`;
 }
 
 export function isTerminalRecordingStatus(status: RecordingSessionStatus): boolean {

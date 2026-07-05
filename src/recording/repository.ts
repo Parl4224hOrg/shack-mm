@@ -7,6 +7,7 @@ import {
     recorderStatusName,
     RecordingSessionDto,
     RecordingSessionStatus,
+    RecordingTeam,
     RecordingTrackDto,
     RecordingTrackType,
     recordingStatusName,
@@ -19,6 +20,8 @@ type RecordingSessionRow = {
     guild_id: string;
     voice_channel_id: string;
     text_channel_id: string | null;
+    match_id: number;
+    team: number;
     discord_user_ids: string[];
     assigned_recorder_id: string | null;
     status: number;
@@ -85,13 +88,15 @@ export class RecordingRepository {
                 guild_id,
                 voice_channel_id,
                 text_channel_id,
+                match_id,
+                team,
                 discord_user_ids,
                 status,
                 created_at,
                 expires_at,
                 retention_pinned
             )
-            values ($1, $2::bigint, $3::bigint, $4::bigint, $5::bigint[], $6, $7, $8, false)
+            values ($1, $2::bigint, $3::bigint, $4::bigint, $5, $6, $7::bigint[], $8, $9, $10, false)
             returning *
             `,
             [
@@ -99,6 +104,8 @@ export class RecordingRepository {
                 input.guildId,
                 input.voiceChannelId,
                 input.textChannelId ?? null,
+                input.matchId,
+                input.team,
                 input.discordUserIds,
                 RecordingSessionStatus.Pending,
                 now,
@@ -215,12 +222,15 @@ export class RecordingRepository {
 
 function mapSession(row: RecordingSessionRow): RecordingSessionDto {
     const status = row.status as RecordingSessionStatus;
+    const team = row.team as RecordingTeam;
 
     return {
         id: row.recording_session_id,
         guildId: row.guild_id,
         voiceChannelId: row.voice_channel_id,
         textChannelId: row.text_channel_id ?? undefined,
+        matchId: row.match_id,
+        team,
         discordUserIds: row.discord_user_ids,
         assignedRecorderId: row.assigned_recorder_id ?? undefined,
         status,

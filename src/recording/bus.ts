@@ -20,6 +20,8 @@ export class RecordingBus {
             SessionId: sessionId,
             GuildId: input.guildId,
             VoiceChannelId: input.voiceChannelId,
+            MatchId: input.matchId,
+            Team: input.team,
             DiscordUserIds: input.discordUserIds,
         };
 

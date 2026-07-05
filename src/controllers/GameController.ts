@@ -38,6 +38,7 @@ import {createActionUser} from "../modules/constructors/createAction";
 import {Actions} from "../database/models/ActionModel";
 import {RateLimitedQueue} from "../utility/rate-limited-queue";
 import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
+import {RecordingTeam} from "../recording/types";
 
 const getKillFeedApiUrl = (baseUrl: string, path: string) => `${baseUrl.replace(/\/$/, "")}${path}`;
 
@@ -1956,6 +1957,8 @@ export class GameController {
                     guildId: this.guild.id,
                     voiceChannelId: this.teamAVCid,
                     textChannelId: this.teamAChannelId,
+                    matchId: this.matchNumber,
+                    team: RecordingTeam.A,
                     discordUserIds: teamAUserIds,
                 });
                 this.teamARecordingSessionId = session.id;
@@ -1972,6 +1975,8 @@ export class GameController {
                     guildId: this.guild.id,
                     voiceChannelId: this.teamBVCid,
                     textChannelId: this.teamBChannelId,
+                    matchId: this.matchNumber,
+                    team: RecordingTeam.B,
                     discordUserIds: teamBUserIds,
                 });
                 this.teamBRecordingSessionId = session.id;

@@ -3,7 +3,7 @@ import {z} from "zod";
 import {RecordingBus} from "./bus";
 import {loadRecordingConfig, RecordingConfig} from "./config";
 import {RecordingRepository} from "./repository";
-import {isTerminalRecordingStatus, RecordingSessionDto, RecordingSessionStatus, StartRecordingInput} from "./types";
+import {isTerminalRecordingStatus, RecordingSessionDto, RecordingSessionStatus, RecordingTeam, StartRecordingInput} from "./types";
 
 const snowflakeSchema = z.string().regex(/^\d{1,20}$/);
 const uuidSchema = z.string().uuid();
@@ -12,6 +12,8 @@ const startRecordingSchema = z.object({
     guildId: snowflakeSchema,
     voiceChannelId: snowflakeSchema,
     textChannelId: snowflakeSchema.optional(),
+    matchId: z.number().int().nonnegative(),
+    team: z.nativeEnum(RecordingTeam),
     discordUserIds: z.array(snowflakeSchema).min(1),
 });
 
