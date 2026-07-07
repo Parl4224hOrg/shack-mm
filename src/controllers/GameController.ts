@@ -253,6 +253,7 @@ export class GameController {
 
     serverScoreA: number = -1;
     serverScoreB: number = -1;
+    serverScoreLog: string[] = [];
     private scorePollTimeout: NodeJS.Timeout | null = null;
     private scorePollRunning: boolean = false;
     private scorePollGeneration: number = 0;
@@ -386,6 +387,7 @@ export class GameController {
 
         this.serverScoreA = -1;
         this.serverScoreB = -1;
+        this.serverScoreLog = [];
 
         this.scorePollRunning = true;
         const pollGeneration = this.scorePollGeneration;
@@ -409,6 +411,7 @@ export class GameController {
 
                 this.serverScoreA = scoreA;
                 this.serverScoreB = scoreB;
+                this.recordServerScore(scoreA, scoreB);
 
                 // interval === -1 means a team has won; stop polling.
                 if (interval == -1 && this.submitCooldown <= 0) {
@@ -922,8 +925,71 @@ export class GameController {
         return `${this.serverScoreA}-${this.serverScoreB}`;
     }
 
+    private recordServerScore(scoreA: number, scoreB: number) {
+        if (scoreA < 0 || scoreB < 0) {
+            return;
+        }
+
+        if (this.serverScoreLog.length == 0) {
+            this.serverScoreLog.push("0-0");
+        }
+
+        const lastScore = this.serverScoreLog[this.serverScoreLog.length - 1];
+        if (lastScore == `${scoreA}-${scoreB}`) {
+            return;
+        }
+
+        const [lastA, lastB] = lastScore.split("-").map(Number);
+        if (lastA == scoreA && lastB <= scoreB) {
+            for (let nextB = lastB + 1; nextB <= scoreB; nextB++) {
+                this.serverScoreLog.push(`${scoreA}-${nextB}`);
+            }
+            return;
+        }
+
+        if (lastB == scoreB && lastA <= scoreA) {
+            for (let nextA = lastA + 1; nextA <= scoreA; nextA++) {
+                this.serverScoreLog.push(`${nextA}-${scoreB}`);
+            }
+            return;
+        }
+
+        this.serverScoreLog.push(`${scoreA}-${scoreB}`);
+    }
+
+    private getServerScoreHistoryLogText() {
+        if (this.serverScoreA < 0 || this.serverScoreB < 0) {
+            return "unavailable";
+        }
+
+        const currentScore = `${this.serverScoreA}-${this.serverScoreB}`;
+        const scoreLog = this.serverScoreLog.length > 0 ? [...this.serverScoreLog] : [currentScore];
+        if (scoreLog[scoreLog.length - 1] != currentScore) {
+            scoreLog.push(currentScore);
+        }
+
+        return scoreLog.join("\n");
+    }
+
     private getTeamLogText(user: GameUser) {
         return user.team == 0 ? "Team A" : "Team B";
+    }
+
+    private async sendAbandonLog(user: GameUser, acceptFail: boolean, forced: boolean, validAbandon: boolean) {
+        const abandonLogChannel = await this.client.channels.fetch(tokens.AbandonLogChannel) as TextChannel;
+        const isAcceptPhaseAbandon = this.state === 0;
+        const eventText = validAbandon
+            ? (acceptFail || isAcceptPhaseAbandon ? "failed to accept" : forced ? "was force abandoned" : "abandoned")
+            : "tried to abandon once a team had reached 9 rounds";
+        const scoreText = this.getServerScoreLogText();
+        const scoreLogText = this.getServerScoreHistoryLogText();
+
+        await abandonLogChannel.send({
+            content: `Match ${this.matchNumber}: User <@${user.discordId}> (${this.getTeamLogText(user)}) ${eventText}${scoreText == "unavailable" ? "" : ` at score ${scoreText}`}
+Score log:
+${scoreLogText}`,
+            allowedMentions: {users: []}
+        });
     }
 
     async abandon(user: GameUser, acceptFail: boolean, forced: boolean = false, sendForcedMessage: boolean = false) {
@@ -936,6 +1002,9 @@ export class GameController {
                     content: `Match ${this.matchNumber}: User <@${user.discordId}> (${this.getTeamLogText(user)}) tried to abandon once a team had reached 9 rounds. Score: ${this.getServerScoreLogText()}`,
                     allowedMentions: {users: []}
                 });
+                if (!forced) {
+                    await this.sendAbandonLog(user, acceptFail, forced, validAbandon);
+                }
             }
         }
         if (validAbandon || forced) {
@@ -944,6 +1013,7 @@ export class GameController {
                 content: `Match ${this.matchNumber}: User <@${user.discordId}> (${this.getTeamLogText(user)}) ${forced ? "was force abandoned" : "abandoned"} at score ${this.getServerScoreLogText()}`,
                 allowedMentions: {users: []}
             });
+            await this.sendAbandonLog(user, acceptFail, forced, validAbandon || forced);
 
             this.requeueArray = this.requeueArray.filter((id) => !id.equals(user.dbId));
             this.abandoned = true;

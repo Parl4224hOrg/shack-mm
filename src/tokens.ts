@@ -37,6 +37,7 @@ export default {
     LeaderboardMessage: "1183920824164569130",
     LeaderboardChannel: "1171851273499312159",
     GameLogChannel: "1185432060173746236",
+    AbandonLogChannel: "1523885614058045510",
     QueueLogChannel: "1191799332924559360",
     ModeratorLogChannel: "1249964183588438158",
     RefereeLogChannel: "1252310023116161075",

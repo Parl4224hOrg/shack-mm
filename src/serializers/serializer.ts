@@ -113,6 +113,9 @@ class Serializer {
             serverSetup: toSerialize.serverSetup,
             joinedPlayers: this.joinedPlayersSerializer(toSerialize.joinedPlayers),
             serverId: toSerialize.serverId,
+            serverScoreA: toSerialize.serverScoreA,
+            serverScoreB: toSerialize.serverScoreB,
+            serverScoreLog: toSerialize.serverScoreLog,
             maps: this.mapsSerializer(toSerialize.maps),
             votingFinished: toSerialize.votingFinished,
             usedCommunity: toSerialize.usedCommunity,
@@ -273,6 +276,9 @@ class Serializer {
         game.serverSetup = parsed.serverSetup;
         game.joinedPlayers = this.joinedPlayersDeserializer(parsed.joinedPlayers);
         game.serverId = parsed.serverId;
+        game.serverScoreA = parsed.serverScoreA ?? -1;
+        game.serverScoreB = parsed.serverScoreB ?? -1;
+        game.serverScoreLog = parsed.serverScoreLog ?? [];
         game.maps = this.mapsDeserializer(parsed.maps);
         game.votingFinished = parsed.votingFinished;
         game.usedCommunity = parsed.usedCommunity;
