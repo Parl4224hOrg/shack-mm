@@ -20,6 +20,7 @@ const PUPPETEER_LAUNCH_ARGS = [
     "--disable-dev-shm-usage",
     "--disable-gpu",
     "--disable-crash-reporter",
+    "--disable-breakpad",
     "--disable-crashpad",
     "--no-zygote",
 ];
