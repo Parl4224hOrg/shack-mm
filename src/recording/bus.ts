@@ -30,12 +30,24 @@ export class RecordingBus {
     }
 
     async publishStopCommand(sessionId: string, recorderId: string): Promise<void> {
+        await this.publishRecorderCommand(sessionId, recorderId, "stop_recording");
+    }
+
+    async publishPauseCommand(sessionId: string, recorderId: string): Promise<void> {
+        await this.publishRecorderCommand(sessionId, recorderId, "pause_recording");
+    }
+
+    async publishResumeCommand(sessionId: string, recorderId: string): Promise<void> {
+        await this.publishRecorderCommand(sessionId, recorderId, "resume_recording");
+    }
+
+    private async publishRecorderCommand(sessionId: string, recorderId: string, command: string): Promise<void> {
         const channel = await this.getChannel();
         const queue = `${this.config.commandQueuePrefix}.${recorderId}`;
 
         await channel.assertQueue(queue, {durable: true});
         await this.sendToQueue(channel, queue, {
-            command: "stop_recording",
+            command,
             sessionId,
         }, sessionId);
     }

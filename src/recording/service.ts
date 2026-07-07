@@ -97,6 +97,22 @@ export class RecordingService {
         return await this.getRequiredSession(id);
     }
 
+    async pauseRecording(sessionId: string): Promise<RecordingSessionDto> {
+        return await this.publishCommandToAssignedRecorder(
+            uuidSchema.parse(sessionId),
+            "pause",
+            (id, recorderId) => this.bus.publishPauseCommand(id, recorderId),
+        );
+    }
+
+    async resumeRecording(sessionId: string): Promise<RecordingSessionDto> {
+        return await this.publishCommandToAssignedRecorder(
+            uuidSchema.parse(sessionId),
+            "resume",
+            (id, recorderId) => this.bus.publishResumeCommand(id, recorderId),
+        );
+    }
+
     async stopActiveRecordingForVoiceChannel(guildId: string, voiceChannelId: string): Promise<RecordingSessionDto | null> {
         const session = await this.repository.findActiveSession(
             snowflakeSchema.parse(guildId),
@@ -120,6 +136,26 @@ export class RecordingService {
 
     async listRecorders() {
         return await this.repository.listRecorders();
+    }
+
+    private async publishCommandToAssignedRecorder(sessionId: string, action: string, publish: (sessionId: string, recorderId: string) => Promise<void>): Promise<RecordingSessionDto> {
+        const session = await this.repository.getSession(sessionId);
+
+        if (!session) {
+            throw new Error("Recording session was not found");
+        }
+
+        if (isTerminalRecordingStatus(session.status)) {
+            return session;
+        }
+
+        if (!session.assignedRecorderId) {
+            throw new Error(`Cannot ${action} recording before recorder assignment`);
+        }
+
+        await publish(sessionId, session.assignedRecorderId);
+        console.log(`Published recording ${action} command ${sessionId} to ${session.assignedRecorderId}`);
+        return await this.getRequiredSession(sessionId);
     }
 
     private async getRequiredSession(sessionId: string): Promise<RecordingSessionDto> {

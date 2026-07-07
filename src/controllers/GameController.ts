@@ -1,5 +1,5 @@
 import {Types} from "mongoose";
-import {ChannelType, Client, Collection, EmbedBuilder, Guild, MessageFlagsBitField, StageInstancePrivacyLevel, TextChannel, VoiceBasedChannel} from "discord.js";
+import {ChannelType, Client, Collection, EmbedBuilder, Guild, MessageFlagsBitField, StageChannel, StageInstancePrivacyLevel, TextChannel, VoiceBasedChannel} from "discord.js";
 import {getGameById} from "../modules/getters/getGame";
 import moment from "moment/moment";
 import {processMMR} from "../utility/processMMR";
@@ -1752,6 +1752,48 @@ export class GameController {
         }
         await this.server.resetSND();
         await this.restartKillFeed();
+    }
+
+    async fixStage(userId: Types.ObjectId): Promise<InternalResponse> {
+        const team = this.getTeam(userId);
+        if (team < 0) {
+            return {success: false, message: "Could not find the team you are on"};
+        }
+
+        const channelId = team == 0 ? this.teamAVCid : this.teamBVCid;
+        const recordingSessionId = team == 0 ? this.teamARecordingSessionId : this.teamBRecordingSessionId;
+        const roleId = team == 0 ? this.teamARoleId : this.teamBRoleId;
+        const teamLabel = team == 0 ? "Team A" : "Team B";
+        const channel = await this.guild.channels.fetch(channelId);
+        if (!channel || channel.type != ChannelType.GuildStageVoice) {
+            return {success: false, message: `Could not find ${teamLabel}'s stage channel`};
+        }
+
+        const stageChannel = channel as StageChannel;
+        if (recordingSessionId) {
+            await this.data.getRecordingService().pauseRecording(recordingSessionId);
+            await logInfo(`Paused ${teamLabel} recording for stage fix in match ${this.matchNumber}: ${recordingSessionId}`, this.client);
+        }
+
+        await stageChannel.stageInstance?.delete();
+        await stageChannel.createStageInstance({
+            privacyLevel: StageInstancePrivacyLevel.GuildOnly,
+            sendStartNotification: false,
+            topic: `${teamLabel}-${this.matchNumber}`,
+        });
+
+        if (recordingSessionId) {
+            await this.data.getRecordingService().resumeRecording(recordingSessionId);
+            await logInfo(`Resumed ${teamLabel} recording after stage fix in match ${this.matchNumber}: ${recordingSessionId}`, this.client);
+        }
+
+        const finalChannel = await this.guild.channels.fetch(this.finalChannelId) as TextChannel;
+        await finalChannel.send({
+            content: `<@&${roleId}> please rejoin the stage`,
+            allowedMentions: {roles: [roleId], users: []}
+        });
+
+        return {success: true, message: `${teamLabel} stage fixed`};
     }
 
     async confirmScoreSubmit() {

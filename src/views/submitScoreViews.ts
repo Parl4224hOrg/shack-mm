@@ -8,6 +8,7 @@ import {abandonButton} from "../buttons/match/abandon/abandonButton";
 import {promptResetGame} from "../buttons/match/reset-game/prompt";
 import {promptSwitchMap} from "../buttons/match/switch-map/prompt";
 import {resubmit} from "../buttons/match/score/resubmit";
+import {promptFixStage} from "../buttons/match/fix-stage/prompt";
 
 export const initialSubmit = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -16,7 +17,7 @@ export const initialSubmit = () => {
 
 export const initialSubmitServer = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(promptResetGame.data, promptSwitchMap.data);
+        .addComponents(promptResetGame.data, promptSwitchMap.data, promptFixStage.data);
 }
 
 export const roundsWon = () => {
