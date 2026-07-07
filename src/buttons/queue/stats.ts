@@ -18,7 +18,9 @@ export const stats: Button = {
             if (userStats.gamesPlayedSinceReset < 10) {
                 await interaction.reply({flags: MessageFlagsBitField.Flags.Ephemeral, content: "This user has not played enough games to view their stats, you can still see their current available stats by setting the use-old-stats option to true."});
             } else {
+                console.log("[stats-button] Generating stats image", { discordUserId: interaction.user.id, dbUserId: String(user._id), queueId: "SND", gamesPlayed: userStats.gamesPlayed, gamesPlayedSinceReset: userStats.gamesPlayedSinceReset, mmr: userStats.mmr });
                 const image = await generateStatsImage(userStats, interaction.user.displayName);
+                console.log("[stats-button] Stats image generated", { discordUserId: interaction.user.id, bytes: image.length });
                 await interaction.reply({files: [image], flags: MessageFlagsBitField.Flags.Ephemeral});
             }
         } catch (e) {

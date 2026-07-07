@@ -12,14 +12,14 @@ export async function logError(error: any, interaction: Interaction) {
     embed.setFooter({ text: `${time}` });
     let fields: EmbedField[] = [];
 
-    // if (error.stack) {
-    //     fields.push({
-    //         name: 'error',
-    //         value: `\`\`\`${error.stack}\`\`\``,
-    //         inline: false
-    //     });
-    // }
-
+    if (error.stack) {
+        const stack = String(error.stack);
+        fields.push({
+            name: 'stack',
+            value: `\`\`\`${stack.slice(0, 1000)}\`\`\``,
+            inline: false
+        });
+    }
     if (error.message) {
         fields.push({
             name: 'message',

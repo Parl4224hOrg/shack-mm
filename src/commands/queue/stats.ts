@@ -41,7 +41,9 @@ export const stats: Command = {
                         const embed = statsEmbed(userStats, dbUser, user.username, user.avatarURL()!)
                         await interaction.reply({embeds: [embed]});
                     } else {
+                        console.log("[stats-command] Generating stats image", { discordUserId: user.id, dbUserId: String(dbUser._id), queueId, gamesPlayed: userStats.gamesPlayed, gamesPlayedSinceReset: userStats.gamesPlayedSinceReset, mmr: userStats.mmr });
                         const image = await generateStatsImage(userStats, user.displayName);
+                        console.log("[stats-command] Stats image generated", { discordUserId: user.id, bytes: image.length });
                         await interaction.reply({files: [image]});
                     }
                 }
