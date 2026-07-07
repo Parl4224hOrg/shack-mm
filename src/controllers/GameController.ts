@@ -2049,9 +2049,11 @@ ${scoreLogText}`,
 
         const voiceChannel = channel as VoiceBasedChannel;
         await Promise.allSettled(
-            voiceChannel.members.map(member =>
-                member.voice.setChannel(tokens.PostMatchVoiceChannel, "match cleanup")
-            )
+            voiceChannel.members
+                .filter(member => this.data.checkCacheByDiscord(member.id)?.moveAfterGame !== false)
+                .map(member =>
+                    member.voice.setChannel(tokens.PostMatchVoiceChannel, "match cleanup")
+                )
         );
 
         await this.stopRecording(recordingSessionId, channelId);

@@ -23,6 +23,7 @@ export interface UserInt extends Document {
     dmMatch: boolean;
     dmQueue: boolean;
     dmAuto: boolean;
+    moveAfterGame: boolean;
     lastReduction: number;
     gamesPlayedSinceReduction: number;
     lastReductionAbandon: number;
@@ -54,6 +55,10 @@ export const UserSchema = new Schema({
     dmMatch: Boolean,
     dmQueue: Boolean,
     dmAuto: Boolean,
+    moveAfterGame: {
+        type: Boolean,
+        default: true,
+    },
     lastReduction: Number,
     gamesPlayedSinceReduction: Number,
     lastReductionAbandon: Number,
