@@ -13,7 +13,7 @@ export const promptFixStage: Button = {
     run: async (interaction) => {
         try {
             await interaction.reply({
-                content: "Are you sure you want to fix your team's stage?",
+                content: "This will end the stage for your team and fix the issue where you cannot hear each other.\nAre you sure you want to fix your team's stage?",
                 flags: MessageFlagsBitField.Flags.Ephemeral,
                 components: [new ActionRowBuilder<MessageActionRowComponentBuilder>()
                     .addComponents(confirmFixStage.data, cancelFixStage.data).toJSON()],
