@@ -12,6 +12,17 @@ let browserPromise: Promise<Browser> | null = null;
 let browserIdleTimer: NodeJS.Timeout | null = null;
 let activePages = 0;
 let templateFn: Handlebars.TemplateDelegate | null = null;
+const PUPPETEER_LAUNCH_ARGS = [
+    "--disable-web-security",
+    "--allow-file-access-from-files",
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-gpu",
+    "--disable-crash-reporter",
+    "--disable-crashpad",
+    "--no-zygote",
+];
 const configuredBrowserIdleTimeoutMs = Number(process.env.STATS_BROWSER_IDLE_MS ?? 60_000);
 const BROWSER_IDLE_TIMEOUT_MS = Number.isFinite(configuredBrowserIdleTimeoutMs)
     ? configuredBrowserIdleTimeoutMs
@@ -56,13 +67,14 @@ async function getBrowser(): Promise<Browser> {
         logStatsImage("Launching Puppeteer browser", {
             cwd: process.cwd(),
             executablePath: process.env.PUPPETEER_EXECUTABLE_PATH ?? "default",
+            args: PUPPETEER_LAUNCH_ARGS,
             idleTimeoutMs: BROWSER_IDLE_TIMEOUT_MS,
         });
 
         const nextBrowserPromise = puppeteer.launch({
             headless: true,
             executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
-            args: ["--disable-web-security", "--allow-file-access-from-files", "--no-sandbox"],
+            args: PUPPETEER_LAUNCH_ARGS,
         });
 
         browserPromise = nextBrowserPromise;
