@@ -40,6 +40,6 @@ export const accept: Command = {
             await logError(e, interaction);
         }
     },
-    name: 'abandon',
+    name: 'accept',
 }
 
