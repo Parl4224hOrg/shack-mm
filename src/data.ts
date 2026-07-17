@@ -434,6 +434,7 @@ export class Data {
             }
         } catch (e) {
             await logWarn("Error in main tick loop", this.client);
+            console.error(e);
         }
     }
 
