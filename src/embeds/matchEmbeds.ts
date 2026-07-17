@@ -58,7 +58,7 @@ export const matchFinalEmbed = (game: GameInt, users: GameUserWithStats[], mapDa
                 .setSpacing(SeparatorSpacingSize.Large),
         )
         .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`## Team B - ${game.sides[1]}\n${teamA}`),
+            new TextDisplayBuilder().setContent(`## Team B - ${game.sides[1]}\n${teamB}`),
         );
 }
 
