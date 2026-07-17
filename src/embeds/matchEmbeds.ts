@@ -21,7 +21,7 @@ export const matchFinalEmbed = (game: GameInt, users: GameUserWithStats[], mapDa
     for (let user of users) {
         if (user.team == 0) {
             const index = game.teamA.indexOf(user.dbId);
-            const change = index >= 0 ? game.teamBChanges[index] : 0;
+            const change = index >= 0 ? game.teamAChanges[index] : 0;
             let changeText = change != 0 ? change > 0 ? `Δ+${change.toFixed(2)}` : `Δ${change.toFixed(2)}` : "Δ ??.??";
             teamA += `\n- ${changeText} | <@${user.discordId}> - ${user.kills}/${user.deaths}/${user.assists}`;
         } else {
