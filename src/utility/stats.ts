@@ -29,15 +29,6 @@ const BROWSER_IDLE_TIMEOUT_MS = Number.isFinite(configuredBrowserIdleTimeoutMs)
     ? configuredBrowserIdleTimeoutMs
     : 60_000;
 
-function logStatsImage(message: string, details?: Record<string, unknown>) {
-    if (details) {
-        console.log(`[stats-image] ${message}`, details);
-        return;
-    }
-
-    console.log(`[stats-image] ${message}`);
-}
-
 function errorMessage(error: unknown): string {
     if (error instanceof Error) {
         return error.stack ?? error.message;
@@ -65,13 +56,6 @@ async function getBrowser(): Promise<Browser> {
     clearStatsBrowserIdleTimer();
 
     if (!browserPromise) {
-        logStatsImage("Launching Puppeteer browser", {
-            cwd: process.cwd(),
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH ?? "default",
-            args: PUPPETEER_LAUNCH_ARGS,
-            idleTimeoutMs: BROWSER_IDLE_TIMEOUT_MS,
-        });
-
         const nextBrowserPromise = puppeteer.launch({
             headless: true,
             executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
@@ -82,9 +66,7 @@ async function getBrowser(): Promise<Browser> {
 
         nextBrowserPromise
             .then((browser) => {
-                logStatsImage("Puppeteer browser launched");
                 browser.once("disconnected", () => {
-                    logStatsImage("Puppeteer browser disconnected");
                     if (browserPromise === nextBrowserPromise) {
                         browserPromise = null;
                     }
@@ -96,8 +78,6 @@ async function getBrowser(): Promise<Browser> {
                     browserPromise = null;
                 }
             });
-    } else {
-        logStatsImage("Reusing Puppeteer browser");
     }
     return browserPromise;
 }
@@ -143,20 +123,10 @@ async function getTemplate(): Promise<Handlebars.TemplateDelegate> {
     if (!templateFn) {
         const mountedFolder = join(process.cwd(), "../../mounted");
         const filePath = path.join(mountedFolder, "RankCardTemplate.html");
-        logStatsImage("Loading stats template", {
-            cwd: process.cwd(),
-            mountedFolder,
-            filePath,
-            exists: fs.existsSync(filePath),
-        });
 
         try {
             const src = fs.readFileSync(filePath, "utf8");
             templateFn = Handlebars.compile(src.toString());
-            logStatsImage("Stats template compiled", {
-                filePath,
-                bytes: Buffer.byteLength(src, "utf8"),
-            });
         } catch (error) {
             console.error("[stats-image] Failed to load stats template", {
                 filePath,
@@ -166,8 +136,6 @@ async function getTemplate(): Promise<Handlebars.TemplateDelegate> {
             });
             throw error;
         }
-    } else {
-        logStatsImage("Using cached stats template");
     }
     return templateFn;
 }
@@ -195,10 +163,6 @@ function resolveAssetPath(fileName: string, folders: string[]) {
         const candidate = path.join(folder, fileName);
         attemptedPaths.push(candidate);
         if (fs.existsSync(candidate)) {
-            logStatsImage("Resolved stats asset", {
-                fileName,
-                path: candidate,
-            });
             return candidate;
         }
     }
@@ -303,12 +267,6 @@ export function getLatestMmrStreak(history: number[]): MmrStreak {
 
 
 export const generateStatsImage = async (stats: StatsInt, name: string): Promise<Buffer> => {
-    const startTime = Date.now();
-    logStatsImage("Starting stats image generation", {
-        playerName: name,
-        ...describeStats(stats),
-    });
-
     const gradients = {
         wood: "linear-gradient(0deg, #7a3a1e 0%, #4f200f 45%, #2b1209 100%)",
         copper: "linear-gradient(0deg, #c97b63 0%, #a35741 45%, #6b3527 100%)",
@@ -338,16 +296,6 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
             win: getWlImageBase64("win"),
             loss: getWlImageBase64("loss"),
         };
-        logStatsImage("Prepared stats image data", {
-            rankName: rank.name,
-            gradientFound: gradients[rank.name.toLowerCase() as keyof typeof gradients] !== undefined,
-            nextRankThreshold,
-            minMmr: minMaxMmr.min,
-            maxMmr: minMaxMmr.max,
-            streakLength: streak.streakLength,
-            streakType: streak.streakType,
-            historyItems,
-        });
     } catch (error) {
         console.error("[stats-image] Failed while preparing stats image data", {
             playerName: name,
@@ -393,9 +341,6 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
             }),
             rankRange: getRankRangeText(rank.threshold),
         });
-        logStatsImage("Stats HTML rendered", {
-            bytes: Buffer.byteLength(outputHtml, "utf8"),
-        });
     } catch (error) {
         console.error("[stats-image] Failed while rendering stats HTML", {
             playerName: name,
@@ -410,33 +355,24 @@ export const generateStatsImage = async (stats: StatsInt, name: string): Promise
     let page: Page | null = null;
 
     try {
-        logStatsImage("Opening Puppeteer page");
         page = await browser.newPage();
         activePages++;
 
-        logStatsImage("Setting Puppeteer viewport");
         await page.setViewport({
             width: 360,
             height: 600,
             deviceScaleFactor: 2, // for sharper text
         });
 
-        logStatsImage("Setting stats page content");
         await page.setContent(outputHtml, {
             waitUntil: "load",
         });
 
-        logStatsImage("Taking stats screenshot");
-        const screenshot = await page.screenshot({
+        return await page.screenshot({
             type: "png",
             fullPage: true,
             omitBackground: true
         }) as Buffer;
-        logStatsImage("Stats image generation complete", {
-            bytes: screenshot.length,
-            durationMs: Date.now() - startTime,
-        });
-        return screenshot;
     } catch (error) {
         console.error("[stats-image] Failed while capturing stats image", {
             playerName: name,
