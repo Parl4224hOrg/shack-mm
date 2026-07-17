@@ -1,54 +1,65 @@
-import {EmbedBuilder} from "discord.js";
-import {GameUser} from "../interfaces/Game";
+import {
+    ContainerBuilder,
+    EmbedBuilder,
+    MediaGalleryBuilder,
+    MediaGalleryItemBuilder,
+    SeparatorBuilder,
+    SeparatorSpacingSize,
+    TextDisplayBuilder
+} from "discord.js";
+import {GameUser, GameUserWithStats} from "../interfaces/Game";
 import {GameInt} from "../database/models/GameModel";
 import {getUserById} from "../modules/getters/getUser";
 import {GameController} from "../controllers/GameController";
 import {Data} from "../data";
 import {MapInt} from "../database/models/MapModel";
 
-export const matchFinalEmbed = (game: GameInt, users: GameUser[], mapData: MapInt) => {
-    const embed = new EmbedBuilder();
-
-    embed.setTitle(`Match ${game.matchId} ${game.map.toUpperCase()} ${game.queueId}`);
-    if (game.winner == 0) {
-        embed.setDescription(`Team A wins against Team B ${game.scoreA}-${game.scoreB}`);
-    } else if (game.winner == 1) {
-        embed.setDescription(`Team B wins against Team A ${game.scoreB}-${game.scoreA}`);
-    } else {
-        embed.setDescription(`Team A and B draw ${game.scoreA}-${game.scoreB}`);
-    }
-
+export const matchFinalEmbed = (game: GameInt, users: GameUserWithStats[], mapData: MapInt) => {
     let teamA = '';
     let teamB = '';
 
     for (let user of users) {
         if (user.team == 0) {
             const index = game.teamA.indexOf(user.dbId);
-            let change = index >= 0 ? game.teamAChanges[index].toFixed(2) : "??.??";
-            teamA += `Δ${change} | <@${user.discordId}>\n`;
+            const change = index >= 0 ? game.teamBChanges[index] : 0;
+            let changeText = change != 0 ? change > 0 ? `Δ+${change}` : `Δ${change}` : "Δ ??.??";
+            teamA += `\n- ${changeText} | <@${user.discordId}> - ${user.kills}/${user.deaths}/${user.assists}`;
         } else {
             const index = game.teamB.indexOf(user.dbId);
-            let change = index >= 0 ? game.teamBChanges[index].toFixed(2) : "??.??";
-            teamB += `Δ${change} | <@${user.discordId}>\n`;
+            const change = index >= 0 ? game.teamBChanges[index] : 0;
+            let changeText = change != 0 ? change > 0 ? `Δ+${change}` : `Δ${change}` : "Δ ??.??";
+            teamB += `\n- ${changeText} | <@${user.discordId}> - ${user.kills}/${user.deaths}/${user.assists}`;
         }
     }
 
-    embed.setFields([
-        {
-            name: `Team A: ${game.sides[0]}`,
-            value: teamA,
-            inline: false,
-        },
-        {
-            name: `Team B: ${game.sides[1]}`,
-            value: teamB,
-            inline: false,
-        },
-    ]);
-
-    embed.setImage(mapData.imageURL);
-
-    return embed.toJSON();
+    return new ContainerBuilder()
+        .addTextDisplayComponents(
+            new TextDisplayBuilder()
+                .setContent(`# ${mapData.name} ${game.scoreA} - ${game.scoreB}`),
+        )
+        .addMediaGalleryComponents(
+            new MediaGalleryBuilder().addItems(
+                new MediaGalleryItemBuilder().setURL(
+                    mapData.imageURL,
+                ),
+            ),
+        )
+        .addSeparatorComponents(
+            new SeparatorBuilder()
+                .setDivider(true)
+                .setSpacing(SeparatorSpacingSize.Small),
+        )
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`## Team A - CT\n${teamA}`),
+        )
+        .addSeparatorComponents(
+            new SeparatorBuilder()
+                .setDivider(true)
+                .setSpacing(SeparatorSpacingSize.Large),
+        )
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`## Team B - CT\n${teamA}`),
+        );
 }
 
 export const matchConfirmEmbed = (scores: number[]) => {
@@ -58,10 +69,10 @@ export const matchConfirmEmbed = (scores: number[]) => {
     embed.setDescription('If these score are incorrect resubmit using the buttons on the initial message that is pinned')
     embed.setFields([
         {
-           name: 'Team A',
-           value: String(scores[0]),
-           inline: true ,
-        },{
+            name: 'Team A',
+            value: String(scores[0]),
+            inline: true,
+        }, {
             name: 'Team B',
             value: String(scores[1]),
             inline: true,
@@ -80,8 +91,8 @@ export const matchScorePrompt = (scores: number[]) => {
         {
             name: 'Team A',
             value: String(scores[0]),
-            inline: true ,
-        },{
+            inline: true,
+        }, {
             name: 'Team B',
             value: String(scores[1]),
             inline: true,

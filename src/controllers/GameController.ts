@@ -39,6 +39,7 @@ import {Actions} from "../database/models/ActionModel";
 import {RateLimitedQueue} from "../utility/rate-limited-queue";
 import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
 import {RecordingTeam} from "../recording/types";
+import {getUserGameStats} from "../modules/getters/getUserGameStats";
 
 const getKillFeedApiUrl = (baseUrl: string, path: string) => `${baseUrl.replace(/\/$/, "")}${path}`;
 
@@ -2120,7 +2121,10 @@ ${scoreLogText}`,
         const channel = await this.guild.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
         await channel.send({
             content: `Match ${this.matchNumber}`,
-            embeds: [matchFinalEmbed(game!, this.users, this.mapData!)]
+            components: [matchFinalEmbed(game!, await getUserGameStats(this.users, game!._id), this.mapData!)],
+            allowedMentions: {
+                users: []
+            }
         });
     }
 

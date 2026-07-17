@@ -31,6 +31,12 @@ export interface GameUser {
     wasAutoReadied: boolean;
 }
 
+export interface GameUserWithStats extends GameUser {
+    kills: number;
+    deaths: number;
+    assists: number;
+}
+
 export interface RecalcUser {
     dbId: Types.ObjectId;
     discordId: string;

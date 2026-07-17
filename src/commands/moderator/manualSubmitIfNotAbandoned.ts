@@ -14,7 +14,8 @@ import {Regions} from "../../database/models/UserModel";
 import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {reason} from "../../utility/options";
-import {getMapData} from "../../utility/match"; 
+import {getMapData} from "../../utility/match";
+import {getUserGameStats} from "../../modules/getters/getUserGameStats";
 
 export const manualSubmitIfNotAbandoned: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -90,7 +91,13 @@ export const manualSubmitIfNotAbandoned: SubCommand = {
             const mapData = await getMapData(game.map);
 
             const channel = await interaction.guild!.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
-            await channel.send({content: `Match ${game.matchId}`, embeds: [matchFinalEmbed(game!, users, mapData!)]});
+            await channel.send({
+                content: `Match ${game.matchId}`,
+                components: [matchFinalEmbed(game!, await getUserGameStats(users, game!._id), mapData!)],
+                allowedMentions: {
+                    users: []
+                }
+            });
 
             const modLog = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();

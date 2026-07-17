@@ -15,6 +15,7 @@ import {createAction} from "../../modules/constructors/createAction";
 import {Actions} from "../../database/models/ActionModel";
 import {reason} from "../../utility/options";
 import {getMapData} from "../../utility/match";
+import {getUserGameStats} from "../../modules/getters/getUserGameStats";
 
 export const manualSubmitIfAbandoned: SubCommand = {
     data: new SlashCommandSubcommandBuilder()
@@ -41,20 +42,20 @@ export const manualSubmitIfAbandoned: SubCommand = {
             await interaction.deferReply();
             const matchId = interaction.options.getInteger('match_id', true)
             const gameTemp = await getGameByMatchId(matchId);
-            
+
             if (!gameTemp) {
                 await interaction.followUp({content: `Match ${matchId} not found.`});
                 return;
             }
-            
+
             let game = gameTemp;
-                        
+
             // Check if match already has scores recorded
             if (game.scoreA >= 0 || game.scoreB >= 0) {
                 await interaction.followUp({content: `Match ${matchId} already has scores recorded (${game.scoreA}-${game.scoreB}) and cannot be manually submitted.`});
                 return;
             }
-            
+
             game.scoreA = interaction.options.getInteger('score_a', true);
             game.scoreB = interaction.options.getInteger('score_b', true);
             game.endDate = moment().unix();
@@ -84,7 +85,15 @@ export const manualSubmitIfAbandoned: SubCommand = {
             const mapData = await getMapData(game.map);
 
             const channel = await interaction.guild!.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
-            await channel.send({content: `Match ${game.matchId}`, embeds: [matchFinalEmbed(game!, users, mapData!)]});
+            await channel.send({
+                content: `Match ${game.matchId}`,
+                components: [matchFinalEmbed(game!, await getUserGameStats(users, game._id),
+                    mapData!)
+                ],
+                allowedMentions: {
+                    users: []
+                }
+            });
 
             const modLog = await interaction.client.channels.fetch(tokens.ModeratorLogChannel) as TextChannel;
             const embed = new EmbedBuilder();
