@@ -1,5 +1,5 @@
 import {SlashCommandBuilder} from "@discordjs/builders";
-import {TextChannel} from "discord.js";
+import {MessageFlags, TextChannel} from "discord.js";
 import {Command} from "../../interfaces/Command";
 import {GameUser} from "../../interfaces/Game";
 import {getGameByMatchId} from "../../modules/getters/getGame";
@@ -73,8 +73,8 @@ export const resendScores: Command = {
 
             const channel = await interaction.guild!.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
             await channel.send({
-                content: `Match ${game.matchId}`,
                 components: [matchFinalEmbed(game, await getUserGameStats(users, game._id), mapData)],
+                flags: MessageFlags.IsComponentsV2,
                 allowedMentions: {users: []},
             });
 

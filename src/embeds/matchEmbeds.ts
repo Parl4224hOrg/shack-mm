@@ -35,7 +35,7 @@ export const matchFinalEmbed = (game: GameInt, users: GameUserWithStats[], mapDa
     return new ContainerBuilder()
         .addTextDisplayComponents(
             new TextDisplayBuilder()
-                .setContent(`# ${mapData.name} ${game.scoreA} - ${game.scoreB}`),
+                .setContent(`# Match ${game.matchId}: ${mapData.name} ${game.scoreA} - ${game.scoreB}`),
         )
         .addMediaGalleryComponents(
             new MediaGalleryBuilder().addItems(

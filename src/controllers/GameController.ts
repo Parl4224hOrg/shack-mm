@@ -2120,8 +2120,8 @@ ${scoreLogText}`,
         const game = await getGameById(this.id);
         const channel = await this.guild.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
         await channel.send({
-            content: `Match ${this.matchNumber}`,
             components: [matchFinalEmbed(game!, await getUserGameStats(this.users, game!._id), this.mapData!)],
+            flags: MessageFlagsBitField.Flags.IsComponentsV2,
             allowedMentions: {
                 users: []
             }

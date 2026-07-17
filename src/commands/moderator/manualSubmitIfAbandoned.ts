@@ -6,7 +6,7 @@ import {logError} from "../../loggers";
 import moment from "moment";
 import {processMMR} from "../../utility/processMMR";
 import {updateGame} from "../../modules/updaters/updateGame";
-import {EmbedBuilder, TextChannel} from "discord.js";
+import {EmbedBuilder, MessageFlags, TextChannel} from "discord.js";
 import {matchFinalEmbed} from "../../embeds/matchEmbeds";
 import {GameUser} from "../../interfaces/Game";
 import {getUserById} from "../../modules/getters/getUser";
@@ -86,10 +86,10 @@ export const manualSubmitIfAbandoned: SubCommand = {
 
             const channel = await interaction.guild!.channels.fetch(tokens.SNDScoreChannel) as TextChannel;
             await channel.send({
-                content: `Match ${game.matchId}`,
                 components: [matchFinalEmbed(game!, await getUserGameStats(users, game._id),
                     mapData!)
                 ],
+                flags: MessageFlags.IsComponentsV2,
                 allowedMentions: {
                     users: []
                 }
