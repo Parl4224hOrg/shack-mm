@@ -60,7 +60,11 @@ export class Data {
         await this.banReductionTask();
     }, {runOnInit: false});
     private playtestTask = cron.schedule("*/1 * * * *", async () => {
-        await this.playTestTask();
+        try {
+            await this.playTestTask();
+        } catch (err) {
+            console.error('Error in playtestTask():', err);
+        }
     }, {runOnInit: false});
     private FILL_SND: QueueController;
     nextPing: number = moment().unix();
