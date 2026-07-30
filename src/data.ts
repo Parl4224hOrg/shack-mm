@@ -150,11 +150,15 @@ export class Data {
         for (let mapTest of mapTestsToNotify) {
             for (let player of mapTest.players) {
                 const user = await this.client.users.fetch(player);
-                if (user.dmChannel) {
-                    await user.dmChannel.send(`You have a map test at <t:${mapTest.time}:F> <t:${mapTest.time}:R>`);
-                } else {
-                    await user.createDM(true);
-                    await user.dmChannel!.send(`You have a map test at <t:${mapTest.time}:F> <t:${mapTest.time}:R>`);
+                try {
+                    if (user.dmChannel) {
+                        await user.dmChannel.send(`You have a map test at <t:${mapTest.time}:F> <t:${mapTest.time}:R>`);
+                    } else {
+                        await user.createDM(true);
+                        await user.dmChannel!.send(`You have a map test at <t:${mapTest.time}:F> <t:${mapTest.time}:R>`);
+                    }
+                } catch (err) {
+                    console.error(`Failed to send dm to ${user.id}:`, err);
                 }
             }
             mapTest.pinged = true;
