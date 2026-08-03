@@ -41,6 +41,8 @@ import {cancelSwitchMap} from "./match/switch-map/cancel";
 import {promptSwitchMap} from "./match/switch-map/prompt";
 import {updateInfo} from "./update-info";
 import {resubmit} from "./match/score/resubmit";
+import {reclaimRole} from "./reclaimRole";
+import {doNotPingToggle} from "./doNotPingToggle";
 import {confirmFixStage} from "./match/fix-stage/confirm";
 import {cancelFixStage} from "./match/fix-stage/cancel";
 import {promptFixStage} from "./match/fix-stage/prompt";
@@ -51,7 +53,8 @@ const buttonList: Button[] = [accept, draw, loss, win, confirmScore, score0, sco
     vote3, vote4, vote5, vote6, vote7, score6, score7, score8, score9, p2pToggle, lfg, stats, games, NAE, NAW, EUE, EUW, APAC,
 pingMeButton, autoReady, checkBanButton, abandonButton, abandonDeny, abandonConfirm, graphButton, ratingChangeButton,
     mapTesterToggle, mapTestSignup, mapTestRemoveSignup, register, lateRatioButton, confirmSwitchMap, cancelSwitchMap, promptSwitchMap,
-    promptResetGame, confirmResetGame, cancelResetGame, confirmFixStage, cancelFixStage, promptFixStage, updateInfo, resubmit];
+    promptResetGame, confirmResetGame, cancelResetGame, confirmFixStage, cancelFixStage, promptFixStage, updateInfo, resubmit,
+    reclaimRole, doNotPingToggle];
 let ButtonMap: Collection<string, Button> = new Collection<string, Button>();
 
 for (let command of buttonList) {

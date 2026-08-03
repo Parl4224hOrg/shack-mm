@@ -24,7 +24,6 @@ import {_mod} from "./moderator/_mod";
 import {serverStatus} from "./admin/serverStatus";
 import {late} from "./moderator/late";
 import {categoryDelete} from "./admin/categoryDelete";
-import {unregisterServer} from "./admin/unregisterServer";
 import {ping} from "./ping";
 import {fixCDs} from "./admin/fixCDs";
 import {unmute} from "./admin/unmute";
@@ -43,12 +42,14 @@ import {removePingMe} from "./queue/removePingMe";
 import {config} from "./config";
 import {accept} from "./match/accept";
 import {resendScores} from "./admin/resend-scores";
+import {reclaimRole} from "./reclaimRole";
+import {doNotPing} from "./doNotPing";
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
     help, checkDms, dmOptions, _mod, _modInfo, serverStatus, late, categoryDelete, ping, fixCDs, unmute, _ref,
     softResetMMR, softResetUser, createMapTest, updateMapTest, restart, removeGame, setFreeStatus, clearCache,
-    testWinrate, removePingMe, config, accept, resendScores];
+    testWinrate, removePingMe, config, accept, resendScores, reclaimRole, doNotPing];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

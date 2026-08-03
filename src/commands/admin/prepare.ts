@@ -9,7 +9,8 @@ import {
     signUpView,
     sndFILLReadyView,
     SNDFILLReadyView2,
-    SNDFILLReadyView3
+    SNDFILLReadyView3,
+    SNDFILLReadyView4
 } from "../../views/staticViews";
 import {updateInfo} from "../../buttons/update-info";
 
@@ -39,7 +40,7 @@ export const prepare: Command = {
                 switch (view) {
                     case 'snd_ready': {
                         await interaction.channel!.send({
-                            components: [sndFILLReadyView(), SNDFILLReadyView2(), SNDFILLReadyView3()],
+                            components: [sndFILLReadyView(), SNDFILLReadyView2(), SNDFILLReadyView3(), SNDFILLReadyView4()],
                             content: 'Ready up for SND'
                         });
                         await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: 'prepared snd _ready up view'})

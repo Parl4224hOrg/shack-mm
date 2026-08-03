@@ -3,9 +3,11 @@ import tokens from "../tokens";
 import moment from "moment";
 import {getUserByUser} from "../modules/getters/getUser";
 import {Data} from "../data";
+import {reclaimRankRole} from "../utility/reclaimRole";
 
 export const onJoin = async (member: GuildMember | PartialGuildMember, data: Data) => {
     const dbUser = await getUserByUser(member, data);
+    await reclaimRankRole(member, data);
     if (dbUser.muteUntil > moment().unix() || dbUser.muteUntil < 0 || dbUser.frozen) {
         await member.roles.add(tokens.MutedRole);
     }
