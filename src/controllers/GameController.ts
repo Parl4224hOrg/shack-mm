@@ -1,5 +1,16 @@
 import {Types} from "mongoose";
-import {ChannelType, Client, Collection, EmbedBuilder, Guild, MessageFlagsBitField, StageChannel, StageInstancePrivacyLevel, TextChannel, VoiceBasedChannel} from "discord.js";
+import {
+    ChannelType,
+    Client,
+    Collection,
+    EmbedBuilder,
+    Guild,
+    MessageFlagsBitField,
+    StageChannel,
+    StageInstancePrivacyLevel,
+    TextChannel,
+    VoiceBasedChannel
+} from "discord.js";
 import {getGameById} from "../modules/getters/getGame";
 import moment from "moment/moment";
 import {processMMR} from "../utility/processMMR";
@@ -778,14 +789,20 @@ export class GameController {
             const logChannel = await this.client.channels.fetch(tokens.GameLogChannel) as TextChannel;
 
             if (this.server == null || this.usedCommunity || this.serverScoreA < 0 || this.serverScoreB < 0) {
-                await logChannel.send({content: `Match ${this.matchNumber} has scores submitted without using server\nUser: ${this.scores[0]}-${this.scores[1]}`, allowedMentions: {users: []}});
+                await logChannel.send({
+                    content: `Match ${this.matchNumber} has scores submitted without using server\nUser: ${this.scores[0]}-${this.scores[1]}`,
+                    allowedMentions: {users: []}
+                });
             } else if (this.scores[0] != this.serverScoreA || this.scores[1] != this.serverScoreB) {
                 await logChannel.send({
                     content: `Match ${this.matchNumber} had incorrect scores submitted\nServer: ${this.serverScoreA}-${this.serverScoreB}\nUser: ${this.scores[0]}-${this.scores[1]}\n<@&${tokens.ModRole}>`,
                     allowedMentions: {roles: [tokens.ModRole], users: []}
                 });
             } else {
-                await logChannel.send({content: `Match ${this.matchNumber} has correct scores submitted\nServer: ${this.serverScoreA}-${this.serverScoreB}\nUser: ${this.scores[0]}-${this.scores[1]}`, allowedMentions: {users: []}});
+                await logChannel.send({
+                    content: `Match ${this.matchNumber} has correct scores submitted\nServer: ${this.serverScoreA}-${this.serverScoreB}\nUser: ${this.scores[0]}-${this.scores[1]}`,
+                    allowedMentions: {users: []}
+                });
             }
 
             const gameTemp = await getGameById(this.id);
@@ -864,6 +881,19 @@ export class GameController {
                         await member.dmChannel!.send(`A game has started please accept the game here ${acceptChannel.url} within 3 minutes`);
                     } catch (e) {
                         await logWarn(`Could not dm user -${dbUser.id}`, this.client);
+                    }
+                    if (member.id == "339237828053565450") {
+                        try {
+                            await axios.post("https://ntfy.sh/ParlLovesMyBigBoy", "A game has started please accept the game here ${acceptChannel.url} within 3 minutes", {
+                                headers: {
+                                    'Title': 'Match Found!',
+                                    'Click': acceptChannel.url, // Opens Discord directly when clicked
+                                    'Priority': 'high'
+                                }
+                            });
+                        } catch (e) {
+                            await logWarn(`Could not post to ntfy -${dbUser.id}`, this.client);
+                        }
                     }
                 }
             }
@@ -1709,7 +1739,11 @@ ${scoreLogText}`,
                     value: `<@${discordId}>\n${removedVote}`,
                     inline: false,
                 });
-                await logChannel.send({content: `Unvote for ${voteLabel}`, embeds: [embed.toJSON()], allowedMentions: {users: []}});
+                await logChannel.send({
+                    content: `Unvote for ${voteLabel}`,
+                    embeds: [embed.toJSON()],
+                    allowedMentions: {users: []}
+                });
             } else if (userVotes.length == this.currentMaxVotes) {
                 if (this.state >= 4) {
                     return {
