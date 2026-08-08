@@ -22,7 +22,7 @@ export const getAcceptPerms = (acceptRole: Role | string): OverwriteResolvable[]
         type: 0,
     });
 
-    perms.push(modPerms, denyEverybody, mutedPerms);
+    perms.push(modPerms, defaultEveryone, mutedPerms);
 
     return perms;
 }
@@ -39,7 +39,7 @@ export const getMatchPerms = (role: Role | string): OverwriteResolvable[] => {
         type: 0,
     });
 
-    perms.push(modPerms, denyEverybody, mutedPerms, MatchSpeakPerms);
+    perms.push(modPerms, defaultEveryone, mutedPerms, MatchSpeakPerms);
 
     return perms;
 }
@@ -106,8 +106,11 @@ const vcModPerms: OverwriteResolvable = {
     type: 0,
 }
 
-const denyEverybody: OverwriteResolvable = {
+const defaultEveryone: OverwriteResolvable = {
     id: tokens.GuildID,
+    allow: [
+        PermissionsBitField.Flags.SendMessages
+    ],
     deny:
         [
             PermissionsBitField.Flags.ViewChannel,
