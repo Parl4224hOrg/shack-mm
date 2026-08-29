@@ -884,7 +884,20 @@ export class GameController {
                     }
                     if (member.id == "339237828053565450") {
                         try {
-                            await axios.post("https://ntfy.sh/ParlLovesMyBigBoy", "A game has started please accept the game here ${acceptChannel.url} within 3 minutes", {
+                            await axios.post("https://ntfy.sh/ParlLovesMyBigBoy", "A game has started please accept the game within 3 minutes", {
+                                headers: {
+                                    'Title': 'Match Found!',
+                                    'Click': acceptChannel.url, // Opens Discord directly when clicked
+                                    'Priority': 'high'
+                                }
+                            });
+                        } catch (e) {
+                            await logWarn(`Could not post to ntfy -${dbUser.id}`, this.client);
+                        }
+                    }
+                    if (member.id == "771554052772855858") {
+                        try {
+                            await axios.post("https://ntfy.sh/PlumpLovesParlAndSMMSoMuch", "A game has started please accept the game within 3 minutes", {
                                 headers: {
                                     'Title': 'Match Found!',
                                     'Click': acceptChannel.url, // Opens Discord directly when clicked
