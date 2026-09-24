@@ -30,6 +30,8 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
         desc += `User is muted until <t:${user.muteUntil}:R>\n`;
     }
 
+    desc += `Registered Name: ${user.oculusName}`;
+
     let truncatedActions: ActionInt[];
 
     let notShown = 0;
