@@ -52,7 +52,7 @@ const MatchSpeakPerms: OverwriteResolvable = {
     type: 0,
 }
 
-export const getStagePerms = (role: Role | string): OverwriteResolvable[] => {
+export const getVCPerms = (role: Role | string): OverwriteResolvable[] => {
     const perms: OverwriteResolvable[] = [];
     perms.push({
         id: (role instanceof Role) ? role.id : role,
@@ -67,7 +67,7 @@ export const getStagePerms = (role: Role | string): OverwriteResolvable[] => {
         ],
         type: 0,
     });
-    perms.push(vcModPerms, stageEveryone, mutedPerms);
+    perms.push(vcModPerms, vcDenyEverybody, mutedPerms);
 
     return perms;
 }
@@ -120,19 +120,20 @@ const defaultEveryone: OverwriteResolvable = {
     type: 0,
 }
 
-const stageEveryone: OverwriteResolvable = {
+const vcDenyEverybody: OverwriteResolvable = {
     id: tokens.GuildID,
     allow: [
-        PermissionsBitField.Flags.Connect,
         PermissionsBitField.Flags.ViewChannel,
     ],
     deny:
         [
             PermissionsBitField.Flags.AttachFiles,
             PermissionsBitField.Flags.EmbedLinks,
-            PermissionsBitField.Flags.RequestToSpeak,
+            PermissionsBitField.Flags.Connect,
+            PermissionsBitField.Flags.Speak,
             PermissionsBitField.Flags.SendMessages,
-            PermissionsBitField.Flags.AddReactions
+            PermissionsBitField.Flags.UseSoundboard,
+            PermissionsBitField.Flags.UseExternalSounds,
         ],
     type: 0,
 }

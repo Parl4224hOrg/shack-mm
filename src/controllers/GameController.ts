@@ -16,7 +16,7 @@ import moment from "moment/moment";
 import {processMMR} from "../utility/processMMR";
 import {updateGame} from "../modules/updaters/updateGame";
 import {getGuildMember} from "../utility/discordGetters";
-import {getAcceptPerms, getMatchPerms, getStagePerms, hidePerms} from "../utility/channelPerms";
+import {getAcceptPerms, getMatchPerms, getVCPerms, hidePerms} from "../utility/channelPerms";
 import tokens from "../tokens";
 import {acceptView} from "../views/acceptView";
 import {abandon, punishment} from "../utility/punishment";
@@ -1362,8 +1362,8 @@ ${scoreLogText}`,
 
             const teamAVC = await this.guild.channels.create({
                 name: `Team A-${this.matchNumber}`,
-                type: ChannelType.GuildStageVoice,
-                permissionOverwrites: getStagePerms(teamARole),
+                type: ChannelType.GuildVoice,
+                permissionOverwrites: getVCPerms(teamARole),
                 position: 0,
                 parent: tokens.MatchCategory,
                 reason: 'Create vc for team a',
@@ -1372,25 +1372,13 @@ ${scoreLogText}`,
 
             const teamBVC = await this.guild.channels.create({
                 name: `Team B-${this.matchNumber}`,
-                type: ChannelType.GuildStageVoice,
-                permissionOverwrites: getStagePerms(teamBRole),
+                type: ChannelType.GuildVoice,
+                permissionOverwrites: getVCPerms(teamBRole),
                 position: 0,
                 parent: tokens.MatchCategory,
                 reason: 'Create vc for team b',
             });
             this.teamBVCid = teamBVC.id;
-
-            await teamAVC.createStageInstance({
-                privacyLevel: StageInstancePrivacyLevel.GuildOnly,
-                sendStartNotification: false,
-                topic: `Team A-${this.matchNumber}`,
-            });
-
-            await teamBVC.createStageInstance({
-                privacyLevel: StageInstancePrivacyLevel.GuildOnly,
-                sendStartNotification: false,
-                topic: `Team B-${this.matchNumber}`,
-            });
 
             await this.startTeamRecordings();
 
