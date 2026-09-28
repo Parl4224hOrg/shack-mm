@@ -9,7 +9,6 @@ import {onMessage} from "./events/onMessage";
 import {onMemberUpdate} from "./events/onMemberUpdate";
 import {onLeave} from "./events/onLeave";
 import {closeStatsBrowser} from "./utility/stats";
-import {onVoiceUpdate} from "./events/onVoiceUpdate";
 
 const main = async () => {
     const BOT = new Client({
@@ -59,10 +58,6 @@ const main = async () => {
         "guildMemberUpdate",
         async (oldMember, newMember) => await onMemberUpdate(oldMember, newMember),
     )
-    BOT.on(
-        "voiceStateUpdate",
-        async (oldState, newState) => await onVoiceUpdate(oldState, newState, data)
-    );
     BOT.on("guildMemberRemove", async (member) => await onLeave(member, data))
 
     await BOT.login(tokens.BotToken);
