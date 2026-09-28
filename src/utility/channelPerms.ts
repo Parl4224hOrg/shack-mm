@@ -124,12 +124,12 @@ const vcDenyEverybody: OverwriteResolvable = {
     id: tokens.GuildID,
     allow: [
         PermissionsBitField.Flags.ViewChannel,
+        PermissionsBitField.Flags.Connect,
     ],
     deny:
         [
             PermissionsBitField.Flags.AttachFiles,
             PermissionsBitField.Flags.EmbedLinks,
-            PermissionsBitField.Flags.Connect,
             PermissionsBitField.Flags.Speak,
             PermissionsBitField.Flags.SendMessages,
             PermissionsBitField.Flags.UseSoundboard,

@@ -238,6 +238,8 @@ export class GameController {
     working = false;
 
     finalGenTime = 0;
+    voiceChannelsLockedAtEightMinutes = false;
+    voiceChannelsLockConfirmedAtThirteenMinutes = false;
 
     requeueArray: Types.ObjectId[] = [];
 
@@ -550,6 +552,18 @@ export class GameController {
         this.minutesPassed = minutesPassed;
         this.submitCooldown--;
 
+        if (minutesPassed >= 8 && !this.voiceChannelsLockedAtEightMinutes) {
+            await this.lockVoiceChannelsForEveryone();
+            this.voiceChannelsLockedAtEightMinutes = true;
+        }
+
+        // Reapply the lock as a safeguard in case a channel's overwrite changed after
+        // the initial eight-minute update.
+        if (minutesPassed >= 13 && !this.voiceChannelsLockConfirmedAtThirteenMinutes) {
+            await this.lockVoiceChannelsForEveryone();
+            this.voiceChannelsLockConfirmedAtThirteenMinutes = true;
+        }
+
         if (minutesPassed < 5) {
             await this.SendMinutesLeft(5 - minutesPassed);
         }
@@ -733,6 +747,21 @@ export class GameController {
                 }
             }
         }
+    }
+
+    private async lockVoiceChannelsForEveryone() {
+        const voiceChannelIds = [this.teamAVCid, this.teamBVCid].filter(Boolean);
+        await Promise.all(voiceChannelIds.map(async (voiceChannelId) => {
+            const channel = await this.guild.channels.fetch(voiceChannelId);
+            if (!channel?.isVoiceBased()) {
+                throw new Error(`Match ${this.matchNumber}: voice channel ${voiceChannelId} is unavailable`);
+            }
+
+            await channel.permissionOverwrites.edit(tokens.GuildID, {
+                Connect: false,
+                Speak: false,
+            }, {reason: "Lock voice channel after match start"});
+        }));
     }
 
     async updateJoinedPlayers(halfMinutes: number) {

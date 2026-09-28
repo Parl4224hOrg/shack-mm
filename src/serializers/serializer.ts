@@ -105,6 +105,8 @@ class Serializer {
             processing: toSerialize.processing,
             working: toSerialize.working,
             finalGenTime: toSerialize.finalGenTime,
+            voiceChannelsLockedAtEightMinutes: toSerialize.voiceChannelsLockedAtEightMinutes,
+            voiceChannelsLockConfirmedAtThirteenMinutes: toSerialize.voiceChannelsLockConfirmedAtThirteenMinutes,
             requeueArray: this.requeueSerializer(toSerialize.requeueArray),
             server: toSerialize.server?.id ?? "none",
             acceptMessageId: toSerialize.acceptMessageId,
@@ -268,6 +270,8 @@ class Serializer {
         game.processing = parsed.processing;
         game.working = parsed.working;
         game.finalGenTime = parsed.finalGenTime;
+        game.voiceChannelsLockedAtEightMinutes = parsed.voiceChannelsLockedAtEightMinutes ?? false;
+        game.voiceChannelsLockConfirmedAtThirteenMinutes = parsed.voiceChannelsLockConfirmedAtThirteenMinutes ?? false;
         game.requeueArray = this.requeueDeserializer(parsed.requeueArray);
         game.server = parsed.server == "none" ? null : dataClass.getServerById(parsed.server);
         game.acceptMessageId = parsed.acceptMessageId;
