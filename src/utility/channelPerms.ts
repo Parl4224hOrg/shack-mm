@@ -134,6 +134,7 @@ const vcDenyEverybody: OverwriteResolvable = {
             PermissionsBitField.Flags.SendMessages,
             PermissionsBitField.Flags.UseSoundboard,
             PermissionsBitField.Flags.UseExternalSounds,
+            PermissionsBitField.Flags.Stream
         ],
     type: 0,
 }
