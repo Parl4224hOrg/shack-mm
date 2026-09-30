@@ -51,7 +51,7 @@ export const help: Command = {
                     inline: false,
                 },{
                     name: "register",
-                    value: "Allows you to play mm by setting your oculus name",
+                    value: "Allows you to play mm by setting your Oculus name. Steam users can use /register_steam; find your SteamID64 at <https://steamid.io/>.",
                     inline: false,
                 },{
                     name: "set_requeue",

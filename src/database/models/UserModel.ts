@@ -20,6 +20,7 @@ export interface UserInt extends Document {
     banCounterAbandon: number;
     banCounterFail: number;
     oculusName: string;
+    steamId: string;
     dmMatch: boolean;
     dmQueue: boolean;
     dmAuto: boolean;
@@ -52,6 +53,7 @@ export const UserSchema = new Schema({
     banCounterAbandon: Number,
     banCounterFail: Number,
     oculusName: String,
+    steamId: String,
     dmMatch: Boolean,
     dmQueue: Boolean,
     dmAuto: Boolean,
@@ -80,5 +82,13 @@ export const UserSchema = new Schema({
     canBeFreed: Boolean,
     transferred: Boolean,
 })
+
+/** All game-side identifiers that can identify this user to the server. */
+export const getUserGameIds = (user: Pick<UserInt, "oculusName" | "steamId">): string[] =>
+    [user.oculusName, user.steamId].filter((id): id is string => Boolean(id));
+
+/** Prefer the Oculus name for display, preserving the existing user-facing format. */
+export const getUserGameName = (user: Pick<UserInt, "oculusName" | "steamId">): string =>
+    user.oculusName || user.steamId || "Unregistered";
 
 export default model<UserInt>('users', UserSchema)

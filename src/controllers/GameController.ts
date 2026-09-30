@@ -28,7 +28,7 @@ import {logInfo, logWarn} from "../loggers";
 import {GameUser, ids, Vote} from "../interfaces/Game";
 import {updateRanks} from "../utility/ranking";
 import {Data} from "../data";
-import {Regions, UserInt} from "../database/models/UserModel";
+import {getUserGameIds, getUserGameName, Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
 import {updateUser} from "../modules/updaters/updateUser";
 import {
@@ -484,7 +484,7 @@ export class GameController {
         const lateUserMentions: string[] = [];
         for (let user of this.users) {
             const dbUser = await getUserById(user.dbId, this.data);
-            if (dbUser && ![...this.joinedPlayers].some(jp => jp == dbUser.oculusName)) {
+            if (dbUser && !getUserGameIds(dbUser).some(id => this.joinedPlayers.has(id))) {
                 lateUserMentions.push(`<@${user.discordId}>`);
             }
         }
@@ -512,6 +512,7 @@ export class GameController {
                     await LateModel.create({
                         user: dbUser.id,
                         oculusName: dbUser.oculusName,
+                        steamId: dbUser.steamId,
                         joinTime: moment().unix(),
                         channelGenTime: this.finalGenTime,
                         matchId: this.matchNumber,
@@ -526,7 +527,7 @@ export class GameController {
             for (let user of RefreshList.PlayerList) {
                 for (let gameUser of this.users.filter(user => user.isLate && !user.hasBeenGivenLate)) {
                     let dbUser = await getUserById(gameUser.dbId, this.data);
-                    if (user.UniqueId && dbUser.oculusName && user.UniqueId == dbUser.oculusName) {
+                    if (user.UniqueId && getUserGameIds(dbUser).includes(user.UniqueId)) {
                         gameUser.hasBeenGivenLate = true;
                     }
                 }
@@ -585,9 +586,9 @@ export class GameController {
             if (this.serverSetup) {
                 for (let user of this.users) {
                     const dbUser = await getUserById(user.dbId, this.data);
-                    if (dbUser && ![...this.joinedPlayers].some(jp => jp == dbUser.oculusName)) {
+                    if (dbUser && !getUserGameIds(dbUser).some(id => this.joinedPlayers.has(id))) {
                         const logChannel = await this.client.channels.fetch(tokens.LateLogChannel) as TextChannel;
-                        await logChannel.send(`Match ${this.matchNumber}: User ${dbUser.oculusName} is late.`);
+                        await logChannel.send(`Match ${this.matchNumber}: User ${getUserGameName(dbUser)} is late.`);
                         lateUsers.push(user);
                         user.isLate = true;
                     }
@@ -661,10 +662,12 @@ export class GameController {
                 const allPlayers = await this.server.inspectAll();
                 numTotal = allPlayers.InspectList.length;
 
-                // 1) dbUsers lookup by oculusName (UniqueId in InspectAll)
-                const dbUsersByOculusName = new Map<string, UserInt>();
+                // 1) dbUsers lookup by either registered game ID (UniqueId in InspectAll)
+                const dbUsersByGameId = new Map<string, UserInt>();
                 for (const user of dbUsers) {
-                    dbUsersByOculusName.set(user.oculusName, user);
+                    for (const id of getUserGameIds(user)) {
+                        dbUsersByGameId.set(id, user);
+                    }
                 }
 
                 // 2) assigned team lookup by db user id
@@ -676,7 +679,7 @@ export class GameController {
                 }
 
                 for (const player of allPlayers.InspectList) {
-                    const dbUser = dbUsersByOculusName.get(player.UniqueId);
+                    const dbUser = dbUsersByGameId.get(player.UniqueId);
 
                     if (!dbUser) {
                         notFoundUniqueId = player.UniqueId;
@@ -718,12 +721,12 @@ export class GameController {
             }
             if (numFound == 9 && numTotal == 10 && !this.sentUnregisteredDm) {
                 // We have 10 players on the server, only 9 matched to known users.
-                // Identify the queued user whose registered oculusName was not found among the players.
+                // Identify the queued user whose registered game ID was not found among the players.
                 this.sentUnregisteredDm = true;
                 let entry: GameUser | undefined;
                 try {
                     // dbUsers is aligned with this.users by construction above
-                    const idx = dbUsers.findIndex(u => !foundUniqueIds.includes(u.oculusName));
+                    const idx = dbUsers.findIndex(u => !getUserGameIds(u).some(id => foundUniqueIds.includes(id)));
                     if (idx >= 0) {
                         entry = this.users[idx];
                     }
@@ -774,8 +777,8 @@ export class GameController {
         const lateUsers: string[] = [];
         for (let user of this.users) {
             const dbUser = await getUserById(user.dbId, this.data);
-            if (dbUser && ![...this.joinedPlayers].some(jp => jp == dbUser.oculusName)) {
-                lateUsers.push(dbUser.oculusName);
+            if (dbUser && !getUserGameIds(dbUser).some(id => this.joinedPlayers.has(id))) {
+                lateUsers.push(getUserGameName(dbUser));
             }
         }
         const notJoinedMessage = lateUsers.join(', ');

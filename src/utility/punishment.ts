@@ -7,7 +7,7 @@ import {updateUser} from "../modules/updaters/updateUser";
 import {grammaticalTime} from "./grammatical";
 import ActionModel, {Actions} from "../database/models/ActionModel";
 import {Data} from "../data";
-import {UserInt} from "../database/models/UserModel";
+import {getUserGameName, UserInt} from "../database/models/UserModel";
 import {logInfo} from "../loggers";
 
 export const autoLate = async (id: Types.ObjectId, data: Data) => {
@@ -129,7 +129,7 @@ export const getCheckBanMessage = async (user: UserInt, data: Data) => {
     if (user.frozen) {
         message += "\nYou are frozen from queueing due to a pending ticket";
     }
-    message += `\nRegistered Name: ${user.oculusName}\n`
+    message += `\nRegistered Name: ${getUserGameName(user)}\n`
     if (user.muteUntil < 0) {
         message += "You are muted indefinitely";
     } else if (time > user.muteUntil) {

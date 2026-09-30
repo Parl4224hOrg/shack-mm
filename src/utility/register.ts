@@ -7,17 +7,25 @@ import tokens from "../tokens";
 import userModel from "../database/models/UserModel";
 import moment from "moment";
 
-export const handleRegister = async (name: string, user: User, data: Data, guild: Guild): Promise<InternalResponse> => {
+type GameIdField = "oculusName" | "steamId";
+
+export const handleRegister = async (
+    name: string,
+    user: User,
+    data: Data,
+    guild: Guild,
+    field: GameIdField = "oculusName"
+): Promise<InternalResponse> => {
 
     const dbUser = await getUserByUser(user, data);
     let registered = true;
-    if (dbUser.oculusName == null) {
+    if (dbUser.oculusName == null && dbUser.steamId == null) {
         registered = false;
     }
-    dbUser.oculusName = name.replace("<@", "").replace(">", "");
+    dbUser[field] = name.replace("<@", "").replace(">", "");
     await updateUser(dbUser, data);
 
-    const matchedNames = await userModel.find({oculusName: dbUser.oculusName, transferred: false});
+    const matchedNames = await userModel.find({[field]: dbUser[field], transferred: false});
     if (matchedNames.length > 1) {
         dbUser.frozen = true;
         await updateUser(dbUser, data);
@@ -32,15 +40,15 @@ export const handleRegister = async (name: string, user: User, data: Data, guild
         const channel = await guild.channels.fetch(tokens.PotentialAltsChannel) as TextChannel;
         await channel.send({
             content: `
-            <@${dbUser.id}> has registered with an already registered name ${dbUser.oculusName} they have been frozen and instructed to make a ticket\n<@&${tokens.ModRole}>
-            Name: ${name}
+            <@${dbUser.id}> has registered with an already registered ${field == "steamId" ? "Steam ID" : "name"} ${dbUser[field]} they have been frozen and instructed to make a ticket\n<@&${tokens.ModRole}>
+            ${field == "steamId" ? "Steam ID" : "Name"}: ${name}
             Other Accounts:${otherAccounts}   
             `,
             allowedMentions: {roles: [tokens.ModRole]}
         });
         return {
             success: false,
-            message: "There is already a user registered with this name, make a ticket to resolve this issue. You have been frozen"
+            message: `There is already a user registered with this ${field == "steamId" ? "Steam ID" : "name"}, make a ticket to resolve this issue. You have been frozen`
         }
 
     }
@@ -56,7 +64,7 @@ export const handleRegister = async (name: string, user: User, data: Data, guild
     } else {
         return {
             success: true,
-            message: "You have updated your registered name",
+            message: `You have updated your registered ${field == "steamId" ? "Steam ID" : "name"}`,
             flags: MessageFlagsBitField.Flags.Ephemeral
         }
     }

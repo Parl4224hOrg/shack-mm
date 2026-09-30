@@ -18,6 +18,7 @@ import {register} from "../buttons/register";
 import {lateRatioButton} from "../buttons/queue/lateRatio";
 import {reclaimRole} from "../buttons/reclaimRole";
 import {doNotPingToggle} from "../buttons/doNotPingToggle";
+import {registerSteam, steamIdHelpLink} from "../buttons/registerSteam";
 
 
 
@@ -43,7 +44,7 @@ export const SNDFILLReadyView4 = () => {
 
 export const signUpView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(signup.data, p2pToggle.data, register.data).toJSON();
+        .addComponents(signup.data, registerSteam.data, steamIdHelpLink, p2pToggle.data, register.data).toJSON();
 }
 
 export const regionSelectView = () => {
@@ -60,4 +61,3 @@ export const MapTestSignupView = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
         .addComponents(mapTesterToggle.data).toJSON();
 }
-

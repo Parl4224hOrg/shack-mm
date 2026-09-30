@@ -2,7 +2,7 @@ import {SubCommand} from "../../interfaces/Command";
 import {MessageFlagsBitField, SlashCommandStringOption, SlashCommandSubcommandBuilder} from "discord.js";
 import {logError} from "../../loggers";
 import tokens from "../../tokens";
-import UserModel, {UserInt} from "../../database/models/UserModel";
+import UserModel, {getUserGameName, UserInt} from "../../database/models/UserModel";
 import {getEditDistance} from "../../utility/grammatical";
 
 export const findUser: SubCommand = {
@@ -20,13 +20,17 @@ export const findUser: SubCommand = {
             const users: UserInt[] = await UserModel.find();
             const computed: {user: UserInt, value: number}[] = [];
             for (let user of users) {
-                const difference = getEditDistance(name, user.oculusName);
+                const difference = Math.min(
+                    ...[user.oculusName, user.steamId]
+                        .filter((id): id is string => Boolean(id))
+                        .map(id => getEditDistance(name, id))
+                );
                 computed.push({user: user, value: difference});
             }
             computed.sort((a, b) => {return a.value - b.value});
             let choices = "Here are the top matches for the provided name"
             for (let user of computed.slice(0, 10)) {
-                choices += `\n<@${user.user.id}>: ${user.user.oculusName}`;
+                choices += `\n<@${user.user.id}>: ${getUserGameName(user.user)}`;
             }
             await interaction.followUp({flags: MessageFlagsBitField.Flags.Ephemeral, content: choices});
         } catch (e) {

@@ -33,6 +33,7 @@ export const transferUser: SubCommand = {
             newUser.banCounterAbandon = oldUser.banCounterAbandon;
             newUser.banCounterFail = oldUser.banCounterFail;
             newUser.oculusName = oldUser.oculusName;
+            newUser.steamId = oldUser.steamId;
             newUser.dmMatch = oldUser.dmMatch;
             newUser.dmQueue = oldUser.dmQueue;
             newUser.dmAuto = oldUser.dmAuto;

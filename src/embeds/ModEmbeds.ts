@@ -1,6 +1,6 @@
 import {ActionInt, Actions} from "../database/models/ActionModel";
 import {EmbedBuilder, EmbedField} from "discord.js";
-import {UserInt} from "../database/models/UserModel";
+import {getUserGameName, UserInt} from "../database/models/UserModel";
 import moment from "moment";
 
 export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
@@ -30,7 +30,7 @@ export const ActionEmbed = (actions: ActionInt[], user: UserInt) => {
         desc += `User is muted until <t:${user.muteUntil}:R>\n`;
     }
 
-    desc += `Registered Name: ${user.oculusName}`;
+    desc += `Registered Name: ${getUserGameName(user)}`;
 
     let truncatedActions: ActionInt[];
 

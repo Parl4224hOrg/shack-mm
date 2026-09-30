@@ -3,9 +3,10 @@ import {Collection} from "discord.js";
 import {pingMe} from "./pingMe";
 import {register} from "./register";
 import {reRegister} from "./reRegister";
+import {registerSteamModal} from "./registerSteam";
 
 // Create list of all modals
-const modalList: Modal[] = [pingMe, register, reRegister];
+const modalList: Modal[] = [pingMe, register, reRegister, registerSteamModal];
 // Initialize ModalMap
 let ModalMap: Collection<string, Modal> = new Collection<string, Modal>();
 // Map all modals to the map

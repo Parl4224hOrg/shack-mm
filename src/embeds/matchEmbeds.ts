@@ -13,6 +13,7 @@ import {getUserById} from "../modules/getters/getUser";
 import {GameController} from "../controllers/GameController";
 import {Data} from "../data";
 import {MapInt} from "../database/models/MapModel";
+import {getUserGameName} from "../database/models/UserModel";
 
 export const matchFinalEmbed = (game: GameInt, users: GameUserWithStats[], mapData: MapInt) => {
     let teamA = '';
@@ -111,9 +112,9 @@ export const teamsEmbed = async (users: GameUser[], matchNumber: number, queue: 
     for (let user of users) {
         const dbUser = await getUserById(user.dbId, data);
         if (user.team == 0) {
-            teamA += `<@${user.discordId}>:${dbUser.oculusName}\n`
+            teamA += `<@${user.discordId}>:${getUserGameName(dbUser)}\n`
         } else {
-            teamB += `<@${user.discordId}>:${dbUser.oculusName}\n`
+            teamB += `<@${user.discordId}>:${getUserGameName(dbUser)}\n`
         }
     }
 

@@ -20,8 +20,8 @@ export const freeAtNine: SubCommand = {
         try {
             const dbUser = await getUserByUser(interaction.options.getUser('user', true), data);
             // 1. User Registration and Profile Checks
-            if (!dbUser.oculusName) {
-                await interaction.followUp({content: `<@${dbUser.id}> needs to set a name using /register before queueing.`, flags: MessageFlagsBitField.Flags.Ephemeral});
+            if (!dbUser.oculusName && !dbUser.steamId) {
+                await interaction.followUp({content: `<@${dbUser.id}> needs to set a name using /register or a steam id using /register_steam before queueing.`, flags: MessageFlagsBitField.Flags.Ephemeral});
                 return;
             }
             if (!dbUser.region) {
