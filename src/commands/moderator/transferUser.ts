@@ -6,6 +6,7 @@ import {getUserByUser} from "../../modules/getters/getUser";
 import {getStats} from "../../modules/getters/getStats";
 import {updateStats} from "../../modules/updaters/updateStats";
 import {updateUser} from "../../modules/updaters/updateUser";
+import {createNtfyId} from "../../modules/ntfy";
 import ActionModel from "../../database/models/ActionModel";
 import WarnModel from "../../database/models/WarnModel";
 
@@ -50,9 +51,11 @@ export const transferUser: SubCommand = {
             newUser.lates = oldUser.lates;
             newUser.lateTimes = oldUser.lateTimes;
             newUser.referee = oldUser.referee;
+            newUser.ntfyId = oldUser.ntfyId || createNtfyId();
             await updateUser(newUser, data);
 
             oldUser.transferred = true;
+            oldUser.ntfyId = createNtfyId();
             await updateUser(oldUser, data);
 
             // transfer stats

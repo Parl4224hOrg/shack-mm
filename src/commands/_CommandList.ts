@@ -45,12 +45,13 @@ import {resendScores} from "./admin/resend-scores";
 import {reclaimRole} from "./reclaimRole";
 import {doNotPing} from "./doNotPing";
 import {registerSteam} from "./registerSteam";
+import {ntfy} from "./ntfy";
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
     help, checkDms, dmOptions, _mod, _modInfo, serverStatus, late, categoryDelete, ping, fixCDs, unmute, _ref,
     softResetMMR, softResetUser, createMapTest, updateMapTest, restart, removeGame, setFreeStatus, clearCache,
-    testWinrate, removePingMe, config, accept, resendScores, reclaimRole, doNotPing, registerSteam];
+    testWinrate, removePingMe, config, accept, resendScores, reclaimRole, doNotPing, registerSteam, ntfy];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

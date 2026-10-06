@@ -30,6 +30,7 @@ import {updateRanks} from "../utility/ranking";
 import {Data} from "../data";
 import {getUserGameIds, getUserGameName, Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
+import {postNtfyMatchFound} from "../modules/ntfy";
 import {updateUser} from "../modules/updaters/updateUser";
 import {
     getMapData,
@@ -914,32 +915,11 @@ export class GameController {
                     } catch (e) {
                         await logWarn(`Could not dm user -${dbUser.id}`, this.client);
                     }
-                    if (member.id == "339237828053565450") {
-                        try {
-                            await axios.post("https://ntfy.sh/ParlLovesMyBigBoy", "A game has started please accept the game within 3 minutes", {
-                                headers: {
-                                    'Title': 'Match Found!',
-                                    'Click': acceptChannel.url, // Opens Discord directly when clicked
-                                    'Priority': 'high'
-                                }
-                            });
-                        } catch (e) {
-                            await logWarn(`Could not post to ntfy -${dbUser.id}`, this.client);
-                        }
-                    }
-                    if (member.id == "771554052772855858") {
-                        try {
-                            await axios.post("https://ntfy.sh/PlumpLovesParlAndSMMSoMuch", "A game has started please accept the game within 3 minutes", {
-                                headers: {
-                                    'Title': 'Match Found!',
-                                    'Click': acceptChannel.url, // Opens Discord directly when clicked
-                                    'Priority': 'high'
-                                }
-                            });
-                        } catch (e) {
-                            await logWarn(`Could not post to ntfy -${dbUser.id}`, this.client);
-                        }
-                    }
+                }
+                try {
+                    await postNtfyMatchFound(dbUser.ntfyId, acceptChannel.url);
+                } catch (e) {
+                    await logWarn(`Could not post to ntfy -${dbUser.id}`, this.client);
                 }
             }
 

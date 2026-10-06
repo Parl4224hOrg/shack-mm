@@ -42,6 +42,7 @@ export interface UserInt extends Document {
     gamesPlayedSinceLates: number;
     canBeFreed: boolean;
     transferred: boolean;
+    ntfyId: string;
 }
 
 export const UserSchema = new Schema({
@@ -81,6 +82,7 @@ export const UserSchema = new Schema({
     gamesPlayedSinceLates: Number,
     canBeFreed: Boolean,
     transferred: Boolean,
+    ntfyId: String,
 })
 
 /** All game-side identifiers that can identify this user to the server. */

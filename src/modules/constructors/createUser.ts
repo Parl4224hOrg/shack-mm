@@ -1,5 +1,6 @@
 import {GuildMember, PartialGuildMember, User} from "discord.js";
 import UserModel from "../../database/models/UserModel";
+import {createNtfyId} from "../ntfy";
 
 
 export const createUser = async (user: User | GuildMember | PartialGuildMember)=> {
@@ -20,6 +21,7 @@ export const createUser = async (user: User | GuildMember | PartialGuildMember)=
         muteUntil: 1,
         canBeFreed: true,
         transferred: false,
+        ntfyId: createNtfyId(),
     }));
 }
 
@@ -41,5 +43,6 @@ export const createBlankUser = async () => {
         muteUntil: 1,
         canBeFreed: true,
         transferred: false,
+        ntfyId: createNtfyId(),
     }));
 }

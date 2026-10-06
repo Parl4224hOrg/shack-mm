@@ -19,6 +19,7 @@ import {lateRatioButton} from "../buttons/queue/lateRatio";
 import {reclaimRole} from "../buttons/reclaimRole";
 import {doNotPingToggle} from "../buttons/doNotPingToggle";
 import {registerSteam, steamIdHelpLink} from "../buttons/registerSteam";
+import {ntfyButton} from "../buttons/queue/ntfy";
 
 
 
@@ -39,7 +40,7 @@ export const SNDFILLReadyView3 = () => {
 
 export const SNDFILLReadyView4 = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(doNotPingToggle.data).toJSON();
+        .addComponents(doNotPingToggle.data, ntfyButton.data).toJSON();
 }
 
 export const signUpView = () => {

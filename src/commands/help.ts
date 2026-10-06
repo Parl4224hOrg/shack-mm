@@ -34,6 +34,10 @@ export const help: Command = {
                     value: "Displays which players are currently in queue to find a game",
                     inline: false,
                 },{
+                    name: "ntfy",
+                    value: "Gives you a private ntfy topic URL to subscribe to for match-found notifications",
+                    inline: false,
+                },{
                     name: "ping_me",
                     value: "Allows you to tell the bot to ping you when a certain number of players are in queue.\nFor the time option <0 will apply an indefinite ping only removed by bot restarts. 0 will remove your current ping. >1 will apply for the time in minutes provided",
                     inline: false,
