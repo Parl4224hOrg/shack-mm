@@ -14,8 +14,6 @@ const missingNtfyIdQuery = {
 
 export const createNtfyId = (): string => uuidV4();
 
-export const ntfySubscribeUrl = (ntfyId: string): string => `${NTFY_BASE_URL}/${ntfyId}`;
-
 export const ensureNtfyId = async (user: UserInt, data?: Data): Promise<UserInt> => {
     if (user.ntfyId) {
         return user;

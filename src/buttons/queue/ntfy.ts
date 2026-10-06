@@ -3,7 +3,6 @@ import {ButtonBuilder} from "@discordjs/builders";
 import {ButtonStyle, MessageFlagsBitField} from "discord.js";
 import {logError} from "../../loggers";
 import {getUserByUser} from "../../modules/getters/getUser";
-import {ntfySubscribeUrl} from "../../modules/ntfy";
 
 export const ntfyButton: Button = {
     data: new ButtonBuilder()
@@ -15,7 +14,11 @@ export const ntfyButton: Button = {
             const dbUser = await getUserByUser(interaction.user, data);
             await interaction.reply({
                 flags: MessageFlagsBitField.Flags.Ephemeral,
-                content: `Subscribe to this topic in the ntfy app to get match-found notifications:\n${ntfySubscribeUrl(dbUser.ntfyId)}`,
+                content: `Subscribe to this topic in the ntfy app to get match-found notifications:`,
+            });
+            await interaction.followUp({
+                flags: MessageFlagsBitField.Flags.Ephemeral,
+                content: dbUser.ntfyId,
             });
         } catch (e) {
             await logError(e, interaction);
