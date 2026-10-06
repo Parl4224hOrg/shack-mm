@@ -40,7 +40,7 @@ export const SNDFILLReadyView3 = () => {
 
 export const SNDFILLReadyView4 = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(doNotPingToggle.data, ntfyButton.data).toJSON();
+        .addComponents(doNotPingToggle.data).toJSON();
 }
 
 export const signUpView = () => {
