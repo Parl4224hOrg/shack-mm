@@ -20,6 +20,7 @@ import {reclaimRole} from "../buttons/reclaimRole";
 import {doNotPingToggle} from "../buttons/doNotPingToggle";
 import {registerSteam, steamIdHelpLink} from "../buttons/registerSteam";
 import {ntfyButton} from "../buttons/queue/ntfy";
+import {testNtfyNotificationButton} from "../buttons/queue/testNtfyNotification";
 
 
 
@@ -40,7 +41,7 @@ export const SNDFILLReadyView3 = () => {
 
 export const SNDFILLReadyView4 = () => {
     return new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(doNotPingToggle.data, ntfyButton.data).toJSON();
+        .addComponents(doNotPingToggle.data, ntfyButton.data, testNtfyNotificationButton.data).toJSON();
 }
 
 export const signUpView = () => {

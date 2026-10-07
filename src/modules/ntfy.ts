@@ -40,13 +40,19 @@ export const backfillNtfyIds = async (client: Client): Promise<void> => {
     await UserModel.collection.createIndex({ntfyId: 1}, {unique: true, sparse: true});
 };
 
-export const postNtfyMatchFound = async (ntfyId: string, acceptChannelUrl: string): Promise<void> => {
-    await axios.post(`${NTFY_BASE_URL}/${ntfyId}`, "A game has started please accept the game within 3 minutes", {
+export const postNtfyNotification = async (
+    ntfyId: string,
+    message: string,
+    click: string,
+    priority: string,
+    title: string,
+): Promise<void> => {
+    await axios.post(`${NTFY_BASE_URL}/${ntfyId}`, message, {
         timeout: 3_000,
         headers: {
-            Title: "Match Found!",
-            Click: acceptChannelUrl,
-            Priority: "high",
+            Title: title,
+            Click: click,
+            Priority: priority,
         },
     });
 };

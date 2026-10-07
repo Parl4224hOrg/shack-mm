@@ -46,12 +46,13 @@ import {reclaimRole} from "./reclaimRole";
 import {doNotPing} from "./doNotPing";
 import {registerSteam} from "./registerSteam";
 import {ntfy} from "./ntfy";
+import {testNtfyNotification} from "./testNtfyNotification";
 
 const commandList: Command[] = [sync, lfg, prepare, _queue, _ready, unready, pingPlayers, abandon,
     stats, graph, register, ratingChange, pingMe, echo, games, setRequeue, checkBan,
     help, checkDms, dmOptions, _mod, _modInfo, serverStatus, late, categoryDelete, ping, fixCDs, unmute, _ref,
     softResetMMR, softResetUser, createMapTest, updateMapTest, restart, removeGame, setFreeStatus, clearCache,
-    testWinrate, removePingMe, config, accept, resendScores, reclaimRole, doNotPing, registerSteam, ntfy];
+    testWinrate, removePingMe, config, accept, resendScores, reclaimRole, doNotPing, registerSteam, ntfy, testNtfyNotification];
 let CommandMap: Collection<string, Command> = new Collection<string, Command>();
 
 

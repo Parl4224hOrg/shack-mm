@@ -30,7 +30,7 @@ import {updateRanks} from "../utility/ranking";
 import {Data} from "../data";
 import {getUserGameIds, getUserGameName, Regions, UserInt} from "../database/models/UserModel";
 import {getUserById} from "../modules/getters/getUser";
-import {postNtfyMatchFound} from "../modules/ntfy";
+import {postNtfyNotification} from "../modules/ntfy";
 import {updateUser} from "../modules/updaters/updateUser";
 import {
     getMapData,
@@ -917,7 +917,13 @@ export class GameController {
                     }
                 }
                 try {
-                    await postNtfyMatchFound(dbUser.ntfyId, acceptChannel.url);
+                    await postNtfyNotification(
+                        dbUser.ntfyId,
+                        "A game has started please accept the game within 3 minutes",
+                        acceptChannel.url,
+                        "high",
+                        "Match Found!",
+                    );
                 } catch (e) {
                     await logWarn(`Could not post to ntfy -${dbUser.id}`, this.client);
                 }

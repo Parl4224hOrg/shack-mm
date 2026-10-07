@@ -29,12 +29,13 @@ import {manualSubmitIfNotAbandoned} from "./manualSubmitIfNotAbandoned";
 import {freeAtNine} from "./freeAtNine";
 import {adjustMatchScores} from "./adjustMatchScores";
 import {nullifyAfterSubmission} from "./nullifyAfterSubmission";
+import {checkNtfy} from "./checkNtfy";
 
 
 const subCommandListTemp: SubCommand[] = [adjustMMR, changeAbandonCDCounter, changeFailToAcceptCounter, cooldown, easyTime,
     forceAbandon, freeze, nullify, manualSubmitIfAbandoned, manualSubmitIfNotAbandoned,
     refMute, removeCooldown, reverseCooldown, setMMR, setRegion, transferUser, warn, warnings, warnRemove, mute, toggleReferee,
-    freeAtNine, adjustMatchScores, nullifyAfterSubmission];
+    freeAtNine, adjustMatchScores, nullifyAfterSubmission, checkNtfy];
 let SubCommandMap: Collection<string, SubCommand> = new Collection<string, SubCommand>();
 for (let subCommand of subCommandListTemp) {
     SubCommandMap.set(subCommand.name, subCommand);
@@ -69,7 +70,8 @@ export const _mod: Command = {
         .addSubcommand(toggleReferee.data)
         .addSubcommand(freeAtNine.data)
         .addSubcommand(adjustMatchScores.data)
-        .addSubcommand(nullifyAfterSubmission.data),
+        .addSubcommand(nullifyAfterSubmission.data)
+        .addSubcommand(checkNtfy.data),
     run: async (interaction, data) => {
         try {
             const command = SubCommandList.get(interaction.options.getSubcommand())!
